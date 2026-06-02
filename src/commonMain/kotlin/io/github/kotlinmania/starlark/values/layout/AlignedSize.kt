@@ -22,7 +22,6 @@ package io.github.kotlinmania.starlark.values.layout
 import io.github.kotlinmania.starlark.values.layout.heap.AValueHeader
 
 // / Allocations in Starlark are word-aligned, and this type represents the size of an allocation.
-// #[repr(transparent)]
 data class AlignedSize(
     // / Starlark only supports objects smaller than 1<<32.
     // bytes: u32
@@ -32,7 +31,6 @@ data class AlignedSize(
 
     override fun toString(): String = bytes.toString()
 
-    // impl AlignedSize
 
     companion object {
         val ZERO: AlignedSize = AlignedSize(0u)
@@ -40,8 +38,6 @@ data class AlignedSize(
         private val MAX_SIZE: AlignedSize =
             AlignedSize((UInt.MAX_VALUE - AValueHeader.ALIGN.toUInt() + 1u))
 
-        // #[track_caller]
-        // #[inline]
         fun newBytes(bytes: Int): AlignedSize {
             val ubytes = bytes.toUInt()
             require(ubytes % AValueHeader.ALIGN.toUInt() == 0u) {
@@ -53,8 +49,6 @@ data class AlignedSize(
             return AlignedSize(ubytes)
         }
 
-        // #[track_caller]
-        // #[inline]
         fun alignUp(bytes: Int): AlignedSize {
             require(bytes.toUInt() <= MAX_SIZE.bytes) {
                 "AlignedSize must not exceed u32::MAX"
@@ -63,50 +57,38 @@ data class AlignedSize(
             return AlignedSize(aligned)
         }
 
-        // #[inline]
         // Kotlin: No mem::size_of::<T>(). Callers must provide explicit sizes.
         fun of(sizeOfT: Int): AlignedSize = alignUp(sizeOfT)
     }
 
-    // #[inline]
     fun bytes(): UInt = bytes
 
-    // #[inline]
     // Kotlin: No std::alloc::Layout equivalent.
 
-    // #[inline]
     fun checkedNextPowerOfTwo(): AlignedSize? {
         val nextBytes = bytes.checkedNextPowerOfTwo() ?: return null
         return AlignedSize(nextBytes)
     }
 
-    // #[inline]
     fun uncheckedSub(rhs: AlignedSize): AlignedSize {
         check(bytes >= rhs.bytes) { "$this - $rhs" }
         return AlignedSize(bytes - rhs.bytes)
     }
 
-    // #[inline]
     // Kotlin: No raw pointer arithmetic. Not transliterable.
 
-    // #[track_caller]
-    // #[inline]
     operator fun plus(rhs: AlignedSize): AlignedSize {
         val result = bytes.checkedAdd(rhs.bytes)
         checkNotNull(result) { "AlignedSize overflow" }
         return AlignedSize(result)
     }
 
-    // #[track_caller]
-    // #[inline]
     operator fun minus(rhs: AlignedSize): AlignedSize {
         val result = bytes.checkedSub(rhs.bytes)
         checkNotNull(result) { "AlignedSize underflow" }
         return AlignedSize(result)
     }
 
-    // #[track_caller]
-    // #[inline]
     operator fun times(rhs: UInt): AlignedSize {
         val result = bytes.checkedMul(rhs)
         checkNotNull(result) { "AlignedSize overflow" }
@@ -141,28 +123,19 @@ private fun UInt.checkedNextPowerOfTwo(): UInt? {
 }
 
 //
-//     #[test]
 //         assert_eq!(
 //                 .checked_next_power_of_two()
-//                 .unwrap()
 //         );
 //         assert_eq!(
 //                 .checked_next_power_of_two()
-//                 .unwrap()
 //         );
 //         assert_eq!(
 //                 .checked_next_power_of_two()
-//                 .unwrap()
 //         );
 //         assert_eq!(
 //                 .checked_next_power_of_two()
-//                 .unwrap()
 //         );
-//     }
 //
-//     #[test]
 //         assert_eq!(
 //                 - AlignedSize::new_bytes(3 * AValueHeader::ALIGN)
 //         );
-//     }
-// }

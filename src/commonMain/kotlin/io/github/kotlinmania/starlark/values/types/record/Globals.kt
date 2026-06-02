@@ -27,7 +27,6 @@ import io.github.kotlinmania.starlark.values.layout.Value
 import io.github.kotlinmania.starlark.values.types.record.recordtype.RecordTypeGen
 import io.github.kotlinmania.starlark.values.typing.typecompiled.TypeCompiled
 
-// #[starlark_module]
 internal fun registerRecord(builder: GlobalsBuilder) {
     /**
      * A `record` type represents a set of named values, each with their own type.

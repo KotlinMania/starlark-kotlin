@@ -25,14 +25,9 @@ import kotlin.test.Test
 // Test types: In Rust these use #[derive] macros and #[starlark_value].
 // Here we define minimal stubs to capture the test structure.
 
-// impl<'v> StarlarkValue<'v> for AbstractPlant { ... }
 
-// impl<'v> StarlarkValue<'v> for FruitCallable { ... }
 
-// impl<'v> StarlarkValue<'v> for Fruit { ... }
 
-// #[starlark_module]
-// }
 
 class UserTest {
     @Test

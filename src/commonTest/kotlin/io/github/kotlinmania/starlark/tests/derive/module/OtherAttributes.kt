@@ -29,7 +29,6 @@ import io.github.kotlinmania.starlark.environment.MethodsBuilder
 import io.github.kotlinmania.starlark.values.layout.Value
 import io.github.kotlinmania.starlark.values.types.none.NoneType
 
-// #[starlark_module]
 @Suppress("unused")
 private fun testOtherAttributesInGlobals(globals: GlobalsBuilder) {
     globals.setFunction("test_global") { args, _ ->
@@ -39,7 +38,6 @@ private fun testOtherAttributesInGlobals(globals: GlobalsBuilder) {
     }
 }
 
-// #[starlark_module]
 @Suppress("unused")
 private fun testOtherAttributesInMethods(methods: MethodsBuilder) {
     methods.setMethod("test_method") { _, _, _, _ ->
@@ -47,10 +45,8 @@ private fun testOtherAttributesInMethods(methods: MethodsBuilder) {
     }
 }
 
-// #[starlark_module]
 @Suppress("unused")
 private fun testOtherAttributesInAttributes(methods: MethodsBuilder) {
-    // #[starlark(attribute)]
     methods.setAttribute("test_attribute") { _, _ ->
         // TODO(nga): this marker is no-op.
         Result.success(Value.newNone())

@@ -82,7 +82,6 @@ package io.github.kotlinmania.starlark.values.layout.heap
  */
 interface HeapSendable
 
-// }
 
 /**
  * The sync analogue of [HeapSendable].
@@ -92,7 +91,6 @@ interface HeapSendable
  */
 interface HeapSyncable
 
-// }
 
 /**
  * A helper to pass the send-if-static property through `dyn Trait`.

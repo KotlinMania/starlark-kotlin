@@ -103,7 +103,6 @@ class EnumValueGen(
         return tyEnumType.tyEnumValue
     }
 
-    // impl serde::Serialize for EnumValueGen
     // self.value.serialize(serializer)
     fun serialize(serializer: Any): Result<Any> {
         // Delegates serialization to the inner value, passing through the serializer.
@@ -118,7 +117,6 @@ typealias EnumValue = EnumValueGen
 typealias FrozenEnumValue = EnumValueGen
 
 fun enumValueMethods(methods: MethodsBuilder) {
-    // #[starlark(attribute)]
     methods.setAttributeFn(
         name = "index",
         speculativeExecSafe = true,
@@ -129,7 +127,6 @@ fun enumValueMethods(methods: MethodsBuilder) {
         Result.success(Value.newInt(InlineInt.newUnchecked(enumValue.index)))
     }
 
-    // #[starlark(attribute)]
     methods.setAttributeFn(
         name = "value",
         speculativeExecSafe = true,

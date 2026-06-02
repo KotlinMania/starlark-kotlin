@@ -19,12 +19,10 @@ package io.github.kotlinmania.starlark.tests.bc
  * limitations under the License.
  */
 
-// #[test]
 internal fun testFor() {
     bcGoldenTest("for", "def test(x):\n  for i in x:\n    noop(i)")
 }
 
-// #[test]
 internal fun testForBreak() {
     bcGoldenTest(
         "for_break",
@@ -32,7 +30,6 @@ internal fun testForBreak() {
     )
 }
 
-// #[test]
 internal fun testForContinue() {
     bcGoldenTest(
         "for_continue",

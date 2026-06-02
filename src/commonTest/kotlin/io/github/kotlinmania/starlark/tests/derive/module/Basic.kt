@@ -29,9 +29,7 @@ import io.github.kotlinmania.starlark.values.layout.FrozenValue
 import io.github.kotlinmania.starlark.values.layout.Value
 
 // The examples from the starlark_module documentation.
-// #[test]
 internal fun testStarlarkModule() {
-    // #[starlark_module]
     fun global(builder: GlobalsBuilder) {
         builder.setFunction("cc_binary") { args: Arguments, eval: Evaluator ->
             val name = args.positional<String>(0)
@@ -50,9 +48,7 @@ internal fun testStarlarkModule() {
     )
 }
 
-// #[test]
 internal fun testStarlarkMethods() {
-    // #[starlark_module]
     fun methods(builder: MethodsBuilder) {
         builder.setMethod("enum") { eval: Evaluator, thisVal: Value, _: ParametersSpec<FrozenValue>, args: Arguments ->
             val index = args.optionalNamed<Int>("index") ?: 3
@@ -64,9 +60,7 @@ internal fun testStarlarkMethods() {
     MethodsBuilder.new().with(::methods).build()
 }
 
-// #[test]
 internal fun testStaticAllowed() {
-    // #[starlark_module]
     fun globals(globals: GlobalsBuilder) {
         globals.setFunction("test") { _: Arguments, _: Evaluator ->
             throw AssertionError("should not be called")

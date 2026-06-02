@@ -30,8 +30,6 @@ interface SoftErrorHandler {
 
 // / Default handler: warnings are treated as errors.
 internal object HardErrorSoftErrorHandler : SoftErrorHandler {
-    // impl SoftErrorHandler for HardErrorSoftErrorHandler {
     //     Err(error)
-    // }
     override fun softError(category: String, error: Error): Unit = throw error
 }

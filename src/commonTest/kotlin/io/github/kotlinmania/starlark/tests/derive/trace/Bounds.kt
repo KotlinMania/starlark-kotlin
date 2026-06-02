@@ -24,14 +24,12 @@ package io.github.kotlinmania.starlark.tests.derive.trace
 import io.github.kotlinmania.starlark.values.Trace
 import io.github.kotlinmania.starlark.values.layout.heap.Tracer
 
-// #[trace(bound = "A: Trace<'v>, B: 'static")]
 // Kotlin: A doesn't need to be Trace here; the struct itself derives Trace
 // with #[trace(static)] on b and the bound says A: Trace, B: 'static.
 // In Kotlin, we make the struct implement Trace and trace `a` if it is Trace.
 @Suppress("unused")
 private class TestTraceWithBounds<A, B>(
     val a: A,
-    // #[trace(static)]
     val b: B,
 ) : Trace {
     override fun trace(tracer: Tracer) {

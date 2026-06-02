@@ -24,14 +24,11 @@ class UnpackTuple<T>(
     /** Unpacked items. */
     val items: MutableList<T>,
 ) : Iterable<T> {
-    // impl Default for UnpackTuple<T>
     constructor() : this(mutableListOf())
 
     companion object {
-        // impl StarlarkTypeRepr for UnpackTuple<T>
         // Kotlin: type representation deferred to when Ty is fully ported.
 
-        // impl UnpackValue for UnpackTuple<T>
         fun <T> unpackValueImpl(
             value: Any,
             tupleFromValue: (Any) -> List<Any>?,
@@ -47,20 +44,16 @@ class UnpackTuple<T>(
         }
     }
 
-    // impl IntoIterator for UnpackTuple<T>
     override fun iterator(): Iterator<T> = items.iterator()
 
-    // impl PartialEq for UnpackTuple<T>
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other !is UnpackTuple<*>) return false
         return items == other.items
     }
 
-    // impl Hash for UnpackTuple<T>
     override fun hashCode(): Int = items.hashCode()
 
-    // impl Debug for UnpackTuple<T>
     override fun toString(): String = "UnpackTuple(items=$items)"
 }
 

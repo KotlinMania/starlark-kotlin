@@ -27,13 +27,9 @@ import io.github.kotlinmania.starlark.values.layout.FrozenValue
 import io.github.kotlinmania.starlark.values.layout.Value
 
 // / Reference to tuple data in Starlark heap.
-// #[repr(transparent)]
-//     contents: [Value<'v>],
-// }
 class TupleRef(
     private val contents: List<Value>,
 ) {
-    // impl<'v> TupleRef<'v>
 
     // / `type(())`, which is `"tuple"`.
 
@@ -49,7 +45,6 @@ class TupleRef(
     companion object {
         const val TYPE: String = TupleGen.TYPE
 
-        // #[ref_cast_custom]
         private fun new(slice: List<Value>): TupleRef = TupleRef(slice)
 
         // / Downcast a value to a tuple.
@@ -61,19 +56,15 @@ class TupleRef(
         // / Downcast a value to a tuple.
         fun fromFrozenValue(value: FrozenValue): TupleRef? = fromValue(value.toValue())
 
-        // impl<'v> StarlarkTypeRepr for &'v TupleRef<'v>
         fun starlarkTypeRepr(): Ty = Ty.anyTuple()
     }
 }
 
 // / Reference to tuple data in frozen Starlark heap.
-// #[repr(transparent)]
 //     contents: [FrozenValue],
-// }
 class FrozenTupleRef(
     private val contents: List<FrozenValue>,
 ) {
-    // impl FrozenTupleRef
 
     // / Number of elements.
     fun len(): Int = contents.size
@@ -88,7 +79,6 @@ class FrozenTupleRef(
         // / `type(())`, which is `"tuple"`.
         const val TYPE: String = TupleGen.TYPE
 
-        // #[ref_cast_custom]
         private fun new(slice: List<FrozenValue>): FrozenTupleRef = FrozenTupleRef(slice)
 
         // / Downcast a value to a tuple.
@@ -97,15 +87,12 @@ class FrozenTupleRef(
             return new(tuple.content())
         }
 
-        // impl<'a> StarlarkTypeRepr for &'a FrozenTupleRef
         fun starlarkTypeRepr(): Ty = Ty.anyTuple()
     }
 }
 
-// impl<'v> UnpackValue<'v> for &'v TupleRef<'v> {
 fun unpackTupleRef(value: Value): TupleRef? = TupleRef.fromValue(value)
 
-// impl<'v> UnpackValue<'v> for &'v FrozenTupleRef {
 fun unpackFrozenTupleRef(value: Value): FrozenTupleRef? {
     val frozen = value.unpackFrozen() ?: return null
     return FrozenTupleRef.fromFrozenValue(frozen)

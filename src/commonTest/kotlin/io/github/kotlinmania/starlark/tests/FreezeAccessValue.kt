@@ -33,7 +33,6 @@ import io.github.kotlinmania.starlark.values.types.list.allocList
 private class TestFreeze(
     var field: Value,
 ) : Freeze<TestFrozen> {
-    // impl<'v> Freeze for Test<Value<'v>>
     override fun freeze(freezer: Freezer): Result<TestFrozen> {
         val frozenField = field.freeze(freezer).getOrElse { return Result.failure(it) }
         val test = TestFrozen(frozenField)
@@ -48,7 +47,6 @@ private class TestFrozen(
     val field: FrozenValue,
 )
 
-// #[test]
 internal fun testFreezeAccessValue() {
     Heap
         .temp { heap ->

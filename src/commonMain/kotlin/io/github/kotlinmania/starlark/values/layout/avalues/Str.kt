@@ -72,7 +72,6 @@ internal val VALUE_STR_A_VALUE_PTR: AValueHeader by lazy {
     )
 }
 
-// #[inline]
 internal fun starlarkStr(len: Int, hash: StarlarkHashValue): AValueImpl<StarlarkStrAValue> {
     // AValueImpl::<StarlarkStrAValue>::new(unsafe { StarlarkStr::new(len, hash) })
     //   assert!(len as u32 as usize == len, "len overflow");
@@ -111,7 +110,6 @@ internal class StarlarkStrAValue(
     override fun unpack(): StarlarkValue = str
 }
 
-// impl FrozenHeap
 
 /** Allocate a string on this heap. */
 fun FrozenHeap.allocStr(x: String): FrozenStringValue = allocStrIntern(x)
@@ -132,7 +130,6 @@ fun FrozenHeap.allocStrHashed(s: Hashed<String>): FrozenStringValue {
     }
 }
 
-// impl Heap
 
 /** Allocate a string on the heap. */
 @Suppress("EXTENSION_SHADOWED_BY_MEMBER")

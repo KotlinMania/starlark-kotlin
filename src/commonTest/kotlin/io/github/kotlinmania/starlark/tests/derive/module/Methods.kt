@@ -42,10 +42,8 @@ private class Applaud(
 
     override fun starlarkTypeRepr(): Ty = Ty.starlarkValue(TyStarlarkValue.new(TYPE))
 
-    // impl StarlarkValue for Applaud
     override fun getMethods(): Methods? = Companion.methodsStatic.methods(::methods)
 
-    // impl AllocFrozenValue for Applaud
     override fun allocFrozenValue(heap: FrozenHeap): FrozenValue = heap.allocSimple(this)
 
     companion object {
@@ -53,7 +51,6 @@ private class Applaud(
     }
 }
 
-// #[starlark_module]
 private fun methods(builder: MethodsBuilder) {
     builder.setMethod("test_method") { eval, receiver, _, args ->
         val thisParam = args.positional1(eval.heap()).getOrThrow()
@@ -66,7 +63,6 @@ private fun methods(builder: MethodsBuilder) {
     }
 }
 
-// #[test]
 internal fun testReceiverCanBeNamedAnything() {
     val a = Assert()
     a.globalsAdd { g -> g.set("x", Applaud(value = 10)) }

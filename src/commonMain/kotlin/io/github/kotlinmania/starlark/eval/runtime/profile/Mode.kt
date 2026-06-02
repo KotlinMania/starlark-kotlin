@@ -20,7 +20,6 @@ package io.github.kotlinmania.starlark.eval.runtime.profile.mode
  */
 
 /** How to profile starlark code. */
-// #[non_exhaustive]
 enum class ProfileMode {
     /**
      * The heap profile mode provides information about the time spent in each function and allocations
@@ -69,7 +68,6 @@ enum class ProfileMode {
     companion object {
         val ALL: List<ProfileMode> = entries
 
-        // impl FromStr for ProfileMode
         fun fromString(s: String): ProfileMode {
             for (mode in ALL) {
                 if (s == mode.modeName()) return mode

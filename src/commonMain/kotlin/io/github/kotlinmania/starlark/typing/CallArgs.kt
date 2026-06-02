@@ -21,11 +21,6 @@ package io.github.kotlinmania.starlark.typing
 
 import io.github.kotlinmania.starlark.codemap.Spanned
 
-//     pub(crate) pos: Vec<Spanned<Ty>>,
-//     pub(crate) named: Vec<Spanned<(&'a str, Ty)>>,
-//     pub(crate) args: Option<Spanned<Ty>>,
-//     pub(crate) kwargs: Option<Spanned<Ty>>,
-// }
 
 /**
  * Function call arguments with type information.

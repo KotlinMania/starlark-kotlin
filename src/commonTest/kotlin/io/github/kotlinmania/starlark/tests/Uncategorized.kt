@@ -319,7 +319,6 @@ xs[1] += 1
             override fun allocValue(heap: Heap): Value = heap.allocSimple(this)
         }
 
-        // #[starlark_module]
         fun moduleFunctions(builder: GlobalsBuilder) {
             builder.setFunction("select") { args, eval ->
                 val arg =
@@ -425,7 +424,6 @@ assert_eq(names[str], "str")
             }
         }
 
-        // #[starlark_module]
         fun moduleFunctions(builder: GlobalsBuilder) {
             builder.setFunction("rust_failure") { _, _ ->
                 fail3().onFailure {
@@ -796,7 +794,6 @@ bar(["a","b","c"])
             override fun allocValue(heap: Heap): Value = heap.allocComplexNoFreeze(this)
         }
 
-        // #[starlark_module]
         fun moduleFunctions(builder: GlobalsBuilder) {
             builder.setFunction("wrapper") { _, eval ->
                 Result.success(eval.heap().allocComplexNoFreeze(Wrapper()))

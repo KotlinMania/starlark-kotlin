@@ -29,7 +29,6 @@ import kotlin.time.toDuration
 internal class ProfilerInstant private constructor(
     private val value: Long, // millis in test mode, nanos in production
 ) : Comparable<ProfilerInstant> {
-    // impl ProfilerInstant
 
     companion object {
         const val TEST_TICK_MILLIS: Long = 7L
@@ -44,11 +43,8 @@ internal class ProfilerInstant private constructor(
 
         private val epoch: TimeSource.Monotonic.ValueTimeMark = TimeSource.Monotonic.markNow()
 
-        // #[inline]
         fun now(): ProfilerInstant {
             // thread_local! {
-            //     static NOW_MILLIS: std::cell::Cell<u64> = const { std::cell::Cell::new(100003) };
-            // }
             // ProfilerInstant(NOW_MILLIS.with(|v| { let r = v.get(); v.set(r + TEST_TICK_MILLIS); r }))
             return if (testMode) {
                 val r = nowMillis
@@ -62,7 +58,6 @@ internal class ProfilerInstant private constructor(
         }
     }
 
-    // #[inline]
     fun durationSince(earlier: ProfilerInstant): Duration =
         if (testMode) {
             val diffMillis = value - earlier.value
@@ -75,13 +70,11 @@ internal class ProfilerInstant private constructor(
             diffNanos.toDuration(DurationUnit.NANOSECONDS)
         }
 
-    // #[inline]
     fun elapsed(): Duration {
         // self.0.elapsed()
         return now().durationSince(this)
     }
 
-    // #[inline]
     operator fun minus(rhs: ProfilerInstant): Duration = durationSince(rhs)
 
     override fun compareTo(other: ProfilerInstant): Int = value.compareTo(other.value)

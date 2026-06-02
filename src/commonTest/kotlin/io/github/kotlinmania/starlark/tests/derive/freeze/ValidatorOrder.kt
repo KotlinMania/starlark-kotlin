@@ -26,7 +26,6 @@ import io.github.kotlinmania.starlark.values.layout.heap.FrozenHeap
 private class FreezeSentinel(
     val frozen: Boolean,
 ) : Freeze<FreezeSentinel> {
-    // impl Freeze for FreezeSentinel
     override fun freeze(freezer: Freezer): Result<FreezeSentinel> {
         freezer.frozenHeap()
         check(!frozen)
@@ -34,7 +33,6 @@ private class FreezeSentinel(
     }
 }
 
-// #[freeze(validator = check_froze_before_validating)]
 private class ValidatorOrderTest(
     val sentinel: FreezeSentinel,
 ) : Freeze<ValidatorOrderTest> {
@@ -54,7 +52,6 @@ private fun checkFrozeBeforeValidating(test: ValidatorOrderTest): Result<Unit> {
     return Result.success(Unit)
 }
 
-// #[test]
 internal fun testValidatorOrder() {
     val t =
         ValidatorOrderTest(

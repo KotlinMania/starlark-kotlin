@@ -49,9 +49,7 @@ internal fun registerSet(globals: GlobalsBuilder) {
      * # "#);
      * ```
      */
-    // #[starlark(as_type = FrozenSet, speculative_exec_safe,
     //   special_builtin_function = SpecialBuiltinFunction::Set)]
-    //   -> starlark::Result<SetData<'v>>
     globals.setFunction(
         name = "set",
         asType = Ty.starlarkValue(TyStarlarkValue.set()),
@@ -74,7 +72,6 @@ internal fun registerSet(globals: GlobalsBuilder) {
                             data
                         }
                         else -> {
-                            // (set.aref).clone() -- clone the SetData from the SetRef
                             val data = SetData()
                             for (el in setRef.content.iterHashed()) {
                                 data.content.insertHashed(el)

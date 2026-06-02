@@ -36,7 +36,6 @@ private class TypeMatcherFactoryImpl(
     override fun toString(): String = "TypeMatcherFactoryImpl($matcher)"
 }
 
-// }
 internal interface TypeMatcherFactoryDyn {
     fun matcherBox(): TypeMatcherBox
 
@@ -47,7 +46,6 @@ internal interface TypeMatcherFactoryDyn {
 class TypeMatcherFactory internal constructor(
     internal val factory: TypeMatcherFactoryDyn,
 ) {
-    // impl TypeMatcherFactory
 
     companion object {
         /** Create a new [TypeMatcherFactory] from a [TypeMatcher]. */

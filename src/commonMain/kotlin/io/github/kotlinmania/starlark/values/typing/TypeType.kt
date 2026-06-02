@@ -29,11 +29,9 @@ import io.github.kotlinmania.starlark.values.typing.ty.AbstractType
 class TypeType private constructor() :
     StarlarkTypeRepr,
     UnpackValue<TypeType> {
-        // impl StarlarkTypeRepr for TypeType
 
         override fun starlarkTypeRepr(): Ty = AbstractType.starlarkTypeRepr()
 
-        // impl UnpackValue for TypeType
         override fun unpackValueImpl(value: Value): Result<TypeType?> =
             if (value.vtable().hasEvalType) {
                 Result.success(TypeType())

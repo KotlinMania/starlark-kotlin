@@ -19,7 +19,6 @@ package io.github.kotlinmania.starlark.tests.bc
  * limitations under the License.
  */
 
-// #[test]
 internal fun testIfXAndTrue() {
     bcGoldenTest(
         "if_stmt_if_x_and_true",
@@ -27,7 +26,6 @@ internal fun testIfXAndTrue() {
     )
 }
 
-// #[test]
 internal fun testIfXAndFalse() {
     bcGoldenTest(
         "if_stmt_if_x_and_false",
@@ -35,7 +33,6 @@ internal fun testIfXAndFalse() {
     )
 }
 
-// #[test]
 internal fun testIfXOrTrue() {
     bcGoldenTest(
         "if_stmt_if_x_or_true",
@@ -43,7 +40,6 @@ internal fun testIfXOrTrue() {
     )
 }
 
-// #[test]
 internal fun testIfXOrFalse() {
     bcGoldenTest(
         "if_stmt_if_x_or_false",
@@ -51,7 +47,6 @@ internal fun testIfXOrFalse() {
     )
 }
 
-// #[test]
 internal fun testIfTrueAndX() {
     bcGoldenTest(
         "if_stmt_if_true_and_x",
@@ -59,7 +54,6 @@ internal fun testIfTrueAndX() {
     )
 }
 
-// #[test]
 internal fun testIfFalseAndX() {
     bcGoldenTest(
         "if_stmt_if_false_and_x",
@@ -67,7 +61,6 @@ internal fun testIfFalseAndX() {
     )
 }
 
-// #[test]
 internal fun testIfTrueOrX() {
     bcGoldenTest(
         "if_stmt_if_true_or_x",
@@ -75,7 +68,6 @@ internal fun testIfTrueOrX() {
     )
 }
 
-// #[test]
 internal fun testIfFalseOrX() {
     bcGoldenTest(
         "if_stmt_if_false_or_x",
@@ -83,7 +75,6 @@ internal fun testIfFalseOrX() {
     )
 }
 
-// #[test]
 internal fun testIfElseXAndY() {
     bcGoldenTest(
         "if_stmt_if_else_x_and_y",
@@ -91,7 +82,6 @@ internal fun testIfElseXAndY() {
     )
 }
 
-// #[test]
 internal fun testIfElseXOrY() {
     bcGoldenTest(
         "if_stmt_if_else_x_or_y",
@@ -99,12 +89,10 @@ internal fun testIfElseXOrY() {
     )
 }
 
-// #[test]
 internal fun testAndStmt() {
     bcGoldenTest("if_stmt_and_stmt", "def test(x):\n  x and noop()")
 }
 
-// #[test]
 internal fun testOrStmt() {
     bcGoldenTest("if_stmt_or_stmt", "def test(x):\n  x or noop()")
 }

@@ -21,9 +21,6 @@ package io.github.kotlinmania.starlark.values.types
 
 // ! The boolean type (`False` and `True`).
 // !
-// ! Can be created with [`Value::new_bool`](crate::values::Value::new_bool)
-// ! and unwrapped with [`Value::unpack_bool`](crate::values::Value::unpack_bool).
-// ! Unlike most Starlark values, these aren't actually allocated on the [`Heap`](crate::values::Heap),
 // ! but as special values.
 
 

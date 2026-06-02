@@ -32,7 +32,6 @@ import io.github.kotlinmania.starlark.eval.compiler.IrSpanned
 import io.github.kotlinmania.starlark.eval.runtime.FrameSpan
 import io.github.kotlinmania.starlark.syntax.ast.AssignOp
 
-// impl AssignOnWriteBc for AssignOp
 // Extension function on AssignOp
 private fun AssignOp.writeBc(
     v0: BcSlotIn,
@@ -57,7 +56,6 @@ private fun AssignOp.writeBc(
     }
 }
 
-// impl AssignModifyLhs
 
 /** After evaluation of `x[y] += ...`, variables `x` and `y` are definitely assigned. */
 internal fun AssignModifyLhs.markDefinitelyAssignedAfter(bc: BcWriter) {

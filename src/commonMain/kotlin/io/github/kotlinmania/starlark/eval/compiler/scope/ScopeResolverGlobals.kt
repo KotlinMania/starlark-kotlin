@@ -24,13 +24,10 @@ import io.github.kotlinmania.starlark.values.FrozenRef
 import io.github.kotlinmania.starlark.values.layout.FrozenValue
 import io.github.kotlinmania.starlark.values.layout.constFrozenString
 
-//     pub(crate) globals: Option<FrozenRef<'static, Globals>>,
-// }
 internal class ScopeResolverGlobals(
     /** None if unknown. */
     val globals: FrozenRef<Globals>?,
 ) {
-    // impl ScopeResolverGlobals
 
     companion object {
         fun unknown(): ScopeResolverGlobals = ScopeResolverGlobals(globals = null)

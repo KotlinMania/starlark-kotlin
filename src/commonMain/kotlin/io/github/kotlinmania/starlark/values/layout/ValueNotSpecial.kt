@@ -26,7 +26,6 @@ import io.github.kotlinmania.starlark.values.stackGuard
 internal class FrozenValueNotSpecial private constructor(
     private val value: FrozenValue,
 ) {
-    // impl FrozenValueNotSpecial
 
     companion object {
         fun new(value: FrozenValue): FrozenValueNotSpecial? =

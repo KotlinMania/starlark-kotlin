@@ -50,7 +50,6 @@ class ValueTypedComplex<T : ComplexValue, F : StarlarkValue>
         @PublishedApi internal val frozenClass: KClass<F>,
     ) : StarlarkTypeRepr,
         Trace {
-        // impl ValueTypedComplex
 
         companion object {
             /**
@@ -157,7 +156,6 @@ class ValueTypedComplex<T : ComplexValue, F : StarlarkValue>
             tracer.trace(holder)
             value = holder.value
             // If type of value changed, dereference will produce the wrong object type.
-            // debug_assert!(Self::new(self.0).is_some());
         }
 
         fun freeze(freezer: Freezer): Result<FrozenValueTyped<F>> {

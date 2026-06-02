@@ -26,7 +26,6 @@ import io.github.kotlinmania.starlark.values.typing.typecompiled.TypeMatcher
 data class RecordTypeMatcher(
     val id: TypeInstanceId,
 ) : TypeMatcher {
-    // impl TypeMatcher for RecordTypeMatcher
     override fun matches(value: Value): Boolean {
         val record = Record.fromValue(value) ?: return false
         return record.recordTypeId() == id

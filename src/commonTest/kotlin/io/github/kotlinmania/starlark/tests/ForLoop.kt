@@ -21,7 +21,6 @@ package io.github.kotlinmania.starlark.tests
 
 import io.github.kotlinmania.starlark.assert.Assert
 
-// #[test]
 internal fun testForLoopBug1() {
     Assert.pass(
         """

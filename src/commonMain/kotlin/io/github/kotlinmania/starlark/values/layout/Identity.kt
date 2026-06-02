@@ -27,7 +27,6 @@ package io.github.kotlinmania.starlark.values.layout
 data class ValueIdentity internal constructor(
     private val identity: RawPointer,
 ) {
-    // impl ValueIdentity
 
     companion object {
         internal fun new(value: Value): ValueIdentity = ValueIdentity(value.ptrValue())

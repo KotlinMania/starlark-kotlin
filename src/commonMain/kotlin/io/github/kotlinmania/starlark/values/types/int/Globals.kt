@@ -83,11 +83,6 @@ internal fun registerInt(globals: GlobalsBuilder) {
      * # "#, "cannot be represented as exact integer");
      * ```
      */
-    // #[starlark(as_type = PointerI32, speculative_exec_safe)]
-    //     #[starlark(require = pos)] a: Option<ValueOf<'v, Either<Either<NumRef<'v>, bool>, &'v str>>>,
-    //     base: Option<i32>,
-    //     heap: Heap<'v>,
-    // ) -> starlark::Result<ValueOfUnchecked<'v, StarlarkInt>>
     globals.setFunction("int", speculativeExecSafe = true, asType = Ty.int()) { callArgs, eval ->
         val heap = eval.heap()
         val a: Value? = callArgs.optionalPositional(0)

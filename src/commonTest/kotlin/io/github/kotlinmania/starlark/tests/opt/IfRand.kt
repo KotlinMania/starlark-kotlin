@@ -47,7 +47,6 @@ private class CountCalls : AnyLifetime {
     override fun staticTypeOf() = CountCalls::class
 }
 
-// #[starlark_module]
 private fun boolFns(builder: GlobalsBuilder) {
     /** Return `true` and record side effect. */
     builder.setFunction("true") { _, eval ->
@@ -94,7 +93,6 @@ private sealed class TestExpr {
     ) : TestExpr()
 
     /** Binary operation. */
-    // BinOp(TestBinOp, Box<(TestExpr, TestExpr)>)
     class BinOp(
         val op: TestBinOp,
         val lhs: TestExpr,
@@ -102,7 +100,6 @@ private sealed class TestExpr {
     ) : TestExpr()
 
     /** `not` operation. */
-    // Not(Box<TestExpr>)
     class Not(
         val expr: TestExpr,
     ) : TestExpr()
@@ -122,7 +119,6 @@ private sealed class TestExpr {
             is Not -> !expr.eval(count)
         }
 
-    // impl Display for TestExpr
     override fun toString(): String =
         when (this) {
             is Const -> if (value) "True" else "False"
@@ -228,7 +224,6 @@ private fun basicBoolExprs(): List<TestExpr> =
         listOf(TestExpr.Count(x), TestExpr.Const(x))
     }
 
-// #[test]
 internal fun testBasic() {
     testIfs(TestExpr.Const(true))
     testIfs(TestExpr.Const(false))
@@ -240,7 +235,6 @@ internal fun testBasic() {
     testIfs(TestExpr.Not(TestExpr.Count(false)))
 }
 
-// #[test]
 internal fun testAnd() {
     for (lhs in basicBoolExprs()) {
         for (rhs in basicBoolExprs()) {
@@ -249,7 +243,6 @@ internal fun testAnd() {
     }
 }
 
-// #[test]
 internal fun testOr() {
     for (lhs in basicBoolExprs()) {
         for (rhs in basicBoolExprs()) {
@@ -258,7 +251,6 @@ internal fun testOr() {
     }
 }
 
-// #[test]
 internal fun testAndOrNot() {
     for (lhs in basicBoolExprs()) {
         for (rhs in basicBoolExprs()) {
@@ -327,7 +319,6 @@ private fun randomExpr(rng: Random, maxDepth: Int): TestExpr {
     }
 }
 
-// #[test]
 internal fun testIfRandom() {
     val rng = Random(17)
     for (i in 0 until RANDOM_ITERATIONS) {
@@ -337,7 +328,6 @@ internal fun testIfRandom() {
     }
 }
 
-// #[test]
 internal fun testIfElseRandom() {
     val rng = Random(17)
     for (i in 0 until RANDOM_ITERATIONS) {
@@ -347,7 +337,6 @@ internal fun testIfElseRandom() {
     }
 }
 
-// #[test]
 internal fun testExprRandom() {
     val rng = Random(17)
     for (i in 0 until RANDOM_ITERATIONS) {

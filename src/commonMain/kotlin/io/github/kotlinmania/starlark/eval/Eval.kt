@@ -47,7 +47,6 @@ import io.github.kotlinmania.starlark.values.layout.typed.StringValue
 import io.github.kotlinmania.starlark.values.types.allocAny
 import kotlin.time.TimeSource
 
-// --- impl Evaluator ---
 
 /**
  * Evaluate an [AstModule] with this [Evaluator], modifying the in-scope

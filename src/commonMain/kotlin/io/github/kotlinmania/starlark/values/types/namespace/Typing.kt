@@ -35,7 +35,6 @@ import io.github.kotlinmania.starlark.values.typing.typecompiled.TypeMatcher
 import io.github.kotlinmania.starlark.values.typing.typecompiled.TypeMatcherAlloc
 
 internal object NamespaceMatcher : TypeMatcher {
-    // #[type_matcher]
     override fun matches(value: Value): Boolean =
         value.starlarkTypeId() == StarlarkTypeId.of(FrozenNamespace::class)
 }
@@ -120,7 +119,6 @@ data class TyNamespace(
         return 0
     }
 
-    // impl Display for TyNamespace
     override fun toString(): String {
         val items =
             buildList {

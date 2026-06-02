@@ -59,7 +59,6 @@ private fun <K, V> fmtKeyedContainer(
 }
 
 /** Helper: compare two lists element-wise. */
-// crate::values::comparison::equals_slice
 private fun equalsSlice(
     a: List<Value>,
     b: List<Value>,
@@ -75,10 +74,6 @@ private fun equalsSlice(
 }
 
 /** An actual record. */
-// #[repr(C)]
-//     pub(crate) typ: V, // Must be RecordType
-//     pub(crate) values: Box<[V]>,
-// }
 // starlark_complex_value!(pub Record);
 class RecordGen internal constructor(
     internal val typ: Value, // Must be RecordType
@@ -96,13 +91,11 @@ class RecordGen internal constructor(
         fun fromValue(value: Value): RecordGen? = value.downcastRef()
     }
 
-    // impl Display for RecordGen
     override fun toString(): String {
         val name = recordTypeName() ?: "anon"
         return fmtKeyedContainer("record[$name](", ")", "=", iter())
     }
 
-    // impl Freeze for RecordGen
     override fun freeze(freezer: Freezer): Result<RecordGen> {
         val frozenTyp = typ.freeze(freezer).getOrElse { return Result.failure(it) }
         val frozenValues =
@@ -116,7 +109,6 @@ class RecordGen internal constructor(
         )
     }
 
-    // impl RecordGen
 
     private fun getRecordType(): RecordTypeGen {
         // Safe to unwrap because we always ensure typ is RecordType
@@ -135,7 +127,6 @@ class RecordGen internal constructor(
             .keys()
             .zip(values.asSequence())
 
-    // impl StarlarkValue for RecordGen
 
     override fun equals(other: Value): Result<Boolean> {
         val otherRecord = fromValue(other) ?: return Result.success(false)
@@ -164,7 +155,6 @@ class RecordGen internal constructor(
 
     override fun typecheckerTy(): Ty = getRecordType().instanceTy()
 
-    // impl Serialize for RecordGen
     fun serialize(): Map<String, Value> = iter().toMap()
 }
 

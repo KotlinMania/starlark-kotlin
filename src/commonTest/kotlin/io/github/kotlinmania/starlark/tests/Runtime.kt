@@ -62,7 +62,6 @@ assert_eq(y, str(x))
             override fun toString(): String = "Dealloc"
         }
 
-        // #[starlark_module]
         fun globalsFunctions(builder: GlobalsBuilder) {
             builder.setFunction("mk") { _, _ ->
                 Result.success(StarlarkAny.new(Dealloc()))
@@ -90,7 +89,6 @@ r = [y(), mk()]
 
     @Test
     fun testStackDepth() {
-        // #[starlark_module]
         val depthCounter = AtomicInt(0)
 
         fun measureStackFunctions(builder: GlobalsBuilder) {
@@ -136,7 +134,6 @@ v1 + " " + v100 + " " + v1000
     @Test
     fun testGarbageCollectHappens() {
         // GC is meant to be "not observable", but if we break it, we want this test to fail
-        // #[starlark_module]
         fun helpersFunctions(builder: GlobalsBuilder) {
             builder.setFunction("current_usage") { _, eval ->
                 Result.success(eval.heap().allocatedBytes())

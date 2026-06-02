@@ -66,7 +66,6 @@ sealed class ParametersSpecParam<out V> {
         }
 }
 
-// #[repr(C)]
 sealed class ParameterKind<out V> {
     data object Required : ParameterKind<Nothing>()
 
@@ -254,7 +253,6 @@ internal class ParametersSpecBuilder<V>(
  * `*args`/`**kwargs` occur in well-formed locations.
  */
 // V = Value, or FrozenValue
-// #[repr(C)]
 class ParametersSpec<V>(
     /** Only used in error messages */
     internal val functionName: String,

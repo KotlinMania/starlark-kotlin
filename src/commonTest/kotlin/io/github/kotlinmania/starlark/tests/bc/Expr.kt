@@ -21,22 +21,18 @@ package io.github.kotlinmania.starlark.tests.bc
 
 import io.github.kotlinmania.starlark.assert.Assert
 
-// #[test]
 internal fun testType() {
     bcGoldenTest("expr_type", "def test(x): return type(x)")
 }
 
-// #[test]
 internal fun testPercentSOne() {
     bcGoldenTest("expr_percent_s_one", "def test(x): return '((%s))' % x")
 }
 
-// #[test]
 internal fun testFormatOne() {
     bcGoldenTest("expr_format_one", "def test(x): return '(({}))'.format(x)")
 }
 
-// #[test]
 internal fun testPercentSOneFormatOneEval() {
     Assert.pass(
         """
@@ -52,18 +48,15 @@ asserts.eq(("<(1,)>", "<1>"), test((1,)))
     )
 }
 
-// #[test]
 internal fun testSpecExecList() {
     // `list` function is const-evaluated and the resulting list is compiled as list instruction.
     bcGoldenTest("expr_spec_exec_list", "def test(): return list((10, 20))")
 }
 
-// #[test]
 internal fun testCallMaybeKnownMethod() {
     bcGoldenTest("expr_call_maybe_known_method", "def test(x): x.append(1)")
 }
 
-// #[test]
 internal fun testFstring() {
     bcGoldenTest("expr_fstring", "def test(x): return f'test: {x}'")
 }

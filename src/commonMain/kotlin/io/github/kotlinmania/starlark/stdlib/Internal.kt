@@ -30,7 +30,6 @@ import io.github.kotlinmania.starlark.typing.Ty
 import io.github.kotlinmania.starlark.values.layout.Value
 import kotlin.toString
 
-// #[starlark_module]
 private fun starlarkRustInternalMembers(globals: io.github.kotlinmania.starlark.environment.GlobalsBuilder) {
     globals.setFunction("ty_of_value_debug") { args, eval ->
         val value: io.github.kotlinmania.starlark.values.layout.Value =

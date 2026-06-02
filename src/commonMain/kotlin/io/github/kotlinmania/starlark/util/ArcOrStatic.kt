@@ -19,9 +19,6 @@ package io.github.kotlinmania.starlark.util.arcorstatic
  * limitations under the License.
  */
 
-//     Arc(Arc<T>),
-//     Static(&'static T),
-// }
 internal sealed interface Inner<T : Any> {
     data class Arc<T : Any>(
         val value: T,

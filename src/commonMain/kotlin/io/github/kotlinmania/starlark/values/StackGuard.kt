@@ -51,7 +51,6 @@ private val STACK_DEPTH: AtomicInt = AtomicInt(0)
 class StackGuard internal constructor(
     private val prevDepth: Int,
 ) : AutoCloseable {
-    // impl Drop for StackGuard
     override fun close() {
         STACK_DEPTH.store(prevDepth)
     }

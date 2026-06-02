@@ -31,11 +31,9 @@ import io.github.kotlinmania.starlark.values.layout.heap.arena.Reservation
 /** Used to `freeze` values by [Freeze.freeze][io.github.kotlinmania.starlark.values.Freeze.freeze]. */
 class Freezer internal constructor(
     /** Freezing into this heap. */
-    // pub(crate) heap: &'fv FrozenHeap,
     internal val heap: FrozenHeap,
 ) {
     /** Defs frozen by this freezer. */
-    // pub(crate) frozen_defs: RefCell<Vec<FrozenRef<'static, FrozenDef>>>,
     internal val frozenDefs: MutableList<FrozenRef<FrozenDefPostFreeze>> = mutableListOf()
 
     companion object {
@@ -45,9 +43,6 @@ class Freezer internal constructor(
     /** Allocate a new value while freezing. Usually not a great idea. */
     fun <T : AllocFrozenValue> alloc(`val`: T): FrozenValue = `val`.allocFrozenValue(heap)
 
-    //     T: AValue<'v2, ExtraElem = ()>,
-    //     T::StarlarkValue: HeapSendable<'v2>,
-    //     T::StarlarkValue: HeapSyncable<'v2>,
     internal fun <T : AValue> reserve(): Pair<FrozenValue, Reservation<T>> {
         val (fv, r, extra) = heap.reserveWithExtra<T>(0)
         check(extra == Unit) // debug_assert!(extra.is_empty())

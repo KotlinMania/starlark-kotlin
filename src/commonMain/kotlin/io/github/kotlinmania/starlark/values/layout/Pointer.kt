@@ -45,7 +45,6 @@ private const val INT_SHIFT: Int = 64 - 32 // = 32
 private const val INT_DATA_MASK: Long = ((1L shl 32) - 1L) shl INT_SHIFT
 
 /** All possible tag values, three least significant bits of a pointer. */
-// #[repr(usize)]
 internal enum class PointerTags(
     val bits: Int,
 ) {

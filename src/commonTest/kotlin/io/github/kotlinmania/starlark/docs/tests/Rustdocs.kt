@@ -261,7 +261,6 @@ def with_arguments(*args, **kwargs) -> int: pass
     for ((name, expectedItem) in expectedMembers) {
         var item = expectedItem
         if (name == "default_arg") {
-            // `Option<Foo>` args in native functions are special magic and have behavior that can't
             // be replicated with normal functions
             val memberItem = item as? DocItem.Member ?: error("unreachable")
             val funcItem = (memberItem.member as? DocMember.Function) ?: error("unreachable")

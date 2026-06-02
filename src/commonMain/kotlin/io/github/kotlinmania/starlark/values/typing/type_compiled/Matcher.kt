@@ -79,7 +79,6 @@ internal class TypeMatcherBox(
 
     fun clone(): TypeMatcherBox = inner.toBox()
 
-    // #[type_matcher]
     override fun matches(value: Value): Boolean = inner.matchesDyn(value)
 
     override fun isWildcard(): Boolean = inner.isWildcardDyn()

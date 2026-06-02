@@ -182,7 +182,6 @@ internal object IsNone : TypeMatcher {
 }
 
 //     starlark_type_id: StarlarkTypeIdAligned,
-// }
 
 /**
  * Matches a value by its Starlark type id (when available), falling back to name.

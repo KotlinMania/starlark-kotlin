@@ -25,7 +25,6 @@ import io.github.kotlinmania.starlark.values.types.structs.StructRef
 import io.github.kotlinmania.starlark.values.typing.typecompiled.TypeMatcher
 import io.github.kotlinmania.starlark.values.typing.typecompiled.TypeMatcherAlloc
 
-// #[type_matcher]
 private object StructMatcher : TypeMatcher {
     override fun matches(value: Value): Boolean = StructRef.isInstance(value)
 }

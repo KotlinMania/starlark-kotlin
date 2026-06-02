@@ -48,7 +48,6 @@ data class SetGen<T>(
 ) : ComplexValue,
     Trace,
     Freeze<StarlarkValue> {
-    // impl Freeze for SetGen<RefCell<SetData>>
     @Suppress("UNCHECKED_CAST")
     override fun freeze(freezer: Freezer): Result<StarlarkValue> {
         val mutableSelf = this as MutableSet
@@ -68,7 +67,6 @@ data class SetGen<T>(
 
     private fun setLike(): SetLike = inner as SetLike
 
-    // impl StarlarkValue for SetGen<T>
 
     override fun length(): Result<Int> =
         Result.success(setLike().content().len())
@@ -218,7 +216,6 @@ data class SetGen<T>(
 
     override fun getTypeStarlarkRepr(): Ty = Ty.anySet()
 
-    // impl Display for SetGen<T>
     override fun toString(): String = fmtContainer("set([", "])", setLike().content().iter())
 }
 
@@ -375,7 +372,6 @@ class FrozenSetDataSetLike(
     override fun contentUnchecked(): SmallSet<Value> = data.content as SmallSet<Value>
 }
 
-// impl Serialize for SetGen<T>
 fun SetGen<out SetLike>.serialize(): List<Value> = inner.content().iter().toList()
 
 // Register vtable for FrozenSet (special type not handled by #[starlark_value] macro, because V is not ValueLike).

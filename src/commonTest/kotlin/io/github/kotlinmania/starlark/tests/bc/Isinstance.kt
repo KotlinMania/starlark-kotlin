@@ -19,7 +19,6 @@ package io.github.kotlinmania.starlark.tests.bc
  * limitations under the License.
  */
 
-// #[test]
 internal fun testIsinstance() {
     bcGoldenTest("isinstance", "def test(x): return isinstance(x, str)")
 }

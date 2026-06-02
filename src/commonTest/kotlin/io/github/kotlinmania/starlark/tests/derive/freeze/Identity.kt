@@ -58,7 +58,6 @@ private sealed class TestEnum : Freeze<TestEnum> {
     class B(
         val value: NonFreeze,
     ) : TestEnum() {
-        // #[freeze(identity)]
         override fun freeze(freezer: Freezer): Result<TestEnum> {
             freezer.frozenHeap()
             return Result.success(B(value))
@@ -66,7 +65,6 @@ private sealed class TestEnum : Freeze<TestEnum> {
     }
 }
 
-// #[test]
 internal fun testStruct() {
     val t =
         TestStruct(
@@ -78,7 +76,6 @@ internal fun testStruct() {
     t.freeze(freezer).getOrThrow()
 }
 
-// #[test]
 internal fun testAnonStruct() {
     val t = TestUnitStruct("test", NonFreeze(56u))
     val frozenHeap = FrozenHeap()

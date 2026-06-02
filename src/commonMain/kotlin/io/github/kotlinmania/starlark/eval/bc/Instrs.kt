@@ -51,7 +51,6 @@ private fun dropInstrs(instrs: List<Any>) {
     //     assert!(ptr < end);
     //     opcode.drop_in_place(ptr);
     //     ptr = ptr.add(opcode.size_of_repr());
-    // }
 }
 
 // --- Static empty instructions ---
@@ -80,7 +79,6 @@ private fun emptyInstrs(): List<Any> {
     // };
     //         &END_OF_BC as *const BcInstrRepr<_> as *const u64,
     //     )
-    // }
     return listOf(
         BcInstrHeader.forOpcode(BcOpcode.End),
         BcInstrEndArg(),
@@ -101,24 +99,18 @@ private fun emptyInstrs(): List<Any> {
  * one list slot and its corresponding argument occupies the next slot.
  */
 class BcInstrs private constructor(
-    // instrs: Either<Box<[u64]>, &'static [u64]>
     private val instrs: List<Any>,
     internal val stmtLocs: BcStatementLocations,
 ) {
-    //   }
 
     //       match &self.instrs {
-    //       }
-    //   }
     // In Kotlin, GC handles cleanup.
 
     companion object {
         /** Create a default (empty) [BcInstrs] containing only the End instruction. */
         fun default(): BcInstrs = forInstrs(emptyInstrs(), BcStatementLocations.new())
 
-        //     instrs: Either<Box<[u64]>, &'static [u64]>,
         //     stmt_locs: BcStatementLocations,
-        // ) -> Self
 
         /** Create [BcInstrs] from an instruction buffer and statement locations. */
         fun forInstrs(instrs: List<Any>, stmtLocs: BcStatementLocations): BcInstrs = BcInstrs(instrs, stmtLocs)
@@ -272,7 +264,6 @@ class BcInstrs private constructor(
     }
 
     //     self.fmt_impl(f, false)
-    // }
     override fun toString(): String {
         val sb = StringBuilder()
         fmtImpl(sb, false)
@@ -413,7 +404,6 @@ class PatchAddr(
 class BcInstrsWriter {
     internal val instrs: MutableList<Any> = mutableListOf()
 
-    //   }
     // In Kotlin, GC handles cleanup.
 
     companion object {
@@ -449,7 +439,6 @@ class BcInstrsWriter {
         // assert!(mem::size_of_val(&repr).is_multiple_of(mem::size_of::<u64>()));
         // self.instrs.resize(..., 0);
         //     (ip, &(*ptr).arg)
-        // }
         val instrIp = ip()
         instrs.add(header)
         instrs.add(arg)

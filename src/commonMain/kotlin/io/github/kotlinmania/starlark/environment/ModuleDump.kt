@@ -23,7 +23,6 @@ import io.github.kotlinmania.starlark.eval.compiler.FrozenDef
 import io.github.kotlinmania.starlark.values.layout.FrozenValueTyped
 import io.github.kotlinmania.starlark.values.layout.heap.FrozenHeapRef
 
-// impl FrozenModule
 
 /** Print a lot of module internals for debugging. */
 fun FrozenModule.dumpDebug(): String =
@@ -47,7 +46,6 @@ fun FrozenModule.dumpDebug(): String =
         }
     }
 
-// impl FrozenHeapRef
 
 private fun FrozenHeapRef.dumpDebug(): String =
     buildString {

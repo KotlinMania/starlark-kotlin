@@ -65,7 +65,6 @@ internal object CoverageProfileType : ProfilerType<StmtProfileData> {
 }
 
 internal sealed class StmtProfileError : Exception() {
-    // #[error("Statement or coverage profiling is not enabled")]
     data object NotEnabled : StmtProfileError() {
         override val message: String get() = "Statement or coverage profiling is not enabled"
     }

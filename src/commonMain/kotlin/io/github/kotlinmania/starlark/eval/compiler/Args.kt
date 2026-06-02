@@ -113,8 +113,6 @@ internal class ArgsCompiledValue(
      * constant [FrozenValue], or `null` if any argument is not a frozen value.
      */
     //     &self,
-    //     handler: impl FnOnce(&Arguments<'v, '_>) -> R,
-    // ) -> Option<R>
     fun <R> allValues(handler: (Arguments) -> R): R? = allValuesGeneric({ e -> e.asValue()?.toValue() }, handler)
 
     /**
@@ -124,9 +122,6 @@ internal class ArgsCompiledValue(
      * result of [handler] if all conversions succeed, or `null` if any fails.
      */
     //     &self,
-    //     expr_to_value: impl Fn(&ExprCompiled) -> Option<Value<'v>>,
-    //     handler: impl FnOnce(&Arguments<'v, '_>) -> R,
-    // ) -> Option<R>
     fun <R> allValuesGeneric(
         exprToValue: (ExprCompiled) -> Value?,
         handler: (Arguments) -> R,
@@ -166,8 +161,6 @@ internal class ArgsCompiledValue(
      * Names are cloned unchanged. Propagates exceptions thrown by [f].
      */
     //     &self,
-    //     mut f: impl FnMut(&IrSpanned<ExprCompiled>) -> Result<IrSpanned<ExprCompiled>, E>,
-    // ) -> Result<ArgsCompiledValue, E>
     fun <E : Exception> mapExprs(
         f: (IrSpanned<ExprCompiled>) -> IrSpanned<ExprCompiled>,
     ): ArgsCompiledValue =
@@ -197,11 +190,8 @@ internal class ArgsCompiledValue(
  * This is an extension on [Compiler] matching the Rust `impl Compiler` block.
  * Propagates compilation errors via [Result].
  */
-// impl Compiler<'_, '_, '_, '_> {
 //         &mut self,
 //         args: &CallArgsP<CstPayload>,
-//     ) -> Result<ArgsCompiledValue, CompilerInternalError>
-// }
 internal fun Compiler.compileArgs(
     callArgs: CallArgsP<CstPayload>,
 ): Result<ArgsCompiledValue> {

@@ -29,7 +29,6 @@ import io.github.kotlinmania.starlark.values.layout.Value
 import io.github.kotlinmania.starlark.values.layout.heap.Heap
 import io.github.kotlinmania.starlark.values.types.none.NoneType
 
-// #[starlark_module]
 private fun <T, U> globalBuilder(
     globals: GlobalsBuilder,
     defaultT: () -> T,
@@ -42,24 +41,20 @@ private class CustomNone<T> :
     StarlarkTypeRepr,
     AllocValue {
     companion object : StarlarkTypeRepr {
-        // impl<T> StarlarkTypeRepr for CustomNone<T>
         override fun starlarkTypeRepr(): Ty = NoneType.starlarkTypeRepr()
     }
 
     override fun starlarkTypeRepr(): Ty = Companion.starlarkTypeRepr()
 
-    // impl<'v, T> AllocValue<'v> for CustomNone<T>
     override fun allocValue(heap: Heap): Value = Value.newNone()
 }
 
-// #[starlark_module]
 private fun <T, U> methodBuilder(
     builder: MethodsBuilder,
     defaultT: () -> T,
     defaultU: () -> U,
 ) {
     // Just check that this compiles
-    // #[starlark(attribute)]
     builder.setAttribute("test_attribute") { _this, _heap ->
         defaultU().toString()
         defaultT()
@@ -67,7 +62,6 @@ private fun <T, U> methodBuilder(
     }
 }
 
-// #[starlark_module]
 private fun <T, U> globalBuilderForFunc(
     globals: GlobalsBuilder,
     defaultT: () -> T,
@@ -79,7 +73,6 @@ private fun <T, U> globalBuilderForFunc(
     }
 }
 
-// #[test]
 internal fun testGenericBuilder() {
     val a = Assert()
     a.globalsAdd { g ->

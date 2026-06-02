@@ -38,7 +38,6 @@ import io.github.kotlinmania.starlark.values.layout.heap.FrozenHeap
 internal class LocalAsValue(
     val local: LocalSlotId,
 ) : StarlarkValue {
-    // impl<'v> StarlarkValue<'v> for LocalAsValue
 
     override val TYPE: String get() = "LocalAsValue"
 
@@ -58,7 +57,6 @@ internal fun localAsValue(local: LocalSlotId): FrozenValueTyped<LocalAsValue>? {
     return LOCALS.getOrNull(local.index.toInt())
 }
 
-// static LOCALS: Lazy<(FrozenHeapRef, [FrozenValueTyped<'static, LocalAsValue>; 100])>
 private val LOCALS: List<FrozenValueTyped<LocalAsValue>> by lazy {
     val heap = FrozenHeap()
     List(100) { i ->

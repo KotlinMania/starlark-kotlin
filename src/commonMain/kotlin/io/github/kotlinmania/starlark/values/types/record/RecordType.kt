@@ -52,13 +52,9 @@ import io.github.kotlinmania.starlark.values.types.record.RecordTypeMatcher
 import io.github.kotlinmania.starlark.values.types.record.TyRecordData
 import io.github.kotlinmania.starlark.values.typing.typecompiled.TypeMatcherFactory
 
-// #[doc(hidden)]
-// }
 // Kotlin: Abstracted via the frozen flag in RecordTypeGen. See below.
 
-//     #[error("Record instance cannot be created if record type is not assigned to a global variable")]
 //     RecordTypeNotAssigned,
-// }
 private class RecordTypeError private constructor(
     message: String,
 ) : Exception(message) {
@@ -69,10 +65,7 @@ private class RecordTypeError private constructor(
 }
 
 /** The result of `record()`, being the type of records. */
-//     pub(crate) id: TypeInstanceId,
-//     pub(crate) ty_record_data: V::TyRecordDataOpt,
 //     fields: SmallMap<String, FieldGen<V>>,
-// }
 class RecordTypeGen internal constructor(
     internal val id: TypeInstanceId,
     // Kotlin: combined OnceCell (unfrozen) and Option (frozen) into single nullable field.
@@ -85,10 +78,8 @@ class RecordTypeGen internal constructor(
     // Track whether tyRecordData has been initialized (for unfrozen).
     private var tyRecordDataInitialized: Boolean = tyRecordData != null
 
-    // impl Display for RecordTypeGen
     override fun toString(): String = "record(${fields.iter().joinToString(", ") { (k, v) -> "$k=$v" }})"
 
-    // impl Freeze for RecordType
     override fun freeze(freezer: Freezer): Result<RecordTypeGen> {
         val frozenFields =
             freezeSmallMap(
@@ -145,7 +136,6 @@ class RecordTypeGen internal constructor(
                 }.toList(),
         )
 
-    // impl StarlarkValue for RecordTypeGen
     override val TYPE: String get() = FUNCTION_TYPE
     override val HAS_invoke: Boolean get() = true
     override val HAS_eval_type: Boolean get() = true
@@ -271,7 +261,6 @@ class RecordTypeGen internal constructor(
         // Type aliases:
         // Kotlin: Use RecordTypeGen directly; frozen flag distinguishes.
 
-        // impl RecordType::new(...)
         fun new(fields: SmallMap<String, Field>): RecordTypeGen =
             RecordTypeGen(
                 id = TypeInstanceId.gen(),
@@ -282,7 +271,6 @@ class RecordTypeGen internal constructor(
     }
 }
 
-// Rust defines `RecordType<'v>` and `FrozenRecordType` type aliases.
 // Kotlin call sites should use [RecordTypeGen] directly.
 
 internal fun recordFields(x: RecordTypeGen): SmallMap<String, Field> = x.fields
@@ -290,9 +278,7 @@ internal fun recordFields(x: RecordTypeGen): SmallMap<String, Field> = x.fields
 // static RES: MethodsStatic = MethodsStatic::new();
 private val recordTypeMethodsStatic = MethodsStatic()
 
-// #[starlark_module]
 private fun recordTypeMethods(methods: MethodsBuilder) {
-    // #[starlark(attribute)]
     methods.setAttributeFn(
         name = "type",
         speculativeExecSafe = true,

@@ -33,7 +33,6 @@ interface UnpackValueError {
 }
 
 /** [UnpackValueError] impl for [Error]. */
-// impl UnpackValueError for crate::Error
 fun Error.asUnpackValueError(): UnpackValueError =
     object : UnpackValueError {
         override fun intoError(): Error = this@asUnpackValueError
@@ -46,7 +45,6 @@ interface UnpackValueErrorInfallible : UnpackValueError {
 }
 
 /** [UnpackValueError] impl for [Either]. */
-// impl<A: UnpackValueError, B: UnpackValueError> UnpackValueError for Either<A, B>
 class EitherUnpackValueError<A : UnpackValueError, B : UnpackValueError>(
     private val either: Either<A, B>,
 ) : UnpackValueError {
@@ -58,7 +56,6 @@ class EitherUnpackValueError<A : UnpackValueError, B : UnpackValueError>(
 }
 
 /** [UnpackValueErrorInfallible] impl for [Either]. */
-// impl<A: UnpackValueErrorInfallible, B: UnpackValueErrorInfallible> UnpackValueErrorInfallible for Either<A, B>
 class EitherUnpackValueErrorInfallible<A : UnpackValueErrorInfallible, B : UnpackValueErrorInfallible>(
     private val either: Either<A, B>,
 ) : UnpackValueErrorInfallible {
@@ -149,7 +146,6 @@ interface UnpackValue<T> : StarlarkTypeRepr {
 }
 
 /** [UnpackValue] impl for [Value] (identity). */
-// impl<'v> UnpackValue<'v> for Value<'v>
 object ValueUnpackValue : UnpackValue<Value> {
     override fun unpackValueImpl(value: Value): Result<Value?> = Result.success(value)
 
@@ -157,7 +153,6 @@ object ValueUnpackValue : UnpackValue<Value> {
 }
 
 /** [UnpackValue] impl for [Either]. */
-// impl<'v, TLeft: UnpackValue<'v>, TRight: UnpackValue<'v>> UnpackValue<'v> for Either<TLeft, TRight>
 class EitherUnpackValue<TLeft, TRight>(
     private val left: UnpackValue<TLeft>,
     private val right: UnpackValue<TRight>,

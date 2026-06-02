@@ -166,11 +166,9 @@ class FrozenValueTyped<T : StarlarkValue>(
 }
 
 /** Extension for [ValueTyped] wrapping [StarlarkStr]. */
-// impl<'v> ValueTyped<'v, StarlarkStr>
 fun ValueTyped<StarlarkStr>.asStr(): String = asRef().asStr()
 
 /** Extension for [FrozenValueTyped] wrapping [StarlarkStr]. */
-// impl<'v> FrozenValueTyped<'v, StarlarkStr>
 fun FrozenValueTyped<StarlarkStr>.asStr(): String = asRef().asStr()
 
 /** [StarlarkTypeRepr] impl for [ValueTyped]. */

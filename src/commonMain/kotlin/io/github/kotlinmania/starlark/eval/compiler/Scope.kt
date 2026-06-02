@@ -705,18 +705,15 @@ internal fun ClauseP<CstPayload>.visitExprChildrenMut(f: (CstExpr) -> Unit) {
 internal sealed class ScopeError(
     message: String,
 ) : StarlarkError(message) {
-    // #[error("Variable `{0}` not found")]
     class VariableNotFound(
         val name: String,
     ) : ScopeError("Variable `$name` not found")
 
-    // #[error("Variable `{0}` not found, did you mean `{1}`?")]
     class VariableNotFoundDidYouMean(
         val name: String,
         val suggestion: String,
     ) : ScopeError("Variable `$name` not found, did you mean `$suggestion`?")
 
-    // #[error("Identifiers in type expressions can only refer globals or builtins: `{0}`")]
     class TypeExpressionGlobalOrBuiltin(
         val name: String,
     ) : ScopeError("Identifiers in type expressions can only refer globals or builtins: `$name`")

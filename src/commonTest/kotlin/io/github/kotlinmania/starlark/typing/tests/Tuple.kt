@@ -21,7 +21,6 @@ import io.github.kotlinmania.starlark.typing.TypeCheck
  * limitations under the License.
  */
 
-// #[test]
 internal fun testTuple() {
     TypeCheck().check(
         "tuple",
@@ -32,7 +31,6 @@ def empty_tuple_name_fixed() -> tuple: return ()
     )
 }
 
-// #[test]
 internal fun testTupleEllipsis() {
     TypeCheck().check(
         "tuple_ellipsis",

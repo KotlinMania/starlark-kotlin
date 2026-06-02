@@ -33,7 +33,6 @@ import io.github.kotlinmania.starlark.eval.compiler.ParametersCompiled
 import io.github.kotlinmania.starlark.eval.compiler.mapExpr
 import io.github.kotlinmania.starlark.eval.runtime.FrameSpan
 
-// impl DefCompiled
 
 internal fun DefCompiled.markDefinitelyAssignedAfter(bc: BcWriter) {
     // Argument default values and types can be used

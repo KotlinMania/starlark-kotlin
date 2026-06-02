@@ -23,9 +23,7 @@ import io.github.kotlinmania.starlark.collections.SmallMap
 import io.github.kotlinmania.starlark.environment.GlobalsBuilder
 import io.github.kotlinmania.starlark.values.layout.Value
 
-// #[starlark_module]
 fun registerNamespace(builder: GlobalsBuilder) {
-    // #[starlark(ty_custom_function = TyNamespaceFunction, as_type = FrozenNamespace)]
     builder.setFunction("namespace") { args, eval ->
         val heap = eval.heap()
         args.noPositionalArgs(heap).getOrElse { return@setFunction Result.failure<Value>(it) }

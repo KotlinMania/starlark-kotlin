@@ -32,19 +32,15 @@ import io.github.kotlinmania.starlark.values.layout.Value
 // / [`UnpackValue`] implementation verifies the types of entries and discards them.
 //     k: PhantomData<K>,
 //     v: PhantomData<V>,
-// }
 class DictType<K : StarlarkTypeRepr, V : StarlarkTypeRepr> private constructor() {
     companion object {
         fun <K : StarlarkTypeRepr, V : StarlarkTypeRepr> instance(): DictType<K, V> = DictType()
 
-        // impl<K: StarlarkTypeRepr, V: StarlarkTypeRepr> StarlarkTypeRepr for DictType<K, V>
         //         Ty::dict(K::starlark_type_repr(), V::starlark_type_repr())
-        //     }
         inline fun <reified K : StarlarkTypeRepr, reified V : StarlarkTypeRepr> starlarkTypeRepr(): Ty = Ty.dict(K::class.starlarkTypeRepr(), V::class.starlarkTypeRepr())
     }
 }
 
-// impl<'v, K: UnpackValue<'v>, V: UnpackValue<'v>> UnpackValue<'v> for DictType<K, V> {
 fun <K : StarlarkTypeRepr, V : StarlarkTypeRepr> unpackDictType(
     value: Value,
 ): Result<DictType<K, V>?> =

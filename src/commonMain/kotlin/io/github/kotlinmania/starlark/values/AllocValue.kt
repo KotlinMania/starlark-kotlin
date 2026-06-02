@@ -92,13 +92,10 @@ interface AllocStringValue : AllocValue {
     fun allocStringValue(heap: Heap): StringValue
 }
 
-// impl AllocValue for FrozenValue
 fun FrozenValue.allocValue(_heap: Heap): Value = this.toValue()
 
-// impl AllocValue for Value
 fun Value.allocValue(_heap: Heap): Value = this
 
-// impl<A: AllocValue, B: AllocValue> AllocValue for Either<A, B>
 fun <A : AllocValue, B : AllocValue> Either<A, B>.allocValue(heap: Heap): Value =
     when (this) {
         is Either.Left -> {
@@ -112,7 +109,6 @@ fun <A : AllocValue, B : AllocValue> Either<A, B>.allocValue(heap: Heap): Value 
         }
     }
 
-// impl<A: AllocFrozenValue, B: AllocFrozenValue> AllocFrozenValue for Either<A, B>
 fun <A : AllocFrozenValue, B : AllocFrozenValue> Either<A, B>.allocFrozenValue(heap: FrozenHeap): FrozenValue =
     when (this) {
         is Either.Left -> {
@@ -155,5 +151,4 @@ interface AllocFrozenStringValue : AllocFrozenValue {
     fun allocFrozenStringValue(heap: FrozenHeap): FrozenStringValue
 }
 
-// impl AllocFrozenValue for FrozenValue
 fun FrozenValue.allocFrozenValue(_heap: FrozenHeap): FrozenValue = this

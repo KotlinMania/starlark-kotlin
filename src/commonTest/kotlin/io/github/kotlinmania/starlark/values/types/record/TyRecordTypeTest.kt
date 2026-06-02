@@ -24,7 +24,6 @@ import io.github.kotlinmania.starlark.assert.failGolden
 import kotlin.test.Test
 
 class TyRecordTypeTest {
-    // #[test]
     @Test
     fun testGood() {
         Assert.pass(
@@ -38,7 +37,6 @@ foo(MyRec(x = 1))
         )
     }
 
-    // #[test]
     @Test
     fun testFailCompileTime() {
         Assert.failGolden(
@@ -55,7 +53,6 @@ def bar():
         )
     }
 
-    // #[test]
     @Test
     fun testFailRuntimeTime() {
         Assert.failGolden(
@@ -71,7 +68,6 @@ noop(foo)(WrongRec(x = 1))
         )
     }
 
-    // #[test]
     @Test
     fun testRecordInstanceTypecheckerTy() {
         Assert.pass(
@@ -86,7 +82,6 @@ def foo() -> MyRec:
         )
     }
 
-    // #[test]
     @Test
     fun testTypecheckFieldPass() {
         Assert.pass(
@@ -101,7 +96,6 @@ assert_eq(f(MyRec(x = 1, y = 2)), 3)
         )
     }
 
-    // #[test]
     @Test
     fun testTypecheckFieldFail() {
         Assert.failGolden(
@@ -115,7 +109,6 @@ def f(rec: MyRec) -> int:
         )
     }
 
-    // #[test]
     @Test
     fun testTypecheckRecordTypeCall() {
         Assert.failGolden(

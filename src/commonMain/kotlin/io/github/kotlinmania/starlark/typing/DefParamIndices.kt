@@ -29,25 +29,21 @@ data class DefParamIndices(
      * Number of parameters which can be filled positionally.
      * That is, number of parameters before first `*`, `*args` or `**kwargs`.
      */
-    // pub num_positional: u32,
     val numPositional: UInt,
     /**
      * Number of parameters which can only be filled positionally.
      * Always less or equal to `num_positional`.
      */
-    // pub num_positional_only: u32,
     val numPositionalOnly: UInt,
     /**
      * Index of `*args` parameter, if any.
      * If present, equal to `num_positional`.
      */
-    // pub args: Option<u32>,
     val args: UInt? = null,
     /**
      * Index of `**kwargs` parameter, if any.
      * If present, equal to the number of parameters minus 1.
      */
-    // pub kwargs: Option<u32>,
     val kwargs: UInt? = null,
 ) : Comparable<DefParamIndices> {
     fun posOnly(): IntRange = 0 until numPositionalOnly.toInt()

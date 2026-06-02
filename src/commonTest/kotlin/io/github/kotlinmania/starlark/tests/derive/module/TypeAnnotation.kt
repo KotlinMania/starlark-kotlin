@@ -31,16 +31,13 @@ private class Foo : StarlarkValue {
     override fun toString(): String = "foo"
 }
 
-// #[starlark_module]
 private fun typeAnnotationFunctions(globals: GlobalsBuilder) {
-    // #[starlark(as_type = Foo)]
     globals.setFunction("foo", asType = Ty.starlarkValue(TyStarlarkValue.new("Foo"))) { args, _ ->
         val x = args.positional<Int>(0)
         Result.success(x)
     }
 }
 
-// #[test]
 internal fun testTypeAnnotation() {
     val a = Assert()
     a.globalsAdd(::typeAnnotationFunctions)

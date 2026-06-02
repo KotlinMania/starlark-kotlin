@@ -1,0 +1,118 @@
+{
+  "formatVersion": "1.1",
+  "component": {
+    "url": "../../bignum/0.3.10/bignum-0.3.10.module",
+    "group": "com.ionspin.kotlin",
+    "module": "bignum",
+    "version": "0.3.10",
+    "attributes": {
+      "org.gradle.status": "release"
+    }
+  },
+  "createdBy": {
+    "gradle": {
+      "version": "8.9"
+    }
+  },
+  "variants": [
+    {
+      "name": "watchosDeviceArm64ApiElements-published",
+      "attributes": {
+        "artifactType": "org.jetbrains.kotlin.klib",
+        "org.gradle.category": "library",
+        "org.gradle.jvm.environment": "non-jvm",
+        "org.gradle.usage": "kotlin-api",
+        "org.jetbrains.kotlin.native.target": "watchos_device_arm64",
+        "org.jetbrains.kotlin.platform.type": "native"
+      },
+      "dependencies": [
+        {
+          "group": "org.jetbrains.kotlin",
+          "module": "kotlin-stdlib",
+          "version": {
+            "requires": "2.0.0"
+          }
+        },
+        {
+          "group": "org.jetbrains.kotlin",
+          "module": "kotlin-stdlib-common",
+          "version": {
+            "requires": "2.0.0"
+          }
+        }
+      ],
+      "files": [
+        {
+          "name": "bignum.klib",
+          "url": "bignum-watchosdevicearm64-0.3.10.klib",
+          "size": 441982,
+          "sha512": "e1097712bd22b22f471778997af6d66d3af575c82c6add63e9d37295db5ace1405d0cfae5bba58dc592a71953e0dc7e20f8b3bd088a6656d7cae3ee30502cf0b",
+          "sha256": "27150282b18dbf5e45440755449e2b22ceb5f22252dd4af35b267894f57c164e",
+          "sha1": "0a28752109565fc4549afd809dfb8beb9f37e2c7",
+          "md5": "32c812d9e4662b9a7d8eb4bac3c29ba1"
+        }
+      ]
+    },
+    {
+      "name": "watchosDeviceArm64SourcesElements-published",
+      "attributes": {
+        "org.gradle.category": "documentation",
+        "org.gradle.dependency.bundling": "external",
+        "org.gradle.docstype": "sources",
+        "org.gradle.jvm.environment": "non-jvm",
+        "org.gradle.usage": "kotlin-runtime",
+        "org.jetbrains.kotlin.native.target": "watchos_device_arm64",
+        "org.jetbrains.kotlin.platform.type": "native"
+      },
+      "files": [
+        {
+          "name": "bignum-watchosdevicearm64-0.3.10-sources.jar",
+          "url": "bignum-watchosdevicearm64-0.3.10-sources.jar",
+          "size": 88556,
+          "sha512": "eaada361200a24e04cf82c58d55013a35e9c3bc6d1454ad6523ae6c02e8df221499d8c1b9a0eea52a112670b995b1ac1deb0ae197527a01c749188ef10618e19",
+          "sha256": "e4550a62df92b0ceb9de335dc5a47208080ae9a9438fde1886663e48af64ac83",
+          "sha1": "900de070fff44a8fb12be56c7af05130df6a889f",
+          "md5": "6c7fdf350e8200c0cb77a69c265c6296"
+        }
+      ]
+    },
+    {
+      "name": "watchosDeviceArm64MetadataElements-published",
+      "attributes": {
+        "artifactType": "org.jetbrains.kotlin.klib",
+        "org.gradle.category": "library",
+        "org.gradle.jvm.environment": "non-jvm",
+        "org.gradle.usage": "kotlin-metadata",
+        "org.jetbrains.kotlin.native.target": "watchos_device_arm64",
+        "org.jetbrains.kotlin.platform.type": "native"
+      },
+      "dependencies": [
+        {
+          "group": "org.jetbrains.kotlin",
+          "module": "kotlin-stdlib",
+          "version": {
+            "requires": "2.0.0"
+          }
+        },
+        {
+          "group": "org.jetbrains.kotlin",
+          "module": "kotlin-stdlib-common",
+          "version": {
+            "requires": "2.0.0"
+          }
+        }
+      ],
+      "files": [
+        {
+          "name": "bignum-watchosdevicearm64-0.3.10-metadata.jar",
+          "url": "bignum-watchosdevicearm64-0.3.10-metadata.jar",
+          "size": 2854,
+          "sha512": "f8510a70d70e076263ca26ebd892a24ee9796d3b3aeae5c0da7e0bbc8d68cb8c08e448b04df4b7405c039eeaed672343acf21ddf3ae09fb04129022898bc5700",
+          "sha256": "5c37008e6e4da05e7b3f2a43636d92d0d8e881a9b3db01da4015c28d2a90e1aa",
+          "sha1": "0916b463953108418617515d3a40ce6e94b2907e",
+          "md5": "672f9c247d52255c9f41ea30274066e6"
+        }
+      ]
+    }
+  ]
+}

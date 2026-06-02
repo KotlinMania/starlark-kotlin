@@ -47,7 +47,6 @@ class AstLoad(
     val symbols: Map<String, String>,
 )
 
-// }
 data class AstModuleParts(
     val codemap: CodeMap,
     val statement: AstStmt,

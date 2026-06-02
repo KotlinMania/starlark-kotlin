@@ -115,7 +115,6 @@ class BcCallArgsFullCallArgs<S : ArgSymbol>(
         )
     }
 
-    // impl<S: ArgSymbol> BcInstrArg for BcCallArgsFull<S>
     override fun fmtAppend(
         ip: BcAddr,
         endArg: BcInstrEndArg?,

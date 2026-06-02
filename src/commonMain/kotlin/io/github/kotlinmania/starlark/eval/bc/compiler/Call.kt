@@ -51,7 +51,6 @@ import io.github.kotlinmania.starlark.values.types.NativeFunction
 import io.github.kotlinmania.starlark.values.types.getKnownMethod
 import io.github.kotlinmania.starlark.values.typing.typecompiled.TypeCompiled
 
-// impl ArgsCompiledValue
 
 /**
  * After evaluation of function arguments like `foo(a, b=c[d], **e)`,
@@ -84,7 +83,6 @@ private fun ArgsCompiledValue.writeBc(bc: BcWriter, k: (BcCallArgsFull<Symbol>, 
     }
 }
 
-// impl CallCompiled
 
 /**
  * After evaluation of call like `a[b](c.d)`,
@@ -106,7 +104,6 @@ private fun Either<BcCallArgsPos, BcCallArgsFull<Symbol>>.toBcCallArgs(): Any =
         is Either.Right -> BcCallArgsFullCallArgs<Symbol>(value)
     }
 
-// impl IrSpanned<CallCompiled>
 
 private fun writeArgs(
     args: ArgsCompiledValue,

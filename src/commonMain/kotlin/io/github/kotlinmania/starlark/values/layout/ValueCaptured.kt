@@ -35,8 +35,6 @@ import io.github.kotlinmania.starlark.values.layout.heap.Tracer
 import io.github.kotlinmania.starlark.values.layout.heap.ValueHolder
 import kotlin.concurrent.Volatile
 
-// #[repr(transparent)]
-// #[allocative(skip)]
 internal class ValueCaptured private constructor(
     @Volatile private var payload: Value?,
 ) : ComplexValue,
@@ -54,7 +52,6 @@ internal class ValueCaptured private constructor(
         }
     }
 
-    // impl ValueCaptured
     companion object {
         internal fun new(payload: Value?): ValueCaptured {
             if (payload != null) {
@@ -65,7 +62,6 @@ internal class ValueCaptured private constructor(
         }
     }
 
-    // impl ValueCaptured
     internal fun set(value: Value) {
         check(value.downcastRef<ValueCaptured>() == null)
         check(value.downcastRef<FrozenValueCaptured>() == null)
@@ -90,7 +86,6 @@ internal class ValueCaptured private constructor(
     }
 }
 
-// #[repr(transparent)]
 internal class FrozenValueCaptured(
     private val payload: FrozenValue?,
 ) : StarlarkValue {
@@ -101,7 +96,6 @@ internal class FrozenValueCaptured(
     internal fun get(): FrozenValue? = payload
 }
 
-// }
 
 internal fun valueCapturedGet(valueCaptured: Value): Value? {
     val frozen = valueCaptured.unpackFrozen()

@@ -21,7 +21,6 @@ package io.github.kotlinmania.starlark.values.layout
 
 import io.github.kotlinmania.starlark.values.Freeze
 
-// / Implemented by [`Value`](crate::values::Value) and [`FrozenValue`](crate::values::FrozenValue).
 //     Sealed
 //     + Eq
 //     + Copy

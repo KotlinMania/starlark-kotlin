@@ -42,36 +42,29 @@ sealed class FunctionError(
     override val message: String
         get() = text
 
-    // #[error("Found {count} extra positional argument(s) for call to {function}")]
     data class ExtraPositionalArg(
         val count: Int,
         val function: String,
     ) : FunctionError("Found $count extra positional argument(s) for call to $function")
 
-    // #[error("Found `{}` extra named parameter(s) for call to {function}", .names.join("` `"))]
     data class ExtraNamedArg(
         val names: List<String>,
         val function: String,
     ) : FunctionError("Found `${names.joinToString("` `")}` extra named parameter(s) for call to $function")
 
-    // #[error("Argument `{name}` occurs more than once")]
     data class RepeatedArg(
         val name: String,
     ) : FunctionError("Argument `$name` occurs more than once")
 
-    // #[error("The argument provided for *args is not an identifier")]
     data object ArgsValueIsNotString :
         FunctionError("The argument provided for *args is not an identifier")
 
-    // #[error("The argument provided for *args is not iterable")]
     data object ArgsArrayIsNotIterable :
         FunctionError("The argument provided for *args is not iterable")
 
-    // #[error("The argument provided for **kwargs is not a dictionary")]
     data object KwArgsIsNotDict :
         FunctionError("The argument provided for **kwargs is not a dictionary")
 
-    // #[error("Wrong number of positional arguments, expected {}, got {got}",
     //     if min == max {min.to_string()} else {format!("between {min} and {max}")})]
     data class WrongNumberOfArgs(
         val min: Int,
@@ -84,8 +77,6 @@ sealed class FunctionError(
         )
 }
 
-//     }
-// }
 
 /** Convert a [FunctionError] into a [StarlarkError] wrapping it as [ErrorKind.Function]. */
 fun from(e: FunctionError): StarlarkError = StarlarkError.newKind(ErrorKind.Function(e))
@@ -525,11 +516,8 @@ class Arguments(
     }
 }
 
-// impl<'a> Arguments<'static, 'a>
 // Kotlin: No lifetime erasure needed. Arguments does not have a lifetime parameter.
 
-// #[cold]
-// #[inline(never)]
 
 /**
  * Cold path for [Arguments.noNamedArgs]: collects extra named argument names
@@ -566,10 +554,6 @@ private fun bad(x: Arguments): Result<Unit> {
     }
 }
 
-// #[cold]
-// #[inline(never)]
-//     x: &Arguments<'v, '_>, heap: Heap<'v>,
-// ) -> crate::Result<([Value<'v>; REQUIRED], [Option<Value<'v>>; OPTIONAL])>
 
 /**
  * Cold path for [Arguments.optional]: handles the rare case where `*args` is present

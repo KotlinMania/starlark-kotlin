@@ -34,7 +34,6 @@ import io.github.kotlinmania.starlark.values.layout.typed.StringValue
  * Caches frozen string allocations so that identical strings share the same value.
  */
 //     map: HashTable<FrozenStringValue>,
-// }
 internal class FrozenStringValueInterner {
     // HashTable<FrozenStringValue> in Rust.
     // In Kotlin, we use a HashMap keyed by hash+content for O(1) lookup.
@@ -70,8 +69,6 @@ internal class FrozenStringValueInterner {
  *
  * Caches string allocations so that identical strings share the same value.
  */
-//     map: HashTable<StringValue<'v>>,
-// }
 internal class StringValueInterner : Trace {
     // HashTable<StringValue> in Rust.
     // In Kotlin, we use a HashMap keyed by hash for O(1) lookup.

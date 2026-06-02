@@ -38,10 +38,8 @@ import kotlin.reflect.KClass
 // Implementation of iterators for string type.
 
 /** An opaque iterator over a string, produced by elems/codepoints */
-// #[repr(C)]
 //     string: V::String,
 //     produce_char: bool,
-// }
 internal class StringIterableGen(
     val string: StringValue,
     val produceChar: Boolean, // if not char, then int
@@ -84,9 +82,6 @@ internal class StringIterableGen(
     }
 }
 
-//     string: StringValue<'v>,
-//     heap: Heap<'v>,
-// ) -> ValueOfUnchecked<'v, StarlarkIter<String>>
 internal fun iterateChars(
     string: StringValue,
     heap: Heap,
@@ -102,9 +97,6 @@ internal fun iterateChars(
     )
 }
 
-//     string: StringValue<'v>,
-//     heap: Heap<'v>,
-// ) -> ValueOfUnchecked<'v, StarlarkIter<String>>
 internal fun iterateCodepoints(
     string: StringValue,
     heap: Heap,

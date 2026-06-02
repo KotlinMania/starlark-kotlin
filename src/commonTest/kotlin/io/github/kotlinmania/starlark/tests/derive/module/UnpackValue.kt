@@ -36,7 +36,6 @@ private sealed class Either<out L, out R> {
 }
 
 // TODO(nmj): Figure out default values here. ValueOf<i32> = 5 should work.
-// #[starlark_module]
 private fun validateModule(builder: GlobalsBuilder) {
     builder.setFunction("with_int") { args, _ ->
         val v = args.positional<ValueOf<Int>>(0)
@@ -112,7 +111,6 @@ private fun validateModule(builder: GlobalsBuilder) {
 // The standard error these raise on incorrect types
 private const val BAD = "Type of parameter"
 
-// #[test]
 internal fun testValueOf() {
     val a = Assert()
     a.globalsAdd(::validateModule)
@@ -120,7 +118,6 @@ internal fun testValueOf() {
     a.fail("with_int(noop(None))", BAD)
 }
 
-// #[test]
 internal fun testListOf() {
     val a = Assert()
     a.globalsAdd(::validateModule)
@@ -139,7 +136,6 @@ internal fun testListOf() {
     a.eq(expected, test)
 }
 
-// #[test]
 internal fun testDictOf() {
     val a = Assert()
     a.globalsAdd(::validateModule)
@@ -157,7 +153,6 @@ internal fun testDictOf() {
     a.eq(expected2, test2)
 }
 
-// #[test]
 internal fun testEitherOf() {
     val a = Assert()
     a.globalsAdd(::validateModule)

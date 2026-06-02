@@ -24,11 +24,7 @@ import io.github.kotlinmania.starlark.eval.runtime.Evaluator
 import io.github.kotlinmania.starlark.values.layout.Value
 import kotlin.text.iterator
 
-//     mut it: impl Iterator<Item = Value<'v>>,
-//     key: Option<Value<'v>>,
-//     eval: &mut Evaluator<'v, '_, '_>,
 //     min: bool,
-// ) -> crate::Result<Value<'v>>
 
 /**
  * Shared iterator-based implementation for both `min` and `max`.
@@ -67,7 +63,6 @@ private fun minMaxIter(
         null -> {
             // for i in it {
             //     if max.compare(i)? == update_max_ordering { max = i; }
-            // }
             for (i in it) {
                 if (best.compare(i).getOrThrow() == updateMaxOrdering) {
                     best = i
@@ -91,11 +86,7 @@ private fun minMaxIter(
     return best
 }
 
-//     mut args: UnpackTuple<Value<'v>>,
-//     key: Option<Value<'v>>,
-//     eval: &mut Evaluator<'v, '_, '_>,
 //     min: bool,
-// ) -> crate::Result<Value<'v>>
 
 /**
  * Common implementation of `min` and `max`.
@@ -120,7 +111,6 @@ private fun minMax(
     //     min_max_iter(it, key, eval, min)
     // } else {
     //     min_max_iter(args.items.into_iter(), key, eval, min)
-    // }
     return if (args.size == 1) {
         val it = args[0].iterate(eval.heap()).getOrThrow()
         minMaxIter(it, key, eval, min)
@@ -129,7 +119,6 @@ private fun minMax(
     }
 }
 
-// #[starlark_module]
 
 /**
  * Register the `min` and `max` builtin functions with the given [io.github.kotlinmania.starlark.environment.GlobalsBuilder].
@@ -156,11 +145,6 @@ internal fun registerMinMax(globals: io.github.kotlinmania.starlark.environment.
      * max("two", "three", "four", key=len)  == "three"  // the longest
      * ```
      */
-    // #[starlark(speculative_exec_safe)]
-    //     #[starlark(args)] args: UnpackTuple<Value<'v>>,
-    //     key: Option<Value<'v>>,
-    //     eval: &mut Evaluator<'v, '_, '_>,
-    // ) -> starlark::Result<Value<'v>>
     globals.setFunction("max", speculativeExecSafe = true) { callArgs, eval ->
         val args = callArgs.positionalAll()
         val key = callArgs.optionalNamed<io.github.kotlinmania.starlark.values.layout.Value>("key")
@@ -185,11 +169,6 @@ internal fun registerMinMax(globals: io.github.kotlinmania.starlark.environment.
      * min("two", "three", "four", key=len)    == "two"   // the shortest
      * ```
      */
-    // #[starlark(speculative_exec_safe)]
-    //     #[starlark(args)] args: UnpackTuple<Value<'v>>,
-    //     key: Option<Value<'v>>,
-    //     eval: &mut Evaluator<'v, '_, '_>,
-    // ) -> starlark::Result<Value<'v>>
     globals.setFunction("min", speculativeExecSafe = true) { callArgs, eval ->
         val args = callArgs.positionalAll()
         val key = callArgs.optionalNamed<io.github.kotlinmania.starlark.values.layout.Value>("key")

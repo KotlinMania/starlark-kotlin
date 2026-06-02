@@ -32,21 +32,16 @@ import io.github.kotlinmania.starlark.typing.WithDiagnostic
 sealed class TypeExprUnpackError(
     message: String,
 ) : Exception(message) {
-    // #[error("{0} expression is not allowed in type expression")]
     class InvalidType(
         val invalidType: String,
     ) : TypeExprUnpackError("$invalidType expression is not allowed in type expression")
 
-    // #[error("Empty list is not allowed in type expression")]
     class EmptyListInType : TypeExprUnpackError("Empty list is not allowed in type expression")
 
-    // #[error("Only dot expression of form `ident.ident` is allowed in type expression")]
     class DotInType : TypeExprUnpackError("Only dot expression of form `ident.ident` is allowed in type expression")
 
-    // #[error("Expecting path like `a.b.c`")]
     class ExpectingPath : TypeExprUnpackError("Expecting path like `a.b.c`")
 
-    // #[error(r#"`{0}.type` is not allowed in type expression, use `{0}` instead"#)]
     class DotTypeBan(
         val name: String,
     ) : TypeExprUnpackError("`$name.type` is not allowed in type expression, use `$name` instead")
@@ -69,20 +64,17 @@ sealed class TypeExprUnpackP<P : AstPayload, IP> {
     // Ellipsis
     class Ellipsis<P : AstPayload, IP> : TypeExprUnpackP<P, IP>()
 
-    // Path(TypePathP<'a, P>)
     data class Path<P : AstPayload, IP>(
         val path: TypePathP<P, IP>,
     ) : TypeExprUnpackP<P, IP>()
 
     /** `list[str]`. */
-    // Index(&'a AstIdentP<P>, Box<Spanned<TypeExprUnpackP<'a, P>>>)
     data class Index<P : AstPayload, IP>(
         val ident: AstIdentP<P, IP>,
         val index: Spanned<TypeExprUnpackP<P, IP>>,
     ) : TypeExprUnpackP<P, IP>()
 
     /** `dict[str, int]` or `typing.Callable[[int], str]`. */
-    // Index2(Spanned<TypePathP<'a, P>>, Box<Spanned<TypeExprUnpackP<'a, P>>>, Box<Spanned<TypeExprUnpackP<'a, P>>>)
     data class Index2<P : AstPayload, IP>(
         val path: Spanned<TypePathP<P, IP>>,
         val i0: Spanned<TypeExprUnpackP<P, IP>>,
@@ -90,17 +82,14 @@ sealed class TypeExprUnpackP<P : AstPayload, IP> {
     ) : TypeExprUnpackP<P, IP>()
 
     /** List argument in `typing.Callable[[int], str]`. */
-    // List(Vec<Spanned<TypeExprUnpackP<'a, P>>>)
     data class List<P : AstPayload, IP>(
         val items: kotlin.collections.List<Spanned<TypeExprUnpackP<P, IP>>>,
     ) : TypeExprUnpackP<P, IP>()
 
-    // Union(Vec<Spanned<TypeExprUnpackP<'a, P>>>)
     data class Union<P : AstPayload, IP>(
         val xs: kotlin.collections.List<Spanned<TypeExprUnpackP<P, IP>>>,
     ) : TypeExprUnpackP<P, IP>()
 
-    // Tuple(Vec<Spanned<TypeExprUnpackP<'a, P>>>)
     data class Tuple<P : AstPayload, IP>(
         val xs: kotlin.collections.List<Spanned<TypeExprUnpackP<P, IP>>>,
     ) : TypeExprUnpackP<P, IP>()

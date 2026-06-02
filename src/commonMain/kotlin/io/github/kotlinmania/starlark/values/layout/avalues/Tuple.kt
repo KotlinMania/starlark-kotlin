@@ -76,7 +76,6 @@ internal object AValueFrozenTuple : AValue {
     override fun unpack(): StarlarkValue = TupleGen<FrozenValue>(emptyList())
 }
 
-// impl FrozenHeap
 
 /** Allocate a tuple with the given elements on this heap. */
 fun FrozenHeap.allocTuple(elems: List<FrozenValue>): FrozenValue {
@@ -93,7 +92,6 @@ fun FrozenHeap.allocTupleIter(elems: Iterable<FrozenValue>): FrozenValue {
     return allocTuple(list)
 }
 
-// impl Heap
 
 /** Allocate a tuple with the given elements. */
 fun Heap.allocTuple(elems: List<Value>): Value {

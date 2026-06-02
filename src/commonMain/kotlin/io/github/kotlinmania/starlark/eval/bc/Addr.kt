@@ -33,7 +33,6 @@ data class BcAddr(
 
     override fun compareTo(other: BcAddr): Int = value.compareTo(other.value)
 
-    // impl BcAddr
 
     fun offsetFrom(start: BcAddr): BcAddrOffset {
         require(this >= start)

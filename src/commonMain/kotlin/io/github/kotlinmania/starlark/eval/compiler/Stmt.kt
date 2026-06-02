@@ -68,7 +68,6 @@ import io.github.kotlinmania.starlark.values.typing.typecompiled.TypeCompiled
 //     Local(IrSpanned<LocalSlotId>),
 //     LocalCaptured(IrSpanned<LocalCapturedSlotId>),
 //     Module(IrSpanned<ModuleSlotId>),
-// }
 internal sealed class AssignModifyLhs {
     data class Dot(
         val expr: IrSpanned<ExprCompiled>,
@@ -93,7 +92,6 @@ internal sealed class AssignModifyLhs {
     ) : AssignModifyLhs()
 }
 
-// impl AssignModifyLhs
 internal fun AssignModifyLhs.optimize(ctx: OptCtx): AssignModifyLhs =
     when (this) {
         is AssignModifyLhs.Dot -> AssignModifyLhs.Dot(expr.optimize(ctx), name)
@@ -106,13 +104,9 @@ internal fun AssignModifyLhs.optimize(ctx: OptCtx): AssignModifyLhs =
 //     PossibleGc,
 //     Return(IrSpanned<ExprCompiled>),
 //     Expr(IrSpanned<ExprCompiled>),
-//     Assign(IrSpanned<AssignCompiledValue>, Option<IrSpanned<TypeCompiled>>, IrSpanned<ExprCompiled>),
 //     AssignModify(AssignModifyLhs, AssignOp, IrSpanned<ExprCompiled>),
-//     If(Box<(IrSpanned<ExprCompiled>, StmtsCompiled, StmtsCompiled)>),
-//     For(Box<(IrSpanned<AssignCompiledValue>, IrSpanned<ExprCompiled>, StmtsCompiled)>),
 //     Break,
 //     Continue,
-// }
 internal sealed class StmtCompiled {
     data object PossibleGc : StmtCompiled()
 
@@ -153,7 +147,6 @@ internal sealed class StmtCompiled {
     data object Continue : StmtCompiled()
 }
 
-// impl IrSpanned<StmtCompiled>
 internal fun IrSpanned<StmtCompiled>.optimize(ctx: OptCtx): StmtsCompiled {
     val span = this.span
     return when (val s = this.node) {
@@ -206,17 +199,11 @@ internal fun IrSpanned<StmtCompiled>.optimize(ctx: OptCtx): StmtsCompiled {
     }
 }
 
-//     pub(crate) has_return_type: bool,
-// }
 internal data class StmtCompileContext(
     /** Current function has return type. */
     val hasReturnType: Boolean = false,
 )
 
-//     pub(crate) module: &'a FrozenModuleData,
-//     pub(crate) heap: Heap<'v>,
-//     pub(crate) frozen_heap: &'a FrozenHeap,
-// }
 internal class OptimizeOnFreezeContext(
     internal val module: FrozenModuleData,
     /**
@@ -404,9 +391,7 @@ internal class StmtsCompiled(
     }
 }
 
-//     #[error("Unpacked {1} values but expected {0}")]
 //     IncorrectNumberOfValueToUnpack(i32, i32),
-// }
 internal class AssignError {
     class IncorrectNumberOfValueToUnpack(
         expected: Int,
@@ -416,11 +401,9 @@ internal class AssignError {
 
 //     Dot(IrSpanned<ExprCompiled>, String),
 //     Index(IrSpanned<ExprCompiled>, IrSpanned<ExprCompiled>),
-//     Tuple(Vec<IrSpanned<AssignCompiledValue>>),
 //     Local(LocalSlotId),
 //     LocalCaptured(LocalCapturedSlotId),
 //     Module(ModuleSlotId, String),
-// }
 internal sealed class AssignCompiledValue {
     data class Dot(
         val obj: IrSpanned<ExprCompiled>,
@@ -450,7 +433,6 @@ internal sealed class AssignCompiledValue {
     ) : AssignCompiledValue()
 }
 
-// impl AssignCompiledValue
 
 /** Assignment to a local non-captured variable. */
 internal fun AssignCompiledValue.asLocalNonCaptured(): LocalSlotId? =
@@ -459,7 +441,6 @@ internal fun AssignCompiledValue.asLocalNonCaptured(): LocalSlotId? =
         else -> null
     }
 
-// impl IrSpanned<AssignCompiledValue>
 internal fun IrSpanned<AssignCompiledValue>.optimize(ctx: OptCtx): IrSpanned<AssignCompiledValue> {
     val span = this.span
     val assign =
@@ -598,7 +579,6 @@ internal fun addAssign(lhs: Value, rhs: Value, heap: Heap): Result<Value> {
     }
 }
 
-// impl Compiler
 
 internal fun Compiler.compileContext(hasReturnType: Boolean): StmtCompileContext = StmtCompileContext(hasReturnType = hasReturnType)
 

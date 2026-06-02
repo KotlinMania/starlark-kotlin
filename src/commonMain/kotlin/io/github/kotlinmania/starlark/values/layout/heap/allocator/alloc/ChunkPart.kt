@@ -26,7 +26,6 @@ import io.github.kotlinmania.starlark.values.layout.heap.allocator.alloc.chunk.C
 //     allocation: Chunk,
 //     begin: AlignedSize,
 //     end: AlignedSize,
-// }
 internal class ChunkPart(
     internal val allocation: Chunk,
     /** Offset from the chunk data. */
@@ -35,7 +34,6 @@ internal class ChunkPart(
     private val end: AlignedSize,
 ) {
     companion object {
-        // impl Default for ChunkPart
         fun default(): ChunkPart =
             ChunkPart(
                 allocation = Chunk.default(),
@@ -100,7 +98,6 @@ internal class ChunkPart(
 
     fun chunkPtrEq(other: ChunkPart): Boolean = allocation.ptrEq(other.allocation)
 
-    // impl PartialEq for ChunkPart
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other !is ChunkPart) return false
@@ -114,7 +111,6 @@ internal class ChunkPart(
         return result
     }
 
-    // impl Debug for ChunkPart
     override fun toString(): String = "ChunkPart(begin=$begin, end=$end)"
 }
 

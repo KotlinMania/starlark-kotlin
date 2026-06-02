@@ -55,7 +55,6 @@ import io.github.kotlinmania.starlark.values.typing.typecompiled.TypeCompiled
 internal sealed class FunctionError(
     message: String,
 ) : Exception(message) {
-    // #[error("`tuple[]` is implemented only for `tuple[T, ...]`")]
     // TupleOnlyEllipsis
     class TupleOnlyEllipsis : FunctionError("`tuple[]` is implemented only for `tuple[T, ...]`")
 }
@@ -244,7 +243,6 @@ internal class BoundMethodGen<V>(
     val thisValue: V,
 ) : ComplexValue,
     Freeze<BoundMethodGen<FrozenValue>> {
-    // starlark_complex_value!(pub(crate) BoundMethod)
     // Generated type aliases:
 
     override val TYPE: String get() = FUNCTION_TYPE
@@ -276,6 +274,5 @@ internal class BoundMethodGen<V>(
     }
 }
 
-// starlark_complex_value!(pub(crate) BoundMethod) generates:
 internal typealias BoundMethod = BoundMethodGen<Value>
 internal typealias FrozenBoundMethod = BoundMethodGen<FrozenValue>

@@ -23,7 +23,6 @@ import io.github.kotlinmania.starlark.assert.Assert
 import io.github.kotlinmania.starlark.environment.GlobalsBuilder
 import io.github.kotlinmania.starlark.values.layout.avalues.str.allocStrConcat
 
-// #[starlark_module]
 private fun functions(builder: GlobalsBuilder) {
     builder.setFunction("non_standard_heap_name") { args, eval ->
         val heapParam = args.positional<String>(0)
@@ -32,7 +31,6 @@ private fun functions(builder: GlobalsBuilder) {
     }
 }
 
-// #[test]
 internal fun testNonStandardParamNames() {
     val a = Assert()
     a.globalsAdd(::functions)

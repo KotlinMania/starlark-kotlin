@@ -38,7 +38,6 @@ import kotlin.test.assertTrue
 import io.github.kotlinmania.starlark.values.types.bigint.allocValue as intAllocValue
 
 class ValueTest {
-    // #[test]
     @Test
     fun testDowncastRef() {
         Heap.temp { heap ->
@@ -65,7 +64,6 @@ class ValueTest {
         }
     }
 
-    // #[test]
     @Test
     fun testUnpackI32() {
         Heap.temp { heap ->
@@ -74,14 +72,12 @@ class ValueTest {
         }
     }
 
-    // #[test]
     @Test
     fun testUnpackFrozen() {
         assertNotNull(Value.newNone().unpackFrozen())
         assertNotNull(Value.testingNewInt(10).unpackFrozen())
     }
 
-    // #[test]
     @Test
     fun testUnpackBigInt() {
         Heap.temp { heap ->
@@ -94,7 +90,6 @@ class ValueTest {
         }
     }
 
-    // #[test]
     // Note: This test requires assert::pass which evaluates Starlark code.
     // The JSON serialization in Kotlin currently uses repr() as fallback,
     // so we test the basic mechanism rather than exact JSON output.
@@ -105,7 +100,6 @@ class ValueTest {
         assertTrue(json.isSuccess, "toJson should succeed")
     }
 
-    // #[test]
     @Test
     fun testDisplayForTypeError() {
         assertEquals(
@@ -131,7 +125,6 @@ class ValueTest {
         }
     }
 
-    // #[test]
     @Test
     fun testCheckCallableWithNone() {
         val result =
@@ -146,7 +139,6 @@ class ValueTest {
         )
     }
 
-    // #[test]
     @Test
     fun testCheckCallableWithGoodFunction() {
         val g = Globals.standard()

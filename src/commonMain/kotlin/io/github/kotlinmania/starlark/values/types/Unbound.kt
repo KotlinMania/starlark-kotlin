@@ -34,18 +34,15 @@ import io.github.kotlinmania.starlark.values.layout.heap.Heap
 /** A value or an unbound method or unbound attribute. */
 internal sealed class UnboundValue {
     /** A method with `this` unbound. */
-    // Method(FrozenValueTyped<'static, NativeMethod>)
     class Method(
         val method: FrozenValueTyped<NativeMethod>,
     ) : UnboundValue()
 
     /** An attribute with `this` unbound. */
-    // Attr(FrozenValueTyped<'static, NativeAttribute>)
     class Attr(
         val attr: FrozenValueTyped<NativeAttribute>,
     ) : UnboundValue()
 
-    // impl Debug for UnboundValue
     override fun toString(): String = "MaybeUnboundValue(..)"
 
     fun toFrozenValue(): FrozenValue =

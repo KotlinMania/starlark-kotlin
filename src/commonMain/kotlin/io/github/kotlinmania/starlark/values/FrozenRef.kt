@@ -68,7 +68,6 @@ class FrozenRef<T> internal constructor(
 
     fun borrow(): T = value
 
-    // Rust has a second `Borrow` impl for `FrozenRef<Box<T>>` (same method name).
     @Suppress("UNUSED_PARAMETER")
     fun borrow(boxed: Any?): T {
         boxed?.hashCode()

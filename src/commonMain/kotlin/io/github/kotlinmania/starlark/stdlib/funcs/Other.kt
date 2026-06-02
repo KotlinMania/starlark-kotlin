@@ -162,7 +162,6 @@ private fun dir(x: Value): List<String> = x.dirAttr()
  * @param heap The active heap for allocating tuples.
  * @return A list of (index, value) tuples.
  */
-//     -> starlark::Result<impl AllocValue<'v>>
 private fun enumerate(it: Value, start: Int, heap: Heap): Value {
     val iter = it.iterate(heap).getOrThrow()
     val result = mutableListOf<Value>()
@@ -195,7 +194,6 @@ private fun enumerate(it: Value, start: Int, heap: Heap): Value {
  * @param heap The active heap.
  * @return The value of the attribute, or [default] if provided and the attribute is missing.
  */
-//     -> starlark::Result<Value<'v>>
 private fun getattr(a: Value, attr: String, default: Value?, heap: Heap): Value {
     val v = a.getAttr(attr, heap).getOrThrow()
     if (v != null) {
@@ -312,7 +310,6 @@ private fun len(a: Value): Int = a.length().getOrThrow()
  * @param heap The active heap.
  * @return A new list with elements in reverse order.
  */
-//     -> starlark::Result<Vec<Value<'v>>>
 private fun reversed(a: Value, heap: Heap): Value {
     val iter = a.iterate(heap).getOrThrow()
     val v = iter.asSequence().toMutableList()
@@ -349,7 +346,6 @@ private fun reversed(a: Value, heap: Heap): Value {
  */
 // This function is not spec-safe, because it may call `key` function
 // which might be not spec-safe.
-//     reverse: bool, eval: &mut Evaluator<'v, '_, '_>) -> starlark::Result<AllocList<...>>
 private fun sorted(x: Value, key: Value?, reverse: Boolean, eval: Evaluator): Value {
     val heap = eval.heap()
     val it = x.iterate(heap).getOrThrow()
@@ -405,7 +401,6 @@ private fun sorted(x: Value, key: Value?, reverse: Boolean, eval: Evaluator): Va
  */
 private fun type(a: Value): FrozenStringValue = a.getTypeValue()
 
-// #[starlark_module]
 
 /**
  * Register the standard functions (`fail`, `any`, `all`, `dir`, `enumerate`,
@@ -417,32 +412,27 @@ internal fun registerOther(globals: GlobalsBuilder) {
         fail(callArgs.positionalAll())
     }
 
-    // #[starlark(speculative_exec_safe)]
     globals.setFunction("any", speculativeExecSafe = true) { callArgs, eval ->
         val x = callArgs.positional<Value>(0)
         any(x, eval.heap()).allocValue(eval.heap())
     }
 
-    // #[starlark(speculative_exec_safe)]
     globals.setFunction("all", speculativeExecSafe = true) { callArgs, eval ->
         val x = callArgs.positional<Value>(0)
         all(x, eval.heap()).allocValue(eval.heap())
     }
 
-    // #[starlark(speculative_exec_safe)]
     globals.setFunction("dir", speculativeExecSafe = true) { callArgs, eval ->
         val x = callArgs.positional<Value>(0)
         eval.heap().allocList(dir(x).map { eval.heap().allocStr(it) })
     }
 
-    // #[starlark(speculative_exec_safe)]
     globals.setFunction("enumerate", speculativeExecSafe = true) { callArgs, eval ->
         val it = callArgs.positional<Value>(0)
         val start = callArgs.optionalPositional<Int>(1) ?: 0
         enumerate(it, start, eval.heap())
     }
 
-    // #[starlark(speculative_exec_safe)]
     globals.setFunction("getattr", speculativeExecSafe = true) { callArgs, eval ->
         val a = callArgs.positional<Value>(0)
         val attr = callArgs.positional<String>(1)
@@ -450,26 +440,22 @@ internal fun registerOther(globals: GlobalsBuilder) {
         getattr(a, attr, default, eval.heap())
     }
 
-    // #[starlark(speculative_exec_safe)]
     globals.setFunction("hasattr", speculativeExecSafe = true) { callArgs, eval ->
         val a = callArgs.positional<Value>(0)
         val attr = callArgs.positional<String>(1)
         hasattr(a, attr, eval.heap()).allocValue(eval.heap())
     }
 
-    // #[starlark(speculative_exec_safe)]
     globals.setFunction("hash", speculativeExecSafe = true) { callArgs, eval ->
         val a = callArgs.positional<String>(0)
         hash(a).allocValue(eval.heap())
     }
 
-    // #[starlark(speculative_exec_safe)]
     globals.setFunction("len", speculativeExecSafe = true) { callArgs, eval ->
         val a = callArgs.positional<Value>(0)
         len(a).allocValue(eval.heap())
     }
 
-    // #[starlark(speculative_exec_safe)]
     globals.setFunction("reversed", speculativeExecSafe = true) { callArgs, eval ->
         val a = callArgs.positional<Value>(0)
         reversed(a, eval.heap())
@@ -477,7 +463,6 @@ internal fun registerOther(globals: GlobalsBuilder) {
 
     // This function is not spec-safe, because it may call `key` function
     // which might be not spec-safe.
-    //     reverse: bool, eval: &mut Evaluator<'v, '_, '_>)
     globals.setFunction("sorted") { callArgs, eval ->
         val x = callArgs.positional<Value>(0)
         val key = callArgs.optionalNamed<Value>("key")
@@ -485,7 +470,6 @@ internal fun registerOther(globals: GlobalsBuilder) {
         sorted(x, key, reverse, eval)
     }
 
-    // #[starlark(speculative_exec_safe, as_type = AbstractType)]
     globals.setFunction(
         "type",
         speculativeExecSafe = true,

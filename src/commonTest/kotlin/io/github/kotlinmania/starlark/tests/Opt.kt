@@ -23,7 +23,6 @@ import io.github.kotlinmania.starlark.tests.bc.bcGoldenTest
 
 /** Optimizer tests. */
 
-// #[test]
 internal fun testTypeIsInlined() {
     bcGoldenTest(
         "opt_type_is_inlined",
@@ -37,7 +36,6 @@ def test(x):
     )
 }
 
-// #[test]
 internal fun testPrivateForwardMutableModuleVarsInlined() {
     bcGoldenTest(
         "opt_private_forward_mutable_module_vars_inlined",
@@ -51,7 +49,6 @@ _private_forward_mutable = {1: 2}
     )
 }
 
-// #[test]
 internal fun testSameModuleStructGetattrInlined() {
     bcGoldenTest(
         "opt_same_module_struct_getattr_inlined",
@@ -64,7 +61,6 @@ _s = struct(f = 1)
     )
 }
 
-// #[test]
 internal fun testListPlusList() {
     bcGoldenTest(
         "opt_list_plus_list",
@@ -77,7 +73,6 @@ def test():
     )
 }
 
-// #[test]
 internal fun testEmptyIterableOptimizedAway() {
     bcGoldenTest(
         "opt_empty_iterable_optimized_away",
@@ -90,7 +85,6 @@ def test():
     )
 }
 
-// #[test]
 internal fun testUnreachableCodeOptimizedAway() {
     bcGoldenTest(
         "opt_unreachable_code_optimized_away",
@@ -103,7 +97,6 @@ def test():
     )
 }
 
-// #[test]
 internal fun testRecursion() {
     bcGoldenTest(
         "opt_recursion",
@@ -112,7 +105,6 @@ internal fun testRecursion() {
     )
 }
 
-// #[test]
 internal fun testMutualRecursion() {
     // Just check we do not enter an infinite recursion in the optimizer here.
     bcGoldenTest(

@@ -29,7 +29,6 @@ class ConvertTest {
     fun testUnpackIntError() {
         fun module(globals: GlobalsBuilder) {
             fun takesI32(i: Int): Result<NoneType> {
-                // Mirrors Rust `fn takes_i32(_i: i32) -> Result<NoneType>` — parameter
                 // is consumed only for type-binding by the unpacker.
                 i.toLong()
                 return Result.success(NoneType)

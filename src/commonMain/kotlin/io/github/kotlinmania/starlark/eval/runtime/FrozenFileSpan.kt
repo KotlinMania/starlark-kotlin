@@ -25,9 +25,7 @@ import io.github.kotlinmania.starlark.codemap.FileSpanRef
 import io.github.kotlinmania.starlark.codemap.Span
 import io.github.kotlinmania.starlark.values.FrozenRef
 
-//     file: FrozenRef<'static, CodeMap>,
 //     span: Span,
-// }
 
 /**
  * A file span that references a frozen (immutable) [CodeMap] and a [Span] within it.

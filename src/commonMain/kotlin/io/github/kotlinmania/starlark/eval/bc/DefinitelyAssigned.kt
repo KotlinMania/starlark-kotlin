@@ -36,14 +36,11 @@ import io.github.kotlinmania.starlark.eval.runtime.LocalSlotId
  * But when evaluating `bar(x)` we don't need to check `x` is assigned,
  * because we know for sure it is assigned: we checked that when evaluating `foo(x)`.
  */
-//     definitely_assigned: Vec<bool>,
-// }
 class BcDefinitelyAssigned private constructor(
     // / Map from local variable slot to flag indicating whether it is definitely assigned
     // / at the current program point.
     private val definitelyAssigned: BooleanArray,
 ) {
-    // impl BcDefinitelyAssigned
 
     constructor(localCount: Int) : this(BooleanArray(localCount))
 

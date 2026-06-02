@@ -27,7 +27,6 @@ import io.github.kotlinmania.starlark.eval.runtime.Evaluator
 import io.github.kotlinmania.starlark.values.layout.typed.StringValue
 import io.github.kotlinmania.starlark.values.types.enumeration.enumtype.EnumType
 
-// #[starlark_module]
 fun registerEnum(builder: GlobalsBuilder) {
     /**
      * The `enum` type represents one value picked from a set of values.

@@ -19,7 +19,6 @@ package io.github.kotlinmania.starlark.tests.bc
  * limitations under the License.
  */
 
-// #[test]
 internal fun testCall() {
     bcGoldenTest(
         "call",

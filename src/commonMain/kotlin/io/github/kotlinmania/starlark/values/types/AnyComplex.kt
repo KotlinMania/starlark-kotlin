@@ -37,7 +37,6 @@ import io.github.kotlinmania.starlark.values.layout.heap.Tracer
 // / This is useful for data not directly visible to starlark code.
 // /
 // / This type is for "complex" values (with tracing during GC). For no GC version check
-// / [`StarlarkAny`](crate::values::types::any::StarlarkAny).
 class StarlarkAnyComplex<T : Any>(
     /** The value. */
     val value: T,

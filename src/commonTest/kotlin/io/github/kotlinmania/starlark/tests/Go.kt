@@ -44,7 +44,6 @@ private fun ignoreBadLines(x: String, bad: List<String>): String =
         .filter { line -> bad.none { b -> line.contains(b) } }
         .joinToString("\n")
 
-// #[test]
 internal fun testGo() {
     // The data for these tests was taken from
     // https://github.com/google/starlark-go/blob/e81fc95f7bd5bb1495fe69f27c1a99fcc77caa48/starlark/testdata/
@@ -177,7 +176,6 @@ internal fun testGo() {
     )
 }
 
-// #[test]
 internal fun testInRange() {
     // Go Starlark considers this a type error (I think that is a mistake)
     Assert.allTrue(

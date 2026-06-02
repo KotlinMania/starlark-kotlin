@@ -37,14 +37,12 @@ import io.github.kotlinmania.starlark.values.layout.heap.Heap
 
 // / Define the None type, use [`NoneType`] in Rust.
 object NoneType : StarlarkValue, AllocValue, AllocFrozenValue, UnpackValue<NoneType> {
-    // impl NoneType
     // / The result of `type(None)`.
     override val TYPE: String = "NoneType"
     override val HAS_eval_type: Boolean get() = true
 
     override fun toString(): String = "None"
 
-    // impl<'v> StarlarkValue<'v> for NoneType {
 
     override fun isSpecial(): Boolean = true
 
@@ -69,23 +67,17 @@ object NoneType : StarlarkValue, AllocValue, AllocFrozenValue, UnpackValue<NoneT
 
     override fun evalType(): Ty = Ty.none()
 
-    // impl<'v> AllocValue<'v> for NoneType
     override fun allocValue(heap: Heap): Value = Value.newNone()
 
-    // impl Serialize for NoneType {
     //         serializer.serialize_none()
-    //     }
-    // }
     fun serialize(serializer: Any): Result<Unit> {
         // serializer.serialize_none()
         (serializer as kotlinx.serialization.encoding.Encoder).encodeNull()
         return Result.success(Unit)
     }
 
-    // impl AllocFrozenValue for NoneType
     override fun allocFrozenValue(heap: FrozenHeap): FrozenValue = FrozenValue.newNone()
 
-    // impl<'v> UnpackValue<'v> for NoneType {
     override fun unpackValueImpl(value: Value): Result<NoneType?> =
         if (value.isNone()) {
             Result.success(NoneType)
@@ -94,7 +86,6 @@ object NoneType : StarlarkValue, AllocValue, AllocFrozenValue, UnpackValue<NoneT
         }
 }
 
-// pub(crate) static VALUE_NONE: AllocStaticSimple<NoneType> = AllocStaticSimple::alloc(NoneType);
 internal val VALUE_NONE: AllocStaticSimple<NoneType> = AllocStaticSimple.alloc(NoneType)
 
 fun getTypeStarlarkRepr(): Ty = NoneType.getTypeStarlarkRepr()

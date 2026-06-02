@@ -24,7 +24,6 @@ import io.github.kotlinmania.starlark.eval.runtime.Arguments
 import io.github.kotlinmania.starlark.eval.runtime.Evaluator
 import io.github.kotlinmania.starlark.values.layout.Value
 
-// #[starlark_module]
 internal fun registerEvalType(globals: GlobalsBuilder) {
     /** Create a runtime type object which can be used to check if a value matches the given type. */
     globals.setFunction("eval_type") { args: Arguments, eval: Evaluator ->

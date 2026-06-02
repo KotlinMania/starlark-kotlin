@@ -24,7 +24,6 @@ import io.github.kotlinmania.starlark.environment.GlobalsBuilder
 import io.github.kotlinmania.starlark.eval.runtime.Arguments
 import io.github.kotlinmania.starlark.eval.runtime.Evaluator
 
-// #[starlark_module]
 private fun defaultValueFunctions(globals: GlobalsBuilder) {
     globals.setFunction("foo") { args: Arguments, _eval: Evaluator ->
         val x = args.optionalPositional<Int>(0)
@@ -32,7 +31,6 @@ private fun defaultValueFunctions(globals: GlobalsBuilder) {
     }
 }
 
-// #[test]
 internal fun testDefaultValue() {
     val a = Assert()
     a.globalsAdd(::defaultValueFunctions)

@@ -44,12 +44,9 @@ import io.github.kotlinmania.starlark.values.layout.heap.ValueHolder
  * Loop indices are stored in a separate [IntArray], and locals/stack
  * share a single [Array] of nullable [Value].
  */
-// #[repr(C)]
 //     local_count: u32,
 //     max_stack_size: u32,
 //     max_loop_depth: LoopDepth,
-//     slots: [Option<Value<'v>>; 0],
-// }
 internal class BcFrame(
     /** Number of local slots. */
     val localCount: Int,
@@ -74,7 +71,6 @@ internal class BcFrame(
      */
     val loopIndices: IntArray = IntArray(maxLoopDepth.depth)
 
-    // impl BcFrame
 
     // Not needed in Kotlin -- no raw pointer arithmetic.
 
@@ -159,8 +155,6 @@ internal class BcFrame(
 //         self.locals_mut().trace(tracer);
 //         // Note this does not trace the stack.
 //         // GC can be performed only when the stack is empty.
-//     }
-// }
 
 /**
  * Trace implementation for [BcFrame].
@@ -185,8 +179,6 @@ internal fun BcFrame.trace(tracer: Tracer) {
  * In Rust, this stores a raw pointer to the `slots` field for efficiency.
  * In Kotlin, we simply hold a nullable reference to the [BcFrame].
  */
-//     slots_ptr: *mut Option<Value<'v>>,
-// }
 class BcFramePtr internal constructor(
     private var frame: BcFrame?,
 ) {
@@ -207,7 +199,6 @@ class BcFramePtr internal constructor(
      */
     fun isInitialized(): Boolean = frame != null
 
-    // #[inline(always)]
     // In Kotlin we simply access the non-null frame reference.
 
     fun getSlotSlow(slot: LocalSlotIdCapturedOrNot): Value? {
@@ -256,8 +247,6 @@ class BcFramePtr internal constructor(
 }
 
 //         self.frame_mut().trace(tracer);
-//     }
-// }
 
 /**
  * Trace implementation for [BcFramePtr].
@@ -267,12 +256,9 @@ internal fun BcFramePtr.trace(tracer: Tracer) {
     getFrame()?.trace(tracer)
 }
 
-// #[inline(always)]
-//     eval: &mut Evaluator<'v, 'a, 'e>,
 //     local_count: u32,
 //     max_stack_size: u32,
 //     max_loop_depth: LoopDepth,
-//     k: impl FnOnce(&mut Evaluator<'v, 'a, 'e>, BcFramePtr<'v>) -> R,
 // ) -> R
 
 /**
@@ -297,11 +283,9 @@ private fun <R> allocaRaw(
  *
  * After the callback finishes, the previous frame is restored.
  */
-//     eval: &mut Evaluator<'v, 'a, 'e>,
 //     local_count: u32,
 //     max_stack_size: u32,
 //     loop_depth: LoopDepth,
-//     k: impl FnOnce(&mut Evaluator<'v, 'a, 'e>) -> R,
 // ) -> R
 internal fun <R> allocaFrame(
     eval: Evaluator,

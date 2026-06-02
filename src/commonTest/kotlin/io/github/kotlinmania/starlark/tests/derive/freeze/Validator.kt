@@ -24,7 +24,6 @@ import io.github.kotlinmania.starlark.values.freezeBoolean
 import io.github.kotlinmania.starlark.values.layout.Freezer
 import io.github.kotlinmania.starlark.values.layout.heap.FrozenHeap
 
-// #[freeze(validator = check_true)]
 private class ValidatorTest(
     val field: Boolean,
 ) : Freeze<ValidatorTest> {
@@ -43,7 +42,6 @@ private fun checkTrue(test: ValidatorTest): Result<Unit> {
     return Result.success(Unit)
 }
 
-// #[test]
 internal fun testOk() {
     val t = ValidatorTest(field = true)
     val frozenHeap = FrozenHeap()
@@ -51,7 +49,6 @@ internal fun testOk() {
     t.freeze(freezer).getOrThrow()
 }
 
-// #[test]
 internal fun testFail() {
     val t = ValidatorTest(field = false)
     val frozenHeap = FrozenHeap()

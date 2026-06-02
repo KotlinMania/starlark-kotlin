@@ -37,7 +37,6 @@ private fun checkComp(lines: List<String>) {
     )
 }
 
-// #[test]
 internal fun testSpec() {
     // From the Starlark spec
     checkComp(listOf("[x*x for x in [0,1,2,3,4]] == [0, 1, 4, 9, 16]"))
@@ -52,7 +51,6 @@ internal fun testSpec() {
     checkComp(listOf("x = 1", "_ = [x for x in [2]]", "x == 1"))
 }
 
-// #[test]
 internal fun testScopes() {
     checkComp(listOf("[1//0 for x in [] for y in z for z in ()] == []"))
     Assert.failSkipTypecheck(
@@ -62,12 +60,10 @@ internal fun testScopes() {
     Assert.failSkipTypecheck("[() for x in w for w in [1]]", "Variable `w` not found")
 }
 
-// #[test]
 internal fun testDict() {
     checkComp(listOf("{x: 1 for x in [0,1,2]} == {0: 1, 1: 1, 2: 1}"))
 }
 
-// #[test]
 internal fun testNested() {
     checkComp(listOf("[[y for y in x] for x in [[1],[2,3]]] == [[1],[2,3]]"))
     checkComp(listOf("[[x for x in x] for x in [[1],[2,3]]] == [[1],[2,3]]"))
@@ -80,7 +76,6 @@ internal fun testNested() {
     )
 }
 
-// #[test]
 internal fun testSequential() {
     checkComp(
         listOf(
@@ -90,22 +85,18 @@ internal fun testSequential() {
     )
 }
 
-// #[test]
 internal fun testIfOnly() {
     Assert.fail("[1 if 0 == 0] == [0]", "Parse error")
 }
 
-// #[test]
 internal fun testSameVarTwiceInAssignment() {
     checkComp(listOf("[x for (x, x) in [(1, 2), (3, 4)]] == [2, 4]"))
 }
 
-// #[test]
 internal fun testSameVarInTwoFors() {
     checkComp(listOf("[x for x in [[1, 2], [3]] for x in x] == [1, 2, 3]"))
 }
 
-// #[test]
 internal fun testComprehensionBlocks() {
     Assert.failSkipTypecheck(
         """

@@ -23,9 +23,7 @@ package io.github.kotlinmania.starlark.values.types.anyarray
 
 import io.github.kotlinmania.starlark.values.StarlarkValue
 
-// #[repr(C)]
 //     content: [T; 0],
-// }
 // Kotlin: GC handles memory layout. AnyArray is a simple wrapper around a list.
 internal class AnyArray<T>(
     private val content: MutableList<T>,

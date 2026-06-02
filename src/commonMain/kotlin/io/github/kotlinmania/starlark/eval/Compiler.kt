@@ -56,9 +56,6 @@ import io.github.kotlinmania.starlark.values.FrozenRef
  * | `types`           | `eval.compiler.types`                   |
  */
 
-// #[cold]
-// #[inline(never)]
-//     e: crate::Error, span: FrameSpan, eval: &Evaluator,
 // ) -> EvalException
 
 /**
@@ -73,7 +70,6 @@ internal fun addSpanToExprError(
         listOf(eval.callStack.toDiagnosticFrames(span.inlinedFrames))
     }
 
-// #[inline(always)]
 
 /**
  * Convert a [Result] error to a spanned evaluation exception.
@@ -84,7 +80,6 @@ internal fun <T> exprThrow(
     eval: Evaluator,
 ): T = r.getOrElse { e -> throw addSpanToExprError(e, span, eval) }
 
-// #[inline(always)]
 
 /**
  * Convert a Starlark [Result] error to a spanned evaluation exception.

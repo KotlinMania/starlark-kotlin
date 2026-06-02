@@ -29,16 +29,11 @@ import io.github.kotlinmania.starlark.values.typing.typecompiled.TypeCompiled
 /**
  * The result of `field()`.
  */
-//     pub(crate) typ: TypeCompiled<V>,
-//     pub(crate) default: Option<V>,
-// }
-// starlark_complex_value!(pub(crate) Field);
 // Kotlin: single class, no lifetime parameterization.
 class Field internal constructor(
     internal val typ: TypeCompiled,
     internal val default: Value?,
 ) : StarlarkValue {
-    // impl FieldGen
 
     companion object {
         internal fun new(typ: TypeCompiled, default: Value?): Field = Field(typ = typ, default = default)
@@ -50,7 +45,6 @@ class Field internal constructor(
 
     internal fun ty(): Ty = typ.asTy()
 
-    // impl StarlarkValue for FieldGen
     override val TYPE: String get() = "field"
 
     override fun writeHash(hasher: StarlarkHasher): Result<Unit> {
@@ -64,7 +58,6 @@ class Field internal constructor(
 
     override fun typecheckerTy(): Ty = Ty.starlarkValue(TyStarlarkValue.new("field"))
 
-    // impl Display for FieldGen
     override fun toString(): String =
         buildString {
             append("field(")

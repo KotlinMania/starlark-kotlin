@@ -31,7 +31,6 @@ private class TraceWithStatic(
     val ignoredBecauseStatic: StaticType<String>,
     val ignoredBecauseStaticInDyn: Any,
     val ignoredBecauseStaticInDynWithStaticBound: Any,
-    // #[trace(static)] // This is no-op, because it is inferred automatically.
     val explicitStatic: String,
 )
 

@@ -143,7 +143,6 @@ internal class TypeCheck(
     }
 }
 
-// impl StarlarkCallableParamSpec for NamedXy
 private object NamedXy : StarlarkCallableParamSpec {
     override fun params(): ParamSpec =
         ParamSpec.newParts(
@@ -155,7 +154,6 @@ private object NamedXy : StarlarkCallableParamSpec {
         )
 }
 
-// #[starlark_module]
 private fun registerTypecheckGlobals(globals: GlobalsBuilder) {
     globals.setFunction("accepts_iterable") { _args: Arguments, _eval: Evaluator ->
         NoneType
@@ -170,7 +168,6 @@ private fun registerTypecheckGlobals(globals: GlobalsBuilder) {
     }
 }
 
-// #[test]
 internal fun testSuccess() {
     TypeCheck().ty("y").check(
         "success",
@@ -184,7 +181,6 @@ def bar():
     )
 }
 
-// #[test]
 internal fun testFailure() {
     TypeCheck().check(
         "failure",
@@ -195,7 +191,6 @@ def test():
     )
 }
 
-// #[test]
 internal fun testLoad() {
     val (starlarkInterface, module) =
         TypeCheck().check(
@@ -219,7 +214,6 @@ def test():
 }
 
 /** Test things that have previous claimed incorrectly they were type errors */
-// #[test]
 internal fun testFalseNegative() {
     TypeCheck().check(
         "false_negative",
@@ -230,7 +224,6 @@ def test():
     )
 }
 
-// #[test]
 internal fun testDotType() {
     TypeCheck().check(
         "dot_type_0",
@@ -254,7 +247,6 @@ def bar():
     )
 }
 
-// #[test]
 internal fun testAcceptsIterable() {
     TypeCheck().check(
         "accepts_iterable",
@@ -269,7 +261,6 @@ def test():
     a.pass("accepts_iterable([1, ()])")
 }
 
-// #[test]
 internal fun testDictBug() {
     // TODO(nga): figure out how to fix it.
     //   Type of `y` should be inferred to `str`.
@@ -284,7 +275,6 @@ def test():
     )
 }
 
-// #[test]
 internal fun testDictLookupByNever() {
     TypeCheck().check(
         "dict_never_key",
@@ -298,7 +288,6 @@ def test(d: dict[typing.Any, str], x: typing.Never):
     )
 }
 
-// #[test]
 internal fun testNewListDictSyntax() {
     TypeCheck().ty("x").check(
         "new_list_dict_syntax",
@@ -313,7 +302,6 @@ def test():
     )
 }
 
-// #[test]
 internal fun testNewListDictSyntaxAsValue() {
     // TODO(nga): fix.
     TypeCheck().ty("x").ty("y").check(
@@ -326,7 +314,6 @@ def test():
     )
 }
 
-// #[test]
 internal fun testIntPlusFloat() {
     TypeCheck().ty("x").check(
         "int_plus_float",
@@ -337,7 +324,6 @@ def test():
     )
 }
 
-// #[test]
 internal fun testIntBitorFloat() {
     TypeCheck().ty("x").check(
         "int_bitor_float",
@@ -348,7 +334,6 @@ def test():
     )
 }
 
-// #[test]
 internal fun testUnOp() {
     TypeCheck().ty("x").ty("y").ty("z").check(
         "un_op",
@@ -364,7 +349,6 @@ def test():
     )
 }
 
-// #[test]
 internal fun testUnion() {
     TypeCheck().check(
         "union",
@@ -380,7 +364,6 @@ def func_which_returns_union(p) -> str | int:
     )
 }
 
-// #[test]
 internal fun testMethodsWorkForTyStarlarkValue() {
     TypeCheck().ty("x").check(
         "methods_work_for_ty_starlark_value",
@@ -391,7 +374,6 @@ def test(s: str):
     )
 }
 
-// #[test]
 internal fun testBitOrReturnInt() {
     TypeCheck().check(
         "bit_or_return_int",
@@ -404,7 +386,6 @@ def foo() -> test:
     )
 }
 
-// #[test]
 internal fun testBitOrReturnList() {
     TypeCheck().check(
         "bit_or_return_list",
@@ -417,7 +398,6 @@ def foo() -> test:
     )
 }
 
-// #[test]
 internal fun testBitOrWithLoad() {
     val (starlarkInterface, module) =
         TypeCheck().check(

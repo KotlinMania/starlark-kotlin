@@ -23,7 +23,6 @@ package io.github.kotlinmania.starlark.tests
 
 import io.github.kotlinmania.starlark.assert.Assert
 
-// #[test]
 internal fun funcallTest() {
     fun f(x: String): String = """
 def f1():
@@ -76,7 +75,6 @@ $x"""
     Assert.fail("def f(a, **kwargs, *args): pass", "parameter after another")
 }
 
-// #[test]
 internal fun funcallExtraArgsDef() {
     fun f(x: String): String = """
 def f3(a, b, c):
@@ -89,21 +87,18 @@ $x"""
     Assert.fail(f("noop(f3)(a=1, b=2, c=3, d=4)"), "extra named")
 }
 
-// #[test]
 internal fun testRepeatedParameters() {
     // Starlark requires both these types of errors are _static_ errors
     Assert.fail("def f(x,x): pass", "duplicated parameter")
     Assert.fail("def f(): pass\ndef g(): f(x=1,x=1)", "repeated named")
 }
 
-// #[test]
 internal fun testBadApplication() {
     Assert.fail("noop(['1'])(2)", "not supported")
     Assert.fail("noop('test')(2)", "not supported")
     Assert.fail("noop(1 == 1)(2)", "not supported")
 }
 
-// #[test]
 internal fun testExtraNativeArgs() {
     Assert.isTrue(""""bonbon".find("on") == 1""")
     Assert.fail(""""bonbon".find(needle = "on") == 1""", "extra named")
@@ -112,7 +107,6 @@ internal fun testExtraNativeArgs() {
     Assert.fail(""""bonbon".find()""", "Wrong number of")
 }
 
-// #[test]
 internal fun testInsufficientArgsNative() {
     Assert.fails(
         "noop(filter)([])",
@@ -120,7 +114,6 @@ internal fun testInsufficientArgsNative() {
     )
 }
 
-// #[test]
 internal fun testParameterDefaults() {
     Assert.isTrue(
         """
@@ -148,7 +141,6 @@ pre == '[6, 7, 8]' and post == '[1, 2]'""",
     )
 }
 
-// #[test]
 internal fun testParameterDefaultsFrozen() {
     val a = Assert()
     // Frozen parameter defaults are meant to error on mutation, check that
@@ -159,7 +151,6 @@ internal fun testParameterDefaultsFrozen() {
     a.fail("load('f.bzl', 'f')\nf(1) == [1]", "Immutable")
 }
 
-// #[test]
 internal fun testArguments() {
     fun f(x: String): String = """
 def f(a, b, c=5):
@@ -188,7 +179,6 @@ $x"""
     )
 }
 
-// #[test]
 internal fun testArgumentEvaluationOrder() {
     Assert.pass(
         """
@@ -208,7 +198,6 @@ assert_eq(r, [1,2,3,4,5])
     )
 }
 
-// #[test]
 internal fun testEmptyArgsKwargs() {
     Assert.pass(
         """
@@ -228,7 +217,6 @@ noop(f)(1)
     )
 }
 
-// #[test]
 internal fun testNonOptionalAfterOptional() {
     Assert.pass(
         """
@@ -240,7 +228,6 @@ assert_eq(f(2, 4, y = 7, x = 1, z = 3), ((2, 4), 1, 7, 3))
     )
 }
 
-// #[test]
 internal fun testPosOnlyPass() {
     Assert.pass(
         """
@@ -251,7 +238,6 @@ assert_eq((1, 2), f(1, y=2))
     )
 }
 
-// #[test]
 internal fun testPosOnlyFail() {
     Assert.fail(
         """

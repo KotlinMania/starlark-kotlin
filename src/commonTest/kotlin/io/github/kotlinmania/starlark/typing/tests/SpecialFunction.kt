@@ -21,7 +21,6 @@ import io.github.kotlinmania.starlark.typing.TypeCheck
  * limitations under the License.
  */
 
-// #[test]
 internal fun testSpecialFunctionStruct() {
     TypeCheck().ty("x").check(
         "struct",
@@ -32,7 +31,6 @@ def test():
     )
 }
 
-// #[test]
 internal fun testSpecialFunctionZip() {
     TypeCheck().ty("x").check(
         "zip",

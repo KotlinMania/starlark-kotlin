@@ -23,7 +23,6 @@ import io.github.kotlinmania.starlark.environment.GlobalsBuilder
 import io.github.kotlinmania.starlark.environment.MethodsBuilder
 import io.github.kotlinmania.starlark.values.layout.Value
 
-// #[starlark_module]
 @Suppress("unused")
 private fun testReturnImplAllocValue(globals: GlobalsBuilder) {
     globals.setFunction("func") { args, _ ->
@@ -32,10 +31,8 @@ private fun testReturnImplAllocValue(globals: GlobalsBuilder) {
     }
 }
 
-// #[starlark_module]
 @Suppress("unused")
 private fun testReturnImplAllocValueForAttr(methods: MethodsBuilder) {
-    // #[starlark(attribute)]
     methods.setAttribute("attr") { receiver, _ ->
         Result.success(receiver)
     }

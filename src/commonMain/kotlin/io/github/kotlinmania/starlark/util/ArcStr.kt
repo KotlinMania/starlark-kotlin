@@ -2,11 +2,9 @@ package io.github.kotlinmania.starlark.util
 
 import io.github.kotlinmania.starlark.util.arcorstatic.ArcOrStatic
 
-// / Wrapper for `Arc<str>`.
 class ArcStr private constructor(
     private val inner: ArcOrStatic<String>,
 ) : Comparable<ArcStr> {
-    // impl ArcStr
 
     companion object {
         // / Create from static `str` without allocation.

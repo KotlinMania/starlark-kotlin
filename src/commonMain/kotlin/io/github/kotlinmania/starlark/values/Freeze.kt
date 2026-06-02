@@ -129,49 +129,38 @@ interface Freeze<Frozen> {
 
 // --- small Rust-shape helpers (line-by-line ports) ---
 
-// impl Freeze for String
 fun String.freeze(_freezer: Freezer): FreezeResult<String> = Result.success(this)
 
 // Used by some derived-freeze tests (mirrors Rust `Freeze` for String).
 fun freezeString(value: String, freezer: Freezer): FreezeResult<String> = value.freeze(freezer)
 
-// impl Freeze for i32
 fun Int.freeze(_freezer: Freezer): FreezeResult<Int> = Result.success(this)
 
-// impl Freeze for u32
 fun UInt.freeze(_freezer: Freezer): FreezeResult<UInt> = Result.success(this)
 
-// impl Freeze for i64
 fun Long.freeze(_freezer: Freezer): FreezeResult<Long> = Result.success(this)
 
-// impl Freeze for u64
 fun ULong.freeze(_freezer: Freezer): FreezeResult<ULong> = Result.success(this)
 
-// impl Freeze for usize
 fun Usize.freeze(_freezer: Freezer): FreezeResult<Usize> = Result.success(this)
 
-// impl Freeze for bool
 fun Boolean.freeze(_freezer: Freezer): FreezeResult<Boolean> = Result.success(this)
 
 // Used by some derived-freeze tests (mirrors Rust `Freeze` for bool).
 fun freezeBoolean(value: Boolean, freezer: Freezer): FreezeResult<Boolean> = value.freeze(freezer)
 
-// impl Freeze for marker::PhantomData<&'v T>
 fun <T> PhantomData<T>.freeze(_freezer: Freezer): FreezeResult<PhantomData<T>> = Result.success(PhantomData())
 
-// impl<T> Freeze for Vec<T>
 fun <T, TFrozen> List<T>.freeze(
     freezer: Freezer,
     freeze: (T, Freezer) -> FreezeResult<TFrozen>,
 ): FreezeResult<List<TFrozen>> = this.intoTryMap { v -> freeze(v, freezer) }
 
-// impl<T> Freeze for RefCell<T>
 internal fun <T, TFrozen> RefCell<T>.freeze(
     freezer: Freezer,
     freeze: (T, Freezer) -> FreezeResult<TFrozen>,
 ): FreezeResult<TFrozen> = freeze(this.getMut(), freezer)
 
-// impl<T> Freeze for UnsafeCell<T>
 fun <T, TFrozen> UnsafeCell<T>.freeze(
     freezer: Freezer,
     freeze: (T, Freezer) -> FreezeResult<TFrozen>,
@@ -181,7 +170,6 @@ fun <T, TFrozen> UnsafeCell<T>.freeze(
     return Result.success(UnsafeCell(frozen.getOrThrow()))
 }
 
-// impl<T> Freeze for OnceCell<T>
 fun <T, TFrozen> OnceCell<T>.freeze(
     freezer: Freezer,
     freeze: (T, Freezer) -> FreezeResult<TFrozen>,
@@ -194,16 +182,13 @@ fun <T, TFrozen> OnceCell<T>.freeze(
     }
 }
 
-// impl<T> Freeze for Box<T>
 fun <T, TFrozen> Box<T>.freeze(freezer: Freezer, freeze: (T, Freezer) -> FreezeResult<TFrozen>): FreezeResult<Box<TFrozen>> {
     val frozen = freeze(this.asMut(), freezer)
     if (frozen.isFailure) return Result.failure(frozen.exceptionOrNull()!!)
     return Result.success(Box(frozen.getOrThrow()))
 }
 
-// impl<T> Freeze for Box<[T]>
 // Distinct Kotlin name (not `freeze`) to avoid a JVM signature clash with the
-// preceding `Box<T>.freeze` overload. Kotlin's JVM target erases the generic
 // parameter on Box, so both extensions would compile down to the same
 // `freeze(Box, Freezer, Function2)` JVM signature. Per the kotlinmania
 // JVM-clash workaround we use a distinct Kotlin name rather than @JvmName.
@@ -216,7 +201,6 @@ fun <T, TFrozen> Box<List<T>>.freezeListBox(
         .intoTryMap { v -> freeze(v, freezer) }
         .map { v -> Box(v) }
 
-// impl<T> Freeze for Option<T>
 fun <T, TFrozen> T?.freeze(
     freezer: Freezer,
     freeze: (T, Freezer) -> FreezeResult<TFrozen>,
@@ -227,7 +211,6 @@ fun <T, TFrozen> T?.freeze(
         freeze(this, freezer).map { it }
     }
 
-// impl<K: Freeze> Freeze for Hashed<K>
 fun <K, KFrozen> Hashed<K>.freeze(
     freezer: Freezer,
     freeze: (K, Freezer) -> FreezeResult<KFrozen>,
@@ -238,7 +221,6 @@ fun <K, KFrozen> Hashed<K>.freeze(
     return Result.success(Hashed.newUnchecked(this.hash(), frozenKey.getOrThrow()))
 }
 
-// impl<K, V> Freeze for SmallMap<K, V>
 fun <K, V, KFrozen, VFrozen> SmallMap<K, V>.freeze(
     freezer: Freezer,
     freezeKey: (K, Freezer) -> FreezeResult<KFrozen>,
@@ -257,7 +239,6 @@ fun <K, V, KFrozen, VFrozen> SmallMap<K, V>.freeze(
     return Result.success(new)
 }
 
-// impl<T> Freeze for SmallSet<T>
 fun <T, TFrozen> SmallSet<T>.freeze(
     freezer: Freezer,
     freeze: (T, Freezer) -> FreezeResult<TFrozen>,

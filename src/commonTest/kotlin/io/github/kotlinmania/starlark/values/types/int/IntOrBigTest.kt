@@ -39,7 +39,6 @@ class IntOrBigTest {
             .getOrThrow()
             .toString()
 
-    // #[test]
     @Test
     fun testFloorDivBig() {
         assertEquals(
@@ -60,7 +59,6 @@ class IntOrBigTest {
         )
     }
 
-    // #[test]
     @Test
     fun testFloorDivBigSmall() {
         assertEquals(
@@ -81,7 +79,6 @@ class IntOrBigTest {
         )
     }
 
-    // #[test]
     @Test
     fun testFloorDivSmallBig() {
         assertEquals("0", floorDiv("3", "600000000000000000000"))
@@ -90,7 +87,6 @@ class IntOrBigTest {
         assertEquals("-1", floorDiv("-3", "600000000000000000000"))
     }
 
-    // #[test]
     @Test
     fun testFloorDivSmall() {
         assertEquals("4", floorDiv("13", "3"))
@@ -99,7 +95,6 @@ class IntOrBigTest {
         assertEquals("4", floorDiv("-13", "-3"))
     }
 
-    // #[test]
     @Test
     fun testPercentBig() {
         assertEquals(
@@ -120,7 +115,6 @@ class IntOrBigTest {
         )
     }
 
-    // #[test]
     @Test
     fun testPercentBigSmall() {
         assertEquals("7", percent("600000000000000000007", "20"))
@@ -129,7 +123,6 @@ class IntOrBigTest {
         assertEquals("-7", percent("-600000000000000000007", "-20"))
     }
 
-    // #[test]
     @Test
     fun testPercentSmallBig() {
         assertEquals("3", percent("3", "600000000000000000001"))
@@ -144,7 +137,6 @@ class IntOrBigTest {
         assertEquals("-3", percent("-3", "-600000000000000000001"))
     }
 
-    // #[test]
     @Test
     fun testPercentSmall() {
         assertEquals("2", percent("5", "3"))

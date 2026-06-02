@@ -58,45 +58,6 @@ val commonOptIns =
         "kotlinx.serialization.ExperimentalSerializationApi",
     )
 
-@org.gradle.api.artifacts.CacheableRule
-open class BignumWatchosDeviceArm64Rule : org.gradle.api.artifacts.ComponentMetadataRule {
-    override fun execute(context: org.gradle.api.artifacts.ComponentMetadataContext) {
-        val details = context.details
-        details.addVariant("watchosDeviceArm64ApiElements", "watchosArm64ApiElements-published") {
-            attributes {
-                attribute(
-                    org.gradle.api.attributes.Attribute.of("org.jetbrains.kotlin.native.target", String::class.java),
-                    "watchos_device_arm64"
-                )
-            }
-        }
-        details.addVariant("watchosDeviceArm64MetadataElements", "watchosArm64MetadataElements-published") {
-            attributes {
-                attribute(
-                    org.gradle.api.attributes.Attribute.of("org.jetbrains.kotlin.native.target", String::class.java),
-                    "watchos_device_arm64"
-                )
-            }
-        }
-        details.addVariant("watchosDeviceArm64SourcesElements", "watchosArm64SourcesElements-published") {
-            attributes {
-                attribute(
-                    org.gradle.api.attributes.Attribute.of("org.jetbrains.kotlin.native.target", String::class.java),
-                    "watchos_device_arm64"
-                )
-            }
-        }
-    }
-}
-
-dependencies.components.withModule<BignumWatchosDeviceArm64Rule>("com.ionspin.kotlin:bignum-watchosarm64")
-
-configurations.all {
-    resolutionStrategy.dependencySubstitution {
-        substitute(module("com.ionspin.kotlin:bignum-watchosdevicearm64"))
-            .using(module("com.ionspin.kotlin:bignum-watchosarm64:0.3.10"))
-    }
-}
 
 // ============================================================================
 // Android SDK installer

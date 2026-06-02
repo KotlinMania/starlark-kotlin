@@ -36,7 +36,6 @@ def sum(a, b, *args, **kwargs):
         a.eq(expected, "$sum$expr")
     }
 
-    // #[test]
     @Test
     fun testSimple() {
         eq(
@@ -45,7 +44,6 @@ def sum(a, b, *args, **kwargs):
         )
     }
 
-    // #[test]
     @Test
     fun testStarToPartial() {
         eq(
@@ -54,7 +52,6 @@ def sum(a, b, *args, **kwargs):
         )
     }
 
-    // #[test]
     @Test
     fun testStartToReturnedFunc() {
         eq(
@@ -63,7 +60,6 @@ def sum(a, b, *args, **kwargs):
         )
     }
 
-    // #[test]
     @Test
     fun testNoArgsToPartial() {
         eq(
@@ -72,7 +68,6 @@ def sum(a, b, *args, **kwargs):
         )
     }
 
-    // #[test]
     @Test
     fun testTypecheckBug() {
         Assert.pass(

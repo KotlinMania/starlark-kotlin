@@ -20,12 +20,10 @@ package io.github.kotlinmania.starlark.values.layout.heap.profile.alloccounts
  */
 
 // / Allocations counters.
-// }
 data class AllocCounts(
     var bytes: Long = 0,
     var count: Int = 0,
 ) {
-    // impl AllocCounts
 
     internal fun normalizeForGoldenTests() {
         // Value sizes depend on compiler version, so normalize them.

@@ -26,7 +26,6 @@ import io.github.kotlinmania.starlark.environment.Module
 import io.github.kotlinmania.starlark.eval.evalFunction
 import io.github.kotlinmania.starlark.eval.runtime.Evaluator
 
-// #[test]
 internal fun testLambda() {
     Assert.isTrue("(lambda x: x)(1) == 1")
     Assert.isTrue("(lambda x: (x == 1))(1)")
@@ -38,7 +37,6 @@ ys = [lambda x: x + y for y in [4,5,6]]
     )
 }
 
-// #[test]
 internal fun testFrozenLambda() {
     val a = Assert()
     a.module(
@@ -59,7 +57,6 @@ assert_eq(add18(24), 42)
     )
 }
 
-// #[test]
 internal fun testNestedDef1() {
     Assert.isTrue(
         """
@@ -71,7 +68,6 @@ foo(8) == 16""",
     )
 }
 
-// #[test]
 internal fun testNestedDef2() {
     Assert.isTrue(
         """
@@ -86,7 +82,6 @@ sq = squarer()
     )
 }
 
-// #[test]
 internal fun testNestedDef3() {
     Assert.isTrue(
         """
@@ -98,7 +93,6 @@ f(1)(2)(3) == 6""",
     )
 }
 
-// #[test]
 internal fun testLambdaCaptureFromModule() {
     Assert.isTrue(
         """
@@ -109,7 +103,6 @@ f(42) == 142
     )
 }
 
-// #[test]
 internal fun testLambdaCaptureFromDef() {
     Assert.isTrue(
         """
@@ -122,7 +115,6 @@ inside()
     )
 }
 
-// #[test]
 internal fun testLambdaCaptureReassignedFromDef() {
     Assert.isTrue(
         """
@@ -136,7 +128,6 @@ inside()
     )
 }
 
-// #[test]
 internal fun testDefFreeze() {
     val a = Assert()
     a.module(
@@ -156,7 +147,6 @@ x == [1]""",
     )
 }
 
-// #[test]
 internal fun testFrozenLambdaNest() {
     val a = Assert()
     val m =
@@ -185,7 +175,6 @@ value = {"test": "hello"}
     }
 }
 
-// #[test]
 internal fun testContextCaptured() {
     val a = Assert()
     a.module("f.bzl", "x = 17\ndef f(): return x")
@@ -193,20 +182,17 @@ internal fun testContextCaptured() {
     a.isTrue("load('f.bzl', 'f')\nf() == 17")
 }
 
-// #[test]
 internal fun testLambdaErrors() {
     // Test from https://github.com/facebook/starlark-rust/issues/36
     Assert.fail("lambda a,a:a", "duplicated parameter name")
 }
 
-// #[test]
 internal fun testLambdaErrorsNested() {
     // Test from https://issues.oss-fuzz.com/issues/369003809
     Assert.fail("lambda: lambda a,a:a", "duplicated parameter name")
     Assert.fail("[lambda a,a:a]", "duplicated parameter name")
 }
 
-// #[test]
 internal fun testDoubleCaptureAndFreeze() {
     val a = Assert()
     a.module(

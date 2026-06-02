@@ -77,12 +77,10 @@ data class FrozenStructRef internal constructor(
     }
 }
 
-// impl StarlarkTypeRepr for StructRef
 object StructRefStarlarkTypeRepr : StarlarkTypeRepr {
     override fun starlarkTypeRepr(): Ty = Ty.anyStruct()
 }
 
-// impl UnpackValue for StructRef
 object StructRefUnpackValue : UnpackValue<StructRef> {
     override fun starlarkTypeRepr(): Ty = StructRefStarlarkTypeRepr.starlarkTypeRepr()
 

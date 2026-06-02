@@ -30,7 +30,6 @@ import io.github.kotlinmania.starlark.values.layout.Value
 import io.github.kotlinmania.starlark.values.layout.ValueAllocSize
 import io.github.kotlinmania.starlark.withLock
 
-// #[repr(C)]
 class AValueHeader(
     var vtable: AValueVTable,
 ) {
@@ -47,10 +46,8 @@ class AValueHeader(
         headerRegistry[index] = this
     }
 
-    // }
     override fun hashCode(): Int = index.hashCode()
 
-    // }
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other !is AValueHeader) return false
@@ -109,7 +106,6 @@ class AValueHeader(
         }
     }
 
-    // #[inline]
     fun payloadPtr(): StarlarkValueRawPtr {
         // In Rust, this does pointer arithmetic from the header to the payload
         // area in contiguous arena memory. In Kotlin, the StarlarkValue is stored
@@ -147,8 +143,6 @@ class AValueHeader(
 internal val reprRegistry: MutableMap<Long, AValueRepr<*>> = mutableMapOf()
 
 // / How object is represented in arena.
-// #[repr(C, align(8))]
-// }
 class AValueRepr<T>(
     val header: AValueHeader,
     /** Payload of the object, i.e. the StarlarkValue. */
@@ -166,11 +160,9 @@ class AValueRepr<T>(
     }
 
     companion object {
-        //     assert!(mem::align_of::<Self>() == AValueHeader::ALIGN);
         // };
         // (Alignment is managed by the JVM; no assertion needed.)
 
-        //     metadata: &'static AValueVTable,
         //     payload: T,
         // ) -> AValueRepr<T>
         fun <T> withMetadata(
@@ -232,10 +224,8 @@ internal class ForwardPtr private constructor(
 }
 
 // / This is object written over [`AValueRepr`] during GC.
-// #[repr(C)]
 //     forward_ptr: usize,
 //     object_size: ValueAllocSize,
-// }
 internal class AValueForward(
     /** The forward pointer to the moved object. */
     private val forward: ForwardPtr,
@@ -259,11 +249,9 @@ internal class AValueForward(
 }
 
 // / Object on the heap, either a real object or a forward.
-// #[repr(C)]
 //     header: ManuallyDrop<AValueHeader>,
 //     forward: ManuallyDrop<AValueForward>,
 //     flags: usize,
-// }
 internal sealed class AValueOrForward {
     class Header(
         val header: AValueHeader,
@@ -273,7 +261,6 @@ internal sealed class AValueOrForward {
         val forward: AValueForward,
     ) : AValueOrForward()
 
-    // #[inline]
     private fun isForward(): Boolean = this is Forward
 
     fun unpack(): AValueOrForwardUnpack =
@@ -282,7 +269,6 @@ internal sealed class AValueOrForward {
             is Forward -> AValueOrForwardUnpack.Forward(forward)
         }
 
-    // #[inline]
     fun unpackHeaderUnchecked(): AValueHeader {
         check(!isForward())
         return (this as Header).header
@@ -313,9 +299,6 @@ internal sealed class AValueOrForward {
 }
 
 // / `AValueOrForward` as enum.
-//     Header(&'a AValueHeader),
-//     Forward(&'a AValueForward),
-// }
 internal sealed class AValueOrForwardUnpack {
     class Header(
         val header: AValueHeader,

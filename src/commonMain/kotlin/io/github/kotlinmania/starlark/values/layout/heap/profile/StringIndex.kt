@@ -24,7 +24,6 @@ internal class StringIndex {
     // Kotlin: LinkedHashSet preserves insertion order, equivalent to SmallSet.
     private val strings: LinkedHashSet<String> = linkedSetOf()
 
-    // impl StringIndex
 
     fun index(s: String): StringId {
         val list = strings.toList()

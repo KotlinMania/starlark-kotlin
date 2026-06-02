@@ -34,19 +34,16 @@ interface StarlarkCallableParamSpec {
 /** Indicates that a callable accepts any number of positional and keyword arguments. */
 
 /** `*args` and `**kwargs` parameters. */
-// impl StarlarkCallableParamSpec for StarlarkCallableParamAny
 object StarlarkCallableParamAny : StarlarkCallableParamSpec {
     override fun params(): ParamSpec = ParamSpec.any()
 }
 
 /** No parameters. */
-// impl StarlarkCallableParamSpec for ()
 object StarlarkCallableParamSpecNone : StarlarkCallableParamSpec {
     override fun params(): ParamSpec = ParamSpec.posOnly(emptyList(), emptyList())
 }
 
 /** Single positional-only parameter. */
-// impl<A: StarlarkTypeRepr> StarlarkCallableParamSpec for (A,)
 class StarlarkCallableParamSpec1(
     private val a: Ty,
 ) : StarlarkCallableParamSpec {
@@ -54,7 +51,6 @@ class StarlarkCallableParamSpec1(
 }
 
 /** Two positional-only parameters. */
-// impl<A: StarlarkTypeRepr, B: StarlarkTypeRepr> StarlarkCallableParamSpec for (A, B)
 class StarlarkCallableParamSpec2(
     private val a: Ty,
     private val b: Ty,
@@ -63,7 +59,6 @@ class StarlarkCallableParamSpec2(
 }
 
 /** Three positional-only parameters. */
-// impl<A, B, C: StarlarkTypeRepr> StarlarkCallableParamSpec for (A, B, C)
 class StarlarkCallableParamSpec3(
     private val a: Ty,
     private val b: Ty,
@@ -73,7 +68,6 @@ class StarlarkCallableParamSpec3(
 }
 
 /** Four positional-only parameters. */
-// impl<A, B, C, D: StarlarkTypeRepr> StarlarkCallableParamSpec for (A, B, C, D)
 class StarlarkCallableParamSpec4(
     private val a: Ty,
     private val b: Ty,

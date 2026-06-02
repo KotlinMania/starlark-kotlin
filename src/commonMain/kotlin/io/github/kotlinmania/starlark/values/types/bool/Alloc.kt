@@ -24,8 +24,6 @@ import io.github.kotlinmania.starlark.values.layout.Value
 import io.github.kotlinmania.starlark.values.layout.heap.FrozenHeap
 import io.github.kotlinmania.starlark.values.layout.heap.Heap
 
-// impl AllocValue for Boolean
 internal fun Boolean.allocValue(heap: Heap): Value = Value.newBool(this)
 
-// impl AllocFrozenValue for Boolean
 internal fun Boolean.allocFrozenValue(heap: FrozenHeap): FrozenValue = FrozenValue.newBool(this)

@@ -375,37 +375,30 @@ private fun t(program: String, expected: String) {
 // * list of bindings in format like `1:l=2` means binding id = 1, local slot 2
 // * list of variables with references to binding ids
 
-// #[test] fn basic()
 internal fun basic() {
     t("x = 1; y = 2", "0:m=0 1:m=1 | x:0 y:1")
 }
 
-// #[test] fn module_reassignment()
 internal fun moduleReassignment() {
     t("x = 1; x = 2", "0:m=0+ | x:0 x:0")
 }
 
-// #[test] fn reassignment_in_loop()
 internal fun reassignmentInLoop() {
     t("for x in []: y = x", "0:m=0+ 1:m=1+ | x:0 y:1 x:0")
 }
 
-// #[test] fn def_capture()
 internal fun defCapture() {
     t("x = 1\ndef f(): x", "0:m=0& 1:m=1 | x:0 f:1 x:0")
 }
 
-// #[test] fn def_shadow()
 internal fun defShadow() {
     t("x = 1\ndef f(): x = 2", "0:m=0 1:m=1 2:l=0 | x:0 f:1 x:2")
 }
 
-// #[test] fn def_param_bindings()
 internal fun defParamBindings() {
     t("def f(x): return x", "0:m=0 1:l=0 | f:0 x:1 x:1")
 }
 
-// #[test] fn nested_def_capture()
 internal fun nestedDefCapture() {
     t(
         "def f():\n    x = 1\n    def g(): return x",
@@ -413,7 +406,6 @@ internal fun nestedDefCapture() {
     )
 }
 
-// #[test] fn existing_module_with_names()
 internal fun existingModuleWithNames() {
     val frozenHeap = FrozenHeap.new()
     val module = MutableNames()

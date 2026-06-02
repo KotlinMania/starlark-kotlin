@@ -94,9 +94,6 @@ import io.github.kotlinmania.starlark.values.types.tuple.fromValue
 import kotlin.reflect.KClass
 
 // We already import another `ValueError`, hence the odd name.
-//     #[error("Expected value of type `{0}` but got `{1}`")]
-//     WrongType(&'static str, String),
-// }
 private class ValueValueError {
     class WrongType(
         val expectedType: String,
@@ -110,7 +107,6 @@ private class ValueValueError {
  * @property integerType The name of the target integer type.
  * @property value The string representation of the value that was too big.
  */
-// #[error("Integer value is too big to fit in {integer_type}: {value}")]
 class IntegerTooBigError(
     val integerType: String,
     val value: String,
@@ -119,7 +115,6 @@ class IntegerTooBigError(
 /**
  * Cycle detected when serializing value to JSON.
  */
-// #[error("Cycle detected when serializing value of type `{0}` to JSON")]
 private class ToJsonCycleError(
     val typeName: String,
 ) : Exception("Cycle detected when serializing value of type `$typeName` to JSON")
@@ -132,8 +127,6 @@ private fun debugValue(typ: String, v: Value): String {
     //   if let Some(x) = v.0.unpack_ptr() {
     //       if let AValueOrForwardUnpack::Forward(fwd) = x.unpack() {
     //           return f.debug_tuple(typ).field(&fwd).finish();
-    //       }
-    //   }
     //   f.debug_tuple(typ).field(v.get_ref().as_debug()).finish()
     val ptrOpt = v.ptr.unpackPtrOpt()
     if (ptrOpt != null) {
@@ -1396,7 +1389,6 @@ class FrozenValue internal constructor(
     /**
      * Compare this frozen value with a mutable value for equality.
      */
-    // (from impl Equivalent)
     override fun equals(other: Value): Result<Boolean> = toValue().equals(other)
 
     /**
@@ -1452,7 +1444,6 @@ class FrozenValue internal constructor(
     internal inline fun <reified T : StarlarkValue> downcastRef(): T? = toValue().downcastRef<T>()
 }
 
-// In Rust, the Serialize impl uses json_stack_push for cycle detection,
 // then delegates to erased_serde::serialize(self.get_ref().as_serialize(), s).
 // The cycle detection logic is in Value.serializeImpl().
 fun Value.serialize(): Result<String> = serializeImpl()

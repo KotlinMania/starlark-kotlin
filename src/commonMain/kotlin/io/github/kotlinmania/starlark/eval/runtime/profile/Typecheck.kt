@@ -54,7 +54,6 @@ internal object TypecheckProfilerType : ProfilerType<TypecheckProfileData> {
 private sealed class TypecheckProfileError(
     message: String,
 ) : Exception(message) {
-    // #[error("Typecheck profile not enabled")]
     // NotEnabled
     class NotEnabled : TypecheckProfileError("Typecheck profile not enabled")
 }
@@ -88,10 +87,8 @@ internal data class TypecheckProfileData(
 }
 
 internal class TypecheckProfile {
-    // pub(crate) enabled: bool
     var enabled: Boolean = false
 
-    // by_function: HashMap<Hashed<FrozenStringValue>, SmallDuration, StarlarkHasherBuilder>
     private val byFunction: MutableMap<FrozenStringValue, SmallDuration> = mutableMapOf()
 
     fun add(function: FrozenStringValue, time: Duration) {

@@ -296,7 +296,6 @@ class ListData(
      */
     override fun content(): List<Value> = content
 
-    // impl ListLike for ListData
     // In Rust, newIter returns the internal Array value which handles iteration.
     // In Kotlin, ListData uses MutableList, so we handle iteration directly.
     override fun newIter(me: Value): Value {
@@ -322,22 +321,17 @@ class ListData(
     override fun toString(): String = displayList(content)
 }
 
-// impl AllocValue for Vec<V>
 fun <T : AllocValue> List<T>.allocValue(heap: Heap): Value =
     heap.allocListIter(this.map { it.allocValue(heap) })
 
-// impl AllocFrozenValue for Vec<V>
 fun <T : AllocFrozenValue> List<T>.allocFrozenValue(heap: FrozenHeap): FrozenValue =
     heap.allocList(this.map { it.allocFrozenValue(heap) })
 
-// impl StarlarkTypeRepr for &[V]
 inline fun <reified V : StarlarkTypeRepr> sliceStarlarkTypeRepr(): Ty = Ty.anyList()
 
-// impl AllocValue for &[V]
 fun <T : AllocValue> Array<T>.allocValue(heap: Heap): Value =
     heap.allocListIter(this.map { it.allocValue(heap) })
 
-// impl AllocFrozenValue for &[V]
 fun <T : AllocFrozenValue> Array<T>.allocFrozenValue(heap: FrozenHeap): FrozenValue =
     heap.allocList(this.map { it.allocFrozenValue(heap) })
 
@@ -366,7 +360,6 @@ class FrozenListData(
 
     fun contentFrozen(): List<FrozenValue> = content
 
-    // impl ListLike for FrozenListData
     override fun content(): List<Value> = content.map { it.toValue() }
 
     override fun setAt(i: Int, v: Value): Result<Unit> =
@@ -390,7 +383,6 @@ class FrozenListData(
     override fun toString(): String = displayList(content.map { it.toValue() })
 }
 
-// impl Debug for FrozenListData
 fun FrozenListData.debugString(): String = "FrozenList(content=${content()})"
 
 /** Alias is used in `StarlarkDocs` derive. */
@@ -398,11 +390,9 @@ typealias FrozenList = ListGen<FrozenListData>
 
 typealias MutableStarlarkList = ListGen<ListData>
 
-// pub(crate) static VALUE_EMPTY_FROZEN_LIST
 val VALUE_EMPTY_FROZEN_LIST: AllocStaticSimple<FrozenList> =
     AllocStaticSimple.alloc(ListGen(FrozenListData.empty()))
 
-// impl ListGen<FrozenListData> { fn offset_of_content() -> usize }
 fun ListGen<FrozenListData>.offsetOfContent(): Int = 0
 
 // Error: Value is not list, value type: `{0}`
@@ -424,7 +414,6 @@ interface ListLike {
     fun iterStop()
 }
 
-// impl ListLike for ListData
 internal class ListDataListLike(
     private val data: ListData,
 ) : ListLike {
@@ -450,7 +439,6 @@ internal class ListDataListLike(
     }
 }
 
-// impl ListLike for FrozenListData
 internal class FrozenListDataListLike(
     private val data: FrozenListData,
 ) : ListLike {
@@ -475,7 +463,6 @@ internal class FrozenListDataListLike(
     override fun iterStop() { /* no-op for frozen lists */ }
 }
 
-// impl Display for ListGen<T>
 fun ListGen<*>.display(): String = data.toString()
 
 internal fun displayList(xs: List<Value>): String =
@@ -492,7 +479,6 @@ private val LIST_METHODS_STATIC = MethodsStatic()
 
 fun listMethods(): Methods = LIST_METHODS_STATIC.methods(::listMethodsImpl)
 
-// impl Serialize for ListGen<T>
 fun ListGen<out ListLike>.serialize(): List<Value> = data.content().toList()
 
 // Heap extensions for list allocation

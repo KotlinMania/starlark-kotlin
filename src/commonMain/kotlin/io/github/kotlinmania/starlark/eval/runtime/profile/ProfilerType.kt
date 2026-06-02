@@ -23,15 +23,12 @@ import io.github.kotlinmania.starlark.eval.runtime.profile.data.ProfileData
 import io.github.kotlinmania.starlark.eval.runtime.profile.data.ProfileDataImpl
 import io.github.kotlinmania.starlark.eval.runtime.profile.mode.ProfileMode
 
-//     #[error("Inconsistent profile type, expected `{0}`, got `{1}`")]
 //     InconsistentProfileType(ProfileMode, ProfileMode),
-// }
 private class ProfileError(
     expected: ProfileMode,
     got: ProfileMode,
 ) : Exception("Inconsistent profile type, expected `$expected`, got `$got`")
 
-// }
 internal interface ProfilerType<Data> {
     /** Result of profiling. */
 

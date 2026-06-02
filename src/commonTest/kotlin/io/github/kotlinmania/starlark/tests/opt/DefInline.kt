@@ -26,7 +26,6 @@ import io.github.kotlinmania.starlark.eval.bc.BcOpcode
 import io.github.kotlinmania.starlark.eval.compiler.DefGen
 import io.github.kotlinmania.starlark.tests.bc.bcGoldenTest
 
-// #[test]
 internal fun testDefConstInlined() {
     bcGoldenTest(
         "def_inline_const_inlined",
@@ -40,7 +39,6 @@ def test():
     )
 }
 
-// #[test]
 internal fun testDefListInlined() {
     bcGoldenTest(
         "def_inline_list_inlined",
@@ -55,7 +53,6 @@ def returns_list():
     )
 }
 
-// #[test]
 internal fun testDictInlined() {
     bcGoldenTest(
         "def_inline_dict_inlined",
@@ -70,7 +67,6 @@ def test():
     )
 }
 
-// #[test]
 internal fun testDoNotInlineFunctionsWithReturnType() {
     bcGoldenTest(
         "def_inline_return_type_inlined",
@@ -85,7 +81,6 @@ def test():
     )
 }
 
-// #[test]
 internal fun testDictInlinedCallStack() {
     val a = Assert()
     a.module("f.bzl", "def f(): return {[]: 10}")
@@ -130,7 +125,6 @@ error: Value of type `list` is not hashable
     )
 }
 
-// #[test]
 internal fun testDoNotInlineTooLargeFunctions() {
     val a = Assert()
     a.module("a0.bzl", "def a0(): return noop()")
@@ -147,7 +141,6 @@ internal fun testDoNotInlineTooLargeFunctions() {
     }
 }
 
-// #[test]
 internal fun testCallsWithConstArgsInlined() {
     bcGoldenTest(
         "def_inline_const_args_inlined",
@@ -162,7 +155,6 @@ def test():
     )
 }
 
-// #[test]
 internal fun testCallsWithLocalsInlined() {
     bcGoldenTest(
         "def_inline_locals_inlined",

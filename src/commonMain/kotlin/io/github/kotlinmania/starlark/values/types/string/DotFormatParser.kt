@@ -30,7 +30,6 @@ enum class FormatConv {
 // / Token in the format string.
 sealed class FormatToken {
     // / Text to copy verbatim to the output.
-    // Text(&'a str),
     data class Text(
         val text: String,
     ) : FormatToken()
@@ -38,7 +37,6 @@ sealed class FormatToken {
     // Capture {
     data class Capture(
         // / Format part inside curly braces before the conversion.
-        // capture: &'a str,
         val capture: String,
         // / The position of this capture. This does not include the curly braces.
         // pos: usize,
@@ -60,7 +58,6 @@ enum class EscapeCurlyBrace {
     Close,
     ;
 
-    // impl EscapeCurlyBrace
     // / Get what this represents.
     fun asStr(): String =
         when (this) {
@@ -77,14 +74,11 @@ enum class EscapeCurlyBrace {
 }
 
 // / Parser for `.format()` arguments.
-//     view: StringView<'a>,
-// }
 class FormatParser(
     private val view: String,
 ) {
     private var i: Int = 0
 
-    // impl<'a> FormatParser<'a>
 
     // / Parse the next token from the format string.
     fun next(): Result<FormatToken?> {

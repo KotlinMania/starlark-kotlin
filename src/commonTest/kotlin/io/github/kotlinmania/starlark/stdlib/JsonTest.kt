@@ -23,7 +23,6 @@ import io.github.kotlinmania.starlark.assert.Assert
 import kotlin.test.Test
 
 class JsonTest {
-    // #[test]
     @Test
     fun testJsonEncode() {
         val a = Assert()
@@ -36,7 +35,6 @@ class JsonTest {
         a.eq("'9223372036854775807'", "json.encode(9223372036854775807)")
     }
 
-    // #[test]
     @Test
     fun testJsonDecode() {
         val a = Assert()
@@ -52,7 +50,6 @@ class JsonTest {
         )
     }
 
-    // #[test]
     @Test
     fun testJsonVeryLargeInt() {
         val a = Assert()
@@ -90,7 +87,6 @@ class JsonTest {
         )
     }
 
-    // #[test]
     @Test
     fun testJson128bitAndBeyond() {
         val a = Assert()

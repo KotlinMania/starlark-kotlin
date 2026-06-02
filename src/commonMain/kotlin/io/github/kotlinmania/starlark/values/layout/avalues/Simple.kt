@@ -56,7 +56,6 @@ class AValueSimple<T : StarlarkValue>(
 }
 
 /** Extension function on FrozenHeap for simple typed static allocation. */
-// impl FrozenHeap
 @Suppress("UNCHECKED_CAST")
 fun <T : StarlarkValue> FrozenHeap.allocSimpleTypedStatic(value: T): FrozenValueTyped<T> = allocRaw(simple(value)) as FrozenValueTyped<T>
 

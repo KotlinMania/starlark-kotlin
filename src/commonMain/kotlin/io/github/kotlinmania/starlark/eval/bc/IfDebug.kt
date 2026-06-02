@@ -39,7 +39,6 @@ package io.github.kotlinmania.starlark.eval.bc
 // In release build this structure is DST,
 // so gazebo suggests implementing `Dupe` for any `<T>`. T102920913.
 //     _marker: marker::PhantomData<T>,
-// }
 // Kotlin: no cfg-based conditional compilation; always store the value.
 class IfDebug<T> private constructor(
     private val value: T?,
@@ -60,7 +59,6 @@ class IfDebug<T> private constructor(
         }
     }
 
-    // impl IfDebug<T>
 
     /** Get a reference to stored value if assertions enabled, `null` otherwise. */
     fun getRef(): T? {
@@ -78,18 +76,14 @@ class IfDebug<T> private constructor(
         }
     }
 
-    // impl PartialEq for IfDebug<T>
     override fun equals(other: Any?): Boolean {
         if (other !is IfDebug<*>) return false
         return true
     }
 
-    // impl Hash — consistent with equals
     override fun hashCode(): Int = 0
 
-    // impl Ord for IfDebug<T>
     override fun compareTo(other: IfDebug<T>): Int = 0
 
-    // impl Debug for IfDebug<T>
     override fun toString(): String = "IfDebug($value)"
 }

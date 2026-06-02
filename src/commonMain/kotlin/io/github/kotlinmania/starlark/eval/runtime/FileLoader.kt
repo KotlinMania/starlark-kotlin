@@ -33,10 +33,7 @@ interface FileLoader {
 // / [`FileLoader`] that looks up modules by name from a [`HashMap`].
 // /
 // / A list of all load statements can be obtained through
-// / [`AstModule::loads`](crate::syntax::AstModule::loads).
 // / This struct will raise an error if any requested files are not available.
-//     pub modules: &'a HashMap<&'a str, &'a FrozenModule>,
-// }
 class ReturnFileLoader(
     // / Map from module name (first argument to `load` statement) to the actual module.
     val modules: Map<String, FrozenModule>,
@@ -47,7 +44,6 @@ class ReturnFileLoader(
 }
 
 // / Same as [`ReturnFileLoader`], but does not require fighting the borrow checker.
-// }
 internal class ReturnOwnedFileLoader(
     val modules: Map<String, FrozenModule>,
 ) : FileLoader {

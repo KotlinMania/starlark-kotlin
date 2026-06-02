@@ -25,8 +25,6 @@ import io.github.kotlinmania.starlark.typing.Ty
 import io.github.kotlinmania.starlark.values.layout.IntegerTooBigError
 import io.github.kotlinmania.starlark.values.layout.Value
 
-// impl<'v> AllocValue<'v> for i32
-// impl AllocFrozenValue for i32
 
 /**
  * Allocate an [Int] (Rust `i32`) on the Starlark heap.
@@ -35,10 +33,8 @@ import io.github.kotlinmania.starlark.values.layout.Value
  */
 fun allocValueI32(value: Int): StarlarkInt = StarlarkInt.from(value)
 
-// impl StarlarkTypeRepr for i32
 fun i32StarlarkTypeRepr(): Ty = Ty.int()
 
-// impl UnpackValue<'_> for i32 {
 
 /**
  * Unpack an [Int] (Rust `i32`) from a Starlark [Value].

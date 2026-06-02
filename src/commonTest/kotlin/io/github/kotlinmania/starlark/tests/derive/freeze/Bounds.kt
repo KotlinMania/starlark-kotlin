@@ -24,7 +24,6 @@ import io.github.kotlinmania.starlark.values.layout.Freezer
 
 internal interface Bound
 
-// #[freeze(validator = check_type, bounds = "<V as Freeze>::Frozen: Bound<'freeze>")]
 internal class BoundsTest<V>(
     val field: V,
 ) : Freeze<BoundsTest<V>> where V : Freeze<V> {
@@ -37,10 +36,8 @@ internal class BoundsTest<V>(
 
 internal fun <V> checkType(t: BoundsTest<V>): Result<Unit> where V : Bound, V : Freeze<V> = Result.success(Unit)
 
-// #[test]
 @Suppress("unused")
 internal fun assertImpl() {
-    // impl Bound for Impl {}
     class Impl :
         Bound,
         Freeze<Impl> {

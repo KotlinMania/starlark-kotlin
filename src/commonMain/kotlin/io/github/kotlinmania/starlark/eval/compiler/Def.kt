@@ -686,7 +686,6 @@ internal class DefGen<V>(
     override fun toString(): String = parameters.signature()
 
     // Trace implementation: trace all captured Value references.
-    // impl Trace for DefGen<Value>
     override fun trace(tracer: Tracer) {
         // In the unfrozen case, we need to trace captured values.
         // The parameters also contain Values that need tracing.
@@ -701,7 +700,6 @@ internal class DefGen<V>(
     }
 
     // Freeze implementation: freeze into FrozenDef.
-    // impl Freeze for Def
     override fun freeze(freezer: Freezer): Result<FrozenDef> {
         @Suppress("UNCHECKED_CAST")
         val frozenParameters = parameters as ParametersSpec<FrozenValue>

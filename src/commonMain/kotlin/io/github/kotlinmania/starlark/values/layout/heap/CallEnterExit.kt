@@ -36,7 +36,6 @@ internal class NeedsDrop :
     //     // Just make this type `Drop`.
     //     // Note `mem::needs_drop()` would return `true` for this type,
     //     // even if `drop` is optimized away.
-    // }
     override fun close() {
         // Just make this type have a finalizer.
     }
@@ -45,14 +44,12 @@ internal class NeedsDrop :
 // / Type which doesn't have `Drop`.
 internal class NoDrop : MaybeDrop
 
-// }
 internal class CallEnter<D : MaybeDrop>(
     var function: Value,
     val time: ProfilerInstant,
     val maybeDrop: D,
 ) : StarlarkValue,
     Trace {
-    // }
     override val TYPE: String get() = "call_enter"
 
     override fun trace(tracer: Tracer) {
@@ -64,12 +61,10 @@ internal class CallEnter<D : MaybeDrop>(
     override fun toString(): String = "CallEnter"
 }
 
-// }
 internal class CallExit<D : MaybeDrop>(
     val time: ProfilerInstant,
     val maybeDrop: D,
 ) : StarlarkValue {
-    // }
     override val TYPE: String get() = "call_exit"
 
     override fun toString(): String = "CallExit"

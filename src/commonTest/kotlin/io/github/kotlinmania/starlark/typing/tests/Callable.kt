@@ -23,7 +23,6 @@ import io.github.kotlinmania.starlark.typing.TypeCheck
 
 /** Test for callables, but not calls. */
 
-// #[test]
 internal fun testCallableWithArgs() {
     TypeCheck().check(
         "callable_with_args",
@@ -44,7 +43,6 @@ def test():
     )
 }
 
-// #[test]
 internal fun testCallableNamed() {
     TypeCheck().check(
         "callable_named",

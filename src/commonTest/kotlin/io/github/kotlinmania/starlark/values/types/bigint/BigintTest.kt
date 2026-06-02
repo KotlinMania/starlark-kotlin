@@ -28,7 +28,6 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 
 class BigintTest {
-    // #[test]
     @Test
     fun testParse() {
         Assert.eq(
@@ -50,7 +49,6 @@ class BigintTest {
         )
     }
 
-    // #[test]
     @Test
     fun testStr() {
         Assert.eq(
@@ -59,7 +57,6 @@ class BigintTest {
         )
     }
 
-    // #[test]
     @Test
     fun testRepr() {
         Assert.eq(
@@ -68,7 +65,6 @@ class BigintTest {
         )
     }
 
-    // #[test]
     @Test
     fun testEquals() {
         Assert.eq("10000000000000000000000", "10000000000000000000000")
@@ -76,13 +72,11 @@ class BigintTest {
         Assert.eq("10000000000000000000000.0", "10000000000000000000000")
     }
 
-    // #[test]
     @Test
     fun testPlus() {
         Assert.eq("10000000000000000000000", "+10000000000000000000000")
     }
 
-    // #[test]
     @Test
     fun testCompareBigBig() {
         Assert.isTrue("10000000000000000000000 < 20000000000000000000000")
@@ -91,7 +85,6 @@ class BigintTest {
         Assert.isTrue("-10000000000000000000000 > -20000000000000000000000")
     }
 
-    // #[test]
     @Test
     fun testCompareBigSmall() {
         Assert.isTrue("1 < 10000000000000000000000")
@@ -104,7 +97,6 @@ class BigintTest {
         Assert.isTrue("-10000000000000000000000 < -1")
     }
 
-    // #[test]
     @Test
     fun testCompareBigFloat() {
         Assert.isTrue("1.0 < 10000000000000000000000")
@@ -117,7 +109,6 @@ class BigintTest {
         Assert.isTrue("-10000000000000000000000 < -1.0")
     }
 
-    // #[test]
     @Test
     fun testAddBig() {
         Assert.eq(
@@ -132,7 +123,6 @@ class BigintTest {
         Assert.eq("7", "100000000000000000007 - 100000000000000000000")
     }
 
-    // #[test]
     @Test
     fun testAddBigSmall() {
         Assert.eq("100000000000000000017", "100000000000000000000 + 17")
@@ -141,7 +131,6 @@ class BigintTest {
         Assert.eq("-100000000000000000017", "17 - 100000000000000000034")
     }
 
-    // #[test]
     @Test
     fun testAddBigFloat() {
         Assert.eq("2e20", "100000000000000000000 + 1e20")
@@ -150,7 +139,6 @@ class BigintTest {
         Assert.eq("2e20", "3e20 - 100000000000000000000")
     }
 
-    // #[test]
     @Test
     fun testMulBig() {
         Assert.eq(
@@ -159,21 +147,18 @@ class BigintTest {
         )
     }
 
-    // #[test]
     @Test
     fun testMulBigSmall() {
         Assert.eq("600000000000000000000", "200000000000000000000 * 3")
         Assert.eq("600000000000000000000", "3 * 200000000000000000000")
     }
 
-    // #[test]
     @Test
     fun testMulBigFloat() {
         Assert.eq("6e20", "200000000000000000000 * 3.0")
         Assert.eq("6e20", "3.0 * 200000000000000000000")
     }
 
-    // #[test]
     @Test
     fun testDivBig() {
         Assert.eq(
@@ -182,61 +167,52 @@ class BigintTest {
         )
     }
 
-    // #[test]
     @Test
     fun testDivBigSmall() {
         Assert.eq("2e20", "600000000000000000000 / 3")
         Assert.eq("2e-20", "6 / 300000000000000000000")
     }
 
-    // #[test]
     @Test
     fun testDivBigFloat() {
         Assert.eq("2e20", "600000000000000000000 / 3.0")
         Assert.eq("2e-20", "6.0 / 300000000000000000000")
     }
 
-    // #[test]
     @Test
     fun testFloorDivBig() {
         Assert.eq("2", "600000000000000000000 // 300000000000000000000")
     }
 
-    // #[test]
     @Test
     fun testFloorDivBigSmall() {
         Assert.eq("200000000000000000000", "600000000000000000000 // 3")
         Assert.eq("0", "3 // 600000000000000000000")
     }
 
-    // #[test]
     @Test
     fun testFloorDivBigFloat() {
         Assert.eq("2e20", "600000000000000000000 / 3.0")
         Assert.eq("2e-20", "6.0 / 300000000000000000000")
     }
 
-    // #[test]
     @Test
     fun testPercentBig() {
         Assert.eq("7", "600000000000000000007 % 200000000000000000000")
     }
 
-    // #[test]
     @Test
     fun testPercentBigSmall() {
         Assert.eq("7", "600000000000000000007 % 20")
         Assert.eq("3", "3 % 600000000000000000000")
     }
 
-    // #[test]
     @Test
     fun testPercentBigFloat() {
         Assert.eq("1e20", "100000000000000000000 % 1e50")
         Assert.eq("10.0", "10.0 % 100000000000000000000")
     }
 
-    // #[test]
     @Test
     fun testBitAndBig() {
         Assert.eq(
@@ -245,14 +221,12 @@ class BigintTest {
         )
     }
 
-    // #[test]
     @Test
     fun testBitAndBigSmall() {
         Assert.eq("1", "0x60000000000000000000003 & 0x9")
         Assert.eq("1", "0x9 & 0x60000000000000000000003")
     }
 
-    // #[test]
     @Test
     fun testBitAndFloat() {
         Assert.failSkipTypecheck("0x60000000000000000000000 & 1.0", "not supported")
@@ -267,7 +241,6 @@ class BigintTest {
         )
     }
 
-    // #[test]
     @Test
     fun testBitOrBig() {
         Assert.eq(
@@ -276,7 +249,6 @@ class BigintTest {
         )
     }
 
-    // #[test]
     @Test
     fun testBitOrBigSmall() {
         Assert.eq(
@@ -289,7 +261,6 @@ class BigintTest {
         )
     }
 
-    // #[test]
     @Test
     fun testBitOrFloat() {
         Assert.failSkipTypecheck("0x60000000000000000000000 | 1.0", "not supported")
@@ -304,7 +275,6 @@ class BigintTest {
         )
     }
 
-    // #[test]
     @Test
     fun testBitXorBig() {
         Assert.eq(
@@ -313,7 +283,6 @@ class BigintTest {
         )
     }
 
-    // #[test]
     @Test
     fun testBitXorBigSmall() {
         Assert.eq(
@@ -326,7 +295,6 @@ class BigintTest {
         )
     }
 
-    // #[test]
     @Test
     fun testBitXorFloat() {
         Assert.failSkipTypecheck("0x60000000000000000000000 ^ 1.0", "not supported")
@@ -341,7 +309,6 @@ class BigintTest {
         )
     }
 
-    // #[test]
     @Test
     fun testBitNot() {
         Assert.eq(
@@ -350,7 +317,6 @@ class BigintTest {
         )
     }
 
-    // #[test]
     @Test
     fun testLeftShift() {
         Assert.fail(
@@ -363,7 +329,6 @@ class BigintTest {
         )
     }
 
-    // #[test]
     @Test
     fun testLeftShiftSmall() {
         Assert.eq(
@@ -387,7 +352,6 @@ class BigintTest {
         Assert.eq("-1267650600228229401496703205376", "-1 << 100")
     }
 
-    // #[test]
     @Test
     fun testLeftShiftFloat() {
         Assert.failSkipTypecheck("0x10000000000000000000000000000000 << 1.0", "not supported")
@@ -402,7 +366,6 @@ class BigintTest {
         )
     }
 
-    // #[test]
     @Test
     fun testRightShift() {
         Assert.eq(
@@ -419,7 +382,6 @@ class BigintTest {
         )
     }
 
-    // #[test]
     @Test
     fun testRightShiftSmall() {
         Assert.eq(
@@ -438,7 +400,6 @@ class BigintTest {
         )
     }
 
-    // #[test]
     @Test
     fun testRightShiftFloat() {
         Assert.failSkipTypecheck("0x20000000000000000000000000000000 >> 1.0", "not supported")
@@ -453,7 +414,6 @@ class BigintTest {
         )
     }
 
-    // #[test]
     @Test
     fun testIntFunction() {
         Assert.eq(
@@ -462,7 +422,6 @@ class BigintTest {
         )
     }
 
-    // #[test]
     @Test
     fun testHash() {
         val hash1 = StarlarkHasher()
@@ -475,7 +434,6 @@ class BigintTest {
         assertEquals(hash1.finish(), hash2.finish())
     }
 
-    // #[test]
     @Test
     fun testIntTypeMatchesBigint() {
         Assert.isTrue("isinstance(1 << 100, int)")

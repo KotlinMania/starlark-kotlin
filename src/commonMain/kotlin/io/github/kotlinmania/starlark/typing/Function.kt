@@ -41,7 +41,6 @@ interface TyCustomFunctionImpl {
 class TyCustomFunction<F : TyCustomFunctionImpl>(
     val inner: F,
 ) : TyCustomImpl {
-    // impl TyCustomImpl for TyCustomFunction
 
     override fun asName(): String? = "function"
 
@@ -68,7 +67,6 @@ class TyCustomFunction<F : TyCustomFunctionImpl>(
 
     override fun <R> matcher(factory: TypeMatcherAlloc<R>): R = factory.callable()
 
-    // impl Display for TyCustomFunction
     override fun toString(): String = "def(${inner.asCallable().params()}) -> ${inner.asCallable().result()}"
 
     override fun equals(other: Any?): Boolean {
@@ -88,9 +86,6 @@ class TyCustomFunction<F : TyCustomFunctionImpl>(
 }
 
 /** A function. */
-//     pub(crate) type_attr: Option<Ty>,
-//     pub(crate) callable: TyCallable,
-// }
 class TyFunction(
     /** The `.type` property of the function, often `""`. */
     internal val typeAttr: Ty?,
@@ -115,7 +110,6 @@ class TyFunction(
     /** Callable signature of the function. */
     fun callable(): TyCallable = callable
 
-    // impl TyCustomFunctionImpl for TyFunction
 
     override fun isType(): Boolean = typeAttr != null
 

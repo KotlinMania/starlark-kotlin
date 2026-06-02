@@ -49,7 +49,6 @@ internal object TimeFlameProfilerType : ProfilerType<FlameGraphData> {
 private sealed class FlameProfileError(
     message: String,
 ) : Exception(message) {
-    // #[error("Flame profile not enabled")]
     // NotEnabled
     class NotEnabled : FlameProfileError("Flame profile not enabled")
 }
@@ -89,19 +88,15 @@ internal sealed class ValueId {
  */
 private class ValueIndex {
     /** Map from MutableValueId to Value. */
-    // mutable_values: Vec<Value<'v>>
     val mutableValues: MutableList<Value> = mutableListOf()
 
     /** Map from FrozenValueId to Value. */
-    // frozen_values: Vec<FrozenValue>
     val frozenValues: MutableList<FrozenValue> = mutableListOf()
 
     /** Map from Value to MutableValueId. */
-    // mutable_map: HashMap<RawPointer, MutableValueId, StarlarkHasherBuilder>
     val mutableMap: MutableMap<RawPointer, MutableValueId> = mutableMapOf()
 
     /** Map from Value to FrozenValueId. */
-    // frozen_map: HashMap<RawPointer, FrozenValueId, StarlarkHasherBuilder>
     val frozenMap: MutableMap<RawPointer, FrozenValueId> = mutableMapOf()
 
     // We only need to trace mutable values.
@@ -202,19 +197,15 @@ internal class TimeFlameProfile {
 
 private class FlameData {
     /** All events in the profile, i.e. function entry or exit with timestamp. */
-    // frames: Vec<(Frame, ProfilerInstant)>
     val frames: MutableList<Pair<Frame, ProfilerInstant>> = mutableListOf()
 
-    // index: ValueIndex<'v>
     val index: ValueIndex = ValueIndex()
 }
 
 private class Stacks(
-    // name: &'a str
     val name: String,
     // time: SmallDuration
     var time: SmallDuration = SmallDuration.ZERO,
-    // children: HashMap<ValueId, Stacks<'a>, StarlarkHasherBuilder>
     val children: MutableMap<ValueId, Stacks> = mutableMapOf(),
 ) {
     companion object {

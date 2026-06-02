@@ -39,7 +39,6 @@ import io.github.kotlinmania.starlark.values.typing.typecompiled.TypeMatcherT
  */
 sealed class TyTuple : Comparable<TyTuple> {
     /** `tuple[T0, T1, T2]` -- a tuple with specific element types. */
-    // Elems(Arc<[Ty]>)
     data class Elems(
         val elems: List<Ty>,
     ) : TyTuple()
@@ -179,7 +178,6 @@ sealed class TyTuple : Comparable<TyTuple> {
                 }
         }
 
-    // impl Display for TyTuple
     override fun toString(): String =
         when (this) {
             is Elems ->

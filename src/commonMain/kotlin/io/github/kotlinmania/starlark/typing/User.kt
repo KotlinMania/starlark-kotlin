@@ -28,21 +28,18 @@ import io.github.kotlinmania.starlark.values.typing.typecompiled.TypeMatcherFact
 private sealed class TyUserError(
     override val message: String,
 ) : Exception(message) {
-    // #[error("Type `{0}` specifies custom callable, but underlying `StarlarkValue` is not callable")]
     class CallableNotCallable(
         name: String,
     ) : TyUserError(
             "Type `$name` specifies custom callable, but underlying `StarlarkValue` is not callable",
         )
 
-    // #[error("Type `{0}` specifies custom indexable, but underlying `StarlarkValue` is not indexable")]
     class IndexableNotIndexable(
         name: String,
     ) : TyUserError(
             "Type `$name` specifies custom indexable, but underlying `StarlarkValue` is not indexable",
         )
 
-    // #[error("Type `{0}` specifies custom iterable, but underlying `StarlarkValue` is not iterable")]
     class IterableNotIterable(
         name: String,
     ) : TyUserError(

@@ -20,10 +20,8 @@ package io.github.kotlinmania.starlark
  */
 
 
-// #[inline]
 @Suppress("NOTHING_TO_INLINE")
 internal inline fun likely(b: Boolean): Boolean = b
 
-// #[inline]
 @Suppress("NOTHING_TO_INLINE")
 internal inline fun unlikely(b: Boolean): Boolean = b

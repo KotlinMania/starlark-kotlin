@@ -50,7 +50,6 @@ internal class TypingCallable :
 
     override fun toString(): String = TYPE
 
-    // impl StarlarkTypeRepr (required by AllocFrozenValue)
     override fun starlarkTypeRepr(): Ty = StarlarkCallable.starlarkTypeRepr()
 
     override fun evalType(): Ty = StarlarkCallable.starlarkTypeRepr()

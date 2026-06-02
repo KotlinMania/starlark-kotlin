@@ -27,13 +27,11 @@ import io.github.kotlinmania.starlark.typing.oracle.TypingOracleCtx
 
 // / `typing.Callable`.
 //     inner: ArcOrStatic<TyCallableInner>,
-// }
 class TyCallable private constructor(
     private val params: ParamSpec,
     private val result: Ty,
 ) : Comparable<TyCallable> {
     companion object {
-        // impl TyCallable
 
         // / Create a new callable type.
         fun new(params: ParamSpec, result: Ty): TyCallable = TyCallable(params, result)
@@ -45,7 +43,6 @@ class TyCallable private constructor(
         internal fun any(): TyCallable = ANY
     }
 
-    //     -> Result<Ty, TypingOrInternalError>
     internal fun validateCall(
         span: Span,
         args: TyCallArgs,
@@ -86,7 +83,6 @@ class TyCallable private constructor(
         }
     }
 
-    // impl Display for TyCallable
     override fun toString(): String {
         val sb = StringBuilder()
         fmtWithConfig(sb, TypeRenderConfig.Default)

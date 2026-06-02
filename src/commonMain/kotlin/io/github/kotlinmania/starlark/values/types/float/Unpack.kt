@@ -30,13 +30,11 @@ import io.github.kotlinmania.starlark.values.types.num.NumRef
 class UnpackFloat(
     val value: Double,
 ) : StarlarkTypeRepr {
-    // impl StarlarkTypeRepr for UnpackFloat
     override fun starlarkTypeRepr(): Ty = Ty.union2(Ty.int(), Ty.float())
 
     companion object : UnpackValue<UnpackFloat> {
         override fun starlarkTypeRepr(): Ty = Ty.union2(Ty.int(), Ty.float())
 
-        // impl<'v> UnpackValue<'v> for UnpackFloat {
         override fun unpackValueImpl(value: Value): Result<UnpackFloat?> {
             val num = NumRef.unpackValueImpl(value) ?: return Result.success(null)
             return Result.success(UnpackFloat(num.asFloat()))
@@ -44,4 +42,3 @@ class UnpackFloat(
     }
 }
 
-// }

@@ -37,7 +37,6 @@ private sealed class ArcTyInner : Comparable<ArcTyInner> {
     data object None : ArcTyInner()
 
     // / Default implementation.
-    // Arc(Arc<Ty>),
     data class Wrapped(
         val ty: Ty,
     ) : ArcTyInner()
@@ -91,7 +90,6 @@ class ArcTy private constructor(
 
     override fun toString(): String = inner.toString()
 
-    // impl ArcTy
     companion object {
         internal fun any(): ArcTy = ArcTy(ArcTyInner.Any)
 
@@ -128,7 +126,6 @@ class ArcTy private constructor(
 
     internal fun displayWith(config: TypeRenderConfig): ArcTyDisplay = ArcTyDisplay(this, config)
 
-    // impl Deref for ArcTy { type Target = Ty; fn deref(&self) -> &Ty }
     fun deref(): Ty =
         when (val i = inner) {
             is ArcTyInner.Any -> Ty.any()
@@ -141,9 +138,6 @@ class ArcTy private constructor(
         }
 }
 
-//     ty: &'a ArcTy,
-//     config: &'a TypeRenderConfig,
-// }
 internal class ArcTyDisplay(
     private val ty: ArcTy,
     private val config: TypeRenderConfig,

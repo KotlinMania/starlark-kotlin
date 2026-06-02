@@ -66,7 +66,6 @@ class AllocList<L>(
     }
 }
 
-// -- impl StarlarkTypeRepr for AllocList<L> -----------------------------------
 
 /**
  * [StarlarkTypeRepr] for [AllocList].
@@ -82,7 +81,6 @@ fun <L, Item : StarlarkTypeRepr> AllocList<L>.starlarkTypeRepr(): Ty
     return Ty.anyList()
 }
 
-// -- impl AllocValue for AllocList<L> -----------------------------------------
 
 /**
  * Allocate this [AllocList] as a mutable [Value] on the given [heap].
@@ -102,7 +100,6 @@ fun <L, Item : AllocValue> AllocList<L>.allocValue(heap: Heap): Value
     return heap.allocListIter(allocated)
 }
 
-// -- impl AllocFrozenValue for AllocList<L> -----------------------------------
 
 /**
  * Allocate this [AllocList] as a [FrozenValue] on the given frozen [heap].

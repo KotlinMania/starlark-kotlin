@@ -41,8 +41,6 @@ import io.github.kotlinmania.starlark.values.layout.heapCopyImpl
 import io.github.kotlinmania.starlark.values.layout.tryFreezeDirectly
 
 private sealed class AValueError : Exception() {
-    // #[error("Value of type `{0}` cannot be frozen")]
-    // CannotBeFrozen(&'static str),
     class CannotBeFrozen(
         val typeName: String,
     ) : AValueError() {
@@ -51,7 +49,6 @@ private sealed class AValueError : Exception() {
 }
 
 /** AValue implementation for ComplexValue types that support freezing. */
-//     T: ComplexValue<'v>,
 internal class AValueComplex<T>(
     private val value: T,
 ) : AValue where T : ComplexValue, T : Freeze<out StarlarkValue> {
@@ -62,7 +59,6 @@ internal class AValueComplex<T>(
     override fun allocSizeForExtraLen(extraLen: Int): ValueAllocSize = ValueAllocSize(AlignedSize(0u))
 
     override fun heapFreeze(freezer: Freezer): Result<FrozenValue> {
-        // if let Some(f) = try_freeze_directly::<Self>(me, freezer)
         val direct = tryFreezeDirectly(value, freezer)
         if (direct != null) {
             return direct
@@ -120,7 +116,6 @@ internal class AValueComplex<T>(
 }
 
 /** AValue implementation for types that can be traced but cannot be frozen. */
-//     T: StarlarkValue<'v> + Trace<'v>,
 internal class AValueComplexNoFreeze(
     private val value: StarlarkValue,
 ) : AValue {
@@ -140,7 +135,6 @@ internal class AValueComplexNoFreeze(
     override fun unpack(): StarlarkValue = value
 }
 
-// impl<'v> Heap<'v>
 
 /** Allocate a [ComplexValue] on the [Heap]. */
 fun <T> Heap.allocComplex(x: T): Value where T : ComplexValue, T : Freeze<out StarlarkValue> {

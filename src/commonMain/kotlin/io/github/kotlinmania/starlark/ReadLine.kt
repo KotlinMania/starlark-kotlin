@@ -25,8 +25,6 @@ package io.github.kotlinmania.starlark.readline
 
 /** Wrapper for the readline library, whichever we are using at the moment. */
 //     editor: Editor<(), DefaultHistory>,
-//     histfile: Option<String>,
-// }
 class ReadLine private constructor(
     private val histfileEnv: String?,
 ) {

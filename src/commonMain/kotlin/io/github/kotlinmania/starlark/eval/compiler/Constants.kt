@@ -34,7 +34,6 @@ import io.github.kotlinmania.starlark.values.types.namespace.FrozenNamespace
 internal class BuiltinFn(
     val value: FrozenValue,
 ) {
-    // impl PartialEq<FrozenValue> for BuiltinFn
     // Pointer equality works because #[starlark_module] proc macro
     // generates a singleton which allocates the function only once
     // even if builder function is called multiple times.
@@ -42,8 +41,6 @@ internal class BuiltinFn(
 
     fun ptrEq(other: Value): Boolean = value.toValue().ptrEq(other)
 
-    // impl PartialEq<FrozenValue> for BuiltinFn
-    // impl PartialEq<BuiltinFn> for FrozenValue (symmetric)
     override fun equals(other: Any?): Boolean {
         if (other is FrozenValue) return ptrEq(other)
         if (other is Value) return ptrEq(other)

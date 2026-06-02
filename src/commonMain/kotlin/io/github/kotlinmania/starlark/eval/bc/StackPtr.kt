@@ -31,7 +31,6 @@ package io.github.kotlinmania.starlark.eval.bc
 data class BcSlot(
     val index: UInt,
 ) : Comparable<BcSlot> {
-    // impl BcSlot
 
     fun toIn(): BcSlotIn = BcSlotIn(this)
 
@@ -53,7 +52,6 @@ class BcSlotsN(
     /** [n] slots starting with given slot. */
     val start: BcSlot,
 ) {
-    // impl<const N: usize> BcSlotsN<N>
 
     fun get(i: UInt): BcSlot {
         // assert!((I as usize) < N);
@@ -76,7 +74,6 @@ data class BcSlotRange(
     val start: BcSlot,
     val end: BcSlot,
 ) : Iterable<BcSlot> {
-    // impl BcSlotRange
 
     fun len(): UInt = end.index - start.index
 
@@ -105,7 +102,6 @@ data class BcSlotIn(
 ) {
     operator fun plus(rhs: UInt): BcSlotIn = BcSlotIn(slot + rhs)
 
-    // impl BcSlotIn
 
     /**
      * Take the slot.
@@ -121,7 +117,6 @@ data class BcSlotInRange(
     var start: BcSlotIn,
     var end: BcSlotIn,
 ) {
-    // impl BcSlotInRange
 
     fun len(): UInt = end.slot.index - start.slot.index
 
@@ -162,7 +157,6 @@ data class BcSlotInRange(
 data class BcSlotInRangeFrom(
     val start: BcSlotIn,
 ) {
-    // impl BcSlotInRangeFrom
 
     fun toRange(len: UInt): BcSlotInRange =
         BcSlotInRange(
@@ -179,7 +173,6 @@ data class BcSlotInRangeFrom(
 data class BcSlotOut(
     val slot: BcSlot,
 ) {
-    // impl BcSlotOut
 
     fun get(): BcSlot = slot
 

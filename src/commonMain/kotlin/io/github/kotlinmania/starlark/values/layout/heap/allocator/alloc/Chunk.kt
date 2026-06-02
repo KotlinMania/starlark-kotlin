@@ -22,11 +22,9 @@ package io.github.kotlinmania.starlark.values.layout.heap.allocator.alloc.chunk
 import io.github.kotlinmania.starlark.values.layout.AlignedSize
 import kotlin.concurrent.atomics.AtomicInt
 
-// #[repr(C)]
 //     ref_count: AtomicU32,
 //     len: AlignedSize,
 //     data: [MaybeUninit<usize>; 0],
-// }
 // Kotlin: ChunkData manages a ByteArray instead of raw pointers.
 private class ChunkData(
     val len: AlignedSize,
@@ -48,7 +46,6 @@ private class ChunkData(
         const val HEADER_SIZE_BYTES: Int = 8 // ref_count (4) + len (4)
     }
 
-    // #[inline]
     // Kotlin: offset 0 into data array.
 }
 
@@ -58,16 +55,13 @@ private class ChunkData(
 // static EMPTY_ALLOC: ChunkDataEmpty
 // Kotlin: represented by Chunk with null data.
 
-// impl fmt::Debug for ChunkData
 // Kotlin: toString() on ChunkData
 
 /** Refcounted chunk of memory. */
 //     ptr: NonNull<ChunkData>,
-// }
 internal class Chunk private constructor(
     private val chunkData: ChunkData?,
 ) {
-    // impl Default for Chunk
     // Kotlin: use companion empty() factory.
 
     companion object {
@@ -77,7 +71,6 @@ internal class Chunk private constructor(
         fun default(): Chunk = allocAtLeast(AlignedSize.ZERO)
 
         /** Allocate chunk which can hold at least `len_words` words. */
-        // #[inline]
         fun allocAtLeast(len: AlignedSize): Chunk =
             if (len == AlignedSize.ZERO) {
                 Chunk(chunkData = null)
@@ -94,21 +87,16 @@ internal class Chunk private constructor(
         }
     }
 
-    // impl fmt::Debug for Chunk
     override fun toString(): String = "Chunk(data=$chunkData)"
 
-    // #[inline]
     fun refCount(): Int = chunkData?.refCount?.load() ?: 0
 
     fun ptrEq(other: Chunk): Boolean = chunkData === other.chunkData
 
-    // #[inline]
     private fun data(): ChunkData? = chunkData
 
-    // #[inline]
     fun len(): AlignedSize = chunkData?.len ?: AlignedSize.ZERO
 
-    // #[inline]
     fun allocatedBytesWithMetadata(): Int =
         if (isEmpty()) {
             0
@@ -116,20 +104,16 @@ internal class Chunk private constructor(
             ChunkData.layoutForLen(len())
         }
 
-    // #[inline]
     fun isEmpty(): Boolean = chunkData == null
 
-    // #[inline]
     // Kotlin: returns offset 0 — callers use ptrAtOffset.
 
-    // #[inline]
     // Kotlin: returns the byte offset into the data array.
     fun ptrAtOffset(offset: AlignedSize): Int = offset.bytes().toInt()
 
     /** Access the raw backing data array. */
     fun dataBytes(): ByteArray? = chunkData?.data
 
-    // impl Clone for Chunk
     fun duplicate(): Chunk {
         if (isEmpty()) {
             return default()
@@ -141,7 +125,6 @@ internal class Chunk private constructor(
         return Chunk(chunkData)
     }
 
-    // impl Drop for Chunk
     // Kotlin: GC handles deallocation; decrement ref count for accounting.
     fun release() {
         if (isEmpty()) return

@@ -184,7 +184,6 @@ internal class HeapSummaryByFunction(
 
 
 // Test data is collected from both drop and non-drop heaps.
-// #[test]
 internal fun dropNonDrop() {
     val ast =
         io.github.kotlinmania.starlark.syntax.AstModule

@@ -23,13 +23,10 @@ package io.github.kotlinmania.starlark.collections
 
 // / Pool of strings.
 //     /// Empty strings with (typically) non-zero capacity.
-//     strings: Vec<String>,
-// }
 // Kotlin: Since Kotlin strings are immutable, we pool StringBuilder instead.
 internal class StringPool {
     private val builders = mutableListOf<StringBuilder>()
 
-    // impl StringPool
 
     // / Fetch a string from the pool or create an empty one.
     // /

@@ -26,12 +26,9 @@ import io.github.kotlinmania.starlark.values.layout.heap.Heap
 
 // / Iterator of starlark values.
 //     /// Iterator implementation. Typically an iterable itself.
-//     value: Value<'v>,
 //     /// Current index.
 //     index: usize,
 //     /// Heap to allocate values on.
-//     heap: Heap<'v>,
-// }
 class StarlarkIterator private constructor(
     // / Iterator implementation. Typically an iterable itself.
     private var value: Value,
@@ -43,7 +40,6 @@ class StarlarkIterator private constructor(
     private var stopped: Boolean = false
     private var nextValue: Value? = null
 
-    // impl<'v> Iterator for StarlarkIterator<'v> {
     override fun hasNext(): Boolean {
         if (stopped) return false
         val r = value.getRef().iterNext(index, heap)
@@ -72,10 +68,8 @@ class StarlarkIterator private constructor(
         throw NoSuchElementException()
     }
 
-    // #[inline]
     fun sizeHint(): Pair<Int, Int?> = value.getRef().iterSizeHint(index)
 
-    // impl<'v> Drop for StarlarkIterator<'v>
     // `iter_stop` is no-op for empty tuple, this saves us from virtual call
     // after iterator is exhausted.
     fun close() {
@@ -84,10 +78,8 @@ class StarlarkIterator private constructor(
         }
     }
 
-    // impl<'v> StarlarkIterator<'v>
     companion object {
         // / Construct iterator from the given value.
-        // #[inline]
         internal fun new(value: Value, heap: Heap): StarlarkIterator =
             StarlarkIterator(
                 value = value,
@@ -96,7 +88,6 @@ class StarlarkIterator private constructor(
             )
 
         // / Iterator yielding no values.
-        // #[inline]
         fun empty(heap: Heap): StarlarkIterator = new(Value.newEmptyTuple(), heap)
     }
 }

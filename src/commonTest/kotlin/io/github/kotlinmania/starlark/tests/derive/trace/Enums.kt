@@ -30,7 +30,6 @@ private sealed class TestEnumForTrace {
         val value: String,
     ) : TestEnumForTrace()
 
-    // Bar(i32, Value<'v>)
     class Bar(
         val intValue: Int,
         val value: Value,

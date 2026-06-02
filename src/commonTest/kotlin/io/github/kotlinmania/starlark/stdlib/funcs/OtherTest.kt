@@ -27,7 +27,6 @@ import io.github.kotlinmania.starlark.assert.isTrue
 import kotlin.test.Test
 
 class OtherTest {
-    // #[test]
     @Test
     fun testAbs() {
         eq("1", "abs(1)")
@@ -41,7 +40,6 @@ class OtherTest {
         isTrue("isinstance(abs(1), int)")
     }
 
-    // #[test]
     @Test
     fun testConstants() {
         isTrue("not None")
@@ -49,14 +47,12 @@ class OtherTest {
         isTrue("True")
     }
 
-    // #[test]
     @Test
     fun testChr() {
         fail("chr(0x110000)", "not a valid UTF-8")
         fail("chr(-1)", "negative")
     }
 
-    // #[test]
     @Test
     fun testHash() {
         eq("0", "hash('')")
@@ -90,7 +86,6 @@ noop(hash)(foo)
         )
     }
 
-    // #[test]
     @Test
     fun testInt() {
         eq("2147483647", "int('2147483647')")
@@ -105,7 +100,6 @@ noop(hash)(foo)
         eq("-2147483649", "int('-2147483649')")
     }
 
-    // #[test]
     @Test
     fun testTuple() {
         val a = Assert()

@@ -23,8 +23,6 @@ package io.github.kotlinmania.starlark.eval.compiler
 
 /** A small vector. */
 //     One(T),
-//     Vec(Vec<T>),
-// }
 internal sealed class SmallVec1<T> :
     Iterable<T>,
     Comparable<SmallVec1<T>> {
@@ -46,10 +44,8 @@ internal sealed class SmallVec1<T> :
             is Vec -> values
         }
 
-    // impl Deref for SmallVec1
     // Kotlin: access via asSlice()
 
-    // impl IntoIterator for SmallVec1
     override fun iterator(): Iterator<T> =
         when (this) {
             is One -> iterator { yield(value) }
@@ -80,20 +76,16 @@ internal sealed class SmallVec1<T> :
 
     fun push(value: T): SmallVec1<T> = extend(One(value))
 
-    // impl Debug for SmallVec1
     override fun toString(): String = asSlice().toString()
 
-    // impl PartialEq for SmallVec1
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other !is SmallVec1<*>) return false
         return asSlice() == other.asSlice()
     }
 
-    // impl Hash for SmallVec1
     override fun hashCode(): Int = asSlice().hashCode()
 
-    // impl PartialOrd + Ord for SmallVec1
     @Suppress("UNCHECKED_CAST")
     override fun compareTo(other: SmallVec1<T>): Int {
         val left = asSlice()

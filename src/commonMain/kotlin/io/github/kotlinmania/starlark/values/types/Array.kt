@@ -37,12 +37,7 @@ import io.github.kotlinmania.starlark.values.types.list.displayList
  *
  * Mutation operations (like `insert`) panic if there's not enough remaining capacity.
  */
-// #[repr(C)]
-//     len: UnsafeCell<u32>,
 //     capacity: u32,
-//     iter_count: UnsafeCell<u32>,
-//     content: [Value<'v>; 0],
-// }
 internal class Array(
     /** Fixed capacity. */
     private val capacity: Int,
@@ -197,7 +192,6 @@ internal object ValueEmptyArray {
         AllocStaticSimple.alloc(Array.new(0, 0))
     }
 
-    // impl ValueEmptyArray
     fun unpack(): FrozenValueTyped<Array> = inner.unpack()
 }
 

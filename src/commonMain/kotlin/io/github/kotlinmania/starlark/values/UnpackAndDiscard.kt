@@ -33,11 +33,9 @@ class UnpackAndDiscard<T : Any> internal constructor(
     // Kotlin: stored Ty replaces Rust's static trait dispatch on PhantomData.
     private val ty: Ty,
 ) : StarlarkTypeRepr {
-    // impl StarlarkTypeRepr for UnpackAndDiscard
     override fun starlarkTypeRepr(): Ty = ty
 
     companion object {
-        // impl UnpackValue for UnpackAndDiscard
         //
         // In Rust, `T::unpack_value_impl(value)` calls the trait statically.
         // In Kotlin, we require the UnpackValue<T> instance to be passed in,

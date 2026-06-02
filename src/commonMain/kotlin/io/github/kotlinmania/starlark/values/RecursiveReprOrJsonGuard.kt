@@ -27,7 +27,6 @@ import io.github.kotlinmania.starlark.values.layout.Value
 
 /** Pop the stack on drop. */
 internal class ReprStackGuard : AutoCloseable {
-    // impl Drop for ReprStackGuard
     override fun close() {
         val popped = reprStack.pop()
         check(popped != null)
@@ -36,7 +35,6 @@ internal class ReprStackGuard : AutoCloseable {
 
 /** Pop the stack on drop. */
 internal class JsonStackGuard : AutoCloseable {
-    // impl Drop for JsonStackGuard
     override fun close() {
         val popped = jsonStack.pop()
         check(popped != null)
@@ -49,12 +47,10 @@ internal class ReprCycle
 /** Returned when `to_json` is called recursively and a cycle is detected. */
 internal class JsonCycle
 
-// thread_local! { static REPR_STACK: Cell<SmallSet<RawPointer>> }
 // In Kotlin Multiplatform, Starlark evaluation is single-threaded per evaluator,
 // so a simple mutable set suffices.
 private val reprStack = SmallSet<RawPointer>()
 
-// thread_local! { static JSON_STACK: Cell<SmallSet<RawPointer>> }
 private val jsonStack = SmallSet<RawPointer>()
 
 /** Push a value to the stack, return error if it is already on the stack. */

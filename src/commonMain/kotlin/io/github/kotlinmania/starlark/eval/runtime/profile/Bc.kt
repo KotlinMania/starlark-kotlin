@@ -73,7 +73,6 @@ internal object BcPairsProfilerType : ProfilerType<BcPairsProfileData> {
 }
 
 internal sealed class BcProfileError : Exception() {
-    // #[error("Can't call `write_bc_profile` unless you first call `enable_bc_profile`.")]
     data object BcProfilingNotEnabled : BcProfileError() {
         override val message: String get() =
             "Can't call `write_bc_profile` unless you first call `enable_bc_profile`."

@@ -130,7 +130,6 @@ internal enum class RetainedHeapProfileMode {
 }
 
 private sealed class HeapProfileError : Exception() {
-    // #[error("heap profile not enabled")]
     data object NotEnabled : HeapProfileError() {
         override val message: String get() = "heap profile not enabled"
     }

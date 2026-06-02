@@ -21,7 +21,6 @@ package io.github.kotlinmania.starlark.values.types
 
 // ! The integer type.
 // !
-// ! For small values, we try not to allocate on the [`Heap`](crate::values::Heap),
 // ! but instead use special values. If the value doesn't fit in the special representation,
 // ! we use [`BigInt`](num_bigint::BigInt) to store it.
 

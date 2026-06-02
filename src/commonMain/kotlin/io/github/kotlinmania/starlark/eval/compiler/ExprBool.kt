@@ -149,6 +149,5 @@ internal sealed class ExprCompiledBool {
 }
 
 /** Extension to convert IrSpanned<ExprCompiledBool> to IrSpanned<ExprCompiled>. */
-// impl IrSpanned<ExprCompiledBool>
 internal fun IrSpanned<ExprCompiledBool>.intoExpr(): IrSpanned<ExprCompiled> =
     IrSpanned(span = span, node = node.intoExpr())

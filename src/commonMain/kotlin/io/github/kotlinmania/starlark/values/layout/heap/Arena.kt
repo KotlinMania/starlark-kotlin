@@ -173,7 +173,6 @@ internal class Arena {
     /** Allocate a type `T` plus `extra` bytes. */
     fun <T : AValue> allocExtra(x: AValueImpl<T>): AValueRepr<StarlarkValue> = alloc(x)
 
-    //     init: impl FnOnce(*mut u8)) -> *mut AValueHeader
     // In Rust, this allocates raw bytes and a callback fills them in.
     // In Kotlin, strings are immutable objects, so the `init` callback
     // receives the string content to construct.

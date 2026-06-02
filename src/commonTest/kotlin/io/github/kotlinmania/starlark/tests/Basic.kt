@@ -26,7 +26,6 @@ import io.github.kotlinmania.starlark.assert.failSkipTypecheck
 import io.github.kotlinmania.starlark.environment.GlobalsBuilder
 import io.github.kotlinmania.starlark.values.owned.OwnedFrozenValue
 
-// #[test]
 internal fun arithmeticTest() {
     Assert.isTrue("(1 + 2 == 3)")
     Assert.isTrue("(1 * 2 == 2)")
@@ -35,7 +34,6 @@ internal fun arithmeticTest() {
     Assert.isTrue("(5 % 2 == 1)")
 }
 
-// #[test]
 internal fun bitwiseTest() {
     Assert.allTrue(
         """
@@ -60,12 +58,10 @@ internal fun bitwiseTest() {
     Assert.fail("1 >> -13", "Negative right shift")
 }
 
-// #[test]
 internal fun testOperators() {
     Assert.eq("1+------2", "3")
 }
 
-// #[test]
 internal fun testEquality() {
     Assert.allTrue(
         """
@@ -99,7 +95,6 @@ x = repr; y = repr; x == y
     )
 }
 
-// #[test]
 internal fun testFrozenEquality() {
     val program = "(str, (), 1, range(4), True, None, [8], {'test':3})"
     val a = Assert.pass(program)
@@ -111,7 +106,6 @@ internal fun testFrozenEquality() {
     assert.isTrue("load('saved', 'val'); val == $program")
 }
 
-// #[test]
 internal fun testEqualityMultipleGlobals() {
     fun mkRepr(): OwnedFrozenValue {
         val a = Assert()
@@ -125,7 +119,6 @@ internal fun testEqualityMultipleGlobals() {
     check(mkRepr().value() == mkRepr().value())
 }
 
-// #[test]
 internal fun testComparison() {
     Assert.allTrue(
         """
@@ -147,7 +140,6 @@ False < True
     Assert.failSkipTypecheck("repr < str", "`compare` not supported")
 }
 
-// #[test]
 internal fun testFrozenHash() {
     val exprs = listOf("\"test\"", "\"x\"")
     val a = Assert()
@@ -166,7 +158,6 @@ assert_eq(all([frozen_dict[x] != None for x in values]), True)
     )
 }
 
-// #[test]
 internal fun testCompare() {
     Assert.fail("noop(1) > False", "Operation `compare` not supported")
     Assert.isTrue("[1, 2] == [1, 2]")
@@ -201,13 +192,11 @@ xs == ys
     )
 }
 
-// #[test]
 internal fun testNotInUnhashable() {
     // Note that [] can't be hashed
     Assert.fail("[] not in {123: 456}", "not hashable")
 }
 
-// #[test]
 internal fun testNotHashable() {
     Assert.fail(
         """

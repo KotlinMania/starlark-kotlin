@@ -38,7 +38,6 @@ sealed class Either<out L, out R> {
 }
 
 // / Borrowed `Dict`.
-// }
 class DictRef internal constructor(
     internal val aref: Either<Ref<Dict>, Dict>,
 )
@@ -49,7 +48,6 @@ fun DictRef.clone(): DictRef =
         is Either.Right -> DictRef(Either.Right(ref.value))
     }
 
-// impl<'v> DictRef<'v>
 // / Downcast the value to a dict.
 @Suppress("UNCHECKED_CAST")
 fun dictRefFromValue(x: Value): DictRef? =
@@ -62,7 +60,6 @@ fun dictRefFromValue(x: Value): DictRef? =
         DictRef(Either.Left(ptr.inner.borrow()))
     }
 
-// }
 operator fun DictRef.getValue(thisRef: Any?, property: Any?): Dict =
     when (val ref = aref) {
         is Either.Left -> ref.value.value
@@ -77,16 +74,12 @@ fun DictRef.iter(): Sequence<Pair<Value, Value>> =
     }
 
 // / Mutably borrowed `Dict`.
-//     pub aref: RefMut<'v, Dict<'v>>,
-// }
 class DictMut(
     // / Mutable reference to the dict
     val aref: RefMut<Dict>,
 )
 
-// impl<'v> DictMut<'v>
 // / Downcast the value to a mutable dict reference.
-// #[inline]
 fun dictMutFromValue(x: Value): Result<DictMut> {
     class NotDictError(
         typeName: String,
@@ -107,12 +100,9 @@ fun dictMutFromValue(x: Value): Result<DictMut> {
 }
 
 // / Reference to frozen `Dict`.
-//     dict: &'static FrozenDictData,
-// }
 class FrozenDictRef internal constructor(
     private val dict: FrozenDictData,
 ) {
-    // impl FrozenDictRef
     companion object {
         // / Downcast to frozen dict.
         fun fromFrozenValue(x: FrozenValue): FrozenDictRef? =

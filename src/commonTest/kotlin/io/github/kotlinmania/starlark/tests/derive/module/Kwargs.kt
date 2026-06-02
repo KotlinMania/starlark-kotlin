@@ -22,12 +22,7 @@ package io.github.kotlinmania.starlark.tests.derive.module
 import io.github.kotlinmania.starlark.assert.Assert
 import io.github.kotlinmania.starlark.environment.GlobalsBuilder
 
-// #[starlark_module]
 private fun testKwargsModule(globals: GlobalsBuilder) {
-    //     #[starlark(require = pos)] a: u32,
-    //     #[starlark(require = pos)] b: bool,
-    //     #[starlark(kwargs)] kwargs: SmallMap<String, u64>,
-    // ) -> anyhow::Result<String>
     globals.setFunction("pos_kwargs") { args, _ ->
         val a = args.positional<UInt>(0)
         val b = args.positional<Boolean>(1)
@@ -40,10 +35,6 @@ private fun testKwargsModule(globals: GlobalsBuilder) {
         Result.success("a=$a b=$b kwargs={$kwargsStr}")
     }
 
-    //     #[starlark(require = pos)] a: u32,
-    //     #[starlark(require = named)] b: bool,
-    //     #[starlark(kwargs)] kwargs: SmallMap<String, u64>,
-    // ) -> anyhow::Result<String>
     globals.setFunction("pos_named_kwargs") { args, _ ->
         val a = args.positional<UInt>(0)
         val b = args.optionalNamed<Boolean>("b") ?: error("b is required")
@@ -60,7 +51,6 @@ private fun testKwargsModule(globals: GlobalsBuilder) {
     }
 }
 
-// #[test]
 internal fun testKwargs() {
     val a = Assert()
     a.globalsAdd(::testKwargsModule)

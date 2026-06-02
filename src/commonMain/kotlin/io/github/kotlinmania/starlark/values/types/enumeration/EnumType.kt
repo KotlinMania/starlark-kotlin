@@ -190,7 +190,6 @@ class EnumTypeGen internal constructor(
                 )
 
             // The unwrap here is safe because the new() method requires the elements be
-            // of type StringValue<'v>
             val fieldsMap =
                 linkedMapOf<String, Ty>().apply {
                     for (key in elements().keys()) {

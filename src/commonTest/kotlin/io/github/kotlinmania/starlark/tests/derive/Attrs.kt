@@ -31,7 +31,6 @@ import io.github.kotlinmania.starlark.values.layout.heap.FrozenHeap
 import io.github.kotlinmania.starlark.values.layout.heap.Heap
 import io.github.kotlinmania.starlark.values.types.bigint.allocValue
 
-// #[test]
 internal fun testDeriveAttrs() {
     class Nested(
         val foo: String,

@@ -52,11 +52,9 @@ internal sealed class ModuleError(
         val name: String,
     ) : ModuleError("No imports are available, you tried `$name` (no call to `Evaluator.set_loader`)")
 
-    // #[error("Unexpected statement (internal error)")]
     data object UnexpectedStatement :
         ModuleError("Unexpected statement (internal error)")
 
-    // #[error("Top level stmt count mismatch (internal error)")]
     data object TopLevelStmtCountMismatch :
         ModuleError("Top level stmt count mismatch (internal error)")
 }

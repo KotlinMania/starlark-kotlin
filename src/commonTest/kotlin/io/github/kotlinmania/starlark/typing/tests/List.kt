@@ -21,7 +21,6 @@ import io.github.kotlinmania.starlark.typing.TypeCheck
  * limitations under the License.
  */
 
-// #[test]
 internal fun testIntMulList() {
     TypeCheck().ty("x").check(
         "int_mul_list",
@@ -32,7 +31,6 @@ def test():
     )
 }
 
-// #[test]
 internal fun testListAppend() {
     TypeCheck().ty("x").check(
         "list_append",
@@ -46,7 +44,6 @@ def test():
     )
 }
 
-// #[test]
 internal fun testListAppendBug() {
     TypeCheck().ty("x").check(
         "list_append_bug",
@@ -58,7 +55,6 @@ def test():
     )
 }
 
-// #[test]
 internal fun testListFunction() {
     TypeCheck().ty("x").check(
         "list_function",
@@ -69,7 +65,6 @@ def test():
     )
 }
 
-// #[test]
 internal fun testListLess() {
     TypeCheck().check(
         "list_less",
@@ -80,7 +75,6 @@ def test(x: list[str], y: list[str]) -> bool:
     )
 }
 
-// #[test]
 internal fun testListBinOp() {
     TypeCheck().ty("x").ty("y").ty("z").check(
         "list_bin_op",

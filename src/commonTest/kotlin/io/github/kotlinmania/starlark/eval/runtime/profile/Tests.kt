@@ -118,62 +118,50 @@ R = test()
     }
 }
 
-// #[test] fn test_profile_golden_heap_allocated()
 internal fun testProfileGoldenHeapAllocated() {
     testProfileGoldenForMode(ProfileMode.HeapAllocated)
 }
 
-// #[test] fn test_profile_golden_heap_retained()
 internal fun testProfileGoldenHeapRetained() {
     testProfileGoldenForMode(ProfileMode.HeapRetained)
 }
 
-// #[test] fn test_profile_golden_heap_summary_allocated()
 internal fun testProfileGoldenHeapSummaryAllocated() {
     testProfileGoldenForMode(ProfileMode.HeapSummaryAllocated)
 }
 
-// #[test] fn test_profile_golden_heap_summary_retained()
 internal fun testProfileGoldenHeapSummaryRetained() {
     testProfileGoldenForMode(ProfileMode.HeapSummaryRetained)
 }
 
-// #[test] fn test_profile_golden_heap_flame_allocated()
 internal fun testProfileGoldenHeapFlameAllocated() {
     testProfileGoldenForMode(ProfileMode.HeapFlameAllocated)
 }
 
-// #[test] fn test_profile_golden_heap_flame_retained()
 internal fun testProfileGoldenHeapFlameRetained() {
     testProfileGoldenForMode(ProfileMode.HeapFlameRetained)
 }
 
-// #[test] fn test_profile_golden_statement()
 internal fun testProfileGoldenStatement() {
     testProfileGoldenForMode(ProfileMode.Statement)
 }
 
-// #[test] fn test_profile_golden_coverage()
 internal fun testProfileGoldenCoverage() {
     testProfileGoldenForMode(ProfileMode.Coverage)
 }
 
-// #[test] fn test_profile_golden_bytecode()
 internal fun testProfileGoldenBytecode() {
     testProfileGoldenForMode(ProfileMode.Bytecode)
 }
 
-// #[test] fn test_profile_golden_bytecode_pairs()
 internal fun testProfileGoldenBytecodePairs() {
     testProfileGoldenForMode(ProfileMode.BytecodePairs)
 }
 
-// #[test] fn test_profile_golden_time_flame()
 internal fun testProfileGoldenTimeFlame() {
     testProfileGoldenForMode(ProfileMode.TimeFlame)
 }
 
-// #[test] fn test_profile_golden_typecheck()
 internal fun testProfileGoldenTypecheck() {
     testProfileGoldenForMode(ProfileMode.Typecheck)
 }

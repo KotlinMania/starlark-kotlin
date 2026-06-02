@@ -52,7 +52,6 @@ class ThinBoxSliceFrozenValue private constructor(
         /** Produces an empty list */
         fun empty(): ThinBoxSliceFrozenValue = ThinBoxSliceFrozenValue(PackedImpl(emptyList()))
 
-        // impl FromIterator<FrozenValue> for ThinBoxSliceFrozenValue
         fun fromIter(iter: Iterable<FrozenValue>): ThinBoxSliceFrozenValue = ThinBoxSliceFrozenValue(PackedImpl.new(iter))
     }
 

@@ -50,7 +50,6 @@ import io.github.kotlinmania.starlark.eval.runtime.FrameSpan
  * @param rem the remaining clauses to process (in reverse order)
  * @param term callback to emit the comprehension body expression
  */
-// impl ClauseCompiled
 internal fun ClauseCompiled.writeBc(
     bc: BcWriter,
     rem: List<ClauseCompiled>,
@@ -71,7 +70,6 @@ internal fun ClauseCompiled.writeBc(
     }
 }
 
-// impl ComprCompiled
 
 /**
  * Marks variables that are definitely assigned after evaluation of this comprehension.

@@ -44,10 +44,8 @@ import io.github.kotlinmania.starlark.values.layout.typed.FrozenStringValue
  * before (apart from the total) number of slots required.
  */
 class MutableNames {
-    // RefCell<SmallMap<...>> → mutable SmallMap field
     private val map: SmallMap<FrozenStringValue, Pair<ModuleSlotId, Visibility>> = SmallMap.new()
 
-    // impl MutableNames
 
     companion object {
         fun new(): MutableNames = MutableNames()
@@ -118,7 +116,6 @@ class MutableNames {
 class FrozenNames(
     private val map: SmallMap<FrozenStringValue, Pair<ModuleSlotId, Visibility>>,
 ) {
-    // impl FrozenNames
 
     fun getName(name: String): Pair<ModuleSlotId, Visibility>? {
         // Rust uses Equivalent<FrozenStringValue> for &str; in Kotlin we match by string content.

@@ -84,7 +84,6 @@ internal fun registerFloat(globals: GlobalsBuilder) {
         asType = Ty.float(),
         speculativeExecSafe = true,
     ) { args, eval ->
-        // #[starlark(require = pos)] a: Option<Either<Either<NumRef, bool>, &str>>
         // Get the first positional argument, or return 0.0 if absent.
         val positional = args.positionalAll()
         if (positional.isEmpty()) {

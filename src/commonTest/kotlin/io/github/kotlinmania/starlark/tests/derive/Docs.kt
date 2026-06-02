@@ -32,11 +32,9 @@ import io.github.kotlinmania.starlark.values.layout.Value
 import io.github.kotlinmania.starlark.values.layout.heap.Heap
 
 /** Main module docs */
-// #[starlark_module]
 private fun objectDocs1(builder: MethodsBuilder) {
     builder.setDocstring("Main module docs")
     /** Returns the string "foo" */
-    // #[starlark(attribute)]
     builder.setAttribute("foo", "Returns the string \"foo\"") { _: Value, heap: Heap ->
         Result.success(heap.allocStr("foo"))
     }
@@ -70,7 +68,6 @@ private class ComplexTestExampleGen<V>(
 
 private typealias FrozenComplexTestExample = ComplexTestExampleGen<Any>
 
-// #[test]
 internal fun testDeriveDocs() {
     val obj = DocType.fromStarlarkValue(TestExample())
 
@@ -88,7 +85,6 @@ internal fun testDeriveDocs() {
     )
 }
 
-// #[test]
 internal fun testDeriveDocsOnComplexValues() {
     val complexObj = DocType.fromStarlarkValue(ComplexTestExampleGen<Any>(Unit))
 

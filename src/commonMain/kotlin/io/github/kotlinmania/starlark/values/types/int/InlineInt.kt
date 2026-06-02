@@ -41,7 +41,6 @@ data class InlineInt internal constructor(
     private val value: Int,
 ) : Comparable<InlineInt> {
     // Rust: impl Debug for InlineInt
-    // }
     override fun toString(): String = value.toString()
 
     companion object {
@@ -246,7 +245,6 @@ data class InlineInt internal constructor(
         // Rust: match self.0.checked_abs() {
         //     Some(i) => StarlarkInt::from(i),
         //     None => StarlarkInt::from(self.to_bigint().abs()),
-        // }
         return if (value == Int.MIN_VALUE) {
             // checked_abs returns None for Int.MIN_VALUE
             StarlarkInt.from(toBigInt().abs())
@@ -255,7 +253,6 @@ data class InlineInt internal constructor(
         }
     }
 
-    // --- Bitwise operators (Rust: impl BitAnd, BitOr, BitXor, Not) ---
 
     // Rust: impl BitAnd for InlineInt
     infix fun and(other: InlineInt): InlineInt = InlineInt(value and other.value)
@@ -282,7 +279,6 @@ data class InlineInt internal constructor(
     @Suppress("NOTHING_TO_INLINE")
     internal inline fun equalsInt(other: Int): Boolean = value == other
 
-    // --- Rem (Rust: impl Rem for InlineInt) ---
 
     operator fun rem(other: InlineInt): InlineInt = InlineInt(value % other.value)
 }

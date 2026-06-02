@@ -19,17 +19,12 @@ package io.github.kotlinmania.starlark.values.layout.heap
  * limitations under the License.
  */
 
-// / Faster but less safe alternative to `RefCell<T>`:
 // / all operations except `borrow` are `unsafe` and may lead to undefined behavior.
-//     value: UnsafeCell<MaybeUninit<T>>,
-//     init: Cell<bool>,
-// }
 internal class FastCell<T>(
     // / The value.
     private var value: T?,
 ) {
     // / Whether the cell contains a value or zeros.
-    // init: Cell<bool>,
     private var init: Boolean = value != null
 
     // Kotlin: GC handles drop. No explicit destructor needed.
@@ -38,7 +33,6 @@ internal class FastCell<T>(
         fun <T> default(defaultValue: T): FastCell<T> = FastCell(defaultValue)
     }
 
-    // impl FastCell<T>
 
     // / Get a reference to the value.
     // /

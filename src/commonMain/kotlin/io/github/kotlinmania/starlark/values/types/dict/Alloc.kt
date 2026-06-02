@@ -48,7 +48,6 @@ import io.github.kotlinmania.starlark.values.layout.heap.Heap
 // / use starlark::values::dict::AllocDict;
 // /
 // / # use starlark::values::{FrozenHeap, Heap};
-// / # fn alloc(heap: Heap<'_>, frozen_heap: &FrozenHeap) {
 // / let l = heap.alloc(AllocDict([("a", 1), ("b", 2), ("c", 3)]));
 // / let ls = frozen_heap.alloc(AllocDict([("a", 1), ("b", 2), ("c", 3)]));
 // / # }
@@ -56,18 +55,15 @@ import io.github.kotlinmania.starlark.values.layout.heap.Heap
 data class AllocDict<D>(
     val d: D,
 ) {
-    // impl AllocDict<iter::Empty<(FrozenValue, FrozenValue)>>
     companion object {
         // / Allocate an empty dict.
         val EMPTY: AllocDict<Sequence<Pair<FrozenValue, FrozenValue>>> = AllocDict(emptySequence())
     }
 }
 
-// impl<D, K, V> StarlarkTypeRepr for AllocDict<D>
 inline fun <reified K : StarlarkTypeRepr, reified V : StarlarkTypeRepr> allocDictStarlarkTypeRepr(): Ty =
     DictType.starlarkTypeRepr<K, V>()
 
-// impl<'v, D, K, V> AllocValue<'v> for AllocDict<D>
 fun <D, K, V> AllocDict<D>.allocValue(heap: Heap): Value
     where D : Iterable<Pair<K, V>>,
           K : AllocValue,
@@ -75,7 +71,6 @@ fun <D, K, V> AllocDict<D>.allocValue(heap: Heap): Value
     val iter = this.d.iterator()
     val map = SmallMap.withCapacity<Value, Value>((this.d as? Collection<*>)?.size ?: 0)
     for ((k, v) in iter) {
-        // map.insert_hashed(k.alloc_value(heap).get_hashed().unwrap(), v.alloc_value(heap));
         map.insertHashed(
             k.allocValue(heap).getHashed().getOrThrow(),
             v.allocValue(heap),
@@ -85,7 +80,6 @@ fun <D, K, V> AllocDict<D>.allocValue(heap: Heap): Value
     return Dict.new(map).allocValue(heap)
 }
 
-// impl<D, K, V> AllocFrozenValue for AllocDict<D>
 fun <D, K, V> AllocDict<D>.allocFrozenValue(heap: FrozenHeap): FrozenValue
     where D : Iterable<Pair<K, V>>,
           K : AllocFrozenValue,
@@ -93,7 +87,6 @@ fun <D, K, V> AllocDict<D>.allocFrozenValue(heap: FrozenHeap): FrozenValue
     val iter = this.d.iterator()
     val map = SmallMap.withCapacity<FrozenValue, FrozenValue>((this.d as? Collection<*>)?.size ?: 0)
     for ((k, v) in iter) {
-        // map.insert_hashed(k.alloc_frozen_value(heap).get_hashed().unwrap(), v.alloc_frozen_value(heap));
         val frozenKey = k.allocFrozenValue(heap)
         val hashedValue = frozenKey.toValue().getHashed().getOrThrow()
         map.insertHashed(

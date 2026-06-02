@@ -355,7 +355,6 @@ class TypeCompiledInstrArg(
     override fun visitJumpAddr(ip: BcAddr, consumer: (BcAddr) -> Unit) {}
 }
 
-// ---- BcInstrArg for Option<T> ----
 
 /**
  * [BcInstrArg] implementation for optional arguments (Rust `Option<T>`).
@@ -656,7 +655,6 @@ class SymbolInstrArg(
     override fun visitJumpAddr(ip: BcAddr, consumer: (BcAddr) -> Unit) {}
 }
 
-// ---- BcInstrArg for Box<[FrozenValue]> ----
 
 /**
  * [BcInstrArg] implementation for a list of [FrozenValue] (Rust `Box<[FrozenValue]>`).
@@ -678,7 +676,6 @@ class FrozenValueListInstrArg(
     override fun visitJumpAddr(ip: BcAddr, consumer: (BcAddr) -> Unit) {}
 }
 
-// ---- BcInstrArg for Box<[Hashed<FrozenValue>]> ----
 
 /**
  * [BcInstrArg] implementation for a list of [Hashed]<[FrozenValue]>

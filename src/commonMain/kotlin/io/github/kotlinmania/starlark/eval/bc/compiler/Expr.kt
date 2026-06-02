@@ -121,7 +121,6 @@ internal fun writeNExprs(
     help(mutableListOf(), exprs, bc, k)
 }
 
-// impl ExprCompiled { pub(crate) fn mark_definitely_assigned_after(&self, bc) }
 internal fun ExprCompiled.markDefinitelyAssignedAfter(bc: BcWriter) {
     when (this) {
         is ExprCompiled.ValueExpr -> {}
@@ -322,7 +321,6 @@ private fun writeEquals(
     }
 }
 
-// impl IrSpanned<ExprCompiled> { pub(crate) fn write_bc(&self, target, bc) }
 internal fun IrSpanned<ExprCompiled>.writeBc(target: BcSlotOut, bc: BcWriter) {
     val span = this.span
     when (val expr = this.node) {
