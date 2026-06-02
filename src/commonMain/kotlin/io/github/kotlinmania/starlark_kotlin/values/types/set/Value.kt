@@ -195,8 +195,8 @@ data class SetGen<T>(val inner: T) : ComplexValue, Trace, Freeze<StarlarkValue> 
     // fn sub(&self, rhs: Value<'v>, heap: Heap<'v>) -> crate::Result<Value<'v>>
     override fun sub(other: Value, heap: Heap): Result<Value> {
         return try {
-            val rhsSet = SetRef.unpackValueOpt(rhs)
-                ?: return ValueError.unsupportedWith(SET_TYPE, "-", rhs)
+            val rhsSet = SetRef.unpackValueOpt(other)
+                ?: return ValueError.unsupportedWith(SET_TYPE, "-", other)
 
             if (setLike().content().isEmpty()) {
                 return Result.success(SetData().allocValue(heap))

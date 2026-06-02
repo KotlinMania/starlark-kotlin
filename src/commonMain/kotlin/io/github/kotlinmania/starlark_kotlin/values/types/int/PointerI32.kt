@@ -185,7 +185,7 @@ internal class PointerI32 internal constructor(
 
     // Rust: fn mul(&self, other: Value<'v>, heap: Heap<'v>) -> Option<crate::Result<Value<'v>>>
     override fun mul(rhs: Value, heap: Heap): Result<Value>? {
-        val otherNum = other.unpackNum() ?: return null
+        val otherNum = rhs.unpackNum() ?: return null
         return Result.success((NumRef.Int(StarlarkIntRef.Small(get())) * otherNum).allocValue(heap))
     }
 

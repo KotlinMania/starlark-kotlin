@@ -229,7 +229,7 @@ class StarlarkBigInt private constructor(
 
     /** Multiplication. Returns null if rhs is not numeric. Rust: `fn mul` */
     override fun mul(rhs: Value, heap: Heap): Result<Value>? {
-        val otherNum = other.unpackNum() ?: return null
+        val otherNum = rhs.unpackNum() ?: return null
         return Result.success(heap.alloc(NumRef.Int(StarlarkIntRef.Big(this)) * otherNum))
     }
 
