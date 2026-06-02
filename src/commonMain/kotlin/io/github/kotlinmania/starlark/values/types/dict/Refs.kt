@@ -90,13 +90,10 @@ internal fun dictMutFromValue(x: Value): Result<DictMut> {
             NotDictError(x.getType())
         }
 
-    val inner = dictGen?.inner
-    val dict =
-        if (inner is AtomicRef<*>) {
-            inner.value as? Dict
-        } else {
-            null
-        }
+    val dict = when (val inner = dictGen?.inner) {
+        is AtomicRef<*> -> inner.value as? Dict
+        else -> null
+    }
 
     if (dict == null) return Result.failure(error(x))
     val borrowed = RefMut(dict)

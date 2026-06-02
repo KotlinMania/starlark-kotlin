@@ -41,11 +41,9 @@ class DictType<K : StarlarkTypeRepr, V : StarlarkTypeRepr> private constructor()
 fun <K : StarlarkTypeRepr, V : StarlarkTypeRepr> unpackDictType(
     value: Value,
 ): Result<DictType<K, V>?> {
-    val result = UnpackDictEntries.unpackValue<K, V>(value)
-    if (result.isFailure) return Result.failure(result.exceptionOrNull()!!)
-    val entries = result.getOrThrow()
+    val entries = UnpackDictEntries.unpackValue<K, V>(value).getOrElse { return Result.failure(it) }
     return if (entries != null) {
-        Result.success(DictType.instance<K, V>())
+        Result.success(DictType.instance())
     } else {
         Result.success(null)
     }
