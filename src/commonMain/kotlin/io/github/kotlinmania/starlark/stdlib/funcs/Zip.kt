@@ -36,7 +36,7 @@ class ZipType : TyCustomFunctionImpl {
     override fun asCallable(): TyCallable = TyCallable.new(ParamSpec.args(Ty.iter(Ty.any())), Ty.list(Ty.any()))
 
     override fun validateCall(
-        _span: Span,
+        span: Span,
         args: TyCallArgs,
         oracle: TypingOracleCtx,
     ): Result<Ty> {
