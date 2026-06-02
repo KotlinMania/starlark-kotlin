@@ -89,6 +89,7 @@ class AstModule(
         }
     }
 
+    @Suppress("UNCHECKED_CAST")
     fun loads(): List<AstLoad> {
         val loads = mutableListOf<AstLoad>()
 
