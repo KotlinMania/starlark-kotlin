@@ -38,10 +38,7 @@ import kotlin.reflect.KClass
 // Implementation of iterators for string type.
 
 /** An opaque iterator over a string, produced by elems/codepoints */
-// #[derive(Debug, Trace, Coerce, Display, Freeze, NoSerialize, ProvidesStaticType, Allocative)]
-// #[display("iterator")]
 // #[repr(C)]
-// struct StringIterableGen<'v, V: ValueLike<'v>> {
 //     string: V::String,
 //     produce_char: bool,
 // }
@@ -52,16 +49,13 @@ internal class StringIterableGen(
     Trace,
     ProvidesStaticType,
     Freeze<StarlarkValue> {
-    // #[display("iterator")]
     override fun toString(): String = "iterator"
 
-    // #[starlark_value(type = "iterator")]
     override val TYPE: String get() = "iterator"
     override val HAS_iterate: Boolean get() = true
 
     override val staticType: KClass<*> get() = StringIterableGen::class
 
-    // unsafe fn iterate(&self, _me: Value<'v>, heap: Heap<'v>) -> crate::Result<Value<'v>>
     override fun iterate(me: Value, heap: Heap): Result<Value> {
         // Lazy implementation: we allocate a tuple and then iterate over it.
         val iter =
@@ -82,7 +76,6 @@ internal class StringIterableGen(
         return Result.success(StringIterableGen(frozenStr.toStringValue(), produceChar))
     }
 
-    // unsafe impl Trace for StringIterableGen
     override fun trace(
         @Suppress("unused") tracer: Tracer,
     ) {
@@ -91,7 +84,6 @@ internal class StringIterableGen(
     }
 }
 
-// pub(crate) fn iterate_chars<'v>(
 //     string: StringValue<'v>,
 //     heap: Heap<'v>,
 // ) -> ValueOfUnchecked<'v, StarlarkIter<String>>
@@ -110,7 +102,6 @@ internal fun iterateChars(
     )
 }
 
-// pub(crate) fn iterate_codepoints<'v>(
 //     string: StringValue<'v>,
 //     heap: Heap<'v>,
 // ) -> ValueOfUnchecked<'v, StarlarkIter<String>>

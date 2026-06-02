@@ -41,7 +41,6 @@ import io.github.kotlinmania.starlark.syntax.dialect.Dialect
 import io.github.kotlinmania.starlark.values.FrozenRef
 import io.github.kotlinmania.starlark.values.layout.heap.FrozenHeap
 
-// fn test_with_module(program: &str, expected: &str, module: &MutableNames)
 private fun testWithModule(program: String, expected: String, module: MutableNames) {
     val ast = AstModule.parse("t.star", program, Dialect.AllOptionsInternal).getOrThrow()
     val frozenHeap = FrozenHeap.new()
@@ -87,7 +86,6 @@ private fun testWithModule(program: String, expected: String, module: MutableNam
 
     r.append(" |")
 
-    // struct Visitor
     @Suppress("UNCHECKED_CAST")
     class Visitor(
         val r: StringBuilder,
@@ -368,7 +366,6 @@ private fun visitClauseExprs(clause: ClauseP<CstPayload>, f: (CstExpr) -> Unit) 
     }
 }
 
-// fn t(program: &str, expected: &str)
 private fun t(program: String, expected: String) {
     val module = MutableNames()
     testWithModule(program, expected, module)

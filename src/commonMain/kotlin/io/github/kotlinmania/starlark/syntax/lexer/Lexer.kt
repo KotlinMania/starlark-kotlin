@@ -26,7 +26,6 @@ import io.github.kotlinmania.starlark.syntax.dialect.Dialect
 import io.github.kotlinmania.starlark.typing.EvalException
 import io.github.kotlinmania.starlark.typing.StarlarkError
 
-// type Lexeme = Result<(usize, Token, usize), EvalException>
 typealias Lexeme = Triple<Int, Token, Int>
 
 sealed class LexemeError(

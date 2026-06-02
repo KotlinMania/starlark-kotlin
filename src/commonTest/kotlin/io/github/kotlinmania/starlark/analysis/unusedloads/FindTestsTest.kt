@@ -24,7 +24,6 @@ import kotlin.test.Test
 
 // / Tests for unused load finding using golden file comparison.
 class FindTestsTest {
-    // fn test_unused_loads(name: &str, program: &str)
     private fun testUnusedLoads(name: String, program: String) {
         val trimmed = program.trim()
 
@@ -51,7 +50,6 @@ class FindTestsTest {
 
                             val fileSpan = codemap.value.fileSpan(span)
                             // spanDisplay is from starlark_syntax (not yet ported);
-                            // use a simplified display format.
                             appendLine("Unused load at ${fileSpan.resolveSpan()}")
                         }
                     }

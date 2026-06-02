@@ -36,7 +36,6 @@ import kotlin.reflect.KClass
  * In Kotlin, we use a registration function that wires up the same capabilities
  * at runtime via the type registry.
  */
-// macro_rules! starlark_complex_value
 fun <T : StarlarkValue> starlarkComplexValue(
     unfrozenType: KClass<T>,
     frozenType: KClass<out StarlarkValue>,
@@ -59,7 +58,6 @@ fun <T : StarlarkValue> starlarkComplexValue(
  * In Rust, this macro generates AllocValue, AllocFrozenValue, and a from_value
  * that returns Either<&Self, &FrozenX> instead of coercing to unfrozen.
  */
-// macro_rules! starlark_complex_values
 fun <T : StarlarkValue, F : StarlarkValue> starlarkComplexValues(
     unfrozenType: KClass<T>,
     frozenType: KClass<F>,
@@ -86,7 +84,6 @@ fun <T : StarlarkValue, F : StarlarkValue> starlarkComplexValues(
  * In Kotlin, we use a registration function that wires up the same capabilities
  * at runtime via the type registry.
  */
-// macro_rules! starlark_simple_value
 fun <T : StarlarkValue> starlarkSimpleValue(
     type: KClass<T>,
     allocValue: (T, Heap) -> Value,

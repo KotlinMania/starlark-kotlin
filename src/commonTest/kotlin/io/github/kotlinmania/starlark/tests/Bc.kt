@@ -23,13 +23,4 @@ package io.github.kotlinmania.starlark.tests
 
 // / Bytecode generation tests.
 
-// mod and_or;
-// mod call;
 // internal val call = "call" // conflicts with tests.call package
-// mod compr;
-// mod definitely_assigned;
-// mod expr;
-// mod for_stmt;
-// pub(crate) mod golden;
-// mod if_stmt;
-// mod isinstance;

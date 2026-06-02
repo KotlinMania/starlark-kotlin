@@ -89,7 +89,6 @@ private fun map(
  * Print the value with full debug formatting. The result may not be stable over time.
  * Intended for debugging purposes and guaranteed to produce verbose output not suitable for user display.
  */
-// fn debug(val: Value) -> anyhow::Result<String>
 private fun debug(
     v: Value,
 ): Result<String> = Result.success(v.toString())

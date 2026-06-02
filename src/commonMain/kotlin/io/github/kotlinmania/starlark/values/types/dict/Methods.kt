@@ -60,7 +60,6 @@ internal fun dictMethods(registry: MethodsBuilder) {
 
     registry.setDocstring("Methods for the `dict` type.")
 
-    // fn clear(this: Value) -> Result<NoneType>
     setMethod(
         "clear",
         ParametersSpec.newParts(
@@ -75,7 +74,6 @@ internal fun dictMethods(registry: MethodsBuilder) {
         clear(thisValue).map { Value.newNone() }
     }
 
-    // fn get(this: DictRef, key: Value, default: Option<Value>) -> Result<Value>
     setMethod(
         "get",
         ParametersSpec.newParts(
@@ -101,7 +99,6 @@ internal fun dictMethods(registry: MethodsBuilder) {
         get(thisRef, key, default)
     }
 
-    // fn items(this: DictRef, heap: Heap) -> Result<Value>
     setMethod(
         "items",
         ParametersSpec.newParts(
@@ -120,7 +117,6 @@ internal fun dictMethods(registry: MethodsBuilder) {
         items(thisRef, eval.heap())
     }
 
-    // fn keys(this: DictRef, heap: Heap) -> Result<Value>
     setMethod(
         "keys",
         ParametersSpec.newParts(
@@ -139,7 +135,6 @@ internal fun dictMethods(registry: MethodsBuilder) {
         keys(thisRef, eval.heap())
     }
 
-    // fn pop(this: Value, key: Value, default: Option<Value>) -> Result<Value>
     setMethod(
         "pop",
         ParametersSpec.newParts(
@@ -161,7 +156,6 @@ internal fun dictMethods(registry: MethodsBuilder) {
         pop(thisValue, key, default)
     }
 
-    // fn popitem(this: Value) -> Result<(Value, Value)>
     setMethod(
         "popitem",
         ParametersSpec.newParts(
@@ -178,7 +172,6 @@ internal fun dictMethods(registry: MethodsBuilder) {
         }
     }
 
-    // fn setdefault(this: Value, key: Value, default: Option<Value>) -> Result<Value>
     setMethod(
         "setdefault",
         ParametersSpec.newParts(
@@ -200,7 +193,6 @@ internal fun dictMethods(registry: MethodsBuilder) {
         setdefault(thisValue, key, default)
     }
 
-    // fn update(this: Value, pairs: Option<Value>, **kwargs) -> Result<NoneType>
     setMethod(
         "update",
         ParametersSpec.newParts(
@@ -222,7 +214,6 @@ internal fun dictMethods(registry: MethodsBuilder) {
         update(thisValue, pairsValue, kwargsRef, eval.heap()).map { Value.newNone() }
     }
 
-    // fn values(this: DictRef, heap: Heap) -> Result<Value>
     setMethod(
         "values",
         ParametersSpec.newParts(

@@ -26,7 +26,6 @@ import io.github.kotlinmania.starlark.values.layout.RawPointer
 import io.github.kotlinmania.starlark.values.layout.Value
 
 /** Pop the stack on drop. */
-// pub(crate) struct ReprStackGuard;
 internal class ReprStackGuard : AutoCloseable {
     // impl Drop for ReprStackGuard
     override fun close() {
@@ -36,7 +35,6 @@ internal class ReprStackGuard : AutoCloseable {
 }
 
 /** Pop the stack on drop. */
-// pub(crate) struct JsonStackGuard;
 internal class JsonStackGuard : AutoCloseable {
     // impl Drop for JsonStackGuard
     override fun close() {
@@ -46,11 +44,9 @@ internal class JsonStackGuard : AutoCloseable {
 }
 
 /** Returned when `repr` is called recursively and a cycle is detected. */
-// pub(crate) struct ReprCycle;
 internal class ReprCycle
 
 /** Returned when `to_json` is called recursively and a cycle is detected. */
-// pub(crate) struct JsonCycle;
 internal class JsonCycle
 
 // thread_local! { static REPR_STACK: Cell<SmallSet<RawPointer>> }
@@ -62,7 +58,6 @@ private val reprStack = SmallSet<RawPointer>()
 private val jsonStack = SmallSet<RawPointer>()
 
 /** Push a value to the stack, return error if it is already on the stack. */
-// pub(crate) fn repr_stack_push(value: Value) -> Result<ReprStackGuard, ReprCycle>
 internal fun reprStackPush(value: Value): Result<ReprStackGuard> {
     if (!reprStack.insert(value.ptrValue())) {
         return Result.failure(Exception(ReprCycle().toString()))
@@ -71,7 +66,6 @@ internal fun reprStackPush(value: Value): Result<ReprStackGuard> {
 }
 
 /** Push a value to the stack, return error if it is already on the stack. */
-// pub(crate) fn json_stack_push(value: Value) -> Result<JsonStackGuard, JsonCycle>
 internal fun jsonStackPush(value: Value): Result<JsonStackGuard> {
     if (!jsonStack.insert(value.ptrValue())) {
         return Result.failure(Exception(JsonCycle().toString()))

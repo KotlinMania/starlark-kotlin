@@ -60,7 +60,6 @@ sealed class InstrControl {
  * Each instruction type implements this interface, defining its argument type
  * and its execution behavior.
  */
-// pub(crate) trait BcInstr: Sized + 'static
 interface BcInstr {
     /**
      * Execute the instruction.

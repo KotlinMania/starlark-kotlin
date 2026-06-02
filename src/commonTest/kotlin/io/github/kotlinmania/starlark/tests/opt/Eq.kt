@@ -24,7 +24,6 @@ import io.github.kotlinmania.starlark.tests.bc.bcGoldenTest
 /** Test for `a == b` optimizations. */
 
 // #[test]
-// fn test_eq_int()
 internal fun testEqInt() {
     bcGoldenTest(
         "eq_int",
@@ -36,7 +35,6 @@ def test(x):
 }
 
 // #[test]
-// fn test_eq_str()
 internal fun testEqStr() {
     bcGoldenTest(
         "eq_str",
@@ -48,7 +46,6 @@ def test(x):
 }
 
 // #[test]
-// fn test_eq_short_str_is_ptr_eq()
 internal fun testEqShortStrIsPtrEq() {
     bcGoldenTest(
         "eq_short_str",
@@ -60,7 +57,6 @@ def test(x):
 }
 
 // #[test]
-// fn test_eq_bool_is_ptr_eq()
 internal fun testEqBoolIsPtrEq() {
     bcGoldenTest(
         "eq_bool",
@@ -73,7 +69,6 @@ def test(x):
 
 /** Enum values do not override `equals` method, so we can use pointer equality. */
 // #[test]
-// fn test_eq_enum_is_ptr_eq()
 internal fun testEqEnumIsPtrEq() {
     bcGoldenTest(
         "eq_enum",
@@ -88,7 +83,6 @@ def test(x):
 
 /** Enum values do not override `equals` method, so we can use pointer equality. */
 // #[test]
-// fn test_eq_enum_attr_is_ptr_eq()
 internal fun testEqEnumAttrIsPtrEq() {
     bcGoldenTest(
         "eq_enum_attr",
@@ -102,7 +96,6 @@ def test(x):
 }
 
 // #[test]
-// fn test_eq_const()
 internal fun testEqConst() {
     bcGoldenTest(
         "eq_const",

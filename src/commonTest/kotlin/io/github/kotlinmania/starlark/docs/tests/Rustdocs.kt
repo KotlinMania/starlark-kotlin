@@ -319,7 +319,6 @@ private fun moduleFunctions(builder: GlobalsBuilder) {
     builder.setConst("MAGIC", 42)
 
     /** Docs for func1 */
-    // fn func1(foo: String) -> anyhow::Result<String>
     builder.setFunction("func1") { _args: Arguments, _eval: Evaluator ->
         Value.newNone()
     }

@@ -20,13 +20,11 @@ package io.github.kotlinmania.starlark.tests.bc
  */
 
 // #[test]
-// fn test_for()
 internal fun testFor() {
     bcGoldenTest("for", "def test(x):\n  for i in x:\n    noop(i)")
 }
 
 // #[test]
-// fn test_for_break()
 internal fun testForBreak() {
     bcGoldenTest(
         "for_break",
@@ -35,7 +33,6 @@ internal fun testForBreak() {
 }
 
 // #[test]
-// fn test_for_continue()
 internal fun testForContinue() {
     bcGoldenTest(
         "for_continue",

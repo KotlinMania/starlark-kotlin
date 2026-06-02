@@ -21,5 +21,3 @@ package io.github.kotlinmania.starlark.typing
  * limitations under the License.
  */
 
-// pub(crate) mod ctx;
-// pub(crate) mod traits;

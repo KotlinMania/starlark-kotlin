@@ -24,7 +24,6 @@ import io.github.kotlinmania.starlark.typing.TypeCheck
 /** Type-related operations. */
 
 // #[test]
-// fn test_type_alias()
 internal fun testTypeAlias() {
     TypeCheck().ty("x").check(
         "type_alias",
@@ -38,7 +37,6 @@ def f(x: MyList):
 }
 
 // #[test]
-// fn test_incorrect_type_dot()
 internal fun testIncorrectTypeDot() {
     TypeCheck().check(
         "incorrect_type_dot",
@@ -50,7 +48,6 @@ def foo(x: list.foo.bar):
 }
 
 // #[test]
-// fn test_function_as_type_bit_or()
 internal fun testFunctionAsTypeBitOr() {
     TypeCheck().ty("t").check(
         "function_as_type_bit_or",

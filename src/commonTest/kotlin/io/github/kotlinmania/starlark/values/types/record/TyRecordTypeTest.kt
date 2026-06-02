@@ -25,7 +25,6 @@ import kotlin.test.Test
 
 class TyRecordTypeTest {
     // #[test]
-    // fn test_good()
     @Test
     fun testGood() {
         Assert.pass(
@@ -40,7 +39,6 @@ foo(MyRec(x = 1))
     }
 
     // #[test]
-    // fn test_fail_compile_time()
     @Test
     fun testFailCompileTime() {
         Assert.failGolden(
@@ -58,7 +56,6 @@ def bar():
     }
 
     // #[test]
-    // fn test_fail_runtime_time()
     @Test
     fun testFailRuntimeTime() {
         Assert.failGolden(
@@ -75,7 +72,6 @@ noop(foo)(WrongRec(x = 1))
     }
 
     // #[test]
-    // fn test_record_instance_typechecker_ty()
     @Test
     fun testRecordInstanceTypecheckerTy() {
         Assert.pass(
@@ -91,7 +87,6 @@ def foo() -> MyRec:
     }
 
     // #[test]
-    // fn test_typecheck_field_pass()
     @Test
     fun testTypecheckFieldPass() {
         Assert.pass(
@@ -107,7 +102,6 @@ assert_eq(f(MyRec(x = 1, y = 2)), 3)
     }
 
     // #[test]
-    // fn test_typecheck_field_fail()
     @Test
     fun testTypecheckFieldFail() {
         Assert.failGolden(
@@ -122,7 +116,6 @@ def f(rec: MyRec) -> int:
     }
 
     // #[test]
-    // fn test_typecheck_record_type_call()
     @Test
     fun testTypecheckRecordTypeCall() {
         Assert.failGolden(

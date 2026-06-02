@@ -22,7 +22,6 @@ import io.github.kotlinmania.starlark.typing.TypeCheck
  */
 
 // #[test]
-// fn test_special_function_struct()
 internal fun testSpecialFunctionStruct() {
     TypeCheck().ty("x").check(
         "struct",
@@ -34,7 +33,6 @@ def test():
 }
 
 // #[test]
-// fn test_special_function_zip()
 internal fun testSpecialFunctionZip() {
     TypeCheck().ty("x").check(
         "zip",

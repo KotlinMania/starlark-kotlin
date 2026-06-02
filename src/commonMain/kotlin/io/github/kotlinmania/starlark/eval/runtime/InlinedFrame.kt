@@ -29,8 +29,6 @@ import io.github.kotlinmania.starlark.values.types.allocAny
  * When a function `a` is inlined into `b`, this struct contains
  * the inlined frame for expressions in `a` which now reside in `b`.
  */
-// #[derive(Debug, PartialEq)]
-// pub(crate) struct InlinedFrame
 data class InlinedFrame(
     val span: FrameSpan,
     val funValue: FrozenValue,
@@ -40,7 +38,6 @@ data class InlinedFrame(
      *
      * Resulting frames are ordered bottom-to-top, same order as in `CallStack`.
      */
-    // pub(crate) fn extend_frames(&self, frames: &mut Vec<Frame>)
     fun extendFrames(frames: MutableList<Frame>) {
         frames.add(
             Frame(
@@ -53,21 +50,17 @@ data class InlinedFrame(
 }
 
 /** Stack of inlined frames (maybe empty). */
-// #[derive(Copy, Clone, Dupe, Debug, Default)]
-// pub(crate) struct InlinedFrames
 data class InlinedFrames(
     /** Linked list. */
     var frames: FrozenRef<InlinedFrame>? = null,
 ) {
     /** Collect frames, bottom-to-top, same order as in `CallStack`. */
-    // pub(crate) fn extend_frames(self, frames: &mut Vec<Frame>)
     fun extendFrames(frames: MutableList<Frame>) {
         this.frames?.let { f ->
             f.value.extendFrames(frames)
         }
     }
 
-    // fn to_inlined_frames(self) -> Vec<FrozenRef<'static, InlinedFrame>>
     private fun toInlinedFrames(): List<FrozenRef<InlinedFrame>> {
         val r = mutableListOf<FrozenRef<InlinedFrame>>()
         var framesIter = this
@@ -85,7 +78,6 @@ data class InlinedFrames(
      * E. g. when inlining `def a(): return {}` into `def b(): a()`,
      * self is empty stack for expression `{}`, `span` is `a()` and `fun` is `a`.
      */
-    // pub(crate) fn inline_into(&mut self, span: FrameSpan, fun: FrozenValue, span_alloc: &mut InlinedFrameAlloc)
     fun inlineInto(
         span: FrameSpan,
         funValue: FrozenValue,
@@ -119,18 +111,15 @@ data class InlinedFrames(
 }
 
 /** Heap allocator for `InlinedFrame` which attempts to reuse previous allocation. */
-// pub(crate) struct InlinedFrameAlloc<'f>
 class InlinedFrameAlloc(
     private val frozenHeap: FrozenHeap,
 ) {
     private var lastAlloc: FrozenRef<InlinedFrame>? = null
 
     companion object {
-        // pub(crate) fn new(frozen_heap: &'f FrozenHeap) -> Self
         fun new(frozenHeap: FrozenHeap): InlinedFrameAlloc = InlinedFrameAlloc(frozenHeap)
     }
 
-    // pub(crate) fn alloc_frame(&mut self, frame: InlinedFrame) -> FrozenRef<'static, InlinedFrame>
     fun allocFrame(frame: InlinedFrame): FrozenRef<InlinedFrame> {
         lastAlloc?.let { last ->
             if (last.value == frame) {

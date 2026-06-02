@@ -179,7 +179,6 @@ private fun submoduleFunctions(builder: GlobalsBuilder) {
     }
 }
 
-// fn get_globals() -> Globals
 private fun getGlobals(): Globals =
     GlobalsBuilder
         .new()

@@ -28,9 +28,7 @@ import io.github.kotlinmania.starlark.eval.compiler.InlineDefBody
 import io.github.kotlinmania.starlark.values.layout.Value
 
 // #[starlark_module]
-// fn globals(builder: &mut GlobalsBuilder)
 private fun globalsFunctions(builder: GlobalsBuilder) {
-    // fn returns_type_is<'v>(value: Value<'v>) -> anyhow::Result<bool>
     builder.setFunction("returns_type_is") { args, _ ->
         val value = args.positional<Value>(0)
         val defGen = value.downcastRef<DefGen<*>>()
@@ -44,7 +42,6 @@ private fun globalsFunctions(builder: GlobalsBuilder) {
 }
 
 // #[test]
-// fn returns_type_is()
 internal fun testReturnsTypeIs() {
     val a = Assert()
     a.globalsAdd(::globalsFunctions)
@@ -68,7 +65,6 @@ assert_false(is_list({}))
 }
 
 // #[test]
-// fn does_not_return_type_is()
 internal fun testDoesNotReturnTypeIs() {
     val a = Assert()
     a.globalsAdd(::globalsFunctions)

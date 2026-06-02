@@ -25,7 +25,6 @@ import io.github.kotlinmania.starlark.eval.runtime.FrameSpan
 import io.github.kotlinmania.starlark.values.layout.FrozenValue
 
 /** Boolean expression. */
-// pub(crate) enum ExprCompiledBool
 internal sealed class ExprCompiledBool {
     // Const(bool)
     data class Const(
@@ -38,14 +37,12 @@ internal sealed class ExprCompiledBool {
         val expr: ExprCompiled,
     ) : ExprCompiledBool()
 
-    // fn into_expr(self) -> ExprCompiled
     fun intoExpr(): ExprCompiled =
         when (this) {
             is Const -> ExprCompiled.ValueExpr(FrozenValue.newBool(value))
             is Expr -> expr
         }
 
-    // fn const_value(&self) -> Option<bool>
     fun constValue(): Boolean? =
         when (this) {
             is Const -> value
@@ -54,7 +51,6 @@ internal sealed class ExprCompiledBool {
 
     companion object {
         /** `bool(x)` and do trivial optimizations. */
-        // pub(crate) fn new(expr: IrSpanned<ExprCompiled>) -> IrSpanned<ExprCompiledBool>
         fun new(expr: IrSpanned<ExprCompiled>): IrSpanned<ExprCompiledBool> {
             fun newBool(span: FrameSpan, b: Boolean): IrSpanned<ExprCompiledBool> =
                 IrSpanned(node = Const(b), span = span)

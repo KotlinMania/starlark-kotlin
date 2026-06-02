@@ -26,13 +26,11 @@ import io.github.kotlinmania.starlark.typing.TyBasic
 import io.github.kotlinmania.starlark.typing.TyStarlarkValue
 import io.github.kotlinmania.starlark.typing.TypeRenderConfig
 
-// pub struct RenderConfig
 class RenderConfig(
     val typeConfig: TypeRenderConfig,
     val layoutConfig: LayoutRenderConfig,
 )
 
-// pub struct DocModuleInfo<'a>
 class DocModuleInfo(
     val module: DocModule,
     val name: String,
@@ -41,11 +39,9 @@ class DocModuleInfo(
 ) {
     // impl DocModuleInfo
 
-    // fn into_page_renders(&self) -> Vec<PageRender<'a>>
     internal fun intoPageRenders(): List<PageRender> = traverseInner(module, name, pagePath)
 
     companion object {
-        // fn traverse_inner(docs: &DocModule, module_name: &str, base_path: &str) -> Vec<PageRender>
         private fun traverseInner(
             docs: DocModule,
             moduleName: String,
@@ -99,7 +95,6 @@ class DocModuleInfo(
  * DocsRender will have all the PageRender it needs to render the docs.
  * Since types and some modules are owned by other modules, we need to use the reference here.
  */
-// enum DocPageRef<'a>
 internal sealed class DocPageRef {
     // Module(&'a DocModule)
     class Module(
@@ -113,7 +108,6 @@ internal sealed class DocPageRef {
 }
 
 /** A single page to render. */
-// struct PageRender<'a>
 internal class PageRender(
     val page: DocPageRef,
     val path: String,
@@ -123,7 +117,6 @@ internal class PageRender(
 ) {
     // impl PageRender
 
-    // fn render_markdown(&self, render_config: &RenderConfig) -> String
     fun renderMarkdown(renderConfig: RenderConfig): String =
         when (page) {
             is DocPageRef.Module -> {
@@ -142,7 +135,6 @@ internal class PageRender(
  * each mapped to the contents of that page. That means that some of the paths may be prefixes
  * of each other, which will need consideration if this is to be materialized to a filesystem.
  */
-// struct MultipageRender<'a>
 internal class MultipageRender(
     private val pageRenders: List<PageRender>,
     private val renderConfig: RenderConfig,
@@ -157,7 +149,6 @@ internal class MultipageRender(
          * linkedTyMapper is used to map the **type path** and **type name** to a linkable element
          * in the markdown.
          */
-        // fn new(docs: Vec<DocModuleInfo>, linked_ty_mapper: Option<fn(&str, &str) -> String>, render_signature_at_bottom: bool) -> Self
         fun new(
             docs: List<DocModuleInfo>,
             linkedTyMapper: ((String, String) -> String)?,
@@ -213,7 +204,6 @@ internal class MultipageRender(
     }
 
     /** Render the docs into a map of markdown paths to markdown content. */
-    // fn render_markdown_pages(&self) -> HashMap<String, String>
     fun renderMarkdownPages(): Map<String, String> =
         pageRenders.associate { page ->
             page.path to page.renderMarkdown(renderConfig)
@@ -231,7 +221,6 @@ internal class MultipageRender(
  * [linkedTyMapper] is used to map the **type path** and **type name** to a linkable element
  * in the markdown.
  */
-// pub fn render_markdown_multipage(modules_infos: Vec<DocModuleInfo>, ...) -> HashMap<String, String>
 fun renderMarkdownMultipage(
     modulesInfos: List<DocModuleInfo>,
     linkedTyMapper: ((String, String) -> String)?,

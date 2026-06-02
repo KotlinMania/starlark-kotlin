@@ -31,7 +31,6 @@ import io.github.kotlinmania.starlark.goldentesttemplate.goldenTestTemplate
 import io.github.kotlinmania.starlark.syntax.AstModule
 import io.github.kotlinmania.starlark.syntax.dialect.Dialect
 
-// fn test_profile_golden_for_mode(mode: ProfileMode)
 private fun testProfileGoldenForMode(mode: ProfileMode) {
     Module.withTempHeap { module ->
         val eval = Evaluator(module)

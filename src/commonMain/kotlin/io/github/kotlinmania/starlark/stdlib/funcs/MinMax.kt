@@ -24,7 +24,6 @@ import io.github.kotlinmania.starlark.eval.runtime.Evaluator
 import io.github.kotlinmania.starlark.values.layout.Value
 import kotlin.text.iterator
 
-// fn min_max_iter<'v>(
 //     mut it: impl Iterator<Item = Value<'v>>,
 //     key: Option<Value<'v>>,
 //     eval: &mut Evaluator<'v, '_, '_>,
@@ -50,7 +49,6 @@ private fun minMaxIter(
     // Select min on true, max on false.
     min: Boolean,
 ): io.github.kotlinmania.starlark.values.layout.Value {
-    // let mut max = match it.next() {
     //     Some(x) => x,
     //     None => { return Err(...) }
     // };
@@ -60,7 +58,6 @@ private fun minMaxIter(
         } else {
             error("Argument is an empty iterable, max() expect a non empty iterable")
         }
-    // let update_max_ordering = if min { Ordering::Greater } else { Ordering::Less };
     // Ordering::Greater maps to positive (> 0), Ordering::Less maps to negative (< 0).
     // When finding min, we update when best > candidate (compare returns positive).
     // When finding max, we update when best < candidate (compare returns negative).
@@ -78,11 +75,9 @@ private fun minMaxIter(
             }
         }
         else -> {
-            // let mut cached = key.invoke_pos(&[max], eval)?;
             var cached = key.invokePos(listOf(best), eval).getOrThrow()
             // for i in it { ... }
             for (i in it) {
-                // let keyi = key.invoke_pos(&[i], eval)?;
                 val keyi = key.invokePos(listOf(i), eval).getOrThrow()
                 // if cached.compare(keyi)? == update_max_ordering { ... }
                 if (cached.compare(keyi).getOrThrow() == updateMaxOrdering) {
@@ -96,7 +91,6 @@ private fun minMaxIter(
     return best
 }
 
-// fn min_max<'v>(
 //     mut args: UnpackTuple<Value<'v>>,
 //     key: Option<Value<'v>>,
 //     eval: &mut Evaluator<'v, '_, '_>,
@@ -123,7 +117,6 @@ private fun minMax(
     min: Boolean,
 ): io.github.kotlinmania.starlark.values.layout.Value {
     // if args.items.len() == 1 {
-    //     let it = args.items.swap_remove(0).iterate(eval.heap())?;
     //     min_max_iter(it, key, eval, min)
     // } else {
     //     min_max_iter(args.items.into_iter(), key, eval, min)
@@ -137,7 +130,6 @@ private fun minMax(
 }
 
 // #[starlark_module]
-// pub(crate) fn register_min_max(globals: &mut GlobalsBuilder)
 
 /**
  * Register the `min` and `max` builtin functions with the given [io.github.kotlinmania.starlark.environment.GlobalsBuilder].
@@ -165,7 +157,6 @@ internal fun registerMinMax(globals: io.github.kotlinmania.starlark.environment.
      * ```
      */
     // #[starlark(speculative_exec_safe)]
-    // fn max<'v>(
     //     #[starlark(args)] args: UnpackTuple<Value<'v>>,
     //     key: Option<Value<'v>>,
     //     eval: &mut Evaluator<'v, '_, '_>,
@@ -195,7 +186,6 @@ internal fun registerMinMax(globals: io.github.kotlinmania.starlark.environment.
      * ```
      */
     // #[starlark(speculative_exec_safe)]
-    // fn min<'v>(
     //     #[starlark(args)] args: UnpackTuple<Value<'v>>,
     //     key: Option<Value<'v>>,
     //     eval: &mut Evaluator<'v, '_, '_>,

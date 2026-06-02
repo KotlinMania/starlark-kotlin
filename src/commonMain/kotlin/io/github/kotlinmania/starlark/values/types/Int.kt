@@ -25,12 +25,5 @@ package io.github.kotlinmania.starlark.values.types
 // ! but instead use special values. If the value doesn't fit in the special representation,
 // ! we use [`BigInt`](num_bigint::BigInt) to store it.
 
-// pub(crate) mod globals;
-// mod i32;
-// pub(crate) mod inline_int;
-// pub(crate) mod int_or_big;
-// pub(crate) mod pointer_i32;
-// mod tests;
 
-// pub use pointer_i32::INT_TYPE;
 internal val INT_TYPE = io.github.kotlinmania.starlark.values.types.int.INT_TYPE

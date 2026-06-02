@@ -36,8 +36,6 @@ import io.github.kotlinmania.starlark.values.types.string.FormatConv
 import io.github.kotlinmania.starlark.values.types.string.FormatParser
 import io.github.kotlinmania.starlark.values.types.string.FormatToken
 
-// #[derive(Debug, thiserror::Error)]
-// enum GrammarUtilError
 private enum class GrammarUtilError(
     val message: String,
 ) {
@@ -48,8 +46,6 @@ private enum class GrammarUtilError(
     LoadRequiresAtLeastTwoArguments("`load` statement requires at least two arguments"),
 }
 
-// #[derive(thiserror::Error, Debug)]
-// enum DialectError
 private enum class DialectError(
     val message: String,
 ) {
@@ -58,7 +54,6 @@ private enum class DialectError(
 
 object GrammarUtil {
     /** Ensure we produce normalised Statements, rather than singleton Statements. */
-    // pub fn statements(mut xs: Vec<AstStmt>, begin: usize, end: usize) -> AstStmt
     fun statements(xs: List<AstStmt>, begin: Int, end: Int): AstStmt =
         if (xs.size == 1) {
             xs[0]
@@ -66,7 +61,6 @@ object GrammarUtil {
             StmtP.Statements<AstNoPayload>(xs).ast(begin, end)
         }
 
-    // pub fn check_assign(codemap: &CodeMap, x: AstExpr) -> Result<AstAssignTarget, EvalException>
     fun checkAssign(codemap: CodeMap, x: AstExpr): AstAssignTarget {
         val node: AssignTargetP<AstNoPayload> =
             when (val expr = x.node) {
@@ -101,7 +95,6 @@ object GrammarUtil {
         return Spanned(node, x.span)
     }
 
-    // pub fn check_assignment(...)
     fun checkAssignment(
         codemap: CodeMap,
         lhs: AstExpr,
@@ -151,7 +144,6 @@ object GrammarUtil {
         }
     }
 
-    // pub(crate) fn check_load_0(module: AstString, parser_state: &mut ParserState) -> Stmt
     fun checkLoad0(module: AstString, parserState: ParserState): Stmt {
         parserState.errors.add(
             EvalException.newAnyhow(
@@ -169,7 +161,6 @@ object GrammarUtil {
         )
     }
 
-    // pub(crate) fn check_load(...)
     fun checkLoad(
         module: AstString,
         args: List<Pair<Pair<AstAssignIdent, AstString>, Spanned<Comma>>>,
@@ -211,7 +202,6 @@ object GrammarUtil {
         )
     }
 
-    // pub(crate) fn fstring(...)
     fun fstring(
         fstring: TokenFString,
         begin: Int,
@@ -285,7 +275,6 @@ object GrammarUtil {
         ).ast(begin, end)
     }
 
-    // pub(crate) fn dialect_check_type(...)
     fun dialectCheckType(
         state: ParserState,
         x: AstExpr,
@@ -309,7 +298,6 @@ object GrammarUtil {
         }
     }
 
-    // pub(crate) fn check_call(...) from validate.rs
     fun checkCall(
         e: AstExpr,
         a: List<AstArgument>,

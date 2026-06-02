@@ -19,20 +19,9 @@ package io.github.kotlinmania.starlark.typing
  * limitations under the License.
  */
 
-// use std::fmt;
-// use std::fmt::Display;
-// use std::fmt::Formatter;
-// use std::ops::Deref;
-// use std::sync::Arc;
 
-// use allocative::Allocative;
-// use dupe::Dupe;
 
-// use crate::typing::Ty;
-// use crate::typing::ty::TypeRenderConfig;
 
-// #[derive(Dupe, Clone, Eq, PartialEq, Ord, PartialOrd, Hash, Debug, Allocative)]
-// enum ArcTyInner {
 private sealed class ArcTyInner : Comparable<ArcTyInner> {
     // These are shortcuts to avoid allocations for common cases.
     data object Any : ArcTyInner()
@@ -87,8 +76,6 @@ private sealed class ArcTyInner : Comparable<ArcTyInner> {
 }
 
 // / Wrapper for `Ty` which is smaller than `Ty`.
-// #[derive(Dupe, Clone, Eq, PartialEq, Ord, PartialOrd, Hash, derive_more::Display, Debug, Allocative)]
-// pub struct ArcTy(ArcTyInner);
 class ArcTy private constructor(
     private val inner: ArcTyInner,
 ) : Comparable<ArcTy> {
@@ -106,10 +93,8 @@ class ArcTy private constructor(
 
     // impl ArcTy
     companion object {
-        // pub(crate) fn any() -> ArcTy
         internal fun any(): ArcTy = ArcTy(ArcTyInner.Any)
 
-        // pub(crate) fn new(ty: Ty) -> ArcTy
         internal fun new(ty: Ty): ArcTy =
             if (ty.isAny()) {
                 any()
@@ -127,7 +112,6 @@ class ArcTy private constructor(
                 ArcTy(ArcTyInner.Wrapped(ty))
             }
 
-        // pub(crate) fn union2(a: ArcTy, b: ArcTy) -> ArcTy
         internal fun union2(a: ArcTy, b: ArcTy): ArcTy =
             if (a == b) {
                 a
@@ -136,14 +120,12 @@ class ArcTy private constructor(
             }
     }
 
-    // pub(crate) fn to_ty(&self) -> Ty
     internal fun toTy(): Ty = deref()
 
     fun isAny(): Boolean = inner is ArcTyInner.Any
 
     fun isNever(): Boolean = inner is ArcTyInner.Never
 
-    // pub(crate) fn display_with<'a>(&'a self, config: &'a TypeRenderConfig) -> ArcTyDisplay<'a>
     internal fun displayWith(config: TypeRenderConfig): ArcTyDisplay = ArcTyDisplay(this, config)
 
     // impl Deref for ArcTy { type Target = Ty; fn deref(&self) -> &Ty }
@@ -159,7 +141,6 @@ class ArcTy private constructor(
         }
 }
 
-// pub(crate) struct ArcTyDisplay<'a> {
 //     ty: &'a ArcTy,
 //     config: &'a TypeRenderConfig,
 // }

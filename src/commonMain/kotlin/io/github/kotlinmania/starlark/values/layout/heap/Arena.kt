@@ -33,7 +33,6 @@ import io.github.kotlinmania.starlark.values.starlarktypeid.StarlarkTypeId
  * Min size of allocated object including header.
  * Should be able to fit `BlackHole` or forward.
  */
-// pub(crate) const MIN_ALLOC: AlignedSize
 internal val MIN_ALLOC: AlignedSize = AlignedSize.newBytes(16)
 
 /**
@@ -141,13 +140,11 @@ internal class Arena {
     fun availableBytes(): Int = Int.MAX_VALUE
 
     /** Don't forget to call this function to release memory. */
-    // pub(crate) fn finish(&mut self)
     fun finish() {
         drop.clear()
         nonDrop.clear()
     }
 
-    // pub(crate) fn reserve_with_extra<'v2, T: AValue<'v2>>(&self, extra_len: usize) -> (Reservation, extra)
     fun <T : AValue> reserveWithExtra(extraLen: Int): Reservation<T> {
         // We don't create reservations for strings because we don't need to,
         // In Rust, a BlackHole is written as a placeholder until fill() is called.
@@ -176,7 +173,6 @@ internal class Arena {
     /** Allocate a type `T` plus `extra` bytes. */
     fun <T : AValue> allocExtra(x: AValueImpl<T>): AValueRepr<StarlarkValue> = alloc(x)
 
-    // pub(crate) fn alloc_str_init(&self, len: usize, hash: StarlarkHashValue,
     //     init: impl FnOnce(*mut u8)) -> *mut AValueHeader
     // In Rust, this allocates raw bytes and a callback fills them in.
     // In Kotlin, strings are immutable objects, so the `init` callback

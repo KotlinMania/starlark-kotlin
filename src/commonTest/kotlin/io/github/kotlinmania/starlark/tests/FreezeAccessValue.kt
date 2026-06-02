@@ -30,7 +30,6 @@ import io.github.kotlinmania.starlark.values.types.int.allocValue
 import io.github.kotlinmania.starlark.values.types.list.ListRef
 import io.github.kotlinmania.starlark.values.types.list.allocList
 
-// struct Test<V> { field: V }
 private class TestFreeze(
     var field: Value,
 ) : Freeze<TestFrozen> {
@@ -50,7 +49,6 @@ private class TestFrozen(
 )
 
 // #[test]
-// fn test() -> anyhow::Result<()>
 internal fun testFreezeAccessValue() {
     Heap
         .temp { heap ->

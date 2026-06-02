@@ -24,27 +24,22 @@ import io.github.kotlinmania.starlark.environment.GlobalsBuilder
 import io.github.kotlinmania.starlark.values.types.tuple.unpack.UnpackTuple
 
 // #[starlark_module]
-// fn named_positional_functions(globals: &mut GlobalsBuilder)
 private fun namedPositionalFunctions(globals: GlobalsBuilder) {
-    // fn positional(#[starlark(require = pos)] x: i32) -> anyhow::Result<i32>
     globals.setFunction("positional") { args, _ ->
         val x = args.positional<Int>(0)
         Result.success(x)
     }
 
-    // fn named(x: i32) -> anyhow::Result<i32>
     globals.setFunction("named") { args, _ ->
         val x = args.positional<Int>(0)
         Result.success(x)
     }
 
-    // fn named_only(#[starlark(require = named)] x: i32) -> anyhow::Result<i32>
     globals.setFunction("named_only") { args, _ ->
         val x = args.positional<Int>(0)
         Result.success(x)
     }
 
-    // fn named_after_args(
     //     #[starlark(args)] star_args: UnpackTuple<i32>,
     //     x: i32,
     // ) -> anyhow::Result<i32>
@@ -55,7 +50,6 @@ private fun namedPositionalFunctions(globals: GlobalsBuilder) {
     }
 
     // Same as above, but with explicit redundant annotation.
-    // fn named_after_args_explicitly_marked(
     //     #[starlark(args)] args: UnpackTuple<i32>,
     //     #[starlark(require = named)] x: i32,
     // ) -> anyhow::Result<i32>
@@ -67,7 +61,6 @@ private fun namedPositionalFunctions(globals: GlobalsBuilder) {
 }
 
 // #[test]
-// fn test_positional_only()
 internal fun testPositionalOnly() {
     val a = Assert()
     a.globalsAdd(::namedPositionalFunctions)
@@ -76,7 +69,6 @@ internal fun testPositionalOnly() {
 }
 
 // #[test]
-// fn test_named_can_be_called_as_both_named_and_positional()
 internal fun testNamedCanBeCalledAsBothNamedAndPositional() {
     val a = Assert()
     a.globalsAdd(::namedPositionalFunctions)
@@ -85,7 +77,6 @@ internal fun testNamedCanBeCalledAsBothNamedAndPositional() {
 }
 
 // #[test]
-// fn test_named_only()
 internal fun testNamedOnly() {
     val a = Assert()
     a.globalsAdd(::namedPositionalFunctions)
@@ -94,7 +85,6 @@ internal fun testNamedOnly() {
 }
 
 // #[test]
-// fn test_named_after_args()
 internal fun testNamedAfterArgs() {
     val a = Assert()
     a.globalsAdd(::namedPositionalFunctions)
@@ -106,7 +96,6 @@ internal fun testNamedAfterArgs() {
 }
 
 // #[test]
-// fn test_named_after_args_explicitly_marked()
 internal fun testNamedAfterArgsExplicitlyMarked() {
     val a = Assert()
     a.globalsAdd(::namedPositionalFunctions)

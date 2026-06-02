@@ -25,10 +25,8 @@ import io.github.kotlinmania.starlark.eval.runtime.Evaluator
 import io.github.kotlinmania.starlark.values.layout.Value
 
 // #[starlark_module]
-// pub(crate) fn register_eval_type(globals: &mut GlobalsBuilder)
 internal fun registerEvalType(globals: GlobalsBuilder) {
     /** Create a runtime type object which can be used to check if a value matches the given type. */
-    // fn eval_type<'v>(#[starlark(require = pos)] ty: ValueOfUnchecked<'v, AbstractType>, eval: &mut Evaluator) -> anyhow::Result<TypeCompiled<Value<'v>>>
     globals.setFunction("eval_type") { args: Arguments, eval: Evaluator ->
         val ty = args.positional1(eval.heap()).getOrThrow()
         TypeCompiled.new(ty, eval.heap()).toInner()
@@ -52,7 +50,6 @@ internal fun registerEvalType(globals: GlobalsBuilder) {
      * `L = eval_type(list); [isinstance(x, L) for x in y]`:
      * `eval_type()` converts `list` value into prepared type matcher.
      */
-    // fn isinstance<'v>(#[starlark(require = pos)] value: Value<'v>, #[starlark(require = pos)] ty: ValueOfUnchecked<'v, AbstractType>, eval: &mut Evaluator) -> anyhow::Result<bool>
     globals.setFunction("isinstance") { args: Arguments, eval: Evaluator ->
         val positional = args.positional(2, eval.heap()).getOrThrow()
         val value = positional[0]
@@ -64,5 +61,4 @@ internal fun registerEvalType(globals: GlobalsBuilder) {
     }
 }
 
-// #[cfg(test)] mod tests
 // Tests are in commonTest, not here.

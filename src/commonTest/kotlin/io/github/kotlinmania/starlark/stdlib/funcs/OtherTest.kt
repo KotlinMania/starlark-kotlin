@@ -26,11 +26,8 @@ import io.github.kotlinmania.starlark.assert.fail
 import io.github.kotlinmania.starlark.assert.isTrue
 import kotlin.test.Test
 
-// #[cfg(test)]
-// mod tests
 class OtherTest {
     // #[test]
-    // fn test_abs()
     @Test
     fun testAbs() {
         eq("1", "abs(1)")
@@ -45,7 +42,6 @@ class OtherTest {
     }
 
     // #[test]
-    // fn test_constants()
     @Test
     fun testConstants() {
         isTrue("not None")
@@ -54,7 +50,6 @@ class OtherTest {
     }
 
     // #[test]
-    // fn test_chr()
     @Test
     fun testChr() {
         fail("chr(0x110000)", "not a valid UTF-8")
@@ -62,7 +57,6 @@ class OtherTest {
     }
 
     // #[test]
-    // fn test_hash()
     @Test
     fun testHash() {
         eq("0", "hash('')")
@@ -97,7 +91,6 @@ noop(hash)(foo)
     }
 
     // #[test]
-    // fn test_int()
     @Test
     fun testInt() {
         eq("2147483647", "int('2147483647')")
@@ -113,7 +106,6 @@ noop(hash)(foo)
     }
 
     // #[test]
-    // fn test_tuple()
     @Test
     fun testTuple() {
         val a = Assert()

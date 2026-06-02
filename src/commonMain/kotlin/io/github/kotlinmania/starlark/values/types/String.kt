@@ -21,15 +21,5 @@ package io.github.kotlinmania.starlark.values.types
 
 // ! The string type. All strings must be valid UTF8.
 
-// mod alloc_unpack;
-// pub(crate) mod dot_format;
-// pub(crate) mod globals;
-// pub(crate) mod intern;
-// pub(crate) mod interpolation;
-// pub(crate) mod iter;
-// pub(crate) mod methods;
-// pub(crate) mod repr;
-// pub(crate) mod simd;
-// pub(crate) mod str_type;
 
 // Rust uses `pub use` re-exports in this module; Kotlin call sites should import concrete values/types directly.

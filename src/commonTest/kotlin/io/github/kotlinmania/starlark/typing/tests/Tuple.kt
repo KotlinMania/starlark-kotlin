@@ -22,7 +22,6 @@ import io.github.kotlinmania.starlark.typing.TypeCheck
  */
 
 // #[test]
-// fn test_tuple()
 internal fun testTuple() {
     TypeCheck().check(
         "tuple",
@@ -34,7 +33,6 @@ def empty_tuple_name_fixed() -> tuple: return ()
 }
 
 // #[test]
-// fn test_tuple_ellipsis()
 internal fun testTupleEllipsis() {
     TypeCheck().check(
         "tuple_ellipsis",

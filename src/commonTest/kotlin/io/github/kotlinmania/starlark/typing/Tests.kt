@@ -35,38 +35,26 @@ import io.github.kotlinmania.starlark.values.types.none.NoneType
 import io.github.kotlinmania.starlark.values.typing.callable.StarlarkCallableParamSpec
 
 // Submodules:
-// mod call           -> typing.tests.call (Call.kt)
-// mod callable       -> typing.tests.callable (Callable.kt)
-// mod list           -> typing.tests.list (List.kt)
-// mod special_function -> typing.tests.special_function (SpecialFunction.kt)
-// mod tuple          -> typing.tests.tuple (Tuple.kt)
-// mod types          -> typing.tests.types (Types.kt)
 
-// #[derive(Default)]
-// struct TypeCheck
 internal class TypeCheck(
     private val expectTypes: MutableList<String> = mutableListOf(),
     private val loads: MutableMap<String, Pair<Interface, FrozenModule>> = mutableMapOf(),
 ) {
-    // fn ty(mut self, name: &str) -> Self
     fun ty(name: String): TypeCheck {
         expectTypes.add(name)
         return this
     }
 
-    // fn load(mut self, file: &str, interface: Interface, module: FrozenModule) -> Self
     fun load(file: String, starlarkInterface: Interface, module: FrozenModule): TypeCheck {
         loads[file] = Pair(starlarkInterface, module)
         return this
     }
 
-    // fn mk_file_loader(&self) -> ReturnOwnedFileLoader
     private fun mkFileLoader(): ReturnOwnedFileLoader {
         val modules = loads.map { (name, pair) -> Pair(name, pair.second) }.toMap()
         return ReturnOwnedFileLoader(modules)
     }
 
-    // fn check(&self, test_name: &str, code: &str) -> (Interface, FrozenModule)
     fun check(testName: String, code: String): Pair<Interface, FrozenModule> {
         val globals =
             GlobalsBuilder
@@ -155,10 +143,8 @@ internal class TypeCheck(
     }
 }
 
-// struct NamedXy
 // impl StarlarkCallableParamSpec for NamedXy
 private object NamedXy : StarlarkCallableParamSpec {
-    // fn params() -> ParamSpec
     override fun params(): ParamSpec =
         ParamSpec.newParts(
             namedOnly =
@@ -170,26 +156,21 @@ private object NamedXy : StarlarkCallableParamSpec {
 }
 
 // #[starlark_module]
-// fn register_typecheck_globals(globals: &mut GlobalsBuilder)
 private fun registerTypecheckGlobals(globals: GlobalsBuilder) {
-    // fn accepts_iterable<'v>(xs: ValueOfUnchecked<'v, StarlarkIter<Value<'v>>>) -> anyhow::Result<NoneType>
     globals.setFunction("accepts_iterable") { _args: Arguments, _eval: Evaluator ->
         NoneType
     }
 
-    // fn accepts_typed_kwargs(x: SmallMap<String, u32>) -> anyhow::Result<NoneType>
     globals.setFunction("accepts_typed_kwargs") { _args: Arguments, _eval: Evaluator ->
         NoneType
     }
 
-    // fn accepts_callable_named_xy<'v>(f: StarlarkCallable<'v, NamedXy, NoneType>) -> anyhow::Result<NoneType>
     globals.setFunction("accepts_callable_named_xy") { _args: Arguments, _eval: Evaluator ->
         NoneType
     }
 }
 
 // #[test]
-// fn test_success()
 internal fun testSuccess() {
     TypeCheck().ty("y").check(
         "success",
@@ -204,7 +185,6 @@ def bar():
 }
 
 // #[test]
-// fn test_failure()
 internal fun testFailure() {
     TypeCheck().check(
         "failure",
@@ -216,7 +196,6 @@ def test():
 }
 
 // #[test]
-// fn test_load()
 internal fun testLoad() {
     val (starlarkInterface, module) =
         TypeCheck().check(
@@ -241,7 +220,6 @@ def test():
 
 /** Test things that have previous claimed incorrectly they were type errors */
 // #[test]
-// fn test_false_negative()
 internal fun testFalseNegative() {
     TypeCheck().check(
         "false_negative",
@@ -253,7 +231,6 @@ def test():
 }
 
 // #[test]
-// fn test_dot_type()
 internal fun testDotType() {
     TypeCheck().check(
         "dot_type_0",
@@ -278,7 +255,6 @@ def bar():
 }
 
 // #[test]
-// fn test_accepts_iterable()
 internal fun testAcceptsIterable() {
     TypeCheck().check(
         "accepts_iterable",
@@ -294,7 +270,6 @@ def test():
 }
 
 // #[test]
-// fn test_dict_bug()
 internal fun testDictBug() {
     // TODO(nga): figure out how to fix it.
     //   Type of `y` should be inferred to `str`.
@@ -310,7 +285,6 @@ def test():
 }
 
 // #[test]
-// fn test_dict_lookup_by_never()
 internal fun testDictLookupByNever() {
     TypeCheck().check(
         "dict_never_key",
@@ -325,7 +299,6 @@ def test(d: dict[typing.Any, str], x: typing.Never):
 }
 
 // #[test]
-// fn test_new_list_dict_syntax()
 internal fun testNewListDictSyntax() {
     TypeCheck().ty("x").check(
         "new_list_dict_syntax",
@@ -341,7 +314,6 @@ def test():
 }
 
 // #[test]
-// fn test_new_list_dict_syntax_as_value()
 internal fun testNewListDictSyntaxAsValue() {
     // TODO(nga): fix.
     TypeCheck().ty("x").ty("y").check(
@@ -355,7 +327,6 @@ def test():
 }
 
 // #[test]
-// fn test_int_plus_float()
 internal fun testIntPlusFloat() {
     TypeCheck().ty("x").check(
         "int_plus_float",
@@ -367,7 +338,6 @@ def test():
 }
 
 // #[test]
-// fn test_int_bitor_float()
 internal fun testIntBitorFloat() {
     TypeCheck().ty("x").check(
         "int_bitor_float",
@@ -379,7 +349,6 @@ def test():
 }
 
 // #[test]
-// fn test_un_op()
 internal fun testUnOp() {
     TypeCheck().ty("x").ty("y").ty("z").check(
         "un_op",
@@ -396,7 +365,6 @@ def test():
 }
 
 // #[test]
-// fn test_union()
 internal fun testUnion() {
     TypeCheck().check(
         "union",
@@ -413,7 +381,6 @@ def func_which_returns_union(p) -> str | int:
 }
 
 // #[test]
-// fn test_methods_work_for_ty_starlark_value()
 internal fun testMethodsWorkForTyStarlarkValue() {
     TypeCheck().ty("x").check(
         "methods_work_for_ty_starlark_value",
@@ -425,7 +392,6 @@ def test(s: str):
 }
 
 // #[test]
-// fn test_bit_or_return_int()
 internal fun testBitOrReturnInt() {
     TypeCheck().check(
         "bit_or_return_int",
@@ -439,7 +405,6 @@ def foo() -> test:
 }
 
 // #[test]
-// fn test_bit_or_return_list()
 internal fun testBitOrReturnList() {
     TypeCheck().check(
         "bit_or_return_list",
@@ -453,7 +418,6 @@ def foo() -> test:
 }
 
 // #[test]
-// fn test_bit_or_with_load()
 internal fun testBitOrWithLoad() {
     val (starlarkInterface, module) =
         TypeCheck().check(

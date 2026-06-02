@@ -23,13 +23,11 @@ import io.github.kotlinmania.starlark.assert.Assert
 import io.github.kotlinmania.starlark.tests.bc.bcGoldenTest
 
 // #[test]
-// fn test_fold_list_add()
 internal fun testFoldListAdd() {
     bcGoldenTest("constant_folding_list_add", "def test(): return [1] + [2]")
 }
 
 // #[test]
-// fn test_fold_list_add_too_large()
 internal fun testFoldListAddTooLarge() {
     val a = Assert()
     a.module("a0.bzl", "def a0(): return [1]")

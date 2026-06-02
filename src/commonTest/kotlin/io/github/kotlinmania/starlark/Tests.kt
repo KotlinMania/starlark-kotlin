@@ -21,21 +21,4 @@ package io.github.kotlinmania.starlark.tests
  * limitations under the License.
  */
 
-// mod basic;
-// mod bc;
-// mod before_stmt;
-// mod call;
 // internal val call = "call" // conflicts with tests.call package
-// mod comprehension;
-// mod def;
-// mod derive;
-// mod for_loop;
-// mod freeze_access_value;
-// mod fstring;
-// mod go;
-// mod opt;
-// mod replace_binary;
-// mod runtime;
-// mod type_annot;
-// mod uncategorized;
-// pub(crate) mod util;

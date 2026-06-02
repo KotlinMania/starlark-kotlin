@@ -27,10 +27,8 @@ import io.github.kotlinmania.starlark.typing.Ty
 import io.github.kotlinmania.starlark.values.layout.Value
 
 /** Error that can be returned by [UnpackValue]. */
-// pub trait UnpackValueError: Debug + Send + Sync + 'static
 interface UnpackValueError {
     /** Convert into a crate error. */
-    // fn into_error(this: Self) -> crate::Error
     fun intoError(): Error
 }
 
@@ -42,10 +40,8 @@ fun Error.asUnpackValueError(): UnpackValueError =
     }
 
 /** Never error. */
-// pub trait UnpackValueErrorInfallible: UnpackValueError
 interface UnpackValueErrorInfallible : UnpackValueError {
     /** Convert into a never type. */
-    // fn into_infallible(this: Self) -> !
     fun intoInfallible(): Nothing
 }
 
@@ -86,7 +82,6 @@ class EitherUnpackValueErrorInfallible<A : UnpackValueErrorInfallible, B : Unpac
  * Given a [Value], try and unpack it into the given type,
  * which may involve some element of conversion.
  */
-// pub trait UnpackValue<'v>: Sized + StarlarkTypeRepr
 interface UnpackValue<T> : StarlarkTypeRepr {
     /**
      * Given a [Value], try and unpack it into the given type,
@@ -95,7 +90,6 @@ interface UnpackValue<T> : StarlarkTypeRepr {
      * Return `null` if the value is not of expected type (as described by [StarlarkTypeRepr]),
      * and throw if the value is of expected type, but conversion cannot be performed.
      */
-    // fn unpack_value_impl(value: Value<'v>) -> Result<Option<Self>, Self::Error>
     fun unpackValueImpl(value: Value): Result<T?>
 
     /**
@@ -105,15 +99,12 @@ interface UnpackValue<T> : StarlarkTypeRepr {
      * Return `null` if the value is not of expected type,
      * and throw if conversion cannot be performed.
      */
-    // fn unpack_value(value: Value<'v>) -> Result<Option<Self>, crate::Error>
     fun unpackValue(value: Value): Result<T?> = unpackValueImpl(value)
 
     /** Unpack a value if unpacking is infallible. */
-    // fn unpack_value_opt(value: Value<'v>) -> Option<Self>
     fun unpackValueOpt(value: Value): T? = unpackValueImpl(value).getOrThrow()
 
     /** Unpack a value, but return error instead of `null` if unpacking fails. */
-    // fn unpack_value_err(value: Value<'v>) -> crate::Result<Self>
     fun unpackValueErr(value: Value): T {
         val result = unpackValue(value).getOrThrow()
         if (result != null) return result
@@ -125,7 +116,6 @@ interface UnpackValue<T> : StarlarkTypeRepr {
     }
 
     /** Unpack value, but instead of `null` return error about incorrect argument type. */
-    // fn unpack_param(value: Value<'v>) -> crate::Result<Self>
     fun unpackParam(value: Value): T {
         val result = unpackValue(value).getOrThrow()
         if (result != null) return result
@@ -137,7 +127,6 @@ interface UnpackValue<T> : StarlarkTypeRepr {
     }
 
     /** Unpack value, but instead of `null` return error about incorrect named argument type. */
-    // fn unpack_named_param(value: Value<'v>, param_name: &str) -> crate::Result<Self>
     fun unpackNamedParam(value: Value, paramName: String): T {
         val unpacked =
             try {

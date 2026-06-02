@@ -54,8 +54,6 @@ assert_eq(y, str(x))
         // Check that we really do deallocate values we create
         val count = AtomicInt(0)
 
-        // #[derive(Default, Debug, Display)]
-        // struct Dealloc
         class Dealloc : AutoCloseable {
             override fun close() {
                 count.fetchAndAdd(1)
@@ -65,7 +63,6 @@ assert_eq(y, str(x))
         }
 
         // #[starlark_module]
-        // fn globals(builder: &mut GlobalsBuilder)
         fun globalsFunctions(builder: GlobalsBuilder) {
             builder.setFunction("mk") { _, _ ->
                 Result.success(StarlarkAny.new(Dealloc()))
@@ -94,7 +91,6 @@ r = [y(), mk()]
     @Test
     fun testStackDepth() {
         // #[starlark_module]
-        // fn measure_stack(builder: &mut GlobalsBuilder)
         val depthCounter = AtomicInt(0)
 
         fun measureStackFunctions(builder: GlobalsBuilder) {
@@ -141,7 +137,6 @@ v1 + " " + v100 + " " + v1000
     fun testGarbageCollectHappens() {
         // GC is meant to be "not observable", but if we break it, we want this test to fail
         // #[starlark_module]
-        // fn helpers(builder: &mut GlobalsBuilder)
         fun helpersFunctions(builder: GlobalsBuilder) {
             builder.setFunction("current_usage") { _, eval ->
                 Result.success(eval.heap().allocatedBytes())

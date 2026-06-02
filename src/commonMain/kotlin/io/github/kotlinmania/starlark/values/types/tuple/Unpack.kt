@@ -20,8 +20,6 @@ package io.github.kotlinmania.starlark.values.types.tuple.unpack
  */
 
 /** Unpack a value of type `tuple[T, ...]` into a list. */
-// #[derive(Debug, Clone, Eq, PartialEq, Hash, Ord, PartialOrd)]
-// pub struct UnpackTuple<T> { pub items: Vec<T> }
 class UnpackTuple<T>(
     /** Unpacked items. */
     val items: MutableList<T>,
@@ -31,11 +29,9 @@ class UnpackTuple<T>(
 
     companion object {
         // impl StarlarkTypeRepr for UnpackTuple<T>
-        // fn starlark_type_repr() -> Ty
         // Kotlin: type representation deferred to when Ty is fully ported.
 
         // impl UnpackValue for UnpackTuple<T>
-        // fn unpack_value_impl(value: Value) -> Result<Option<Self>, Self::Error>
         fun <T> unpackValueImpl(
             value: Any,
             tupleFromValue: (Any) -> List<Any>?,
@@ -52,7 +48,6 @@ class UnpackTuple<T>(
     }
 
     // impl IntoIterator for UnpackTuple<T>
-    // fn into_iter(self) -> Self::IntoIter
     override fun iterator(): Iterator<T> = items.iterator()
 
     // impl PartialEq for UnpackTuple<T>
@@ -69,5 +64,4 @@ class UnpackTuple<T>(
     override fun toString(): String = "UnpackTuple(items=$items)"
 }
 
-// #[cfg(test)] mod tests
 // Tests are in commonTest, not here.

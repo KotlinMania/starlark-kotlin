@@ -21,11 +21,3 @@ package io.github.kotlinmania.starlark.eval.bc
 
 // ! Compile module or function to bytecode.
 
-// pub(crate) mod assign;
-// pub(crate) mod assign_modify;
-// pub(crate) mod call;
-// pub(crate) mod compr;
-// pub(crate) mod def;
-// pub(crate) mod expr;
-// pub(crate) mod if_compiler;
-// pub(crate) mod stmt;

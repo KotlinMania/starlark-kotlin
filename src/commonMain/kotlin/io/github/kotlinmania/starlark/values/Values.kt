@@ -19,13 +19,6 @@ package io.github.kotlinmania.starlark.values
  * limitations under the License.
  */
 
-// pub use values::layout::heap::Heap;
-// pub use values::layout::heap::FrozenHeap;
-// pub use values::layout::heap::FrozenHeapRef;
-// pub use values::layout::heap::Tracer;
-// pub use values::layout::Freezer;
-// pub use values::layout::Value;
-// pub use values::layout::FrozenValue;
 
 internal val Heap = "Heap"
 internal val FrozenHeap = "FrozenHeap"

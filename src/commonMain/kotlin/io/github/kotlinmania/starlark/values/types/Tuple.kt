@@ -21,11 +21,5 @@ package io.github.kotlinmania.starlark.values.types
 
 // ! The list type, an immutable sequence of values.
 
-// pub(crate) mod alloc;
-// pub(crate) mod globals;
-// pub(crate) mod refs;
-// pub(crate) mod rust_tuple;
-// pub(crate) mod unpack;
-// pub(crate) mod value;
 
 // Rust uses `pub use` re-exports in this module; Kotlin call sites should import concrete types directly.

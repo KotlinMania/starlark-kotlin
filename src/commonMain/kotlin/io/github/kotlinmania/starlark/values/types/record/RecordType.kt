@@ -53,15 +53,9 @@ import io.github.kotlinmania.starlark.values.types.record.TyRecordData
 import io.github.kotlinmania.starlark.values.typing.typecompiled.TypeMatcherFactory
 
 // #[doc(hidden)]
-// pub trait RecordCell: ValueLifetimeless {
-//     type TyRecordDataOpt: Debug;
-//     fn get_or_init_ty(...);
-//     fn get_ty(...);
 // }
 // Kotlin: Abstracted via the frozen flag in RecordTypeGen. See below.
 
-// #[derive(Debug, thiserror::Error)]
-// enum RecordTypeError {
 //     #[error("Record instance cannot be created if record type is not assigned to a global variable")]
 //     RecordTypeNotAssigned,
 // }
@@ -75,8 +69,6 @@ private class RecordTypeError private constructor(
 }
 
 /** The result of `record()`, being the type of records. */
-// #[derive(Debug, Trace, NoSerialize, ProvidesStaticType, Allocative)]
-// pub struct RecordTypeGen<V: RecordCell> {
 //     pub(crate) id: TypeInstanceId,
 //     pub(crate) ty_record_data: V::TyRecordDataOpt,
 //     fields: SmallMap<String, FieldGen<V>>,
@@ -97,7 +89,6 @@ class RecordTypeGen internal constructor(
     override fun toString(): String = "record(${fields.iter().joinToString(", ") { (k, v) -> "$k=$v" }})"
 
     // impl Freeze for RecordType
-    // fn freeze(self, freezer: &Freezer) -> Result<Self::Frozen>
     override fun freeze(freezer: Freezer): Result<RecordTypeGen> {
         val frozenFields =
             freezeSmallMap(
@@ -118,7 +109,6 @@ class RecordTypeGen internal constructor(
 
     // -- RecordCell helpers --
 
-    // fn get_or_init_ty(...)
     internal fun getOrInitTy(f: () -> TyRecordData) {
         if (frozen) return
         if (!tyRecordDataInitialized) {
@@ -127,18 +117,14 @@ class RecordTypeGen internal constructor(
         }
     }
 
-    // fn get_ty(...)
     internal fun getTy(): TyRecordData? = tyRecordData
 
-    // pub(crate) fn ty_record_data(&self) -> Option<&Arc<TyRecordData>>
     fun tyRecordData(): TyRecordData? = getTy()
 
-    // pub(crate) fn instance_ty(&self) -> Ty
     fun instanceTy(): Ty =
         tyRecordData()?.tyRecord
             ?: error("Instances can only be created if named are assigned")
 
-    // fn make_parameter_spec(name: &str, fields: &SmallMap<String, FieldGen<V>>) -> ParametersSpec<FrozenValue>
     private fun makeParameterSpec(
         name: String,
         fields: SmallMap<String, Field>,
@@ -159,13 +145,11 @@ class RecordTypeGen internal constructor(
                 }.toList(),
         )
 
-    // #[starlark_value(type = FUNCTION_TYPE)]
     // impl StarlarkValue for RecordTypeGen
     override val TYPE: String get() = FUNCTION_TYPE
     override val HAS_invoke: Boolean get() = true
     override val HAS_eval_type: Boolean get() = true
 
-    // fn write_hash(&self, hasher: &mut StarlarkHasher) -> crate::Result<()>
     override fun writeHash(hasher: StarlarkHasher): Result<Unit> {
         for ((name, typ) in fields) {
             name.hashCode()
@@ -174,7 +158,6 @@ class RecordTypeGen internal constructor(
         return Result.success(Unit)
     }
 
-    // fn invoke(...)
     override fun invoke(me: Value, args: Arguments, eval: Evaluator): Result<Value> {
         val tyRecordDataVal =
             tyRecordData()
@@ -213,16 +196,12 @@ class RecordTypeGen internal constructor(
         )
     }
 
-    // fn get_methods() -> Option<&'static Methods>
     override fun getMethods(): Methods = recordTypeMethodsStatic.methods(::recordTypeMethods)
 
-    // fn eval_type(&self) -> Option<Ty>
     override fun evalType(): Ty? = tyRecordData()?.tyRecord
 
-    // fn typechecker_ty(&self) -> Option<Ty>
     override fun typecheckerTy(): Ty? = tyRecordData()?.tyRecordType
 
-    // fn export_as(...)
     override fun exportAs(variableName: String, eval: Evaluator): Result<Unit> {
         getOrInitTy {
             val fieldsTy =
@@ -290,12 +269,9 @@ class RecordTypeGen internal constructor(
 
     companion object {
         // Type aliases:
-        // pub type RecordType<'v> = RecordTypeGen<Value<'v>>;
-        // pub type FrozenRecordType = RecordTypeGen<FrozenValue>;
         // Kotlin: Use RecordTypeGen directly; frozen flag distinguishes.
 
         // impl RecordType::new(...)
-        // pub(crate) fn new(fields: SmallMap<String, FieldGen<Value<'v>>>) -> Self
         fun new(fields: SmallMap<String, Field>): RecordTypeGen =
             RecordTypeGen(
                 id = TypeInstanceId.gen(),
@@ -309,17 +285,14 @@ class RecordTypeGen internal constructor(
 // Rust defines `RecordType<'v>` and `FrozenRecordType` type aliases.
 // Kotlin call sites should use [RecordTypeGen] directly.
 
-// pub(crate) fn record_fields<'v>(...) -> &'v SmallMap<String, FieldGen<Value<'v>>>
 internal fun recordFields(x: RecordTypeGen): SmallMap<String, Field> = x.fields
 
 // static RES: MethodsStatic = MethodsStatic::new();
 private val recordTypeMethodsStatic = MethodsStatic()
 
 // #[starlark_module]
-// fn record_type_methods(methods: &mut MethodsBuilder)
 private fun recordTypeMethods(methods: MethodsBuilder) {
     // #[starlark(attribute)]
-    // fn r#type<'v>(this: ValueTypedComplex<'v, RecordType<'v>>) -> starlark::Result<&'v str>
     methods.setAttributeFn(
         name = "type",
         speculativeExecSafe = true,
@@ -339,5 +312,4 @@ private fun recordTypeMethods(methods: MethodsBuilder) {
     }
 }
 
-// #[cfg(test)] mod tests
 // Tests are in commonTest, not here.

@@ -23,9 +23,7 @@ import io.github.kotlinmania.starlark.assert.Assert
 import io.github.kotlinmania.starlark.environment.GlobalsBuilder
 
 // #[starlark_module]
-// fn test_kwargs_module(globals: &mut GlobalsBuilder)
 private fun testKwargsModule(globals: GlobalsBuilder) {
-    // fn pos_kwargs(
     //     #[starlark(require = pos)] a: u32,
     //     #[starlark(require = pos)] b: bool,
     //     #[starlark(kwargs)] kwargs: SmallMap<String, u64>,
@@ -42,7 +40,6 @@ private fun testKwargsModule(globals: GlobalsBuilder) {
         Result.success("a=$a b=$b kwargs={$kwargsStr}")
     }
 
-    // fn pos_named_kwargs(
     //     #[starlark(require = pos)] a: u32,
     //     #[starlark(require = named)] b: bool,
     //     #[starlark(kwargs)] kwargs: SmallMap<String, u64>,
@@ -64,7 +61,6 @@ private fun testKwargsModule(globals: GlobalsBuilder) {
 }
 
 // #[test]
-// fn test_kwargs()
 internal fun testKwargs() {
     val a = Assert()
     a.globalsAdd(::testKwargsModule)

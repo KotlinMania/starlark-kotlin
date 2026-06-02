@@ -21,11 +21,3 @@ package io.github.kotlinmania.starlark.tests
  * limitations under the License.
  */
 
-// mod alloc_value;
-// mod attrs;
-// mod docs;
-// mod freeze;
-// mod module;
-// mod trace;
-// mod unpack_value;
-// mod unpack_value_attr;

@@ -21,6 +21,3 @@ package io.github.kotlinmania.starlark.values.types
 
 // ! Helpers for numerical values.
 
-// pub(crate) mod globals;
-// pub(crate) mod typecheck;
-// pub(crate) mod value;

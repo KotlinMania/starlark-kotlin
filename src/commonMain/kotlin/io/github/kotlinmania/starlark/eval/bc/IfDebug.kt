@@ -36,11 +36,8 @@ package io.github.kotlinmania.starlark.eval.bc
  * * behavior of this object does not depend on `<T>`
  * * behavior does not depend on whether debugging assertions enabled or not
  */
-// #[derive(Debug, Default, Copy, Clone, Dupe)]
 // In release build this structure is DST,
 // so gazebo suggests implementing `Dupe` for any `<T>`. T102920913.
-// pub(crate) struct IfDebug<T> {
-//     #[cfg(debug_assertions)] value: T,
 //     _marker: marker::PhantomData<T>,
 // }
 // Kotlin: no cfg-based conditional compilation; always store the value.
@@ -53,15 +50,11 @@ class IfDebug<T> private constructor(
         private const val DEBUG: Boolean = true
 
         /** Store a value if debug assertions enabled, drop otherwise. */
-        // pub(crate) fn new(value: T) -> IfDebug<T>
         fun <T> new(value: T): IfDebug<T> = newIfDebug { value }
 
         /** Store a value if debug assertions enabled, drop otherwise. */
-        // pub(crate) fn new_if_debug(init: impl FnOnce() -> T) -> IfDebug<T>
         fun <T> newIfDebug(init: () -> T): IfDebug<T> {
-            // #[cfg(not(debug_assertions))] drop(init);
             return IfDebug(
-                // #[cfg(debug_assertions)]
                 value = if (DEBUG) init() else null,
             )
         }
@@ -70,19 +63,14 @@ class IfDebug<T> private constructor(
     // impl IfDebug<T>
 
     /** Get a reference to stored value if assertions enabled, `null` otherwise. */
-    // pub(crate) fn get_ref(&self) -> Option<&T>
     fun getRef(): T? {
-        // #[cfg(debug_assertions)] return Some(&self.value);
-        // #[cfg(not(debug_assertions))] return None;
         return value
     }
 
     /** Get a reference to stored value if assertions enabled, panic otherwise. */
-    // pub(crate) fn get_ref_if_debug(&self) -> &T
     fun getRefIfDebug(): T = getRef() ?: error("assertions disabled")
 
     /** Invoke a function if debug enabled. */
-    // pub(crate) fn if_debug(&self, f: impl FnOnce(&T))
     fun ifDebug(f: (T) -> Unit) {
         val v = getRef()
         if (v != null) {
@@ -91,7 +79,6 @@ class IfDebug<T> private constructor(
     }
 
     // impl PartialEq for IfDebug<T>
-    // fn eq(&self, _other: &Self) -> bool { true }
     override fun equals(other: Any?): Boolean {
         if (other !is IfDebug<*>) return false
         return true
@@ -101,7 +88,6 @@ class IfDebug<T> private constructor(
     override fun hashCode(): Int = 0
 
     // impl Ord for IfDebug<T>
-    // fn cmp(&self, _other: &Self) -> Ordering { Ordering::Equal }
     override fun compareTo(other: IfDebug<T>): Int = 0
 
     // impl Debug for IfDebug<T>

@@ -21,21 +21,7 @@ package io.github.kotlinmania.starlark.values.types.string
 
 /** Implementations of alloc and unpack traits for string. */
 
-// use std::convert::Infallible;
 
-// use crate::typing::Ty;
-// use crate::values::AllocFrozenValue;
-// use crate::values::AllocValue;
-// use crate::values::FrozenHeap;
-// use crate::values::FrozenStringValue;
-// use crate::values::FrozenValue;
-// use crate::values::Heap;
-// use crate::values::StringValue;
-// use crate::values::UnpackValue;
-// use crate::values::Value;
-// use crate::values::alloc_value::AllocFrozenStringValue;
-// use crate::values::alloc_value::AllocStringValue;
-// use crate::values::type_repr::StarlarkTypeRepr;
 
 import io.github.kotlinmania.starlark.typing.Ty
 import io.github.kotlinmania.starlark.values.StarlarkTypeRepr
@@ -48,26 +34,22 @@ import io.github.kotlinmania.starlark.values.layout.typed.FrozenStringValue
 import io.github.kotlinmania.starlark.values.layout.typed.StringValue
 
 // impl AllocFrozenValue for String {
-//     fn alloc_frozen_value(self, heap: &FrozenHeap) -> FrozenValue {
 //         self.alloc_frozen_string_value(heap).to_frozen_value()
 //     }
 // }
 fun String.allocFrozenValue(heap: FrozenHeap): FrozenValue = this.allocFrozenStringValue(heap).toFrozenValue()
 
 // impl AllocFrozenStringValue for String {
-//     fn alloc_frozen_string_value(self, heap: &FrozenHeap) -> FrozenStringValue {
 //         heap.alloc_str(self.as_str())
 //     }
 // }
 fun String.allocFrozenStringValue(heap: FrozenHeap): FrozenStringValue = heap.allocStrIntern(this)
 
 // impl<'a> AllocFrozenValue for &'a str {
-//     fn alloc_frozen_value(self, heap: &FrozenHeap) -> FrozenValue {
 //         self.alloc_frozen_string_value(heap).to_frozen_value()
 //     }
 // }
 // impl<'a> AllocFrozenStringValue for &'a str {
-//     fn alloc_frozen_string_value(self, heap: &FrozenHeap) -> FrozenStringValue {
 //         heap.alloc_str(self)
 //     }
 // }
@@ -75,23 +57,19 @@ fun String.allocFrozenStringValue(heap: FrozenHeap): FrozenStringValue = heap.al
 // extension functions above.
 
 // impl<'v> AllocValue<'v> for String {
-//     fn alloc_value(self, heap: Heap<'v>) -> Value<'v> {
 //         self.alloc_string_value(heap).to_value()
 //     }
 // }
 fun String.allocValue(heap: Heap): Value = this.allocStringValue(heap).toValue()
 
 // impl<'v> AllocStringValue<'v> for String {
-//     fn alloc_string_value(self, heap: Heap<'v>) -> StringValue<'v> {
 //         heap.alloc_str(self.as_str())
 //     }
 // }
 fun String.allocStringValue(heap: Heap): StringValue = StringValue.newUnchecked(heap.allocStr(this))
 
 // impl StarlarkTypeRepr for char {
-//     type Canonical = <String as StarlarkTypeRepr>::Canonical;
 //
-//     fn starlark_type_repr() -> Ty {
 //         String::starlark_type_repr()
 //     }
 // }
@@ -103,14 +81,12 @@ object CharTypeRepr : StarlarkTypeRepr {
 }
 
 // impl<'v> AllocValue<'v> for char {
-//     fn alloc_value(self, heap: Heap<'v>) -> Value<'v> {
 //         self.alloc_string_value(heap).to_value()
 //     }
 // }
 fun Char.allocValue(heap: Heap): Value = this.allocStringValue(heap).toValue()
 
 // impl<'v> AllocStringValue<'v> for char {
-//     fn alloc_string_value(self, heap: Heap<'v>) -> StringValue<'v> {
 //         heap.alloc_char(self)
 //     }
 // }
@@ -121,29 +97,23 @@ fun Char.allocStringValue(heap: Heap): StringValue {
 }
 
 // impl StarlarkTypeRepr for &'_ String {
-//     type Canonical = <String as StarlarkTypeRepr>::Canonical;
 //
-//     fn starlark_type_repr() -> Ty {
 //         String::starlark_type_repr()
 //     }
 // }
 // impl<'v> AllocValue<'v> for &'_ String {
-//     fn alloc_value(self, heap: Heap<'v>) -> Value<'v> {
 //         self.alloc_string_value(heap).to_value()
 //     }
 // }
 // impl<'v> AllocStringValue<'v> for &'_ String {
-//     fn alloc_string_value(self, heap: Heap<'v>) -> StringValue<'v> {
 //         heap.alloc_str(self.as_str())
 //     }
 // }
 // impl<'v> AllocValue<'v> for &'_ str {
-//     fn alloc_value(self, heap: Heap<'v>) -> Value<'v> {
 //         self.alloc_string_value(heap).to_value()
 //     }
 // }
 // impl<'v> AllocStringValue<'v> for &'_ str {
-//     fn alloc_string_value(self, heap: Heap<'v>) -> StringValue<'v> {
 //         heap.alloc_str(self)
 //     }
 // }
@@ -151,18 +121,14 @@ fun Char.allocStringValue(heap: Heap): StringValue {
 // implementations (&str, &String) are covered by the String extension functions above.
 
 // impl<'v> UnpackValue<'v> for &'v str {
-//     type Error = Infallible;
 //
-//     fn unpack_value_impl(value: Value<'v>) -> Result<Option<Self>, Self::Error> {
 //         Ok(value.unpack_str())
 //     }
 // }
 fun unpackValueImplBorrowedString(value: Value): Result<String?> = Result.success(value.unpackStr())
 
 // impl<'v> UnpackValue<'v> for String {
-//     type Error = Infallible;
 //
-//     fn unpack_value_impl(value: Value<'v>) -> Result<Option<Self>, Self::Error> {
 //         Ok(value.unpack_str().map(ToOwned::to_owned))
 //     }
 // }

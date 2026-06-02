@@ -24,27 +24,19 @@ package io.github.kotlinmania.starlark.tests.derive
 import io.github.kotlinmania.starlark.values.StarlarkValue
 import io.github.kotlinmania.starlark.values.layout.Value
 
-// #[derive(Debug, Display, NoSerialize, ProvidesStaticType, Allocative)]
-// #[display("ValueWithLifetimeParam")]
-// struct ValueWithLifetimeParam<'v>(Value<'v>);
 @Suppress("unused")
 private class ValueWithLifetimeParam(
     val value: Value,
 ) : StarlarkValue {
-    // #[starlark_value(type = "ValueWithLifetimeParam", StarlarkTypeRepr, UnpackValue)]
     override val TYPE: String get() = "ValueWithLifetimeParam"
 
     override fun toString(): String = "ValueWithLifetimeParam"
 }
 
-// #[derive(Debug, Display, NoSerialize, ProvidesStaticType, Allocative)]
-// #[display("ValueWithoutParam")]
-// struct ValueWithoutParam(String);
 @Suppress("unused")
 private class ValueWithoutParam(
     val value: String,
 ) : StarlarkValue {
-    // #[starlark_value(type = "ValueWithoutParam", StarlarkTypeRepr, UnpackValue)]
     override val TYPE: String get() = "ValueWithoutParam"
 
     override fun toString(): String = "ValueWithoutParam"

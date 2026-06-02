@@ -26,15 +26,12 @@ import io.github.kotlinmania.starlark.typing.Ty
  * Type parameter for [`StarlarkCallable`] or [`FrozenStarlarkCallable`]
  * describing the expected parameters of the callable.
  */
-// pub trait StarlarkCallableParamSpec
 interface StarlarkCallableParamSpec {
     /** Get the parameter specification for the callable. */
-    // fn params() -> ParamSpec
     fun params(): ParamSpec
 }
 
 /** Indicates that a callable accepts any number of positional and keyword arguments. */
-// pub struct StarlarkCallableParamAny
 
 /** `*args` and `**kwargs` parameters. */
 // impl StarlarkCallableParamSpec for StarlarkCallableParamAny

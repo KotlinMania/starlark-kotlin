@@ -22,8 +22,6 @@ package io.github.kotlinmania.starlark.eval.runtime
 import io.github.kotlinmania.starlark.eval.bc.BcSlot
 
 /** Not captured. */
-// #[derive(Clone, Copy, Dupe, Debug, PartialEq, Eq, Trace, Freeze, VisitSpanMut, Allocative)]
-// pub(crate) struct LocalSlotId(pub(crate) u32)
 internal data class LocalSlotId(
     val index: UInt,
 ) {
@@ -34,10 +32,8 @@ internal data class LocalSlotId(
      * * or used for writing
      * * but not captured
      */
-    // pub(crate) fn to_bc_slot(self) -> BcSlot
     fun toBcSlot(): BcSlot = BcSlot(index)
 
-    // pub(crate) fn to_captured_or_not(self) -> LocalSlotIdCapturedOrNot
     fun toCapturedOrNot(): LocalSlotIdCapturedOrNot = LocalSlotIdCapturedOrNot(index)
 }
 
@@ -54,12 +50,9 @@ internal data class LocalSlotId(
  *
  * `x` slots (in both `f` and `lambda`) are captured.
  */
-// #[derive(Clone, Copy, Dupe, Debug, PartialEq, Eq, Trace, VisitSpanMut)]
-// pub(crate) struct LocalCapturedSlotId(pub(crate) u32)
 internal data class LocalCapturedSlotId(
     val index: UInt,
 ) {
-    // pub(crate) fn to_bc_slot(self) -> BcSlot
     fun toBcSlot(): BcSlot = BcSlot(index)
 }
 
@@ -68,8 +61,6 @@ internal data class LocalCapturedSlotId(
  *
  * This is used only during AST analysis.
  */
-// #[derive(Clone, Copy, Dupe, Debug, PartialEq, Eq, Trace)]
-// pub(crate) struct LocalSlotIdCapturedOrNot(pub(crate) u32)
 data class LocalSlotIdCapturedOrNot(
     val index: UInt,
 )

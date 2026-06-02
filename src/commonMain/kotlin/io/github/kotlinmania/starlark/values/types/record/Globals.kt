@@ -28,7 +28,6 @@ import io.github.kotlinmania.starlark.values.types.record.recordtype.RecordTypeG
 import io.github.kotlinmania.starlark.values.typing.typecompiled.TypeCompiled
 
 // #[starlark_module]
-// pub(crate) fn register_record(builder: &mut GlobalsBuilder)
 internal fun registerRecord(builder: GlobalsBuilder) {
     /**
      * A `record` type represents a set of named values, each with their own type.
@@ -70,7 +69,6 @@ internal fun registerRecord(builder: GlobalsBuilder) {
      * Records are stored deduplicating their field names, making them more
      * memory efficient than dictionaries.
      */
-    // fn record<'v>(#[starlark(kwargs)] kwargs: SmallMap<String, Value<'v>>, eval: &mut Evaluator) -> anyhow::Result<RecordType<'v>>
     builder.setFunction("record") { args, eval ->
         val kwargs = args.namesMap().getOrElse { return@setFunction Result.failure<Value>(it) }
         // Every Value must either be a field or a value (the type)
@@ -99,7 +97,6 @@ internal fun registerRecord(builder: GlobalsBuilder) {
      * rec.mask == 255
      * ```
      */
-    // fn field<'v>(#[starlark(require = pos)] typ: Value<'v>, default: Option<Value<'v>>, eval: &mut Evaluator) -> starlark::Result<Field<'v>>
     builder.setFunction("field") { args, eval ->
         val positionalArgs = args.positionalAll()
         val typ = positionalArgs[0]
@@ -117,5 +114,4 @@ internal fun registerRecord(builder: GlobalsBuilder) {
     }
 }
 
-// #[cfg(test)] mod tests
 // Tests are in commonTest, not here.

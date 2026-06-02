@@ -21,14 +21,3 @@ package io.github.kotlinmania.starlark.tests.derive
  * limitations under the License.
  */
 
-// mod basic;
-// mod default_value;
-// mod generic;
-// mod kwargs;
-// mod methods;
-// mod named_positional;
-// mod other_attributes;
-// mod return_impl;
-// mod special_params;
-// mod type_annotation;
-// mod unpack_value;

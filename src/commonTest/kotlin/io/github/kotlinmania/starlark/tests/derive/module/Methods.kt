@@ -32,25 +32,20 @@ import io.github.kotlinmania.starlark.values.layout.avalues.simple.allocSimple
 import io.github.kotlinmania.starlark.values.layout.heap.FrozenHeap
 import io.github.kotlinmania.starlark.values.types.bigint.allocValue
 
-// #[derive(Debug, Display, ProvidesStaticType, NoSerialize, Allocative)]
-// struct Applaud { value: i32 }
 private class Applaud(
     val value: Int,
 ) : StarlarkValue,
     AllocFrozenValue {
     override fun toString(): String = "Applaud(value=$value)"
 
-    // #[starlark_value(type = "applaud")]
     override val TYPE: String get() = "applaud"
 
     override fun starlarkTypeRepr(): Ty = Ty.starlarkValue(TyStarlarkValue.new(TYPE))
 
     // impl StarlarkValue for Applaud
-    // fn get_methods() -> Option<&'static Methods>
     override fun getMethods(): Methods? = Companion.methodsStatic.methods(::methods)
 
     // impl AllocFrozenValue for Applaud
-    // fn alloc_frozen_value(self, heap: &FrozenHeap) -> FrozenValue
     override fun allocFrozenValue(heap: FrozenHeap): FrozenValue = heap.allocSimple(this)
 
     companion object {
@@ -59,9 +54,7 @@ private class Applaud(
 }
 
 // #[starlark_module]
-// fn methods(builder: &mut MethodsBuilder)
 private fun methods(builder: MethodsBuilder) {
-    // fn test_method(#[starlark(this)] receiver: Value, this: i32) -> anyhow::Result<i32>
     builder.setMethod("test_method") { eval, receiver, _, args ->
         val thisParam = args.positional1(eval.heap()).getOrThrow()
         val thisInt =
@@ -74,7 +67,6 @@ private fun methods(builder: MethodsBuilder) {
 }
 
 // #[test]
-// fn test_receiver_can_be_named_anything()
 internal fun testReceiverCanBeNamedAnything() {
     val a = Assert()
     a.globalsAdd { g -> g.set("x", Applaud(value = 10)) }

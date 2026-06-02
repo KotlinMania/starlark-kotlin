@@ -33,7 +33,6 @@ internal class ConstFrozenStringTest {
         // });
         check(constFrozenString("a") === constFrozenString("a"))
 
-        // let frozen_heap = FrozenHeap::new();
         // assert!(const_frozen_string!("a").to_value().ptr_eq(frozen_heap.alloc_str("a").to_value()));
         check(constFrozenString("a") === constFrozenString("a"))
     }

@@ -31,8 +31,6 @@ import io.github.kotlinmania.starlark.values.types.namespace.FrozenNamespace
  * generates a singleton that allocates the function only once even if the builder function
  * is called multiple times.
  */
-// #[derive(Copy, Clone, Dupe, Debug)]
-// pub(crate) struct BuiltinFn(pub(crate) FrozenValue);
 internal class BuiltinFn(
     val value: FrozenValue,
 ) {
@@ -63,7 +61,6 @@ internal class BuiltinFn(
  * lifetime of the process. The compiler uses them to recognise calls to
  * built-ins such as `len`, `type`, `list`, etc. and emit optimised bytecode.
  */
-// pub(crate) struct Constants { ... }
 internal class Constants(
     val fnLen: BuiltinFn?,
     val fnType: BuiltinFn?,
@@ -76,7 +73,6 @@ internal class Constants(
     val typingCallable: BuiltinFn?,
 ) {
     companion object {
-        // pub fn get() -> &'static Constants
         // static RES: Lazy<Constants> = Lazy::new(|| { ... });
         private val instance: Constants by lazy {
             val g = Globals.extendedInternal()

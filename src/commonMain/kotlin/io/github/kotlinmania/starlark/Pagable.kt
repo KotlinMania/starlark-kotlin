@@ -35,8 +35,3 @@ package io.github.kotlinmania.starlark.pagable
 // / The type identifier is `std::any::type_name<T>()` for the Rust type that
 // / defines the Starlark value.
 
-// #[cfg(feature = "pagable")]
-// pub(crate) mod error;
-// #[cfg(feature = "pagable")]
-// pub(crate) mod vtable_registry;
-// pub(crate) mod vtable_register;

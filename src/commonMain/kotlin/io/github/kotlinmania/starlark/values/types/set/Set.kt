@@ -51,7 +51,6 @@ internal fun registerSet(globals: GlobalsBuilder) {
      */
     // #[starlark(as_type = FrozenSet, speculative_exec_safe,
     //   special_builtin_function = SpecialBuiltinFunction::Set)]
-    // fn set<'v>(arg: Option<ValueOfUnchecked<'v, StarlarkIter<Value<'v>>>>, heap: Heap<'v>)
     //   -> starlark::Result<SetData<'v>>
     globals.setFunction(
         name = "set",

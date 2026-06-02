@@ -19,28 +19,8 @@ package io.github.kotlinmania.starlark.values.types.none
  * limitations under the License.
  */
 
-// use std::convert::Infallible;
-// use std::hash::Hasher;
 
-// use allocative::Allocative;
-// use derive_more::Display;
-// use dupe::Dupe;
-// use serde::Serialize;
-// use serde::Serializer;
-// use starlark_derive::starlark_value;
 
-// use crate::collections::StarlarkHashValue;
-// use crate::collections::StarlarkHasher;
-// use crate::typing::Ty;
-// use crate::values::AllocFrozenValue;
-// use crate::values::AllocStaticSimple;
-// use crate::values::AllocValue;
-// use crate::values::FrozenHeap;
-// use crate::values::FrozenValue;
-// use crate::values::Heap;
-// use crate::values::StarlarkValue;
-// use crate::values::UnpackValue;
-// use crate::values::Value;
 
 import io.github.kotlinmania.starlark.collections.StarlarkHashValue
 import io.github.kotlinmania.starlark.collections.StarlarkHasher
@@ -56,36 +36,26 @@ import io.github.kotlinmania.starlark.values.layout.heap.FrozenHeap
 import io.github.kotlinmania.starlark.values.layout.heap.Heap
 
 // / Define the None type, use [`NoneType`] in Rust.
-// #[derive(Debug, Clone, Dupe, ProvidesStaticType, Display, Allocative)]
-// #[display("None")]
-// pub struct NoneType;
 object NoneType : StarlarkValue, AllocValue, AllocFrozenValue, UnpackValue<NoneType> {
     // impl NoneType
     // / The result of `type(None)`.
-    // pub const TYPE: &'static str = "NoneType";
     override val TYPE: String = "NoneType"
     override val HAS_eval_type: Boolean get() = true
 
-    // #[display("None")]
     override fun toString(): String = "None"
 
-    // #[starlark_value(type = NoneType::TYPE)]
     // impl<'v> StarlarkValue<'v> for NoneType {
 
-    // fn is_special(_: Private) -> bool { true }
     override fun isSpecial(): Boolean = true
 
-    // fn to_bool(&self) -> bool { false }
     override fun toBool(): Boolean = false
 
-    // fn write_hash(&self, hasher: &mut StarlarkHasher) -> crate::Result<()>
     override fun writeHash(hasher: StarlarkHasher): Result<Unit> {
         // just took the result of hash(None) in macos python 2.7.10 interpreter.
         hasher.writeU64(9_223_380_832_852_120_682UL)
         return Result.success(Unit)
     }
 
-    // fn get_hash(&self, _private: Private) -> crate::Result<StarlarkHashValue>
     override fun getHash(): Result<StarlarkHashValue> {
         // Just a random number.
         return Result.success(StarlarkHashValue.newUnchecked(0xf9c2263dU))
@@ -93,21 +63,16 @@ object NoneType : StarlarkValue, AllocValue, AllocFrozenValue, UnpackValue<NoneT
 
     override fun starlarkTypeRepr(): Ty = Ty.none()
 
-    // fn get_type_starlark_repr() -> Ty
     override fun getTypeStarlarkRepr(): Ty = Ty.none()
 
-    // fn typechecker_ty(&self) -> Option<Ty>
     override fun typecheckerTy(): Ty = Ty.none()
 
-    // fn eval_type(&self) -> Option<Ty>
     override fun evalType(): Ty = Ty.none()
 
     // impl<'v> AllocValue<'v> for NoneType
-    // fn alloc_value(self, _heap: Heap<'v>) -> Value<'v> { Value::new_none() }
     override fun allocValue(heap: Heap): Value = Value.newNone()
 
     // impl Serialize for NoneType {
-    //     fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error> {
     //         serializer.serialize_none()
     //     }
     // }
@@ -118,12 +83,9 @@ object NoneType : StarlarkValue, AllocValue, AllocFrozenValue, UnpackValue<NoneT
     }
 
     // impl AllocFrozenValue for NoneType
-    // fn alloc_frozen_value(self, _heap: &FrozenHeap) -> FrozenValue { FrozenValue::new_none() }
     override fun allocFrozenValue(heap: FrozenHeap): FrozenValue = FrozenValue.newNone()
 
     // impl<'v> UnpackValue<'v> for NoneType {
-    //     type Error = Infallible;
-    //     fn unpack_value_impl(value: Value<'v>) -> Result<Option<Self>, Self::Error>
     override fun unpackValueImpl(value: Value): Result<NoneType?> =
         if (value.isNone()) {
             Result.success(NoneType)

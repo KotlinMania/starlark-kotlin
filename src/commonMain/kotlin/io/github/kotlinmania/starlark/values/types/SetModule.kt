@@ -22,9 +22,3 @@ package io.github.kotlinmania.starlark.values.types.set
 /** The set type. */
 
 // Rust mod declarations — in Kotlin, these are separate files in the set/ package.
-// pub(crate) mod methods
-// pub(crate) mod refs
-// pub(crate) mod set
-// pub(crate) mod value
-// pub use SetMut
-// pub use SetRef

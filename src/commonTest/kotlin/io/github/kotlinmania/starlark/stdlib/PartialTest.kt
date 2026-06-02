@@ -22,10 +22,7 @@ package io.github.kotlinmania.starlark.stdlib
 import io.github.kotlinmania.starlark.assert.Assert
 import kotlin.test.Test
 
-// #[cfg(test)]
-// mod tests
 class PartialTest {
-    // fn eq(expected: &str, expr: &str)
     private fun eq(expected: String, expr: String) {
         val sum = """
 def sum(a, b, *args, **kwargs):
@@ -40,7 +37,6 @@ def sum(a, b, *args, **kwargs):
     }
 
     // #[test]
-    // fn test_simple()
     @Test
     fun testSimple() {
         eq(
@@ -50,7 +46,6 @@ def sum(a, b, *args, **kwargs):
     }
 
     // #[test]
-    // fn test_star_to_partial()
     @Test
     fun testStarToPartial() {
         eq(
@@ -60,7 +55,6 @@ def sum(a, b, *args, **kwargs):
     }
 
     // #[test]
-    // fn test_start_to_returned_func()
     @Test
     fun testStartToReturnedFunc() {
         eq(
@@ -70,7 +64,6 @@ def sum(a, b, *args, **kwargs):
     }
 
     // #[test]
-    // fn test_no_args_to_partial()
     @Test
     fun testNoArgsToPartial() {
         eq(
@@ -80,7 +73,6 @@ def sum(a, b, *args, **kwargs):
     }
 
     // #[test]
-    // fn test_typecheck_bug()
     @Test
     fun testTypecheckBug() {
         Assert.pass(

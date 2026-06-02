@@ -43,8 +43,6 @@ import io.github.kotlinmania.starlark.values.types.ellipsis.Ellipsis
 import io.github.kotlinmania.starlark.values.types.list.allocList
 import io.github.kotlinmania.starlark.values.typing.typecompiled.TypeCompiled
 
-// #[derive(Debug, thiserror::Error)]
-// enum TypesError
 private sealed class TypesError(
     message: String,
 ) : Exception(message) {

@@ -37,7 +37,6 @@ import io.github.kotlinmania.starlark.values.typing.typecompiled.TypeMatcherT
  * Can represent either a fixed-element tuple (`tuple[T0, T1, T2]`)
  * or a variable-element tuple (`tuple[T, ...]`).
  */
-// pub enum TyTuple { Elems(Arc<[Ty]>), Of(ArcTy) }
 sealed class TyTuple : Comparable<TyTuple> {
     /** `tuple[T0, T1, T2]` -- a tuple with specific element types. */
     // Elems(Arc<[Ty]>)
@@ -51,7 +50,6 @@ sealed class TyTuple : Comparable<TyTuple> {
         val item: ArcTy,
     ) : TyTuple()
 
-    // pub(crate) fn get(&self, i: usize) -> Option<&Ty>
 
     /** Get the type at index [i], or `null` for `Of` (any index valid). */
     fun get(i: Int): Ty? =
@@ -60,7 +58,6 @@ sealed class TyTuple : Comparable<TyTuple> {
             is Of -> item.toTy()
         }
 
-    // pub(crate) fn item_ty(&self) -> Ty
 
     /** Union of all element types (identity for [Of]). */
     fun itemTy(): Ty =
@@ -69,7 +66,6 @@ sealed class TyTuple : Comparable<TyTuple> {
             is Of -> item.toTy()
         }
 
-    // pub(crate) fn intersects(this, other, ctx) -> Result<bool, InternalError>
 
     /**
      * Check if this tuple type could intersect with [other].
@@ -98,7 +94,6 @@ sealed class TyTuple : Comparable<TyTuple> {
             else -> false
         }
 
-    // pub(crate) fn matcher<T: TypeMatcherAlloc>(&self, type_compiled_factory: T) -> T::Result
 
     /** Allocate a runtime type matcher for this tuple type. */
     fun <R> matcher(factory: TypeMatcherAlloc<R>): R =
@@ -163,7 +158,6 @@ sealed class TyTuple : Comparable<TyTuple> {
             }
         }
 
-    // pub(crate) fn fmt_with_config(&self, f, config) -> fmt::Result
 
     /** Format with a custom rendering configuration. */
     fun fmtWithConfig(config: TypeRenderConfig): String =

@@ -20,7 +20,6 @@ package io.github.kotlinmania.starlark.tests.bc
  */
 
 // #[test]
-// fn test_if_x_and_true()
 internal fun testIfXAndTrue() {
     bcGoldenTest(
         "if_stmt_if_x_and_true",
@@ -29,7 +28,6 @@ internal fun testIfXAndTrue() {
 }
 
 // #[test]
-// fn test_if_x_and_false()
 internal fun testIfXAndFalse() {
     bcGoldenTest(
         "if_stmt_if_x_and_false",
@@ -38,7 +36,6 @@ internal fun testIfXAndFalse() {
 }
 
 // #[test]
-// fn test_if_x_or_true()
 internal fun testIfXOrTrue() {
     bcGoldenTest(
         "if_stmt_if_x_or_true",
@@ -47,7 +44,6 @@ internal fun testIfXOrTrue() {
 }
 
 // #[test]
-// fn test_if_x_or_false()
 internal fun testIfXOrFalse() {
     bcGoldenTest(
         "if_stmt_if_x_or_false",
@@ -56,7 +52,6 @@ internal fun testIfXOrFalse() {
 }
 
 // #[test]
-// fn test_if_true_and_x()
 internal fun testIfTrueAndX() {
     bcGoldenTest(
         "if_stmt_if_true_and_x",
@@ -65,7 +60,6 @@ internal fun testIfTrueAndX() {
 }
 
 // #[test]
-// fn test_if_false_and_x()
 internal fun testIfFalseAndX() {
     bcGoldenTest(
         "if_stmt_if_false_and_x",
@@ -74,7 +68,6 @@ internal fun testIfFalseAndX() {
 }
 
 // #[test]
-// fn test_if_true_or_x()
 internal fun testIfTrueOrX() {
     bcGoldenTest(
         "if_stmt_if_true_or_x",
@@ -83,7 +76,6 @@ internal fun testIfTrueOrX() {
 }
 
 // #[test]
-// fn test_if_false_or_x()
 internal fun testIfFalseOrX() {
     bcGoldenTest(
         "if_stmt_if_false_or_x",
@@ -92,7 +84,6 @@ internal fun testIfFalseOrX() {
 }
 
 // #[test]
-// fn test_if_else_x_and_y()
 internal fun testIfElseXAndY() {
     bcGoldenTest(
         "if_stmt_if_else_x_and_y",
@@ -101,7 +92,6 @@ internal fun testIfElseXAndY() {
 }
 
 // #[test]
-// fn test_if_else_x_or_y()
 internal fun testIfElseXOrY() {
     bcGoldenTest(
         "if_stmt_if_else_x_or_y",
@@ -110,13 +100,11 @@ internal fun testIfElseXOrY() {
 }
 
 // #[test]
-// fn test_and_stmt()
 internal fun testAndStmt() {
     bcGoldenTest("if_stmt_and_stmt", "def test(x):\n  x and noop()")
 }
 
 // #[test]
-// fn test_or_stmt()
 internal fun testOrStmt() {
     bcGoldenTest("if_stmt_or_stmt", "def test(x):\n  x or noop()")
 }

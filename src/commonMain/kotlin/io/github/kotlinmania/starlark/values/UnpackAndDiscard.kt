@@ -34,12 +34,10 @@ class UnpackAndDiscard<T : Any> internal constructor(
     private val ty: Ty,
 ) : StarlarkTypeRepr {
     // impl StarlarkTypeRepr for UnpackAndDiscard
-    // fn starlark_type_repr() -> Ty
     override fun starlarkTypeRepr(): Ty = ty
 
     companion object {
         // impl UnpackValue for UnpackAndDiscard
-        // fn unpack_value_impl(value: Value<'v>) -> Result<Option<Self>, Self::Error>
         //
         // In Rust, `T::unpack_value_impl(value)` calls the trait statically.
         // In Kotlin, we require the UnpackValue<T> instance to be passed in,

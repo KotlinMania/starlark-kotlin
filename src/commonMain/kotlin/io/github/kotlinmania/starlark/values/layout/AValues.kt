@@ -21,10 +21,3 @@ package io.github.kotlinmania.starlark.values.layout
  * limitations under the License.
  */
 
-// pub(crate) mod array;
-// pub(crate) mod complex;
-// pub(crate) mod list;
-// pub(crate) mod simple;
-// pub(crate) mod static_;
-// pub(crate) mod str_;
-// pub(crate) mod tuple;

@@ -23,8 +23,6 @@ package io.github.kotlinmania.starlark.tests.derive.trace
 
 import io.github.kotlinmania.starlark.values.layout.Value
 
-// #[derive(Trace)]
-// enum TestEnumForTrace<'v>
 @Suppress("unused")
 private sealed class TestEnumForTrace {
     // Foo(String)

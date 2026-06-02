@@ -29,7 +29,6 @@ import io.github.kotlinmania.starlark.values.layout.heap.FrozenHeap
 import io.github.kotlinmania.starlark.values.layout.heap.arena.Reservation
 
 /** Used to `freeze` values by [Freeze.freeze][io.github.kotlinmania.starlark.values.Freeze.freeze]. */
-// pub struct Freezer<'fv>
 class Freezer internal constructor(
     /** Freezing into this heap. */
     // pub(crate) heap: &'fv FrozenHeap,
@@ -40,16 +39,12 @@ class Freezer internal constructor(
     internal val frozenDefs: MutableList<FrozenRef<FrozenDefPostFreeze>> = mutableListOf()
 
     companion object {
-        // pub(crate) fn new(heap: &'fv FrozenHeap) -> Self
         internal fun new(heap: FrozenHeap): Freezer = Freezer(heap = heap)
     }
 
     /** Allocate a new value while freezing. Usually not a great idea. */
-    // pub fn alloc<'v, T: AllocFrozenValue>(&'v self, val: T) -> FrozenValue
     fun <T : AllocFrozenValue> alloc(`val`: T): FrozenValue = `val`.allocFrozenValue(heap)
 
-    // pub(crate) fn reserve<'v, 'v2, T>(&'v self) -> (FrozenValue, Reservation<'v2, T>)
-    // where
     //     T: AValue<'v2, ExtraElem = ()>,
     //     T::StarlarkValue: HeapSendable<'v2>,
     //     T::StarlarkValue: HeapSyncable<'v2>,
@@ -60,7 +55,6 @@ class Freezer internal constructor(
     }
 
     /** Freeze a nested value while freezing yourself. */
-    // pub fn freeze(&self, value: Value) -> Result<FrozenValue>
     fun freeze(value: Value): Result<FrozenValue> {
         // Case 1: We have our value encoded in our pointer
         val x = value.unpackFrozen()
@@ -89,6 +83,5 @@ class Freezer internal constructor(
      *
      * Can be used to allocate additional values while freezing.
      */
-    // pub fn frozen_heap(&self) -> &'fv FrozenHeap
     fun frozenHeap(): FrozenHeap = heap
 }

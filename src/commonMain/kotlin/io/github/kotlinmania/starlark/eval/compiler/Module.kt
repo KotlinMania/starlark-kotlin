@@ -45,8 +45,6 @@ import io.github.kotlinmania.starlark.values.layout.Value
 import io.github.kotlinmania.starlark.values.layout.constFrozenString
 import io.github.kotlinmania.starlark.values.layout.typed.FrozenStringValue
 
-// #[derive(Debug, thiserror::Error)]
-// enum ModuleError
 internal sealed class ModuleError(
     override val message: String,
 ) : Exception(message) {
@@ -65,7 +63,6 @@ internal sealed class ModuleError(
 
 // Extension functions on Compiler for module evaluation.
 
-// fn eval_load(&mut self, load: Spanned<&LoadP<CstPayload>>) -> Result<(), EvalException>
 internal fun Compiler.evalLoad(load: Spanned<LoadP<CstPayload, *>>): Result<Unit> {
     val name = load.node.module.node
 
@@ -120,7 +117,6 @@ internal fun Compiler.evalLoad(load: Spanned<LoadP<CstPayload, *>>): Result<Unit
  * Compile and evaluate regular statement.
  * Regular statement is a statement which is not `load` or a sequence of statements.
  */
-// fn eval_regular_top_level_stmt(&mut self, stmt: &mut CstStmt, local_names: FrozenRef<'static, [FrozenStringValue]>) -> Result<Value<'v>, EvalException>
 internal fun Compiler.evalRegularTopLevelStmt(
     stmt: CstStmt,
     localNames: FrozenRef<List<FrozenStringValue>>,
@@ -157,7 +153,6 @@ internal fun Compiler.evalRegularTopLevelStmt(
     ) { evaluator -> evaluator.evalBc(constFrozenString("module").toValue(), bc) }
 }
 
-// fn eval_top_level_stmt(&mut self, stmt: &mut CstStmt, local_names: FrozenRef<'static, [FrozenStringValue]>) -> Result<Value<'v>, EvalException>
 internal fun Compiler.evalTopLevelStmt(
     stmt: CstStmt,
     localNames: FrozenRef<List<FrozenStringValue>>,
@@ -203,7 +198,6 @@ internal fun Compiler.evalTopLevelStmt(
     return Result.success(last)
 }
 
-// fn typecheck(&mut self, stmts: &mut [&mut CstStmt]) -> Result<(), EvalException>
 internal fun Compiler.typecheck(stmts: List<CstStmt>): Result<Unit> {
     val doTypecheck = eval.staticTypechecking || this.typecheck
     if (!doTypecheck) {
@@ -250,7 +244,6 @@ internal fun Compiler.typecheck(stmts: List<CstStmt>): Result<Unit> {
     return Result.success(Unit)
 }
 
-// fn mk_module_var_types(&self) -> ModuleVarTypes
 internal fun Compiler.mkModuleVarTypes(): ModuleVarTypes {
     val types =
         eval.moduleEnv
@@ -261,7 +254,6 @@ internal fun Compiler.mkModuleVarTypes(): ModuleVarTypes {
     return ModuleVarTypes(types = types)
 }
 
-// pub(crate) fn eval_module(&mut self, mut stmt: CstStmt, local_names: FrozenRef<'static, [FrozenStringValue]>) -> Result<Value<'v>, EvalException>
 internal fun Compiler.evalModule(
     stmt: CstStmt,
     localNames: FrozenRef<List<FrozenStringValue>>,

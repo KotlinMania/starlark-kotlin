@@ -30,8 +30,6 @@ import io.github.kotlinmania.starlark.values.layout.heap.Heap
 import io.github.kotlinmania.starlark.values.types.none.NoneType
 
 // #[starlark_module]
-// fn global_builder<T: Default, U>(globals: &mut GlobalsBuilder)
-// where U: std::fmt::Display + Default
 private fun <T, U> globalBuilder(
     globals: GlobalsBuilder,
     defaultT: () -> T,
@@ -40,7 +38,6 @@ private fun <T, U> globalBuilder(
     globals.setConst("MY_STR", defaultU().toString())
 }
 
-// struct CustomNone<T>(PhantomData<T>)
 private class CustomNone<T> :
     StarlarkTypeRepr,
     AllocValue {
@@ -52,13 +49,10 @@ private class CustomNone<T> :
     override fun starlarkTypeRepr(): Ty = Companion.starlarkTypeRepr()
 
     // impl<'v, T> AllocValue<'v> for CustomNone<T>
-    // fn alloc_value(self, _heap: Heap) -> Value
     override fun allocValue(heap: Heap): Value = Value.newNone()
 }
 
 // #[starlark_module]
-// fn method_builder<T: Default, U>(globals: &mut MethodsBuilder)
-// where U: std::fmt::Display + Default
 private fun <T, U> methodBuilder(
     builder: MethodsBuilder,
     defaultT: () -> T,
@@ -66,7 +60,6 @@ private fun <T, U> methodBuilder(
 ) {
     // Just check that this compiles
     // #[starlark(attribute)]
-    // fn test_attribute(this: u32) -> starlark::Result<CustomNone<T>>
     builder.setAttribute("test_attribute") { _this, _heap ->
         defaultU().toString()
         defaultT()
@@ -75,14 +68,11 @@ private fun <T, U> methodBuilder(
 }
 
 // #[starlark_module]
-// fn global_builder_for_func<T: Default, U>(globals: &mut GlobalsBuilder)
-// where U: std::fmt::Display + Default
 private fun <T, U> globalBuilderForFunc(
     globals: GlobalsBuilder,
     defaultT: () -> T,
     defaultU: () -> U,
 ) {
-    // fn make_my_str() -> starlark::Result<String>
     globals.setFunction("make_my_str") { _, _ ->
         defaultT()
         Result.success(defaultU().toString())
@@ -90,7 +80,6 @@ private fun <T, U> globalBuilderForFunc(
 }
 
 // #[test]
-// fn test_generic_builder()
 internal fun testGenericBuilder() {
     val a = Assert()
     a.globalsAdd { g ->

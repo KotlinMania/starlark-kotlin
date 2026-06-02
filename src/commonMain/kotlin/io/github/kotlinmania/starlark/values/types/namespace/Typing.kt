@@ -34,14 +34,12 @@ import io.github.kotlinmania.starlark.values.starlarktypeid.StarlarkTypeId
 import io.github.kotlinmania.starlark.values.typing.typecompiled.TypeMatcher
 import io.github.kotlinmania.starlark.values.typing.typecompiled.TypeMatcherAlloc
 
-// #[derive(Allocative, Eq, PartialEq, Hash, Debug, Clone, Copy, Dupe)]
 internal object NamespaceMatcher : TypeMatcher {
     // #[type_matcher]
     override fun matches(value: Value): Boolean =
         value.starlarkTypeId() == StarlarkTypeId.of(FrozenNamespace::class)
 }
 
-// #[derive(Allocative, Clone, Copy, Dupe, Debug, Eq, PartialEq, Hash, Ord, PartialOrd)]
 internal object TyNamespaceFunction : TyCustomFunctionImpl {
     override fun asCallable(): TyCallable =
         TyCallable.new(
@@ -80,7 +78,6 @@ internal object TyNamespaceFunction : TyCustomFunctionImpl {
     }
 }
 
-// #[derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Allocative)]
 data class TyNamespace(
     val fields: Map<ArcStr, Ty>,
     /** `true` if there might be additional fields not captured above,

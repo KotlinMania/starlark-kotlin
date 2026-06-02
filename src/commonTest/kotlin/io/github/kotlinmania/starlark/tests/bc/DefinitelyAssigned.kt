@@ -23,7 +23,6 @@ import io.github.kotlinmania.starlark.assert.Assert
 
 /** Test for bug reported in D36808160. */
 // #[test]
-// fn test_definitely_assigned_bug()
 internal fun testDefinitelyAssignedBug() {
     val a = Assert()
     a.module(
@@ -39,7 +38,6 @@ def f(a):
 }
 
 // #[test]
-// fn test_definitely_assigned_slot_range_in_list()
 internal fun testDefinitelyAssignedSlotRangeInList() {
     bcGoldenTest(
         "definitely_assigned_slot_range_in_list",
@@ -48,7 +46,6 @@ internal fun testDefinitelyAssignedSlotRangeInList() {
 }
 
 // #[test]
-// fn test_definitely_assigned_slot_range_in_call()
 internal fun testDefinitelyAssignedSlotRangeInCall() {
     bcGoldenTest(
         "definitely_assigned_slot_range_in_call",
@@ -57,7 +54,6 @@ internal fun testDefinitelyAssignedSlotRangeInCall() {
 }
 
 // #[test]
-// fn test_mov_is_used()
 internal fun testMovIsUsed() {
     // `Mov`, not `LoadLocal` should be used to load `y` and `x`.
     bcGoldenTest(
@@ -67,7 +63,6 @@ internal fun testMovIsUsed() {
 }
 
 // #[test]
-// fn test_no_op_movs()
 internal fun testNoOpMovs() {
     bcGoldenTest("definitely_assigned_no_op_movs", "def test(x): x = x")
 }

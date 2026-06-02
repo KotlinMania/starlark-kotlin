@@ -27,8 +27,6 @@ import io.github.kotlinmania.starlark.syntax.ast.StmtP
 import io.github.kotlinmania.starlark.typing.Ty
 
 /** Controls the formatting to use when parsing [DocString]s from raw docstrings. */
-// #[derive(Copy, Clone, Dupe)]
-// pub enum DocStringKind
 enum class DocStringKind {
     /**
      * Docstrings provided by users in starlark files, following python-y documentation style.
@@ -140,7 +138,6 @@ private val PARAM_INDENTED_RE = Regex("""^(?:\s|$)""")
  * Extracts the docstring from a function or module body, iff the first
  * statement is a string literal.
  */
-// pub(crate) fn extract_raw_starlark_docstring<P: AstPayload>(body: &AstStmtP<P>) -> Option<String>
 fun <P : AstPayload> DocString.Companion.extractRawStarlarkDocstring(body: AstStmtP<P>): String? {
     val stmtNode = body.node
     if (stmtNode is StmtP.Statements) {
@@ -160,7 +157,6 @@ fun <P : AstPayload> DocString.Companion.extractRawStarlarkDocstring(body: AstSt
     return null
 }
 
-// fn split_summary_details(s: &str) -> Option<(&str, &str, &str)>
 private fun splitSummaryDetails(s: String): Triple<String, String, String>? {
     val examplesString = "Examples:\n"
 
@@ -198,7 +194,6 @@ private fun splitSummaryDetails(s: String): Triple<String, String, String>? {
     return null
 }
 
-// fn normalize_summary(summary: &str) -> String
 private fun normalizeSummary(summary: String): String =
     buildString(summary.length) {
         for (line in summary.lines()) {
@@ -210,7 +205,6 @@ private fun normalizeSummary(summary: String): String =
     }
 
 /** Do common work to parse a docstring (dedenting, splitting summary and details, etc). */
-// pub fn from_docstring(kind: DocStringKind, user_docstring: &str) -> Option<DocString>
 fun DocString.Companion.fromDocstring(kind: DocStringKind, userDocstring: String): DocString? {
     val trimmedDocs = userDocstring.trim()
     if (trimmedDocs.isEmpty()) {
@@ -264,7 +258,6 @@ fun DocString.Companion.fromDocstring(kind: DocStringKind, userDocstring: String
 }
 
 /** Removes rustdoc-style commented out lines from code blocks. */
-// fn remove_rust_comments(details: &str) -> String
 private fun removeRustComments(details: String): String =
     CODEBLOCK_RE.replace(details) { matchResult ->
         val lang = matchResult.groupValues[1]
@@ -276,7 +269,6 @@ private fun removeRustComments(details: String): String =
     }
 
 /** Join lines up, dedent them, and trim them. */
-// fn join_and_dedent_lines(lines: &[String]) -> String
 private fun joinAndDedentLines(lines: List<String>): String = dedent(lines.joinToString("\n")).trim()
 
 /**
@@ -288,7 +280,6 @@ private fun joinAndDedentLines(lines: List<String>): String = dedent(lines.joinT
  * Returns a new instance of [DocString] with the requested sections removed,
  * and a mapping of section name (lower case) to the cleaned up section text.
  */
-// fn parse_and_remove_sections(self, kind: DocStringKind, requested_sections: &[&str]) -> (Self, HashMap<String, String>)
 internal fun DocString.parseAndRemoveSections(
     kind: DocStringKind,
     requestedSections: List<String>,
@@ -373,7 +364,6 @@ internal fun DocString.parseAndRemoveSections(
  * @param returnType The return type.
  * @param rawDocstring The raw docstring to be parsed and potentially modified.
  */
-// pub fn from_docstring(kind: DocStringKind, params: DocParams, return_type: Ty, raw_docstring: Option<&str>) -> Self
 fun DocFunction.Companion.fromDocstring(
     kind: DocStringKind,
     params: DocParams,
@@ -430,7 +420,6 @@ fun DocFunction.Companion.fromDocstring(
  * `argsSection` should be dedented, and generally should just be the `args` key of
  * the [DocString.parseAndRemoveSections] function call.
  */
-// fn parse_params(kind: DocStringKind, args_section: &str) -> HashMap<String, String>
 private fun parseParams(kind: DocStringKind, argsSection: String): Map<String, String> {
     val argRe =
         when (kind) {
@@ -471,5 +460,4 @@ private fun parseParams(kind: DocStringKind, argsSection: String): Map<String, S
     return ret
 }
 
-// #[cfg(test)] mod tests { ... }
 // Tests are in commonTest, not here.

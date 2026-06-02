@@ -58,7 +58,6 @@ import io.github.kotlinmania.starlark.values.FrozenRef
 
 // #[cold]
 // #[inline(never)]
-// pub(crate) fn add_span_to_expr_error(
 //     e: crate::Error, span: FrameSpan, eval: &Evaluator,
 // ) -> EvalException
 
@@ -75,7 +74,6 @@ internal fun addSpanToExprError(
     }
 
 // #[inline(always)]
-// pub(crate) fn expr_throw<'v, T>(...) -> Result<T, EvalException>
 
 /**
  * Convert a [Result] error to a spanned evaluation exception.
@@ -87,7 +85,6 @@ internal fun <T> exprThrow(
 ): T = r.getOrElse { e -> throw addSpanToExprError(e, span, eval) }
 
 // #[inline(always)]
-// pub(crate) fn expr_throw_starlark_result<'v, T>(...) -> Result<T, EvalException>
 
 /**
  * Convert a Starlark [Result] error to a spanned evaluation exception.
@@ -98,7 +95,6 @@ internal fun <T> exprThrowStarlarkResult(
     eval: Evaluator,
 ): T = r.getOrElse { e -> throw addSpanToExprError(e, span, eval) }
 
-// pub(crate) struct Compiler<'v, 'a, 'e, 'x> { ... }
 
 /**
  * The expression/statement compiler.
@@ -117,14 +113,11 @@ internal class Compiler(
     /** Set with `@starlark-rust: typecheck`. */
     var typecheck: Boolean,
 ) {
-    // pub(crate) fn enter_scope(&mut self, scope_id: ScopeId)
     fun enterScope(scopeId: ScopeId) {
         locals.add(scopeId)
     }
 
-    // pub(crate) fn exit_scope(&mut self) -> ScopeId
     fun exitScope(): ScopeId = locals.removeLast()
 
-    // pub(crate) fn current_scope(&self) -> &ScopeNames<'_>
     fun currentScope(): ScopeNames = scopeData.getScope(locals.last())
 }

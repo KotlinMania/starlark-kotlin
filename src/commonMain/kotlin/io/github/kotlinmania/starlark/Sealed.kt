@@ -20,6 +20,5 @@ package io.github.kotlinmania.starlark
  */
 
 // Marker for traits which should not be implemented outside of the crate.
-// pub trait Sealed {}
 // Kotlin: sealed interface achieves the same — only this module can implement it.
 sealed interface Sealed

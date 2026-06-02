@@ -20,7 +20,6 @@ package io.github.kotlinmania.starlark.tests.bc
  */
 
 // #[test]
-// fn test_call()
 internal fun testCall() {
     bcGoldenTest(
         "call",

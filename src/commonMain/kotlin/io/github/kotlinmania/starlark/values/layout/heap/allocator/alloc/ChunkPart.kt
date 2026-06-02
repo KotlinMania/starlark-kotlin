@@ -23,8 +23,6 @@ import io.github.kotlinmania.starlark.values.layout.AlignedSize
 import io.github.kotlinmania.starlark.values.layout.heap.allocator.alloc.chunk.Chunk
 
 /** Chunk is shared by multiple `ChunkPart`s. */
-// #[derive(Debug, Default, PartialEq)]
-// pub(crate) struct ChunkPart {
 //     allocation: Chunk,
 //     begin: AlignedSize,
 //     end: AlignedSize,
@@ -46,13 +44,11 @@ internal class ChunkPart(
             )
 
         /** Create a chunk part from a whole chunk. */
-        // pub(crate) fn new(allocation: Chunk) -> ChunkPart
         fun new(allocation: Chunk): ChunkPart {
             val len = allocation.len()
             return newSubslice(allocation, AlignedSize.ZERO, len)
         }
 
-        // pub(crate) fn new_subslice(allocation, begin, end) -> ChunkPart
         fun newSubslice(
             allocation: Chunk,
             begin: AlignedSize,
@@ -64,23 +60,17 @@ internal class ChunkPart(
         }
 
         /** Allocate a chunk part to store at least `len`. */
-        // pub(crate) fn alloc_at_least(len: AlignedSize) -> ChunkPart
         fun allocAtLeast(len: AlignedSize): ChunkPart = new(Chunk.allocAtLeast(len))
     }
 
-    // pub(crate) fn len(&self) -> AlignedSize
     fun len(): AlignedSize = end.uncheckedSub(begin)
 
-    // pub(crate) fn begin(&self) -> NonNull<usize>
     fun begin(): Int = allocation.ptrAtOffset(begin)
 
-    // pub(crate) fn ptr_at_offset(&self, offset: AlignedSize) -> NonNull<usize>
     fun ptrAtOffset(offset: AlignedSize): Int = allocation.ptrAtOffset(begin + offset)
 
-    // pub(crate) fn end(&self) -> NonNull<usize>
     fun end(): Int = allocation.ptrAtOffset(end)
 
-    // pub(crate) fn allocated_bytes_with_metadata(&self) -> usize
     fun allocatedBytesWithMetadata(): Int =
         if (chunkRefCount() == 1) {
             allocation.allocatedBytesWithMetadata()
@@ -90,10 +80,8 @@ internal class ChunkPart(
         }
 
     /** Does this chunk part occupy the whole chunk? */
-    // pub(crate) fn is_full(&self) -> bool
     fun isFull(): Boolean = len() == allocation.len()
 
-    // pub(crate) fn split_at_offset(self, offset: AlignedSize) -> (ChunkPart, ChunkPart)
     fun splitAtOffset(offset: AlignedSize): Pair<ChunkPart, ChunkPart> =
         if (offset == AlignedSize.ZERO) {
             Pair(default(), this)
@@ -108,11 +96,8 @@ internal class ChunkPart(
             )
         }
 
-    // pub(crate) fn chunk_ref_count(&self) -> u32
     fun chunkRefCount(): Int = allocation.refCount()
 
-    // #[cfg(test)]
-    // pub(crate) fn chunk_ptr_eq(&self, other: &ChunkPart) -> bool
     fun chunkPtrEq(other: ChunkPart): Boolean = allocation.ptrEq(other.allocation)
 
     // impl PartialEq for ChunkPart
@@ -133,5 +118,4 @@ internal class ChunkPart(
     override fun toString(): String = "ChunkPart(begin=$begin, end=$end)"
 }
 
-// #[cfg(test)] mod tests
 // Tests are in commonTest, not here.

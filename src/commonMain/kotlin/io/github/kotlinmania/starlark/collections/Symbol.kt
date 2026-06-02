@@ -21,6 +21,4 @@ package io.github.kotlinmania.starlark.collections
  * limitations under the License.
  */
 
-// pub(crate) mod map;
-// pub(crate) mod symbol;
 // internal val symbol = "symbol" // conflicts with collections.symbol package

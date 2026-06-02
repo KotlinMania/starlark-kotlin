@@ -45,16 +45,8 @@ import io.github.kotlinmania.starlark.values.typing.registerTyping
  * dialect of Starlark
  */
 
-// pub(crate) mod breakpoint;
-// pub(crate) mod call_stack;
-// pub(crate) mod extra;
-// mod funcs;
-// pub(crate) mod internal;
-// pub(crate) mod json;
-// pub(crate) mod partial;
 // Submodules: breakpoint, call_stack, extra, funcs, internal, json, partial
 
-// pub use extra::PrintHandler;
 
 /**
  * Return the default global environment, it is not yet frozen so that a caller
@@ -63,12 +55,9 @@ import io.github.kotlinmania.starlark.values.typing.registerTyping
  * For example `standardEnvironment().freeze().child("test")` create a
  * child environment of this global environment that have been frozen.
  */
-// pub(crate) fn standard_environment() -> GlobalsBuilder
 internal fun standardEnvironment(): GlobalsBuilder = GlobalsBuilder.new().with { builder -> registerGlobals(builder) }
 
 /** The extra library definitions available in this Starlark implementation, but not in the standard. */
-// #[derive(PartialEq, Eq, Copy, Clone, Dupe)]
-// pub enum LibraryExtension
 enum class LibraryExtension {
     /** Definitions to support the `struct` type, the `struct()` constructor. */
     StructType,
@@ -148,12 +137,10 @@ enum class LibraryExtension {
     ;
 
     companion object {
-        // pub(crate) fn all() -> &'static [Self]
         /** A list of all extensions that will be updated as new methods are added. */
         fun all(): List<LibraryExtension> = entries
     }
 
-    // pub fn add(self, builder: &mut GlobalsBuilder)
 
     /** Add a specific extension to a `GlobalsBuilder`. */
     fun add(builder: GlobalsBuilder) {
@@ -180,5 +167,4 @@ enum class LibraryExtension {
     }
 }
 
-// #[cfg(test)] mod tests
 // Tests are in commonTest, not here.

@@ -24,7 +24,6 @@ import io.github.kotlinmania.starlark.eval.compiler.FrozenDef
 import io.github.kotlinmania.starlark.goldentesttemplate.goldenTestTemplate
 import io.github.kotlinmania.starlark.syntax.dialect.Dialect
 
-// fn test_function_bytecode(program: &str) -> String
 private fun testFunctionBytecode(program: String): String {
     val trimmed = program.trim()
 
@@ -53,7 +52,6 @@ private fun testFunctionBytecode(program: String): String {
     return golden.toString()
 }
 
-// pub(crate) fn bc_golden_test(test_name: &str, program: &str)
 internal fun bcGoldenTest(testName: String, program: String) {
     // Bytecode addresses are platform-dependent; in Kotlin/Multiplatform
     // we assume 64-bit semantics (matching the Rust 64-bit guard).

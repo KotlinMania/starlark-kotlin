@@ -21,7 +21,6 @@ package io.github.kotlinmania.starlark.errors
 
 // ! Spelling suggestions.
 
-// use strsim::levenshtein;
 // Kotlin: inline Levenshtein distance (replaces strsim crate).
 private fun levenshtein(a: String, b: String): Int {
     val m = a.length

@@ -266,7 +266,6 @@ open class PartialGen<V : Any, S : Any>(
 
 private val PARTIAL_RUST_LOC = rustLoc("partial.kt", 1)
 
-// type Partial<'v> = PartialGen<Value<'v>, StringValue<'v>>;
 
 /** Partial application with live values. */
 class Partial(
@@ -307,7 +306,6 @@ class Partial(
     }
 }
 
-// type FrozenPartial = PartialGen<FrozenValue, FrozenStringValue>;
 
 /** Partial application with frozen values. */
 class FrozenPartial(

@@ -29,8 +29,6 @@ import io.github.kotlinmania.starlark.syntax.ast.BinOp
 import io.github.kotlinmania.starlark.syntax.ast.ExprP
 import io.github.kotlinmania.starlark.typing.WithDiagnostic
 
-// #[derive(Debug, thiserror::Error)]
-// pub enum TypeExprUnpackError
 sealed class TypeExprUnpackError(
     message: String,
 ) : Exception(message) {
@@ -58,20 +56,15 @@ sealed class TypeExprUnpackError(
  * Types that are `""` or start with `"_"` are wildcard - they match everything
  * (also deprecated).
  */
-// pub fn type_str_literal_is_wildcard(s: &str) -> bool
 fun typeStrLiteralIsWildcard(s: String): Boolean = s == "" || s.startsWith('_')
 
 /** Path component of type. */
-// #[derive(Debug)]
-// pub struct TypePathP<'a, P: AstPayload>
 data class TypePathP<P : AstPayload, IP>(
     val first: AstIdentP<P, IP>,
     val rem: List<Spanned<String>>,
 )
 
 /** This type should be used instead of `TypeExprP`, but a lot of code needs to be updated. */
-// #[derive(Debug)]
-// pub enum TypeExprUnpackP<'a, P: AstPayload>
 sealed class TypeExprUnpackP<P : AstPayload, IP> {
     // Ellipsis
     class Ellipsis<P : AstPayload, IP> : TypeExprUnpackP<P, IP>()
@@ -113,7 +106,6 @@ sealed class TypeExprUnpackP<P : AstPayload, IP> {
     ) : TypeExprUnpackP<P, IP>()
 
     companion object {
-        // fn unpack_path(expr: &'a AstExprP<P>, codemap: &CodeMap) -> Result<Spanned<TypePathP<'a, P>>, WithDiagnostic<TypeExprUnpackError>>
         @Suppress("UNCHECKED_CAST")
         private fun <P : AstPayload, IP> unpackPath(
             expr: AstExprP<P>,
@@ -183,7 +175,6 @@ sealed class TypeExprUnpackP<P : AstPayload, IP> {
             }
         }
 
-        // fn unpack_argument(expr: &'a AstExprP<P>, codemap: &CodeMap) -> Result<Spanned<TypeExprUnpackP<'a, P>>, WithDiagnostic<TypeExprUnpackError>>
         @Suppress("UNCHECKED_CAST")
         private fun <P : AstPayload, IP> unpackArgument(
             expr: AstExprP<P>,
@@ -205,7 +196,6 @@ sealed class TypeExprUnpackP<P : AstPayload, IP> {
             }
         }
 
-        // pub fn unpack(expr: &'a AstExprP<P>, codemap: &CodeMap) -> Result<Spanned<TypeExprUnpackP<'a, P>>, WithDiagnostic<TypeExprUnpackError>>
         @Suppress("UNCHECKED_CAST")
         fun <P : AstPayload, IP> unpack(
             expr: AstExprP<P>,

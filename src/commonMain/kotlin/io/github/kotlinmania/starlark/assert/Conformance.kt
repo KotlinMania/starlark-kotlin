@@ -27,7 +27,6 @@ import io.github.kotlinmania.starlark.Error
  */
 
 /** Run a conformance test, e.g. the Go Starlark tests */
-// pub fn conformance(&self, code: &str)
 fun Assert.conformance(code: String) {
     conformanceExcept(code, emptyList())
 }
@@ -38,7 +37,6 @@ fun Assert.conformance(code: String) {
  * in the order they occur in the conformance test set,
  * identified by a substring that occurs in the test.
  */
-// pub fn conformance_except(&self, code: &str, except: &[&str])
 fun Assert.conformanceExcept(code: String, except: List<String>) {
     val exceptIter = except.iterator()
     var nextExcept: String? = if (exceptIter.hasNext()) exceptIter.next() else null
@@ -60,7 +58,6 @@ fun Assert.conformanceExcept(code: String, except: List<String>) {
 }
 
 /** Describe a conformance test */
-// struct ConformanceTest
 private class ConformanceTest(
     /** The code of the test */
     val code: String,
@@ -68,7 +65,6 @@ private class ConformanceTest(
     val errorInfo: Pair<Int, String>?,
 ) {
     companion object {
-        // fn parse(code: &str) -> Vec<Self>
         fun parse(code: String): List<ConformanceTest> {
             // First split on "---"
             val lines = code.lines()
@@ -102,7 +98,6 @@ private class ConformanceTest(
         }
     }
 
-    // fn test(&self, assert: &Assert)
     fun test(assert: Assert) {
         fun getLine(err: Error): Int? =
             err

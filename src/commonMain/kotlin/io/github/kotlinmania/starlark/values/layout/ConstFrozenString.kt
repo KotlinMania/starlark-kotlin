@@ -24,7 +24,6 @@ import io.github.kotlinmania.starlark.values.layout.typed.StarlarkStr
 
 // / Create a [`FrozenStringValue`](crate::values::FrozenStringValue).
 // #[macro_export]
-// macro_rules! const_frozen_string {
 //     ($s:expr) => {{
 fun constFrozenString(s: String): FrozenStringValue {
     // $crate::values::constant_string($s).unwrap_or_else(|| {
@@ -34,9 +33,7 @@ fun constFrozenString(s: String): FrozenStringValue {
         // But we still have to put something in `static`.
         // so for `s.len() <= 1` we put dummy string of length 2 there,
         // and `N == 1` in that case.
-        // const UNREACHABLE: bool = $s.len() <= 1;
         val unreachable: Boolean = s.length <= 1
-        // const N: usize = if UNREACHABLE {
         val n: Int =
             if (unreachable) {
                 1

@@ -272,8 +272,6 @@ internal class StackFrame(
         }
     }
 
-    // #[cfg(test)]
-    // pub(crate) fn normalize_for_golden_tests(&mut self)
     internal fun normalizeForGoldenTests() {
         for ((_, v) in callees) {
             v.normalizeForGoldenTests()
@@ -336,8 +334,6 @@ internal class AggregateHeapProfileInfo(
 
     fun clone(): AggregateHeapProfileInfo = AggregateHeapProfileInfo(strings, root)
 
-    // #[cfg(test)]
-    // pub(crate) fn normalize_for_golden_tests(&mut self)
     internal fun normalizeForGoldenTests() {
         root.normalizeForGoldenTests()
     }

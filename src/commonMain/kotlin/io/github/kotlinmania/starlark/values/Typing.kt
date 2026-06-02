@@ -23,28 +23,5 @@ package io.github.kotlinmania.starlark.values
 
 // / Typechecker-related types.
 
-// pub(crate) mod any;
 // internal val any = "any" // conflicts with Types.kt declaration
-// pub(crate) mod callable;
-// pub(crate) mod globals;
-// pub(crate) mod iter;
-// pub mod macro_refs;
-// pub(crate) mod never;
-// pub(crate) mod ty;
-// pub(crate) mod type_compiled;
-// pub(crate) mod type_type;
 
-// pub use crate::values::types::type_instance_id::TypeInstanceId;
-// pub use crate::values::typing::callable::FrozenStarlarkCallable;
-// pub use crate::values::typing::callable::StarlarkCallable;
-// pub use crate::values::typing::callable::StarlarkCallableChecked;
-// pub use crate::values::typing::callable::param::StarlarkCallableParamAny;
-// pub use crate::values::typing::callable::param::StarlarkCallableParamSpec;
-// pub use crate::values::typing::iter::StarlarkIter;
-// pub use crate::values::typing::never::StarlarkNever;
-// pub use crate::values::typing::type_compiled::compiled::TypeCompiled;
-// pub use crate::values::typing::type_compiled::compiled::TypeCompiledImplAsStarlarkValue;
-// pub use crate::values::typing::type_compiled::matcher::TypeMatcher;
-// pub use crate::values::typing::type_compiled::matcher::TypeMatcherRegistered;
-// pub use crate::values::typing::type_compiled::type_matcher_factory::TypeMatcherFactory;
-// pub use crate::values::typing::type_type::TypeType;

@@ -21,7 +21,6 @@ package io.github.kotlinmania.starlark.typing
 
 import io.github.kotlinmania.starlark.codemap.Spanned
 
-// pub struct TyCallArgs<'a> {
 //     pub(crate) pos: Vec<Spanned<Ty>>,
 //     pub(crate) named: Vec<Spanned<(&'a str, Ty)>>,
 //     pub(crate) args: Option<Spanned<Ty>>,

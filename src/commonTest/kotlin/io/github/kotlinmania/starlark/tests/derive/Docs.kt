@@ -33,26 +33,20 @@ import io.github.kotlinmania.starlark.values.layout.heap.Heap
 
 /** Main module docs */
 // #[starlark_module]
-// fn object_docs_1(_: &mut MethodsBuilder)
 private fun objectDocs1(builder: MethodsBuilder) {
     builder.setDocstring("Main module docs")
     /** Returns the string "foo" */
     // #[starlark(attribute)]
-    // fn foo(this: &TestExample) -> Result<String>
     builder.setAttribute("foo", "Returns the string \"foo\"") { _: Value, heap: Heap ->
         Result.success(heap.allocStr("foo"))
     }
 }
 
-// #[derive(Debug, Display, ProvidesStaticType, NoSerialize, Allocative)]
-// struct TestExample {}
 private class TestExample : StarlarkValue {
-    // #[starlark_value(type = "TestExample")]
     override val TYPE: String get() = "TestExample"
 
     override fun toString(): String = "TestExample"
 
-    // fn get_methods() -> Option<&'static Methods>
     companion object {
         private val METHODS = MethodsStatic()
 
@@ -60,12 +54,9 @@ private class TestExample : StarlarkValue {
     }
 }
 
-// #[derive(Clone, Debug, Coerce, Display, Trace, Freeze, ProvidesStaticType, Allocative)]
-// struct ComplexTestExampleGen<V>(V)
 private class ComplexTestExampleGen<V>(
     val value: V,
 ) : StarlarkValue {
-    // #[starlark_value(type = "ComplexTestExample")]
     override val TYPE: String get() = "ComplexTestExample"
 
     override fun toString(): String = value.toString()
@@ -77,11 +68,9 @@ private class ComplexTestExampleGen<V>(
     }
 }
 
-// type alias for frozen variant
 private typealias FrozenComplexTestExample = ComplexTestExampleGen<Any>
 
 // #[test]
-// fn test_derive_docs()
 internal fun testDeriveDocs() {
     val obj = DocType.fromStarlarkValue(TestExample())
 
@@ -100,7 +89,6 @@ internal fun testDeriveDocs() {
 }
 
 // #[test]
-// fn test_derive_docs_on_complex_values()
 internal fun testDeriveDocsOnComplexValues() {
     val complexObj = DocType.fromStarlarkValue(ComplexTestExampleGen<Any>(Unit))
 

@@ -33,7 +33,6 @@ private const val NATIVE_SOURCE = "<native>"
 private val NATIVE_FULL_SPAN = Span(Pos(0), Pos(NATIVE_SOURCE.length))
 
 /** Initialize a `FrozenRef<FrameSpan>` with Kotlin file and line number. */
-// macro_rules! rust_loc { ... }
 // Kotlin: macro replaced with a function that creates a native code location.
 // Callers should cache the result in a companion `val` for static-like behavior.
 internal fun rustLoc(file: String, line: Int, column: Int = 0): FrozenRef<FrameSpan> {
@@ -49,5 +48,4 @@ internal fun rustLoc(file: String, line: Int, column: Int = 0): FrozenRef<FrameS
     return FrozenRef.new(frameSpan)
 }
 
-// #[cfg(test)] mod tests
 // Tests are in commonTest, not here.

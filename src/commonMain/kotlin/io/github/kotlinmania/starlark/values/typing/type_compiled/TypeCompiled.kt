@@ -21,11 +21,3 @@ package io.github.kotlinmania.starlark.values.typing.typecompiled
  * limitations under the License.
  */
 
-// pub(crate) mod alloc;
-// pub(crate) mod compiled;
-// pub(crate) mod factory;
-// pub(crate) mod globals;
-// pub(crate) mod matcher;
-// pub(crate) mod matchers;
-// pub(crate) mod tests;
-// pub(crate) mod type_matcher_factory;

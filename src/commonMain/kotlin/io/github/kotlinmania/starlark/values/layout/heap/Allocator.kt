@@ -19,9 +19,6 @@ package io.github.kotlinmania.starlark.values.layout.heap
  * limitations under the License.
  */
 
-// pub(crate) mod alloc;
-// pub(crate) mod api;
-// pub(crate) mod bumpalo;
 //
 // Submodules (Rust mod declarations -> Kotlin packages/files):
 //   alloc   -> heap.allocator.alloc

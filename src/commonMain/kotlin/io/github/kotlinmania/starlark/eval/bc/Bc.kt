@@ -23,21 +23,3 @@ package io.github.kotlinmania.starlark.eval.bc
 
 // / Bytecode interpreter.
 
-// pub(crate) mod addr;
-// pub(crate) mod bytecode;
-// pub(crate) mod call;
-// pub(crate) mod compiler;
-// pub(crate) mod definitely_assigned;
-// pub(crate) mod for_loop;
-// pub(crate) mod frame;
-// pub(crate) mod if_debug;
-// pub(crate) mod instr;
-// pub(crate) mod instr_arg;
-// pub(crate) mod instr_impl;
-// pub(crate) mod instrs;
-// pub(crate) mod native_function;
-// pub(crate) mod opcode;
-// pub(crate) mod repr;
-// pub(crate) mod slow_arg;
-// pub(crate) mod stack_ptr;
-// pub(crate) mod writer;

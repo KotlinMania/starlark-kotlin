@@ -20,9 +20,7 @@ package io.github.kotlinmania.starlark.eval.runtime.profile.mode
  */
 
 /** How to profile starlark code. */
-// #[derive(Debug, PartialEq, Eq, Hash, Clone, Dupe, Copy, Allocative)]
 // #[non_exhaustive]
-// pub enum ProfileMode
 enum class ProfileMode {
     /**
      * The heap profile mode provides information about the time spent in each function and allocations
@@ -69,7 +67,6 @@ enum class ProfileMode {
     ;
 
     companion object {
-        // pub(crate) const ALL: [ProfileMode; 13]
         val ALL: List<ProfileMode> = entries
 
         // impl FromStr for ProfileMode
@@ -82,7 +79,6 @@ enum class ProfileMode {
     }
 
     /** Name of this profile mode. */
-    // pub(crate) fn name(&self) -> &str
     fun modeName(): String =
         when (this) {
             HeapSummaryAllocated -> "heap-summary-allocated"
@@ -101,7 +97,6 @@ enum class ProfileMode {
         }
 
     /** Profile data for this mode can be obtained from FrozenModule.heapProfile. */
-    // pub fn requires_frozen_module(&self) -> bool
     fun requiresFrozenModule(): Boolean =
         when (this) {
             HeapSummaryRetained, HeapFlameRetained, HeapRetained -> true

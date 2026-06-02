@@ -32,48 +32,38 @@ import io.github.kotlinmania.starlark.eval.runtime.profile.data.ProfileData
 import io.github.kotlinmania.starlark.eval.runtime.profile.data.ProfileDataImpl
 import io.github.kotlinmania.starlark.eval.runtime.profile.mode.ProfileMode
 
-// pub(crate) struct StmtProfilerType
 internal object StmtProfilerType : ProfilerType<StmtProfileData> {
     override val profileMode: ProfileMode = ProfileMode.Statement
 
-    // fn data_from_generic(profile_data: &ProfileDataImpl) -> Option<&Self::Data>
     override fun dataFromGeneric(profileData: ProfileDataImpl): StmtProfileData? =
         when (profileData) {
             is ProfileDataImpl.Statement -> profileData.data
             else -> null
         }
 
-    // fn data_to_generic(data: Self::Data) -> ProfileDataImpl
     override fun dataToGeneric(data: StmtProfileData): ProfileDataImpl =
         ProfileDataImpl.Statement(data)
 
-    // fn merge_profiles_impl(profiles: &[&Self::Data]) -> Result<Self::Data>
     override fun mergeProfilesImpl(profiles: List<StmtProfileData>): Result<StmtProfileData> =
         Result.success(StmtProfileData.merge(profiles))
 }
 
-// pub(crate) struct CoverageProfileType
 internal object CoverageProfileType : ProfilerType<StmtProfileData> {
     override val profileMode: ProfileMode = ProfileMode.Coverage
 
-    // fn data_from_generic(profile_data: &ProfileDataImpl) -> Option<&Self::Data>
     override fun dataFromGeneric(profileData: ProfileDataImpl): StmtProfileData? =
         when (profileData) {
             is ProfileDataImpl.Coverage -> profileData.data
             else -> null
         }
 
-    // fn data_to_generic(data: Self::Data) -> ProfileDataImpl
     override fun dataToGeneric(data: StmtProfileData): ProfileDataImpl =
         ProfileDataImpl.Coverage(data)
 
-    // fn merge_profiles_impl(profiles: &[&Self::Data]) -> Result<Self::Data>
     override fun mergeProfilesImpl(profiles: List<StmtProfileData>): Result<StmtProfileData> =
         Result.success(StmtProfileData.merge(profiles))
 }
 
-// #[derive(Debug, thiserror::Error)]
-// enum StmtProfileError
 internal sealed class StmtProfileError : Exception() {
     // #[error("Statement or coverage profiling is not enabled")]
     data object NotEnabled : StmtProfileError() {
@@ -81,28 +71,22 @@ internal sealed class StmtProfileError : Exception() {
     }
 }
 
-// #[derive(Clone)]
-// struct Last
 private data class Last(
     val file: CodeMapId,
     val span: Span,
     val start: ProfilerInstant,
 )
 
-// #[derive(Clone)]
-// struct StmtProfileState
 private class StmtProfileState {
     var files: CodeMaps = CodeMaps()
     var stmts: MutableMap<Pair<CodeMapId, Span>, Pair<Int, SmallDuration>> = mutableMapOf()
     var last: Last? = null
 
-    // fn new() -> Self
     companion object {
         fun new(): StmtProfileState = StmtProfileState()
     }
 
     // Add the data from last_span into the entries
-    // fn add_last(&mut self, now: ProfilerInstant)
     fun addLast(now: ProfilerInstant) {
         val last = this.last ?: return
         val time = now - last.start
@@ -115,7 +99,6 @@ private class StmtProfileState {
         }
     }
 
-    // fn before_stmt(&mut self, span: Span, codemap: &CodeMap)
     fun beforeStmt(span: Span, codemap: CodeMap) {
         val now = ProfilerInstant.now()
         addLast(now)
@@ -135,7 +118,6 @@ private class StmtProfileState {
             )
     }
 
-    // fn finish(&self) -> crate::Result<StmtProfileData>
     fun finish(): StmtProfileData {
         val now = ProfilerInstant.now()
         val data =
@@ -159,12 +141,9 @@ private class StmtProfileState {
 }
 
 /** Result of running statement or coverage profiler. */
-// #[derive(Clone, Debug, Default, PartialEq)]
-// pub(crate) struct StmtProfileData
 internal data class StmtProfileData(
     val stmts: MutableMap<FileSpan, Pair<Int, SmallDuration>> = mutableMapOf(),
 ) {
-    // pub(crate) fn write_to_string(&self) -> String
     fun writeToString(): String {
         data class Item(
             val span: FileSpan,
@@ -209,7 +188,6 @@ internal data class StmtProfileData(
         return csv.finish()
     }
 
-    // pub(crate) fn write_coverage(&self) -> String
     fun writeCoverage(): String {
         val sb = StringBuilder()
         val keys =
@@ -223,7 +201,6 @@ internal data class StmtProfileData(
         return sb.toString()
     }
 
-    // fn coverage(&self) -> HashSet<ResolvedFileSpan>
     fun coverage(): MutableSet<ResolvedFileSpan> =
         stmts.keys
             .filter { it.file.id() != CodeMapId.EMPTY }
@@ -231,7 +208,6 @@ internal data class StmtProfileData(
             .toMutableSet()
 
     companion object {
-        // fn merge(profiles: &[&StmtProfileData]) -> StmtProfileData
         fun merge(profiles: List<StmtProfileData>): StmtProfileData {
             val result = StmtProfileData()
             for (profile in profiles) {
@@ -250,27 +226,22 @@ internal data class StmtProfileData(
     }
 }
 
-// pub(crate) struct StmtProfile
 // Box because when profiling is not enabled, we want this to be small and cheap
 internal class StmtProfile private constructor(
     private var state: StmtProfileState?,
 ) {
     companion object {
-        // pub(crate) fn new() -> Self
         fun new(): StmtProfile = StmtProfile(null)
     }
 
-    // pub(crate) fn enable(&mut self)
     fun enable() {
         state = StmtProfileState.new()
     }
 
-    // pub(crate) fn before_stmt(&mut self, span: FileSpanRef)
     fun beforeStmt(span: FileSpanRef) {
         state?.beforeStmt(span.span, span.file)
     }
 
-    // pub(crate) fn gen(&self) -> crate::Result<ProfileData>
     fun gen(): ProfileData {
         val data = state ?: throw StmtProfileError.NotEnabled
         return ProfileData(
@@ -278,13 +249,11 @@ internal class StmtProfile private constructor(
         )
     }
 
-    // pub(crate) fn coverage(&self) -> crate::Result<HashSet<ResolvedFileSpan>>
     fun coverage(): MutableSet<ResolvedFileSpan> {
         val data = state ?: throw StmtProfileError.NotEnabled
         return data.finish().coverage()
     }
 
-    // pub(crate) fn gen_coverage(&self) -> crate::Result<ProfileData>
     fun genCoverage(): ProfileData {
         val data = state ?: throw StmtProfileError.NotEnabled
         return ProfileData(

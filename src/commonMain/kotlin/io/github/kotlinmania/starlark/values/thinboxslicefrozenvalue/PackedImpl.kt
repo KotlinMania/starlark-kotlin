@@ -28,7 +28,6 @@ import io.github.kotlinmania.starlark.values.layout.FrozenValue
  * need for low-level bit packing. The Rust version uses pointer tricks to
  * store a single FrozenValue inline vs. a heap-allocated slice.
  */
-// struct PackedImpl(NonNull<()>)
 private class PackedImpl(
     private val items: List<FrozenValue>,
 ) {
@@ -46,13 +45,11 @@ private class PackedImpl(
  * The Rust version uses bit packing and other tricks so that it is only
  * 8 bytes in size, while being allocation free for lengths zero and one.
  */
-// pub struct ThinBoxSliceFrozenValue<'v>(PackedImpl, PhantomData<&'v ()>)
 class ThinBoxSliceFrozenValue private constructor(
     private val packed: PackedImpl,
 ) : AbstractList<FrozenValue>() {
     companion object {
         /** Produces an empty list */
-        // pub const fn empty() -> Self
         fun empty(): ThinBoxSliceFrozenValue = ThinBoxSliceFrozenValue(PackedImpl(emptyList()))
 
         // impl FromIterator<FrozenValue> for ThinBoxSliceFrozenValue

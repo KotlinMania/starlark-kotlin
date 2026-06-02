@@ -25,8 +25,6 @@ import io.github.kotlinmania.starlark.codemap.FileSpanRef
 import io.github.kotlinmania.starlark.codemap.Span
 import io.github.kotlinmania.starlark.values.FrozenRef
 
-// #[derive(Debug, Copy, Clone, Dupe, PartialEq, Eq)]
-// pub(crate) struct FrozenFileSpan {
 //     file: FrozenRef<'static, CodeMap>,
 //     span: Span,
 // }

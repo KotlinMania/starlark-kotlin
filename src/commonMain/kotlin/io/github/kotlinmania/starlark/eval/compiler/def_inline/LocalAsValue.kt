@@ -35,13 +35,9 @@ import io.github.kotlinmania.starlark.values.layout.heap.FrozenHeap
  * Local slot id as `FrozenValue`. This object is only used during compilation
  * and never appears in the executed program.
  */
-// #[derive(derive_more::Display, Debug, ProvidesStaticType, NoSerialize, Allocative)]
-// #[display("{:?}", self)]
-// pub(crate) struct LocalAsValue
 internal class LocalAsValue(
     val local: LocalSlotId,
 ) : StarlarkValue {
-    // #[starlark_value(type = "LocalAsValue")]
     // impl<'v> StarlarkValue<'v> for LocalAsValue
 
     override val TYPE: String get() = "LocalAsValue"
@@ -57,7 +53,6 @@ internal class LocalAsValue(
  *
  * Pre-allocates up to 100 slots (practically enough for any function).
  */
-// pub(crate) fn local_as_value(local: LocalSlotId) -> Option<FrozenValueTyped<'static, LocalAsValue>>
 internal fun localAsValue(local: LocalSlotId): FrozenValueTyped<LocalAsValue>? {
     // 100 is practically enough.
     return LOCALS.getOrNull(local.index.toInt())

@@ -30,12 +30,9 @@ import io.github.kotlinmania.starlark.values.layout.Value
 
 // The examples from the starlark_module documentation.
 // #[test]
-// fn test_starlark_module()
 internal fun testStarlarkModule() {
     // #[starlark_module]
-    // fn global(builder: &mut GlobalsBuilder)
     fun global(builder: GlobalsBuilder) {
-        // fn cc_binary(name: &str, srcs: UnpackListOrTuple<&str>) -> anyhow::Result<String>
         builder.setFunction("cc_binary") { args: Arguments, eval: Evaluator ->
             val name = args.positional<String>(0)
             val srcs = args.positional<Value>(1)
@@ -54,12 +51,9 @@ internal fun testStarlarkModule() {
 }
 
 // #[test]
-// fn test_starlark_methods()
 internal fun testStarlarkMethods() {
     // #[starlark_module]
-    // fn methods(builder: &mut MethodsBuilder)
     fun methods(builder: MethodsBuilder) {
-        // fn enum(this: Value, #[starlark(require = named, default = 3)] index: i32, heap: Heap) -> anyhow::Result<StringValue>
         builder.setMethod("enum") { eval: Evaluator, thisVal: Value, _: ParametersSpec<FrozenValue>, args: Arguments ->
             val index = args.optionalNamed<Int>("index") ?: 3
             val sv = eval.heap().allocStr("$thisVal $index")
@@ -71,12 +65,9 @@ internal fun testStarlarkMethods() {
 }
 
 // #[test]
-// fn test_static_allowed()
 internal fun testStaticAllowed() {
     // #[starlark_module]
-    // fn globals(globals: &mut GlobalsBuilder)
     fun globals(globals: GlobalsBuilder) {
-        // fn test() -> anyhow::Result<ValueOfUnchecked<&'static str>>
         globals.setFunction("test") { _: Arguments, _: Evaluator ->
             throw AssertionError("should not be called")
         }

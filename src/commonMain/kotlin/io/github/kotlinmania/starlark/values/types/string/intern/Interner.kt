@@ -21,12 +21,6 @@ package io.github.kotlinmania.starlark.values.types.string.intern
 
 // Generic interner for starlark strings.
 
-// use hashbrown::HashTable;
-// use crate as starlark;
-// use crate::collections::Hashed;
-// use crate::values::FrozenStringValue;
-// use crate::values::StringValue;
-// use crate::values::Trace;
 
 import io.github.kotlinmania.starlark.collections.Hashed
 import io.github.kotlinmania.starlark.values.Trace
@@ -39,8 +33,6 @@ import io.github.kotlinmania.starlark.values.layout.typed.StringValue
  *
  * Caches frozen string allocations so that identical strings share the same value.
  */
-// #[derive(Default)]
-// pub(crate) struct FrozenStringValueInterner {
 //     map: HashTable<FrozenStringValue>,
 // }
 internal class FrozenStringValueInterner {
@@ -48,7 +40,6 @@ internal class FrozenStringValueInterner {
     // In Kotlin, we use a HashMap keyed by hash+content for O(1) lookup.
     private val map: HashMap<ULong, MutableList<FrozenStringValue>> = HashMap()
 
-    // pub(crate) fn intern(&mut self, s: Hashed<&str>, alloc: impl FnOnce() -> FrozenStringValue) -> FrozenStringValue
     fun intern(
         s: Hashed<String>,
         alloc: () -> FrozenStringValue,
@@ -79,8 +70,6 @@ internal class FrozenStringValueInterner {
  *
  * Caches string allocations so that identical strings share the same value.
  */
-// #[derive(Default, Trace)]
-// pub(crate) struct StringValueInterner<'v> {
 //     map: HashTable<StringValue<'v>>,
 // }
 internal class StringValueInterner : Trace {
@@ -88,7 +77,6 @@ internal class StringValueInterner : Trace {
     // In Kotlin, we use a HashMap keyed by hash for O(1) lookup.
     private val map: HashMap<ULong, MutableList<StringValue>> = HashMap()
 
-    // pub(crate) fn intern(&mut self, s: Hashed<&str>, alloc: impl FnOnce() -> StringValue<'v>) -> StringValue<'v>
     fun intern(
         s: Hashed<String>,
         alloc: () -> StringValue,
@@ -109,7 +97,6 @@ internal class StringValueInterner : Trace {
         return stringValue
     }
 
-    // #[derive(Trace)] generates trace for the HashTable field.
     // In Rust, this walks the HashTable and traces each StringValue's inner Value.
     // In Kotlin, the GC handles reference tracking, so this is effectively a no-op.
     // We keep the method for structural parity with the Rust Trace derive.

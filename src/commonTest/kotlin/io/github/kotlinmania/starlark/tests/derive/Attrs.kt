@@ -32,15 +32,11 @@ import io.github.kotlinmania.starlark.values.layout.heap.Heap
 import io.github.kotlinmania.starlark.values.types.bigint.allocValue
 
 // #[test]
-// fn test_derive_attrs()
 internal fun testDeriveAttrs() {
-    // #[derive(Debug, StarlarkAttrs, Display, ProvidesStaticType, NoSerialize, Allocative)]
-    // struct Nested { foo: String }
     class Nested(
         val foo: String,
     ) : StarlarkValue,
         AllocFrozenValue {
-        // #[starlark_value(type = "nested")]
         override val TYPE: String get() = "nested"
 
         override fun toString(): String = foo
@@ -58,8 +54,6 @@ internal fun testDeriveAttrs() {
         override fun allocFrozenValue(heap: FrozenHeap): FrozenValue = heap.allocSimple(this)
     }
 
-    // #[derive(Debug, StarlarkAttrs, Display, ProvidesStaticType, NoSerialize, Allocative)]
-    // struct Example { hello: String, answer: i64, nested: Nested, type: i64, escaped: String }
     class Example(
         val hello: String,
         @Suppress("unused") val answer: Long, // #[starlark(skip)]
@@ -68,7 +62,6 @@ internal fun testDeriveAttrs() {
         val escaped: String, // r#escaped
     ) : StarlarkValue,
         AllocFrozenValue {
-        // #[starlark_value(type = "example")]
         override val TYPE: String get() = "example"
 
         override fun toString(): String = "Example(hello=$hello, answer=$answer, nested=$nested, typeValue=$typeValue, escaped=$escaped)"

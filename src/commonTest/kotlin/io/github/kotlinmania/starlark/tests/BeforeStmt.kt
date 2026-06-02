@@ -28,7 +28,6 @@ import io.github.kotlinmania.starlark.syntax.AstModule
 import io.github.kotlinmania.starlark.syntax.dialect.Dialect
 
 // #[test]
-// fn before_stmt()
 internal fun beforeStmt() {
     Module.withTempHeap { module ->
         val globals = Globals.new()

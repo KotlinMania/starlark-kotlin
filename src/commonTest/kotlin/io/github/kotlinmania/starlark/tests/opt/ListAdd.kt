@@ -22,7 +22,6 @@ import io.github.kotlinmania.starlark.tests.bc.bcGoldenTest
  */
 
 // #[test]
-// fn test_list_of_const_add_opt()
 internal fun testListOfConstAddOpt() {
     bcGoldenTest(
         "opt_list_of_const_add",
@@ -34,7 +33,6 @@ def test():
 }
 
 // #[test]
-// fn test_list_of_expr_add()
 internal fun testListOfExprAdd() {
     bcGoldenTest(
         "opt_list_of_expr_add",

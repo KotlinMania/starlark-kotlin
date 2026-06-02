@@ -27,7 +27,6 @@ import io.github.kotlinmania.starlark.environment.GlobalsBuilder
 import io.github.kotlinmania.starlark.values.owned.OwnedFrozenValue
 
 // #[test]
-// fn arithmetic_test()
 internal fun arithmeticTest() {
     Assert.isTrue("(1 + 2 == 3)")
     Assert.isTrue("(1 * 2 == 2)")
@@ -37,7 +36,6 @@ internal fun arithmeticTest() {
 }
 
 // #[test]
-// fn bitwise_test()
 internal fun bitwiseTest() {
     Assert.allTrue(
         """
@@ -63,13 +61,11 @@ internal fun bitwiseTest() {
 }
 
 // #[test]
-// fn test_operators()
 internal fun testOperators() {
     Assert.eq("1+------2", "3")
 }
 
 // #[test]
-// fn test_equality()
 internal fun testEquality() {
     Assert.allTrue(
         """
@@ -104,7 +100,6 @@ x = repr; y = repr; x == y
 }
 
 // #[test]
-// fn test_frozen_equality()
 internal fun testFrozenEquality() {
     val program = "(str, (), 1, range(4), True, None, [8], {'test':3})"
     val a = Assert.pass(program)
@@ -117,7 +112,6 @@ internal fun testFrozenEquality() {
 }
 
 // #[test]
-// fn test_equality_multiple_globals()
 internal fun testEqualityMultipleGlobals() {
     fun mkRepr(): OwnedFrozenValue {
         val a = Assert()
@@ -132,7 +126,6 @@ internal fun testEqualityMultipleGlobals() {
 }
 
 // #[test]
-// fn test_comparison()
 internal fun testComparison() {
     Assert.allTrue(
         """
@@ -155,7 +148,6 @@ False < True
 }
 
 // #[test]
-// fn test_frozen_hash()
 internal fun testFrozenHash() {
     val exprs = listOf("\"test\"", "\"x\"")
     val a = Assert()
@@ -175,7 +167,6 @@ assert_eq(all([frozen_dict[x] != None for x in values]), True)
 }
 
 // #[test]
-// fn test_compare()
 internal fun testCompare() {
     Assert.fail("noop(1) > False", "Operation `compare` not supported")
     Assert.isTrue("[1, 2] == [1, 2]")
@@ -211,14 +202,12 @@ xs == ys
 }
 
 // #[test]
-// fn test_not_in_unhashable()
 internal fun testNotInUnhashable() {
     // Note that [] can't be hashed
     Assert.fail("[] not in {123: 456}", "not hashable")
 }
 
 // #[test]
-// fn test_not_hashable()
 internal fun testNotHashable() {
     Assert.fail(
         """

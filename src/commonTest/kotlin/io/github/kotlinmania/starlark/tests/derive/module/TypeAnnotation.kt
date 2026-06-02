@@ -25,21 +25,15 @@ import io.github.kotlinmania.starlark.typing.Ty
 import io.github.kotlinmania.starlark.typing.TyStarlarkValue
 import io.github.kotlinmania.starlark.values.StarlarkValue
 
-// #[derive(Debug, Display, ProvidesStaticType, NoSerialize, Allocative)]
-// #[display("foo")]
-// struct Foo;
 private class Foo : StarlarkValue {
-    // #[starlark_value(type = "Foo")]
     override val TYPE: String get() = "Foo"
 
     override fun toString(): String = "foo"
 }
 
 // #[starlark_module]
-// fn type_annotation_functions(globals: &mut GlobalsBuilder)
 private fun typeAnnotationFunctions(globals: GlobalsBuilder) {
     // #[starlark(as_type = Foo)]
-    // fn foo(x: i32) -> Result<i32>
     globals.setFunction("foo", asType = Ty.starlarkValue(TyStarlarkValue.new("Foo"))) { args, _ ->
         val x = args.positional<Int>(0)
         Result.success(x)
@@ -47,7 +41,6 @@ private fun typeAnnotationFunctions(globals: GlobalsBuilder) {
 }
 
 // #[test]
-// fn test_type_annotation()
 internal fun testTypeAnnotation() {
     val a = Assert()
     a.globalsAdd(::typeAnnotationFunctions)

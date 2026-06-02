@@ -40,7 +40,6 @@ import kotlin.reflect.KClass
  * Without registration, attempting to deserialize a heap containing that type
  * will fail.
  */
-// macro_rules! register_avalue_simple_frozen
 fun registerAvalueSimpleFrozen(type: KClass<*>) {
     registerVTableEntry(
         VTableRegistryEntry(
@@ -56,7 +55,6 @@ fun registerAvalueSimpleFrozen(type: KClass<*>) {
  * This function is for special types (like StarlarkStr, FrozenTuple, FrozenListData)
  * that use custom AValue implementations instead of the simple wrapper.
  */
-// macro_rules! register_special_avalue_frozen
 internal fun registerSpecialAvalueFrozen(starlarkValue: KClass<*>, avalue: KClass<*>) {
     registerVTableEntry(
         VTableRegistryEntry(
@@ -72,7 +70,6 @@ internal fun registerSpecialAvalueFrozen(starlarkValue: KClass<*>, avalue: KClas
  * This function is for generic TypeMatcher types that cannot use the type_matcher
  * annotation (which only supports non-generic types).
  */
-// macro_rules! register_type_matcher
 fun registerTypeMatcher(matcher: KClass<*>) {
     registerAvalueSimpleFrozen(matcher)
 }

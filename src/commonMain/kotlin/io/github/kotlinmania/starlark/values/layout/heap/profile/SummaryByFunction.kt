@@ -28,8 +28,6 @@ import io.github.kotlinmania.starlark.values.layout.heap.profile.stringindex.Str
 import io.github.kotlinmania.starlark.values.layout.heap.profile.stringindex.StringIndex
 
 /** Information relating to a function. */
-// #[derive(Default, Debug, Clone)]
-// pub(crate) struct FuncInfo
 internal data class FuncInfo(
     /** Number of times this function was called */
     var calls: Int = 0,
@@ -43,7 +41,6 @@ internal data class FuncInfo(
     val allocations: MutableMap<String, AllocCounts> = mutableMapOf(),
 ) {
     companion object {
-        // pub(crate) fn merge<'a>(xs: impl Iterator<Item = &'a Self>) -> Self
         fun merge(xs: Iterable<FuncInfo>): FuncInfo {
             val result = FuncInfo()
             for (x in xs) {
@@ -61,11 +58,9 @@ internal data class FuncInfo(
     }
 
     /** Total number of allocations made by this function. */
-    // fn alloc_count(&self) -> usize
     fun allocCount(): Int = allocations.values.sumOf { it.count }
 
     /** Total number of bytes allocated by this function. */
-    // fn alloc_bytes(&self) -> usize
     fun allocBytes(): Long = allocations.values.sumOf { it.bytes }
 }
 
@@ -77,13 +72,11 @@ internal data class FuncInfo(
  * However, we are always updating the top of the call stack,
  * so pull out top_stack/top_info as a cache.
  */
-// pub(crate) struct HeapSummaryByFunction
 internal class HeapSummaryByFunction(
     /** Information about all functions. */
     private val info: MutableMap<String, FuncInfo> = mutableMapOf(),
 ) {
     companion object {
-        // pub(crate) fn init(stacks: &AggregateHeapProfileInfo) -> HeapSummaryByFunction
         fun init(stacks: AggregateHeapProfileInfo): HeapSummaryByFunction {
             val summary = HeapSummaryByFunction()
             summary.initChildren(stacks.root, "(root)", stacks.strings)
@@ -91,7 +84,6 @@ internal class HeapSummaryByFunction(
         }
     }
 
-    // fn init_children(...)
     private fun initChildren(
         frame: StackFrame,
         name: String,
@@ -104,7 +96,6 @@ internal class HeapSummaryByFunction(
         return timeRec
     }
 
-    // fn init_child(...)
     private fun initChild(
         func: StringId,
         frame: StackFrame,
@@ -126,13 +117,10 @@ internal class HeapSummaryByFunction(
         return timeRec
     }
 
-    // fn totals(&self) -> FuncInfo
     private fun totals(): FuncInfo = FuncInfo.merge(info.values)
 
-    // pub(crate) fn info(&self) -> Vec<(&ArcStr, &FuncInfo)>
     fun info(): List<Pair<String, FuncInfo>> = info.entries.map { (k, v) -> k to v }
 
-    // pub(crate) fn gen_csv(&self) -> String
     fun genCsv(): String {
         // Add a totals column
         val totals = totals()
@@ -194,12 +182,9 @@ internal class HeapSummaryByFunction(
     }
 }
 
-// #[cfg(test)]
-// mod tests
 
 // Test data is collected from both drop and non-drop heaps.
 // #[test]
-// fn drop_non_drop()
 internal fun dropNonDrop() {
     val ast =
         io.github.kotlinmania.starlark.syntax.AstModule

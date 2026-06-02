@@ -22,8 +22,6 @@ package io.github.kotlinmania.starlark.eval.compiler
 /** Small `Vec`. */
 
 /** A small vector. */
-// #[derive(Clone, Allocative)]
-// pub(crate) enum SmallVec1<T> {
 //     One(T),
 //     Vec(Vec<T>),
 // }
@@ -39,11 +37,9 @@ internal sealed class SmallVec1<T> :
     ) : SmallVec1<T>()
 
     companion object {
-        // pub(crate) const fn new() -> SmallVec1<T>
         fun <T> new(): SmallVec1<T> = Vec(mutableListOf())
     }
 
-    // pub(crate) fn as_slice(&self) -> &[T]
     fun asSlice(): List<T> =
         when (this) {
             is One -> listOf(value)
@@ -51,18 +47,15 @@ internal sealed class SmallVec1<T> :
         }
 
     // impl Deref for SmallVec1
-    // fn deref(&self) -> &[T]
     // Kotlin: access via asSlice()
 
     // impl IntoIterator for SmallVec1
-    // fn into_iter(self) -> Self::IntoIter
     override fun iterator(): Iterator<T> =
         when (this) {
             is One -> iterator { yield(value) }
             is Vec -> values.iterator()
         }
 
-    // pub(crate) fn extend(&mut self, that: SmallVec1<T>)
     // Note: returns a new SmallVec1 since sealed classes are immutable references.
     // Caller must reassign: `self = self.extend(that)`
     fun extend(that: SmallVec1<T>): SmallVec1<T> =
@@ -85,7 +78,6 @@ internal sealed class SmallVec1<T> :
             else -> error("unreachable")
         }
 
-    // pub(crate) fn push(&mut self, value: T)
     fun push(value: T): SmallVec1<T> = extend(One(value))
 
     // impl Debug for SmallVec1

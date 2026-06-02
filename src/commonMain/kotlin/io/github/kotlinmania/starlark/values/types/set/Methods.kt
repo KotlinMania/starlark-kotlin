@@ -120,7 +120,6 @@ internal fun setMethods(builder: MethodsBuilder) {
 
     builder.setDocstring("Methods for the `set` type.")
 
-    // fn clear(this: Value) -> Result<NoneType>
     setMethod(
         "clear",
         ParametersSpec.newParts(
@@ -135,7 +134,6 @@ internal fun setMethods(builder: MethodsBuilder) {
         clear(thisValue).map { Value.newNone() }
     }
 
-    // fn union(this: SetRef, other: Value, heap: Heap) -> Result<Set>
     setMethod(
         "union",
         ParametersSpec.newParts(
@@ -155,7 +153,6 @@ internal fun setMethods(builder: MethodsBuilder) {
         union(thisSet, other, eval.heap()).map { it.allocValue(eval.heap()) }
     }
 
-    // fn intersection(this: SetRef, other: Value, heap: Heap) -> Result<Set>
     setMethod(
         "intersection",
         ParametersSpec.newParts(
@@ -175,7 +172,6 @@ internal fun setMethods(builder: MethodsBuilder) {
         intersection(thisSet, other, eval.heap()).map { it.allocValue(eval.heap()) }
     }
 
-    // fn symmetric_difference(this: SetRef, other: Value, heap: Heap) -> Result<Set>
     setMethod(
         "symmetric_difference",
         ParametersSpec.newParts(
@@ -195,7 +191,6 @@ internal fun setMethods(builder: MethodsBuilder) {
         symmetricDifference(thisSet, other, eval.heap()).map { it.allocValue(eval.heap()) }
     }
 
-    // fn add(this: Value, value: Value) -> Result<NoneType>
     setMethod(
         "add",
         ParametersSpec.newParts(
@@ -211,7 +206,6 @@ internal fun setMethods(builder: MethodsBuilder) {
         add(thisValue, value).map { Value.newNone() }
     }
 
-    // fn update(this: Value, other: Value, heap: Heap) -> Result<NoneType>
     setMethod(
         "update",
         ParametersSpec.newParts(
@@ -227,7 +221,6 @@ internal fun setMethods(builder: MethodsBuilder) {
         update(thisValue, other, eval.heap()).map { Value.newNone() }
     }
 
-    // fn remove(this: Value, value: Value) -> Result<NoneType>
     setMethod(
         "remove",
         ParametersSpec.newParts(
@@ -243,7 +236,6 @@ internal fun setMethods(builder: MethodsBuilder) {
         remove(thisValue, value).map { Value.newNone() }
     }
 
-    // fn discard(this: Value, value: Value) -> Result<NoneType>
     setMethod(
         "discard",
         ParametersSpec.newParts(
@@ -259,7 +251,6 @@ internal fun setMethods(builder: MethodsBuilder) {
         discard(thisValue, value).map { Value.newNone() }
     }
 
-    // fn pop(this: Value) -> Result<Value>
     setMethod(
         "pop",
         ParametersSpec.newParts(
@@ -274,7 +265,6 @@ internal fun setMethods(builder: MethodsBuilder) {
         pop(thisValue)
     }
 
-    // fn difference(this: SetRef, other: Value, heap: Heap) -> Result<Set>
     setMethod(
         "difference",
         ParametersSpec.newParts(
@@ -294,7 +284,6 @@ internal fun setMethods(builder: MethodsBuilder) {
         difference(thisSet, other, eval.heap()).map { it.allocValue(eval.heap()) }
     }
 
-    // fn issuperset(this: SetRef, other: Value, heap: Heap) -> Result<bool>
     setMethod(
         "issuperset",
         ParametersSpec.newParts(
@@ -314,7 +303,6 @@ internal fun setMethods(builder: MethodsBuilder) {
         issuperset(thisSet, other, eval.heap()).map { it.toValue() }
     }
 
-    // fn issubset(this: SetRef, other: Value, heap: Heap) -> Result<bool>
     setMethod(
         "issubset",
         ParametersSpec.newParts(

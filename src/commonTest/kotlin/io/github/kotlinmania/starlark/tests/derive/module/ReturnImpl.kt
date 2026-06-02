@@ -24,10 +24,8 @@ import io.github.kotlinmania.starlark.environment.MethodsBuilder
 import io.github.kotlinmania.starlark.values.layout.Value
 
 // #[starlark_module]
-// fn _test_return_impl_alloc_value(globals: &mut GlobalsBuilder)
 @Suppress("unused")
 private fun testReturnImplAllocValue(globals: GlobalsBuilder) {
-    // fn func(v: Value) -> Result<impl AllocValue>
     globals.setFunction("func") { args, _ ->
         val v = args.positional<Value>(0)
         Result.success(v)
@@ -35,11 +33,9 @@ private fun testReturnImplAllocValue(globals: GlobalsBuilder) {
 }
 
 // #[starlark_module]
-// fn _test_return_impl_alloc_value_for_attr(methods: &mut MethodsBuilder)
 @Suppress("unused")
 private fun testReturnImplAllocValueForAttr(methods: MethodsBuilder) {
     // #[starlark(attribute)]
-    // fn attr(this: Value) -> Result<impl AllocValue>
     methods.setAttribute("attr") { receiver, _ ->
         Result.success(receiver)
     }

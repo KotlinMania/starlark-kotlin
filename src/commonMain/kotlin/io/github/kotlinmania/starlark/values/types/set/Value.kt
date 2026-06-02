@@ -43,8 +43,6 @@ import io.github.kotlinmania.starlark.values.layout.heap.Tracer
  * Transparent wrapper around the inner set implementation.
  * Corresponds to Rust's `SetGen<T>` with `#[repr(transparent)]`.
  */
-// #[derive(Clone, Default, Trace, Debug, ProvidesStaticType, Allocative)]
-// pub(crate) struct SetGen<T>(pub(crate) T);
 data class SetGen<T>(
     val inner: T,
 ) : ComplexValue,
@@ -70,14 +68,11 @@ data class SetGen<T>(
 
     private fun setLike(): SetLike = inner as SetLike
 
-    // #[starlark_value(type = "set")]
     // impl StarlarkValue for SetGen<T>
 
-    // fn length(&self) -> crate::Result<i32>
     override fun length(): Result<Int> =
         Result.success(setLike().content().len())
 
-    // fn is_in(&self, other: Value<'v>) -> crate::Result<bool>
     override fun isIn(other: Value): Result<Boolean> =
         try {
             val hashed = other.getHashed().getOrThrow()
@@ -86,7 +81,6 @@ data class SetGen<T>(
             Result.failure(e)
         }
 
-    // fn equals(&self, other: Value<'v>) -> crate::Result<bool>
     override fun equals(other: Value): Result<Boolean> {
         val otherSet =
             SetRef.unpackValueOpt(other)
@@ -94,23 +88,19 @@ data class SetGen<T>(
         return Result.success(equalsSmallSet(setLike().content(), otherSet.content))
     }
 
-    // fn get_methods() -> Option<&'static Methods>
     override fun getMethods(): Methods? = setMethods()
 
-    // unsafe fn iterate(&self, me: Value<'v>, _heap: Heap<'v>) -> crate::Result<Value<'v>>
     override fun iterate(me: Value, heap: Heap): Result<Value> {
         setLike().iterStart()
         return Result.success(me)
     }
 
-    // unsafe fn iter_size_hint(&self, index: usize) -> (usize, Option<usize>)
     override fun iterSizeHint(index: Int): Pair<Int, Int?> {
         check(index <= setLike().content().len())
         val rem = setLike().content().len() - index
         return Pair(rem, rem)
     }
 
-    // unsafe fn iter_next(&self, index: usize, _heap: Heap<'v>) -> Option<Value<'v>>
     override fun iterNext(index: Int, heap: Heap): Value? =
         setLike()
             .contentUnchecked()
@@ -118,16 +108,13 @@ data class SetGen<T>(
             .drop(index)
             .firstOrNull()
 
-    // unsafe fn iter_stop(&self)
     override fun iterStop() {
         setLike().iterStop()
     }
 
-    // fn to_bool(&self) -> bool
     override fun toBool(): Boolean =
         !setLike().content().isEmpty()
 
-    // fn bit_or(&self, rhs: Value<'v>, heap: Heap<'v>) -> crate::Result<Value<'v>>
     override fun bitOr(other: Value, heap: Heap): Result<Value> {
         return try {
             // Unlike in `union` it is not possible to `|` `set` and iterable. This is due python semantics.
@@ -149,7 +136,6 @@ data class SetGen<T>(
         }
     }
 
-    // fn bit_and(&self, rhs: Value<'v>, heap: Heap<'v>) -> crate::Result<Value<'v>>
     override fun bitAnd(other: Value, heap: Heap): Result<Value> {
         return try {
             val rhsSet =
@@ -173,7 +159,6 @@ data class SetGen<T>(
         }
     }
 
-    // fn bit_xor(&self, rhs: Value<'v>, heap: Heap<'v>) -> crate::Result<Value<'v>>
     override fun bitXor(other: Value, heap: Heap): Result<Value> {
         return try {
             val rhsSet =
@@ -202,7 +187,6 @@ data class SetGen<T>(
         }
     }
 
-    // fn sub(&self, rhs: Value<'v>, heap: Heap<'v>) -> crate::Result<Value<'v>>
     override fun sub(other: Value, heap: Heap): Result<Value> {
         return try {
             val rhsSet =
@@ -230,10 +214,8 @@ data class SetGen<T>(
         }
     }
 
-    // fn typechecker_ty(&self) -> Option<Ty>
     override fun typecheckerTy(): Ty = Ty.anySet()
 
-    // fn get_type_starlark_repr() -> Ty
     override fun getTypeStarlarkRepr(): Ty = Ty.anySet()
 
     // impl Display for SetGen<T>

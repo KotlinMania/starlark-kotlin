@@ -702,8 +702,6 @@ internal fun ClauseP<CstPayload>.visitExprChildrenMut(f: (CstExpr) -> Unit) {
     }
 }
 
-// #[derive(Debug, thiserror::Error)]
-// enum ScopeError
 internal sealed class ScopeError(
     message: String,
 ) : StarlarkError(message) {
@@ -725,7 +723,6 @@ internal sealed class ScopeError(
 }
 
 /** All scopes and bindings in a module. */
-// struct ModuleScopeBuilder<'a>
 internal class ModuleScopeBuilder(
     var scopeData: ModuleScopeData,
     val module: MutableNames,
@@ -740,16 +737,13 @@ internal class ModuleScopeBuilder(
     val errors: MutableList<EvalException>,
     var topLevelStmtCount: Int,
 ) {
-    // fn top_scope_id(&self) -> ScopeId
     fun topScopeId(): ScopeId = locals.last()
 
-    // fn scope_at_level(&self, level: usize) -> &ScopeNames
     fun scopeAtLevel(level: Int): ScopeNames {
         val scopeId = locals[level]
         return scopeData.getScope(scopeId)
     }
 
-    // fn scope_at_level_mut(&mut self, level: usize) -> &mut ScopeNames
     fun scopeAtLevelMut(level: Int): ScopeNames {
         val scopeId = locals[level]
         return scopeData.mutScope(scopeId)
@@ -764,7 +758,6 @@ internal class ModuleScopeBuilder(
          *
          * This function does not fail, errors are stored in the `errors` field.
          */
-        // fn enter_module(...)
         fun enterModule(
             module: MutableNames,
             frozenHeap: FrozenHeap,
@@ -847,7 +840,6 @@ internal class ModuleScopeBuilder(
             return Pair(cst, scope)
         }
 
-        // fn collect_defines_in_def(...)
         fun collectDefinesInDef(
             scopeData: ModuleScopeData,
             scopeId: ScopeId,
@@ -897,7 +889,6 @@ internal class ModuleScopeBuilder(
             }
         }
 
-        // fn collect_defines_recursively(...)
         fun collectDefinesRecursively(
             scopeData: ModuleScopeData,
             code: CstStmt,
@@ -942,7 +933,6 @@ internal class ModuleScopeBuilder(
             }
         }
 
-        // fn collect_defines_recursively_in_expr(...)
         fun collectDefinesRecursivelyInExpr(
             scopeData: ModuleScopeData,
             code: CstExpr,
@@ -970,7 +960,6 @@ internal class ModuleScopeBuilder(
             }
         }
 
-        // fn collect_defines(...) — Stmt trait impl
         fun collectDefines(
             stmt: CstStmt,
             inLoop: InLoop,
@@ -1055,7 +1044,6 @@ internal class ModuleScopeBuilder(
             }
         }
 
-        // fn collect_assign_ident(...) — AssignIdent trait impl
         fun collectAssignIdent(
             assign: CstAssignIdent,
             inLoop: InLoop,
@@ -1103,7 +1091,6 @@ internal class ModuleScopeBuilder(
             }
         }
 
-        // fn collect_defines_lvalue(...) — AssignTarget trait impl
         fun collectDefinesLvalue(
             expr: CstAssignTarget,
             inLoop: InLoop,
@@ -1125,7 +1112,6 @@ internal class ModuleScopeBuilder(
     }
 
     // Number of module slots I need, a struct holding all scopes, and module bindings.
-    // fn exit_module(mut self) -> (u32, ModuleScopeData, SmallMap<...>)
     fun exitModule(): Triple<Int, ModuleScopeData, MutableMap<FrozenStringValue, BindingId>> {
         check(locals.size == 1)
         check(unscopes.isEmpty())
@@ -1140,7 +1126,6 @@ internal class ModuleScopeBuilder(
         )
     }
 
-    // fn resolve_idents(&mut self, code: &mut CstStmt)
     @Suppress("UNCHECKED_CAST")
     fun resolveIdents(code: CstStmt) {
         when (val node = code.node) {
@@ -1172,12 +1157,10 @@ internal class ModuleScopeBuilder(
         }
     }
 
-    // fn resolve_idents_in_assign(&mut self, assign: &mut CstAssignTarget)
     fun resolveIdentsInAssign(assign: CstAssignTarget) {
         assign.visitAssignTargetExprChildrenMut { expr -> resolveIdentsInExpr(expr) }
     }
 
-    // fn resolve_idents_in_def(...)
     @Suppress("UNCHECKED_CAST")
     fun resolveIdentsInDef(
         scopeId: ScopeId,
@@ -1209,7 +1192,6 @@ internal class ModuleScopeBuilder(
         exitDef()
     }
 
-    // fn resolve_idents_in_expr_impl(&mut self, scope: ResolveIdentScope, expr: &mut CstExpr)
     @Suppress("UNCHECKED_CAST")
     fun resolveIdentsInExprImpl(scope: ResolveIdentScope, expr: CstExpr) {
         when (val node = expr.node) {
@@ -1236,12 +1218,10 @@ internal class ModuleScopeBuilder(
         }
     }
 
-    // fn resolve_idents_in_expr(&mut self, expr: &mut CstExpr)
     fun resolveIdentsInExpr(expr: CstExpr) {
         resolveIdentsInExprImpl(ResolveIdentScope.Any, expr)
     }
 
-    // fn resolve_idents_in_type_expr(&mut self, expr: &mut CstTypeExpr)
     fun resolveIdentsInTypeExpr(expr: CstTypeExpr) {
         resolveIdentsInExprImpl(
             ResolveIdentScope.GlobalForTypeExpression,
@@ -1249,7 +1229,6 @@ internal class ModuleScopeBuilder(
         )
     }
 
-    // fn current_scope_all_visible_names_for_did_you_mean(&self) -> Option<Vec<String>>
     fun currentScopeAllVisibleNamesForDidYouMean(): List<String>? {
         // It is OK to return non-unique identifiers
         val r: MutableList<String> = mutableListOf()
@@ -1263,7 +1242,6 @@ internal class ModuleScopeBuilder(
         return r
     }
 
-    // fn variable_not_found_err(&self, ident: &CstIdent) -> EvalException
     fun variableNotFoundErr(ident: CstIdent): EvalException {
         val variants = currentScopeAllVisibleNamesForDidYouMean() ?: emptyList()
         val better =
@@ -1282,7 +1260,6 @@ internal class ModuleScopeBuilder(
         )
     }
 
-    // fn resolve_ident(&mut self, scope: ResolveIdentScope, ident: &mut CstIdent)
     fun resolveIdent(scope: ResolveIdentScope, ident: CstIdent) {
         check(ident.node.payload == null) { "resolveIdent: ident '${ident.node.ident}' already has payload=${ident.node.payload}" }
         val name = frozenHeap.allocStrIntern(ident.node.ident)
@@ -1326,7 +1303,6 @@ internal class ModuleScopeBuilder(
         ident.node.payload = resolved
     }
 
-    // fn resolve_idents_in_compr(...)
     fun resolveIdentsInCompr(
         exprs: MutableList<CstExpr>,
         firstFor: ForClauseP<CstPayload>,
@@ -1362,30 +1338,25 @@ internal class ModuleScopeBuilder(
         exitCompr()
     }
 
-    // fn resolve_idents_in_for_clause(&mut self, for_clause: &mut ForClauseP<CstPayload>)
     fun resolveIdentsInForClause(forClause: ForClauseP<CstPayload>) {
         resolveIdentsInExpr(forClause.over)
         resolveIdentsInAssign(forClause.varTarget)
     }
 
-    // pub fn enter_def(&mut self, scope_id: ScopeId)
     fun enterDef(scopeId: ScopeId) {
         check(scopeId != ScopeId.module())
         locals.add(scopeId)
     }
 
-    // pub fn exit_def(&mut self) -> &mut ScopeNames
     fun exitDef(): ScopeNames {
         val scopeId = locals.removeAt(locals.lastIndex)
         return scopeData.mutScope(scopeId)
     }
 
-    // fn enter_compr(&mut self)
     fun enterCompr() {
         unscopes.add(Unscope())
     }
 
-    // fn add_compr(...)
     fun addCompr(vars: List<CstAssignTarget>) {
         val scopeId = topScopeId()
         val localBindings: MutableMap<FrozenStringValue, BindingId> = mutableMapOf()
@@ -1410,14 +1381,12 @@ internal class ModuleScopeBuilder(
         }
     }
 
-    // fn exit_compr(&mut self)
     fun exitCompr() {
         scopeData
             .mutScope(topScopeId())
             .unscope(unscopes.removeAt(unscopes.lastIndex))
     }
 
-    // fn get_name(&mut self, name: FrozenStringValue) -> Option<(Slot, BindingId)>
     fun getName(name: FrozenStringValue): Pair<Slot, BindingId>? {
         // look upwards to find the first place the variable occurs
         // then copy that variable downwards
@@ -1449,7 +1418,6 @@ internal class ModuleScopeBuilder(
     }
 }
 
-// pub(crate) struct ModuleScopes
 internal class ModuleScopes(
     val scopeData: ModuleScopeData,
     val moduleSlotCount: Int,
@@ -1458,7 +1426,6 @@ internal class ModuleScopes(
     val topLevelStmtCount: Int,
 ) {
     companion object {
-        // pub(crate) fn check_module_err(...)
         fun checkModuleErr(
             module: MutableNames,
             frozenHeap: FrozenHeap,
@@ -1476,7 +1443,6 @@ internal class ModuleScopes(
             return scopes
         }
 
-        // pub(crate) fn check_module(...)
         fun checkModule(
             module: MutableNames,
             frozenHeap: FrozenHeap,
@@ -1513,7 +1479,6 @@ internal class ModuleScopes(
     }
 }
 
-// struct UnscopeBinding
 internal class UnscopeBinding(
     /**
      * Variable mappings in local scope are overwritten by comprehension variables.
@@ -1522,14 +1487,10 @@ internal class UnscopeBinding(
     val undo: Pair<LocalSlotIdCapturedOrNot, BindingId>?,
 )
 
-// #[derive(Default)]
-// struct Unscope(SmallMap<FrozenStringValue, UnscopeBinding>)
 internal class Unscope(
     val bindings: MutableMap<FrozenStringValue, UnscopeBinding> = mutableMapOf(),
 )
 
-// #[derive(Default, Debug)]
-// pub(crate) struct ScopeNames
 internal class ScopeNames(
     /** `Some` when scope is initialized. For module scope, the value is zero. */
     var paramCount: Int? = null,
@@ -1543,16 +1504,13 @@ internal class ScopeNames(
     /** Slots to copy from the parent. */
     val parent: MutableList<CopySlotFromParent> = mutableListOf(),
 ) {
-    // fn set_param_count(&mut self, param_count: u32)
     fun setParamCount(paramCount: Int) {
         check(this.paramCount == null)
         this.paramCount = paramCount
     }
 
-    // pub(crate) fn param_count(&self) -> u32
     fun paramCount(): Int = paramCount ?: error("param_count must be set during analysis")
 
-    // fn copy_parent(...)
     fun copyParent(
         parentSlot: LocalSlotIdCapturedOrNot,
         bindingId: BindingId,
@@ -1564,14 +1522,12 @@ internal class ScopeNames(
         return res
     }
 
-    // fn next_slot(&mut self, name: FrozenStringValue) -> LocalSlotIdCapturedOrNot
     fun nextSlot(name: FrozenStringValue): LocalSlotIdCapturedOrNot {
         val res = LocalSlotIdCapturedOrNot(used.size.toUInt())
         used.add(name)
         return res
     }
 
-    // fn add_name(...)
     fun addName(
         name: FrozenStringValue,
         bindingId: BindingId,
@@ -1582,7 +1538,6 @@ internal class ScopeNames(
         return slot
     }
 
-    // fn add_scoped(...)
     fun addScoped(
         name: FrozenStringValue,
         bindingId: BindingId,
@@ -1603,7 +1558,6 @@ internal class ScopeNames(
         return slot
     }
 
-    // fn unscope(&mut self, unscope: Unscope)
     fun unscope(unscope: Unscope) {
         for ((name, unscopeBinding) in unscope.bindings) {
             val undo = unscopeBinding.undo
@@ -1615,12 +1569,9 @@ internal class ScopeNames(
         }
     }
 
-    // fn get_name(&self, name: FrozenStringValue) -> Option<(LocalSlotIdCapturedOrNot, BindingId)>
     fun getName(name: FrozenStringValue): Pair<LocalSlotIdCapturedOrNot, BindingId>? = mp[name]
 }
 
-// #[derive(Copy, Clone, Dupe, Debug)]
-// pub(crate) enum Slot
 internal sealed class Slot {
     /** Top-level module scope. */
     data class Module(
@@ -1633,8 +1584,6 @@ internal sealed class Slot {
     ) : Slot()
 }
 
-// #[derive(Clone, Copy, Dupe)]
-// enum ResolveIdentScope
 internal enum class ResolveIdentScope {
     /** Resolving normal identifier. */
     Any,
@@ -1644,8 +1593,6 @@ internal enum class ResolveIdentScope {
 }
 
 /** While performing analysis. */
-// #[derive(Copy, Clone, Dupe)]
-// enum InLoop
 internal enum class InLoop {
     /** Current statement has an enclosing loop in the current scope. */
     Yes,
@@ -1655,24 +1602,18 @@ internal enum class InLoop {
 }
 
 /** Storage of objects referenced by AST. */
-// #[derive(Default)]
-// pub(crate) struct ModuleScopeData
 internal class ModuleScopeData(
     /** Bindings by id. */
     internal val bindings: MutableList<Binding> = mutableListOf(),
     /** Scopes by id. */
     private val scopes: MutableList<ScopeNames> = mutableListOf(),
 ) {
-    // pub(crate) fn new() -> ModuleScopeData
     // (default constructor serves this purpose)
 
-    // pub(crate) fn get_binding(&self, BindingId(id): BindingId) -> &Binding
     fun getBinding(id: BindingId): Binding = bindings[id.id]
 
-    // fn mut_binding(&mut self, BindingId(id): BindingId) -> &mut Binding
     fun mutBinding(id: BindingId): Binding = bindings[id.id]
 
-    // fn new_binding(...) -> (BindingId, &mut Binding)
     fun newBinding(
         name: FrozenStringValue,
         source: BindingSource,
@@ -1685,13 +1626,10 @@ internal class ModuleScopeData(
         return Pair(bindingId, binding)
     }
 
-    // pub(crate) fn get_scope(&self, ScopeId(id): ScopeId) -> &ScopeNames
     fun getScope(id: ScopeId): ScopeNames = scopes[id.id]
 
-    // pub(crate) fn mut_scope(&mut self, ScopeId(id): ScopeId) -> &mut ScopeNames
     fun mutScope(id: ScopeId): ScopeNames = scopes[id.id]
 
-    // pub(crate) fn new_scope(&mut self) -> (ScopeId, &mut ScopeNames)
     fun newScope(): Pair<ScopeId, ScopeNames> {
         val scopeId = ScopeId(scopes.size)
         val scope = ScopeNames()
@@ -1700,7 +1638,6 @@ internal class ModuleScopeData(
     }
 
     /** Get resolved slot for assigning identifier. */
-    // pub(crate) fn get_assign_ident_slot(...)
     fun getAssignIdentSlot(
         ident: CstAssignIdent,
         codemap: CodeMap,
@@ -1712,8 +1649,6 @@ internal class ModuleScopeData(
     }
 }
 
-// #[derive(Debug, Eq, PartialEq)]
-// pub(crate) enum AssignCount
 internal enum class AssignCount {
     /** Variable is assigned at most once during the execution of the scope. */
     AtMostOnce,
@@ -1723,15 +1658,11 @@ internal enum class AssignCount {
 }
 
 /** Was a binding captured by nested def or lambda scopes? */
-// #[derive(Debug, Copy, Clone, Dupe, Eq, PartialEq, VisitSpanMut)]
-// pub(crate) enum Captured
 internal enum class Captured {
     Yes,
     No,
 }
 
-// #[derive(Debug)]
-// pub(crate) enum BindingSource
 internal sealed class BindingSource {
     /** Variable is defined in the source of the module. */
     data class Source(
@@ -1749,8 +1680,6 @@ internal sealed class BindingSource {
  *
  * In code `x = 1; def f(): x = 2`, there are two bindings for name `x`.
  */
-// #[derive(Debug)]
-// pub(crate) struct Binding
 internal class Binding(
     val name: FrozenStringValue,
     val source: BindingSource,
@@ -1764,7 +1693,6 @@ internal class Binding(
     // Whether a variable defined in a scope gets captured in nested def or lambda scope.
     var captured: Captured = Captured.No,
 ) {
-    // fn span(&self) -> Span
     fun span(): Span =
         when (source) {
             is BindingSource.Source -> source.span
@@ -1772,7 +1700,6 @@ internal class Binding(
         }
 
     /** Get resolved slot after analysis is completed. */
-    // pub(crate) fn resolved_slot(&self, codemap: &CodeMap) -> Result<Slot, InternalError>
     fun resolvedSlot(codemap: CodeMap): Slot =
         slot ?: throw InternalError.msg(
             "slot is not resolved",
@@ -1781,7 +1708,6 @@ internal class Binding(
         )
 
     /** Initialize the slot during analysis. */
-    // pub(crate) fn init_slot(&mut self, slot: Slot, codemap: &CodeMap) -> Result<(), InternalError>
     fun initSlot(newSlot: Slot, codemap: CodeMap) {
         if (slot != null) {
             throw InternalError.msg(
@@ -1795,8 +1721,6 @@ internal class Binding(
 }
 
 /** Id of a binding within current module. */
-// #[derive(Copy, Clone, Dupe, Debug, Hash, PartialEq, Eq, Ord, PartialOrd)]
-// pub(crate) struct BindingId(usize)
 data class BindingId(
     val id: Int,
 ) : Comparable<BindingId> {
@@ -1804,19 +1728,14 @@ data class BindingId(
 }
 
 /** Id of a scope within current module. */
-// #[derive(Copy, Clone, Dupe, Debug, Eq, PartialEq)]
-// pub(crate) struct ScopeId(usize)
 internal data class ScopeId(
     val id: Int,
 ) {
     companion object {
-        // pub(crate) fn module() -> ScopeId
         fun module(): ScopeId = ScopeId(0)
     }
 }
 
-// #[derive(Debug, Clone, Dupe, Copy)]
-// pub(crate) enum ResolvedIdent
 internal sealed class ResolvedIdent {
     data class Slot(
         val slot: io.github.kotlinmania.starlark.eval.compiler.Slot,

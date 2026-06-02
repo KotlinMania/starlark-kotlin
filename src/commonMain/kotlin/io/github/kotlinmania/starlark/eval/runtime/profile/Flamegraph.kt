@@ -24,13 +24,10 @@ package io.github.kotlinmania.starlark.eval.runtime.profile.flamegraph
 import io.github.kotlinmania.starlark.util.ArcStr
 
 /** Node in flamegraph tree. */
-// #[derive(Debug, Clone, Default, PartialEq, Eq)]
-// pub(crate) struct FlameGraphNode
 internal class FlameGraphNode(
     val children: MutableMap<ArcStr, FlameGraphNode> = mutableMapOf(),
     var value: ULong? = null,
 ) {
-    // fn write<'a>(&'a self, writer: &mut FlameGraphWriter, stack: &mut Vec<&'a str>)
     fun write(writer: FlameGraphWriter, stack: MutableList<String>) {
         value?.let { v ->
             writer.write(stack, v)
@@ -43,7 +40,6 @@ internal class FlameGraphNode(
     }
 
     /** Add value to the node. */
-    // pub(crate) fn add(&mut self, value: u64)
     fun add(value: ULong) {
         val existing = this.value
         if (existing == null) {
@@ -53,7 +49,6 @@ internal class FlameGraphNode(
         }
     }
 
-    // pub(crate) fn merge(&mut self, other: &FlameGraphNode)
     fun merge(other: FlameGraphNode) {
         other.value?.let { value -> add(value) }
         for ((k, v) in other.children) {
@@ -62,7 +57,6 @@ internal class FlameGraphNode(
     }
 
     /** Get or create a child node. */
-    // pub(crate) fn child(&mut self, name: ArcStr) -> &mut FlameGraphNode
     fun child(name: ArcStr): FlameGraphNode =
         children.getOrPut(name) { FlameGraphNode() }
 
@@ -80,12 +74,9 @@ internal class FlameGraphNode(
  *
  * Can be written to `flamegraph.pl` format.
  */
-// #[derive(Debug, Clone, Default, PartialEq, Eq)]
-// pub(crate) struct FlameGraphData
 internal class FlameGraphData(
     val root: FlameGraphNode = FlameGraphNode(),
 ) {
-    // pub(crate) fn write(&self) -> String
     fun write(): String {
         val writer = FlameGraphWriter()
         val stack = mutableListOf<String>()
@@ -94,11 +85,9 @@ internal class FlameGraphData(
         return writer.finish()
     }
 
-    // pub(crate) fn root(&mut self) -> &mut FlameGraphNode
     fun root(): FlameGraphNode = root
 
     companion object {
-        // pub(crate) fn merge(graphs: impl IntoIterator<Item = &'a FlameGraphData>) -> FlameGraphData
         fun merge(graphs: Iterable<FlameGraphData>): FlameGraphData {
             val result = FlameGraphData()
             for (graph in graphs) {
@@ -117,11 +106,9 @@ internal class FlameGraphData(
     override fun hashCode(): Int = root.hashCode()
 }
 
-// pub(crate) struct FlameGraphWriter
 internal class FlameGraphWriter {
     private val buf: StringBuilder = StringBuilder()
 
-    // pub(crate) fn write<'s>(&mut self, key: impl IntoIterator<Item = &'s str>, value: u64)
     fun write(key: List<String>, value: ULong) {
         if (key.isEmpty()) {
             buf.appendLine("(unknown) $value")
@@ -130,6 +117,5 @@ internal class FlameGraphWriter {
         }
     }
 
-    // pub(crate) fn finish(self) -> String
     fun finish(): String = buf.toString()
 }

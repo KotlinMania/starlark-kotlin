@@ -23,8 +23,6 @@ package io.github.kotlinmania.starlark.tests.derive.trace
 
 import io.github.kotlinmania.starlark.values.layout.Value
 
-// #[derive(Trace)]
-// struct TraceWithStatic<'v>
 @Suppress("unused")
 private class TraceWithStatic(
     val actualValue: Value,
@@ -37,7 +35,6 @@ private class TraceWithStatic(
     val explicitStatic: String,
 )
 
-// struct StaticType<'a, T>
 @Suppress("unused")
 private class StaticType<T>(
     val inner: T,

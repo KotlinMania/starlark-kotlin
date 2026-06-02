@@ -95,7 +95,6 @@ internal fun writeExprOpt(
     }
 }
 
-// pub(crate) fn write_n_exprs<const N: usize>(exprs, bc, k)
 internal fun writeNExprs(
     exprs: List<IrSpanned<ExprCompiled>>,
     bc: BcWriter,
@@ -188,7 +187,6 @@ internal fun IrSpanned<ExprCompiled>.markDefinitelyAssignedAfter(bc: BcWriter) {
     this.node.markDefinitelyAssignedAfter(bc)
 }
 
-// fn try_dict_of_consts(xs) -> Option<SmallMap<FrozenValue, FrozenValue>>
 private fun tryDictOfConsts(
     xs: List<Pair<IrSpanned<ExprCompiled>, IrSpanned<ExprCompiled>>>,
 ): SmallMap<FrozenValue, FrozenValue>? {
@@ -208,7 +206,6 @@ private fun tryDictOfConsts(
     return res
 }
 
-// fn try_dict_const_keys(xs) -> Option<Box<[Hashed<FrozenValue>]>>
 private fun tryDictConstKeys(
     xs: List<Pair<IrSpanned<ExprCompiled>, IrSpanned<ExprCompiled>>>,
 ): List<Hashed<FrozenValue>>? {
@@ -228,7 +225,6 @@ private fun tryDictConstKeys(
     return keys
 }
 
-// fn write_dict(span, xs, target, bc)
 private fun writeDict(
     span: FrameSpan,
     xs: List<Pair<IrSpanned<ExprCompiled>, IrSpanned<ExprCompiled>>>,
@@ -267,7 +263,6 @@ private fun writeDict(
     }
 }
 
-// fn write_not(expr, target, bc)
 private fun writeNot(
     expr: IrSpanned<ExprCompiled>,
     target: BcSlotOut,
@@ -278,7 +273,6 @@ private fun writeNot(
     }
 }
 
-// fn write_equals_const(span, a, b, target, bc)
 private fun writeEqualsConst(
     span: FrameSpan,
     a: IrSpanned<ExprCompiled>,
@@ -308,7 +302,6 @@ private fun writeEqualsConst(
     }
 }
 
-// fn write_equals(span, a, b, target, bc)
 private fun writeEquals(
     span: FrameSpan,
     a: IrSpanned<ExprCompiled>,
@@ -490,7 +483,6 @@ internal fun IrSpanned<ExprCompiled>.writeBc(target: BcSlotOut, bc: BcWriter) {
  * Allocate temporary slot, write expression into it,
  * and then consume the slot with the callback.
  */
-// pub(crate) fn write_bc_cb(&self, bc, k) -> R
 internal fun <R> IrSpanned<ExprCompiled>.writeBcCb(
     bc: BcWriter,
     k: (BcSlotIn, BcWriter) -> R,
@@ -511,7 +503,6 @@ internal fun <R> IrSpanned<ExprCompiled>.writeBcCb(
     }
 }
 
-// pub(crate) fn write_bc_for_effect(&self, bc)
 internal fun IrSpanned<ExprCompiled>.writeBcForEffect(bc: BcWriter) {
     this.writeBcCb(bc) { _, _ -> }
 }

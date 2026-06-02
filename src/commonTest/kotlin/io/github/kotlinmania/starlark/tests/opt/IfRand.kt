@@ -39,8 +39,6 @@ import kotlin.random.Random
  *
  * `true()` should not be evaluated. After evaluation, the counter should be 1.
  */
-// #[derive(Debug, ProvidesStaticType, Default, PartialEq)]
-// struct CountCalls
 private class CountCalls : AnyLifetime {
     var calls: Int = 0
 
@@ -50,17 +48,14 @@ private class CountCalls : AnyLifetime {
 }
 
 // #[starlark_module]
-// fn bool_fns(globals: &mut GlobalsBuilder)
 private fun boolFns(builder: GlobalsBuilder) {
     /** Return `true` and record side effect. */
-    // fn r#true(eval: &mut Evaluator) -> anyhow::Result<bool>
     builder.setFunction("true") { _, eval ->
         val calls = eval.extra as CountCalls
         calls.calls += 1
         Result.success(true)
     }
 
-    // fn r#false(eval: &mut Evaluator) -> anyhow::Result<bool>
     builder.setFunction("false") { _, eval ->
         val calls = eval.extra as CountCalls
         calls.calls += 1
@@ -68,19 +63,14 @@ private fun boolFns(builder: GlobalsBuilder) {
     }
 }
 
-// #[derive(Display, Debug, Copy, Clone, Dupe)]
-// enum TestBinOp
 private enum class TestBinOp(
     val display: String,
 ) {
-    // #[display("and")]
     And("and"),
 
-    // #[display("or")]
     Or("or"),
     ;
 
-    // fn eval(self, x: bool, y: impl FnOnce() -> bool) -> bool
     fun eval(x: Boolean, y: () -> Boolean): Boolean =
         when (this) {
             And -> x && y()
@@ -90,8 +80,6 @@ private enum class TestBinOp(
     override fun toString(): String = display
 }
 
-// #[derive(Clone, Debug)]
-// enum TestExpr
 private sealed class TestExpr {
     /** `True` or `False`. */
     // Const(bool)
@@ -120,7 +108,6 @@ private sealed class TestExpr {
     ) : TestExpr()
 
     /** Evaluate the expression the same way Starlark would evaluate it. */
-    // fn eval(&self, count: &CountCalls) -> bool
     fun eval(count: CountCalls): Boolean =
         when (this) {
             is Const -> value
@@ -151,7 +138,6 @@ private sealed class TestExpr {
  * * Return the result which is expected to be `bool`.
  * * Count side effects.
  */
-// fn eval_program(program: &str) -> (bool, CountCalls)
 private fun evalProgram(program: String): Pair<Boolean, CountCalls> {
     val ast =
         AstModule
@@ -174,7 +160,6 @@ private fun evalProgram(program: String): Pair<Boolean, CountCalls> {
     return Pair(r, counts)
 }
 
-// fn eval_if_else_with_starlark(expr: &TestExpr) -> (bool, CountCalls)
 private fun evalIfElseWithStarlark(expr: TestExpr): Pair<Boolean, CountCalls> {
     val program = """
 if $expr:
@@ -186,7 +171,6 @@ r
     return evalProgram(program)
 }
 
-// fn eval_if_with_starlark(expr: &TestExpr) -> (bool, CountCalls)
 private fun evalIfWithStarlark(expr: TestExpr): Pair<Boolean, CountCalls> {
     val program = """
 r = False
@@ -197,17 +181,14 @@ r
     return evalProgram(program)
 }
 
-// fn eval_expr_result(expr: &TestExpr) -> (bool, CountCalls)
 private fun evalExprResult(expr: TestExpr): Pair<Boolean, CountCalls> = evalProgram(expr.toString())
 
-// fn eval_manually(expr: &TestExpr) -> (bool, CountCalls)
 private fun evalManually(expr: TestExpr): Pair<Boolean, CountCalls> {
     val counts = CountCalls()
     val r = expr.eval(counts)
     return Pair(r, counts)
 }
 
-// fn test_if_else(expr: &TestExpr)
 private fun testIfElse(expr: TestExpr) {
     val expected = evalManually(expr)
     val actual = evalIfElseWithStarlark(expr)
@@ -216,7 +197,6 @@ private fun testIfElse(expr: TestExpr) {
     }
 }
 
-// fn test_if(expr: &TestExpr)
 private fun testIf(expr: TestExpr) {
     val expected = evalManually(expr)
     val actual = evalIfWithStarlark(expr)
@@ -225,7 +205,6 @@ private fun testIf(expr: TestExpr) {
     }
 }
 
-// fn test_expr_result(expr: &TestExpr)
 private fun testExprResult(expr: TestExpr) {
     val expected = evalManually(expr)
     val actual = evalExprResult(expr)
@@ -234,7 +213,6 @@ private fun testExprResult(expr: TestExpr) {
     }
 }
 
-// fn test_ifs(expr: &TestExpr)
 private fun testIfs(expr: TestExpr) {
     testIf(expr)
     testIfElse(expr)
@@ -243,17 +221,14 @@ private fun testIfs(expr: TestExpr) {
     testExprResult(expr)
 }
 
-// fn bool_values() -> [bool; 2]
 private fun boolValues(): List<Boolean> = listOf(true, false)
 
-// fn basic_bool_exprs() -> impl Iterator<Item = TestExpr>
 private fun basicBoolExprs(): List<TestExpr> =
     boolValues().flatMap { x ->
         listOf(TestExpr.Count(x), TestExpr.Const(x))
     }
 
 // #[test]
-// fn test_basic()
 internal fun testBasic() {
     testIfs(TestExpr.Const(true))
     testIfs(TestExpr.Const(false))
@@ -266,7 +241,6 @@ internal fun testBasic() {
 }
 
 // #[test]
-// fn test_and()
 internal fun testAnd() {
     for (lhs in basicBoolExprs()) {
         for (rhs in basicBoolExprs()) {
@@ -276,7 +250,6 @@ internal fun testAnd() {
 }
 
 // #[test]
-// fn test_or()
 internal fun testOr() {
     for (lhs in basicBoolExprs()) {
         for (rhs in basicBoolExprs()) {
@@ -286,7 +259,6 @@ internal fun testOr() {
 }
 
 // #[test]
-// fn test_and_or_not()
 internal fun testAndOrNot() {
     for (lhs in basicBoolExprs()) {
         for (rhs in basicBoolExprs()) {
@@ -303,10 +275,8 @@ internal fun testAndOrNot() {
     }
 }
 
-// const RANDOM_ITERATIONS: usize = 100;
 private const val RANDOM_ITERATIONS = 100
 
-// fn max_depth_for_iter(i: usize) -> usize
 private fun maxDepthForIter(i: Int): Int =
     if (i < 5) {
         0
@@ -324,9 +294,7 @@ private fun maxDepthForIter(i: Int): Int =
         20
     }
 
-// fn random_expr(rng: &mut SmallRng, max_depth: usize) -> TestExpr
 private fun randomExpr(rng: Random, maxDepth: Int): TestExpr {
-    // fn random_simple_expr(rng: &mut SmallRng) -> TestExpr
     fun randomSimpleExpr(): TestExpr =
         when (rng.nextInt(4)) {
             0 -> TestExpr.Const(true)
@@ -360,7 +328,6 @@ private fun randomExpr(rng: Random, maxDepth: Int): TestExpr {
 }
 
 // #[test]
-// fn test_if_random()
 internal fun testIfRandom() {
     val rng = Random(17)
     for (i in 0 until RANDOM_ITERATIONS) {
@@ -371,7 +338,6 @@ internal fun testIfRandom() {
 }
 
 // #[test]
-// fn test_if_else_random()
 internal fun testIfElseRandom() {
     val rng = Random(17)
     for (i in 0 until RANDOM_ITERATIONS) {
@@ -382,7 +348,6 @@ internal fun testIfElseRandom() {
 }
 
 // #[test]
-// fn test_expr_random()
 internal fun testExprRandom() {
     val rng = Random(17)
     for (i in 0 until RANDOM_ITERATIONS) {

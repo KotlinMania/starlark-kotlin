@@ -52,7 +52,6 @@ class DocModule(
     val docs: DocString? = null,
     val members: SmallMap<String, DocItem> = SmallMap.new(),
 ) {
-    // pub fn filter<P>(self, mut predicate: P) -> Self
     fun filter(predicate: (Pair<String, DocItem>) -> Boolean): DocModule {
         val filtered = SmallMap.new<String, DocItem>()
         for ((k, v) in members) {

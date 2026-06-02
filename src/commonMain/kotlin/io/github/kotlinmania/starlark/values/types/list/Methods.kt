@@ -135,7 +135,6 @@ internal fun listMethodsImpl(builder: MethodsBuilder) {
 
     builder.setDocstring("Methods for the `list` type.")
 
-    // fn append(this: Value, el: Value, heap: Heap) -> Result<NoneType>
     setMethod(
         "append",
         ParametersSpec.newParts(
@@ -151,7 +150,6 @@ internal fun listMethodsImpl(builder: MethodsBuilder) {
         append(thisValue, el, eval.heap()).map { Value.newNone() }
     }
 
-    // fn clear(this: Value) -> Result<NoneType>
     setMethod(
         "clear",
         ParametersSpec.newParts(
@@ -166,7 +164,6 @@ internal fun listMethodsImpl(builder: MethodsBuilder) {
         clear(thisValue).map { Value.newNone() }
     }
 
-    // fn extend(this: Value, other: Value, heap: Heap) -> Result<NoneType>
     setMethod(
         "extend",
         ParametersSpec.newParts(
@@ -182,7 +179,6 @@ internal fun listMethodsImpl(builder: MethodsBuilder) {
         extend(thisValue, other, eval.heap()).map { Value.newNone() }
     }
 
-    // fn index(this: &ListRef, needle: Value, start: NoneOr<i32>, end: NoneOr<i32>) -> Result<i32>
     setMethod(
         "index",
         ParametersSpec.newParts(
@@ -216,7 +212,6 @@ internal fun listMethodsImpl(builder: MethodsBuilder) {
         index(thisRef, needle, start, end).map { it.toValue() }
     }
 
-    // fn insert(this: Value, index: i32, el: Value, heap: Heap) -> Result<NoneType>
     setMethod(
         "insert",
         ParametersSpec.newParts(
@@ -238,7 +233,6 @@ internal fun listMethodsImpl(builder: MethodsBuilder) {
         insert(thisValue, index, el, eval.heap()).map { Value.newNone() }
     }
 
-    // fn pop(this: Value, index: Option<i32>) -> Result<Value>
     setMethod(
         "pop",
         ParametersSpec.newParts(
@@ -259,7 +253,6 @@ internal fun listMethodsImpl(builder: MethodsBuilder) {
         pop(thisValue, index)
     }
 
-    // fn remove(this: Value, needle: Value) -> Result<NoneType>
     setMethod(
         "remove",
         ParametersSpec.newParts(

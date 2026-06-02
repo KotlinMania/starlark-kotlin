@@ -25,28 +25,13 @@ import kotlin.test.Test
 // Test types: In Rust these use #[derive] macros and #[starlark_value].
 // Here we define minimal stubs to capture the test structure.
 
-// #[derive(Debug, Display, ProvidesStaticType, Allocative, NoSerialize)]
-// #[display("plant")]
-// enum AbstractPlant {}
-// #[starlark_value(type = "plant")]
 // impl<'v> StarlarkValue<'v> for AbstractPlant { ... }
 
-// #[derive(Debug, Display, ProvidesStaticType, Allocative, NoSerialize)]
-// #[display("fruit_callable")]
-// struct FruitCallable { name: String, ty_fruit_callable: Ty, ty_fruit: Ty }
-// #[starlark_value(type = "fruit_callable")]
 // impl<'v> StarlarkValue<'v> for FruitCallable { ... }
 
-// #[derive(Debug, Display, ProvidesStaticType, Allocative, NoSerialize)]
-// struct Fruit { name: String }
-// #[starlark_value(type = "fruit")]
 // impl<'v> StarlarkValue<'v> for Fruit { ... }
 
 // #[starlark_module]
-// fn globals(globals: &mut GlobalsBuilder) {
-//     fn fruit(name: String) -> starlark::Result<FruitCallable> { ... }
-//     fn mk_fruit() -> anyhow::Result<Fruit> { panic!("not needed in test") }
-//     const Plant: StarlarkValueAsType<AbstractPlant> = StarlarkValueAsType::new();
 // }
 
 class UserTest {

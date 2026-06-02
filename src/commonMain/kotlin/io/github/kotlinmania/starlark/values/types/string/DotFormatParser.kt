@@ -19,22 +19,15 @@ package io.github.kotlinmania.starlark.values.types.string
  * limitations under the License.
  */
 
-// use std::mem;
-// use std::ops::Deref;
 
-// use dupe::Dupe;
 
 // / Output the capture as `str` or `repr`.
-// #[derive(Debug, PartialEq, Copy, Clone, Dupe)]
-// pub enum FormatConv {
 enum class FormatConv {
     Str,
     Repr,
 }
 
 // / Token in the format string.
-// #[derive(Debug, PartialEq)]
-// pub enum FormatToken<'a> {
 sealed class FormatToken {
     // / Text to copy verbatim to the output.
     // Text(&'a str),
@@ -62,8 +55,6 @@ sealed class FormatToken {
 }
 
 // / Emitted when processing an escape (`{{` or `}}`).
-// #[derive(Debug, PartialEq)]
-// pub enum EscapeCurlyBrace {
 enum class EscapeCurlyBrace {
     Open,
     Close,
@@ -71,7 +62,6 @@ enum class EscapeCurlyBrace {
 
     // impl EscapeCurlyBrace
     // / Get what this represents.
-    // pub fn as_str(&self) -> &'static str
     fun asStr(): String =
         when (this) {
             Open -> "{"
@@ -79,7 +69,6 @@ enum class EscapeCurlyBrace {
         }
 
     // / Get back the escaped form for this.
-    // pub fn back_to_escape(&self) -> &'static str
     fun backToEscape(): String =
         when (this) {
             Open -> "{{"
@@ -88,7 +77,6 @@ enum class EscapeCurlyBrace {
 }
 
 // / Parser for `.format()` arguments.
-// pub struct FormatParser<'a> {
 //     view: StringView<'a>,
 // }
 class FormatParser(
@@ -99,7 +87,6 @@ class FormatParser(
     // impl<'a> FormatParser<'a>
 
     // / Parse the next token from the format string.
-    // pub fn next(&mut self) -> anyhow::Result<Option<FormatToken<'a>>>
     fun next(): Result<FormatToken?> {
         var start = i
 

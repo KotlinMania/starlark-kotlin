@@ -28,8 +28,6 @@ import io.github.kotlinmania.starlark.typing.StarlarkError
 import io.github.kotlinmania.starlark.values.layout.Value
 
 /** Ready to execute bytecode. */
-// #[derive(Default)]
-// pub(crate) struct Bc
 class Bc(
     val instrs: BcInstrs = BcInstrs.default(),
     /** Number of local variable slots. */
@@ -62,7 +60,6 @@ class Bc(
             }
         }
 
-        // pub(crate) fn wrap_error_for_instr_ptr(ptr: BcPtrAddr, e: crate::Error, eval: &Evaluator) -> EvalException
         fun wrapErrorForInstrPtr(
             ptr: BcPtrAddr,
             e: StarlarkError,
@@ -79,10 +76,8 @@ class Bc(
      *
      * Frame must be allocated properly, otherwise it will likely result in memory corruption.
      */
-    // pub(crate) fn run<'v, EC: EvaluationCallbacks>(&self, eval: &mut Evaluator, ec: &mut EC) -> Result<Value, EvalException>
     fun run(eval: Evaluator, ec: EvaluationCallbacks): Result<Value> = runBlock(eval, ec, instrs.startPtr(), instrs)
 
-    // pub(crate) fn dump_debug(&self) -> String
     fun dumpDebug(): String =
         buildString {
             appendLine("Max stack size: $maxStackSize")
@@ -100,7 +95,6 @@ class Bc(
  * generated code. In Kotlin, we dispatch using the opcode to look up the
  * instruction argument from the buffer and call the appropriate handler.
  */
-// fn step<'v, 'b, EC: EvaluationCallbacks>(eval: &mut Evaluator, ec: &mut EC, frame: BcFramePtr, ip: BcPtrAddr) -> InstrControl
 private fun step(
     eval: Evaluator,
     ec: EvaluationCallbacks,
@@ -260,7 +254,6 @@ private fun Any?.toInstrContinueArg(): InstrContinueArg {
 }
 
 /** Execute the code block, either a module or a function body. */
-// pub(crate) fn run_block<'v, EC: EvaluationCallbacks>(eval: &mut Evaluator, ec: &mut EC, mut ip: BcPtrAddr) -> Result<Value, EvalException>
 fun runBlock(
     eval: Evaluator,
     ec: EvaluationCallbacks,

@@ -23,12 +23,10 @@ import io.github.kotlinmania.starlark.values.Freeze
 import io.github.kotlinmania.starlark.values.layout.Freezer
 import io.github.kotlinmania.starlark.values.layout.heap.FrozenHeap
 
-// struct FreezeSentinel { frozen: bool }
 private class FreezeSentinel(
     val frozen: Boolean,
 ) : Freeze<FreezeSentinel> {
     // impl Freeze for FreezeSentinel
-    // fn freeze(self, _: &Freezer) -> Result<Self>
     override fun freeze(freezer: Freezer): Result<FreezeSentinel> {
         freezer.frozenHeap()
         check(!frozen)
@@ -36,9 +34,7 @@ private class FreezeSentinel(
     }
 }
 
-// #[derive(Freeze)]
 // #[freeze(validator = check_froze_before_validating)]
-// struct ValidatorOrderTest { sentinel: FreezeSentinel }
 private class ValidatorOrderTest(
     val sentinel: FreezeSentinel,
 ) : Freeze<ValidatorOrderTest> {
@@ -51,7 +47,6 @@ private class ValidatorOrderTest(
     }
 }
 
-// fn check_froze_before_validating(test: &ValidatorOrderTest) -> anyhow::Result<()>
 private fun checkFrozeBeforeValidating(test: ValidatorOrderTest): Result<Unit> {
     // Accessing fields on a Starlark value before we call freeze() on it may fail (because we
     // read the forward not what it points to), so we check that validators receive frozen data.
@@ -60,7 +55,6 @@ private fun checkFrozeBeforeValidating(test: ValidatorOrderTest): Result<Unit> {
 }
 
 // #[test]
-// fn test() -> anyhow::Result<()>
 internal fun testValidatorOrder() {
     val t =
         ValidatorOrderTest(

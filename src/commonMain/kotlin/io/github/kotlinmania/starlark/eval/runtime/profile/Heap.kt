@@ -142,7 +142,6 @@ internal enum class HeapProfileFormat {
     FlameGraphAndSummary,
 }
 
-// pub(crate) struct HeapProfile
 internal class HeapProfile(
     private var enabled: Boolean = false,
 ) {

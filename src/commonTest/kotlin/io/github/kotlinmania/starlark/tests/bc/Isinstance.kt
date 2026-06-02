@@ -20,7 +20,6 @@ package io.github.kotlinmania.starlark.tests.bc
  */
 
 // #[test]
-// fn test_isinstance()
 internal fun testIsinstance() {
     bcGoldenTest("isinstance", "def test(x): return isinstance(x, str)")
 }

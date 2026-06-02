@@ -508,7 +508,6 @@ internal class BcWriter(
     }
 
     /** Allocate several slots as [BcSlotsN], wrapping [allocSlots]. */
-    // pub(crate) fn alloc_slots_c<const N: usize, R>(&mut self, k: impl FnOnce(BcSlotsN<N>, &mut BcWriter) -> R) -> R
     fun <R> allocSlotsC(count: Int, k: (BcSlotsN, BcWriter) -> R): R = allocSlots(count) { slots, bc -> k(BcSlotsN.fromRange(count, slots), bc) }
 
     /** Allocate several slots for typical compilation of several expressions. */

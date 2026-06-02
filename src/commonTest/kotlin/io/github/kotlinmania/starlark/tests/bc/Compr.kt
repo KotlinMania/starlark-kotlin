@@ -22,7 +22,6 @@ package io.github.kotlinmania.starlark.tests.bc
 /** Test compilation of comprehensions. */
 
 // #[test]
-// fn test_no_loop_if_top_collection_is_empty()
 internal fun testNoLoopIfTopCollectionIsEmpty() {
     bcGoldenTest(
         "compr_no_loop_if_top_collection_is_empty",
@@ -31,7 +30,6 @@ internal fun testNoLoopIfTopCollectionIsEmpty() {
 }
 
 // #[test]
-// fn test_no_loop_if_top_collection_is_empty_on_freeze()
 internal fun testNoLoopIfTopCollectionIsEmptyOnFreeze() {
     // This function is not optimized to return a list on compilation,
     // because `L` is not evaluated yet.
@@ -43,7 +41,6 @@ internal fun testNoLoopIfTopCollectionIsEmptyOnFreeze() {
 }
 
 // #[test]
-// fn test_if_true_clause()
 internal fun testIfTrueClause() {
     bcGoldenTest(
         "compr_if_true_clause",
@@ -52,7 +49,6 @@ internal fun testIfTrueClause() {
 }
 
 // #[test]
-// fn test_if_true_clause_on_freeze()
 internal fun testIfTrueClauseOnFreeze() {
     bcGoldenTest(
         "compr_if_true_clause_on_freeze",

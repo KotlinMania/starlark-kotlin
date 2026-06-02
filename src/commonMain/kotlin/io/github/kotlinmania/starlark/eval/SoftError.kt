@@ -22,19 +22,15 @@ import io.github.kotlinmania.starlark.Error
  */
 
 // / Deprecation handler provided by a user.
-// pub trait SoftErrorHandler {
 interface SoftErrorHandler {
     // / Handle deprecation error. If this function returns `Ok`, error will be ignored,
     // / otherwise error will be propagated.
-    // fn soft_error(&self, category: &str, error: crate::Error) -> Result<(), crate::Error>;
     fun softError(category: String, error: Error)
 }
 
 // / Default handler: warnings are treated as errors.
-// pub(crate) struct HardErrorSoftErrorHandler;
 internal object HardErrorSoftErrorHandler : SoftErrorHandler {
     // impl SoftErrorHandler for HardErrorSoftErrorHandler {
-    // fn soft_error(&self, _category: &str, error: crate::Error) -> Result<(), crate::Error> {
     //     Err(error)
     // }
     override fun softError(category: String, error: Error): Unit = throw error

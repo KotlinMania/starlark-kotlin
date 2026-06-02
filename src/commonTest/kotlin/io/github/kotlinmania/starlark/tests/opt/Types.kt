@@ -22,7 +22,6 @@ import io.github.kotlinmania.starlark.tests.bc.bcGoldenTest
  */
 
 // #[test]
-// fn test_return_type_erased()
 internal fun testReturnTypeErased() {
     // Return type is checked in bytecode.
     // In this example, return type is anything.
@@ -34,7 +33,6 @@ internal fun testReturnTypeErased() {
 }
 
 // #[test]
-// fn test_return_type_present()
 internal fun testReturnTypePresent() {
     // Self-check for previous test.
     bcGoldenTest("opt_return_type_present", "def test() -> str: return 'x'")

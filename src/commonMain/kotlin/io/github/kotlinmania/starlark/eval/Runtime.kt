@@ -21,17 +21,3 @@ package io.github.kotlinmania.starlark.eval
  * limitations under the License.
  */
 
-// pub(crate) mod arguments;
-// pub(crate) mod before_stmt;
-// pub(crate) mod cheap_call_stack;
-// pub(crate) mod evaluator;
-// pub(crate) mod file_loader;
-// pub(crate) mod frame_span;
-// pub(crate) mod frozen_file_span;
-// pub(crate) mod inlined_frame;
-// pub(crate) mod params;
-// pub(crate) mod profile;
-// pub(crate) mod rust_loc;
-// pub(crate) mod slots;
-// pub(crate) mod small_duration;
-// pub(crate) mod visit_span;

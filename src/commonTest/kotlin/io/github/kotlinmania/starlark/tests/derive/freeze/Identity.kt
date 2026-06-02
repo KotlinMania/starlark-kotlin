@@ -24,13 +24,10 @@ import io.github.kotlinmania.starlark.values.freezeString
 import io.github.kotlinmania.starlark.values.layout.Freezer
 import io.github.kotlinmania.starlark.values.layout.heap.FrozenHeap
 
-// struct NonFreeze(u32)
 private class NonFreeze(
     val value: UInt,
 )
 
-// #[derive(Freeze)]
-// struct TestStruct { s: String, #[freeze(identity)] s2: NonFreeze }
 private class TestStruct(
     val s: String,
     val s2: NonFreeze, // #[freeze(identity)]
@@ -40,8 +37,6 @@ private class TestStruct(
     }
 }
 
-// #[derive(Freeze)]
-// struct TestUnitStruct(String, #[freeze(identity)] NonFreeze)
 private class TestUnitStruct(
     val component1: String,
     val component2: NonFreeze, // #[freeze(identity)]
@@ -51,8 +46,6 @@ private class TestUnitStruct(
     }
 }
 
-// #[derive(Freeze)]
-// enum TestEnum { A(String), B(#[freeze(identity)] NonFreeze) }
 private sealed class TestEnum : Freeze<TestEnum> {
     class A(
         val value: String,
@@ -74,7 +67,6 @@ private sealed class TestEnum : Freeze<TestEnum> {
 }
 
 // #[test]
-// fn test_struct() -> anyhow::Result<()>
 internal fun testStruct() {
     val t =
         TestStruct(
@@ -87,7 +79,6 @@ internal fun testStruct() {
 }
 
 // #[test]
-// fn test_anon_struct() -> anyhow::Result<()>
 internal fun testAnonStruct() {
     val t = TestUnitStruct("test", NonFreeze(56u))
     val frozenHeap = FrozenHeap()

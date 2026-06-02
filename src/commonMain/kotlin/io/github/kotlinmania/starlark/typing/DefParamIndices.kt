@@ -24,8 +24,6 @@ package io.github.kotlinmania.starlark.typing
  * with markers `/` and `*` omitted.
  * This class contains sizes and indices to split the list into parts.
  */
-// #[derive(Copy, Clone, Dupe, Debug, Eq, PartialEq, Hash, Ord, PartialOrd, Allocative)]
-// pub struct DefParamIndices
 data class DefParamIndices(
     /**
      * Number of parameters which can be filled positionally.
@@ -52,13 +50,10 @@ data class DefParamIndices(
     // pub kwargs: Option<u32>,
     val kwargs: UInt? = null,
 ) : Comparable<DefParamIndices> {
-    // pub fn pos_only(&self) -> Range<usize>
     fun posOnly(): IntRange = 0 until numPositionalOnly.toInt()
 
-    // pub fn pos_or_named(&self) -> Range<usize>
     fun posOrNamed(): IntRange = numPositionalOnly.toInt() until numPositional.toInt()
 
-    // pub fn named_only(&self, param_count: usize) -> Range<usize>
     fun namedOnly(paramCount: Int): IntRange {
         val start = args?.let { it.toInt() + 1 } ?: numPositional.toInt()
         val end = kwargs?.toInt() ?: paramCount

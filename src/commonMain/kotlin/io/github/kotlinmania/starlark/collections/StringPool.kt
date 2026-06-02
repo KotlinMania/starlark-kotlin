@@ -22,8 +22,6 @@ package io.github.kotlinmania.starlark.collections
 // ! Reuse string allocation.
 
 // / Pool of strings.
-// #[derive(Default, Debug)]
-// pub(crate) struct StringPool {
 //     /// Empty strings with (typically) non-zero capacity.
 //     strings: Vec<String>,
 // }
@@ -36,9 +34,7 @@ internal class StringPool {
     // / Fetch a string from the pool or create an empty one.
     // /
     // / It is OK to not return a string to the pool.
-    // pub(crate) fn alloc(&mut self) -> String
     fun alloc(): StringBuilder {
-        // let string = self.strings.pop().unwrap_or_default();
         val builder = if (builders.isNotEmpty()) builders.removeLast() else StringBuilder()
         // debug_assert!(string.is_empty());
         check(builder.isEmpty()) { "Pooled builder should be empty" }
@@ -49,7 +45,6 @@ internal class StringPool {
     // /
     // / Only strings previously allocated with this pool should be returned,
     // / otherwise pool may grow too much.
-    // pub(crate) fn release(&mut self, mut s: String)
     fun release(s: StringBuilder) {
         // s.clear();
         s.clear()

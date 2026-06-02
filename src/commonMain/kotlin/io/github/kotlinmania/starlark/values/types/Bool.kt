@@ -26,12 +26,5 @@ package io.github.kotlinmania.starlark.values.types
 // ! Unlike most Starlark values, these aren't actually allocated on the [`Heap`](crate::values::Heap),
 // ! but as special values.
 
-// mod alloc;
-// pub(crate) mod globals;
-// mod type_repr;
-// mod unpack;
-// pub(crate) mod value;
 
-// pub use value::BOOL_TYPE;
-// pub use value::StarlarkBool;
 internal val BOOL_TYPE = io.github.kotlinmania.starlark.values.types.bool.BOOL_TYPE

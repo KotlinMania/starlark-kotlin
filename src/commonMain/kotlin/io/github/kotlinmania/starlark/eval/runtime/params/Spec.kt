@@ -47,8 +47,6 @@ import io.github.kotlinmania.starlark.values.types.dict.dictRefFromValue
 import io.github.kotlinmania.starlark.values.types.dict.getValue
 
 /** Describe parameter for [`ParametersSpec`]. */
-// #[derive(Debug, Clone, Copy, Dupe, PartialEq, Eq, PartialOrd, Ord, Trace, Freeze, Allocative)]
-// pub enum ParametersSpecParam<V>
 sealed class ParametersSpecParam<out V> {
     /** Parameter is required. */
     data object Required : ParametersSpecParam<Nothing>()
@@ -61,7 +59,6 @@ sealed class ParametersSpecParam<out V> {
         val value: V,
     ) : ParametersSpecParam<V>()
 
-    // pub(crate) fn is_required(&self) -> ParamIsRequired
     fun isRequired(): ParamIsRequired =
         when (this) {
             is Required -> ParamIsRequired.Yes
@@ -69,9 +66,7 @@ sealed class ParametersSpecParam<out V> {
         }
 }
 
-// #[derive(Debug, Copy, Clone, Dupe, Coerce, PartialEq, Trace, Freeze, Allocative)]
 // #[repr(C)]
-// pub(crate) enum ParameterKind<V>
 sealed class ParameterKind<out V> {
     data object Required : ParameterKind<Nothing>()
 
@@ -92,8 +87,6 @@ sealed class ParameterKind<out V> {
     data object KWargs : ParameterKind<Nothing>()
 }
 
-// #[derive(Debug, Copy, Clone, Dupe, PartialEq, Eq, PartialOrd, Ord)]
-// enum CurrentParameterStyle
 internal enum class CurrentParameterStyle {
     /** Parameter can be only filled positionally. */
     PosOnly,
@@ -109,7 +102,6 @@ internal enum class CurrentParameterStyle {
 }
 
 /** Builder for [`ParametersSpec`] */
-// pub(crate) struct ParametersSpecBuilder<V>
 internal class ParametersSpecBuilder<V>(
     private val functionName: String,
     private val params: MutableList<Pair<String, ParameterKind<V>>> = mutableListOf(),
@@ -123,7 +115,6 @@ internal class ParametersSpecBuilder<V>(
     private var argsIndex: Int? = null,
     private var kwargsIndex: Int? = null,
 ) {
-    // fn add(&mut self, name: &str, val: ParameterKind<V>)
     private fun add(name: String, kind: ParameterKind<V>) {
         check(kind !is ParameterKind.Args && kind !is ParameterKind.KWargs) {
             "adding parameter `$name` to `$functionName`"
@@ -158,7 +149,6 @@ internal class ParametersSpecBuilder<V>(
      * it. If you want to supply a position-only argument, prepend a `$` to
      * the name.
      */
-    // pub(crate) fn required(&mut self, name: &str)
     fun required(name: String) {
         add(name, ParameterKind.Required)
     }
@@ -168,7 +158,6 @@ internal class ParametersSpecBuilder<V>(
      * If you want to supply a position-only argument, prepend a `$` to the
      * name.
      */
-    // pub(crate) fn optional(&mut self, name: &str)
     fun optional(name: String) {
         add(name, ParameterKind.Optional)
     }
@@ -178,12 +167,10 @@ internal class ParametersSpecBuilder<V>(
      * doesn't supply it. If you want to supply a position-only argument,
      * prepend a `$` to the name.
      */
-    // pub(crate) fn defaulted(&mut self, name: &str, val: V)
     fun defaulted(name: String, value: V) {
         add(name, ParameterKind.Defaulted(value))
     }
 
-    // fn param(&mut self, name: &str, param: ParametersSpecParam<V>)
     fun param(name: String, param: ParametersSpecParam<V>) {
         when (param) {
             is ParametersSpecParam.Required -> required(name)
@@ -199,7 +186,6 @@ internal class ParametersSpecBuilder<V>(
      * required, optional or defaulted
      * parameters can _only_ be supplied by name.
      */
-    // pub(crate) fn args(&mut self)
     fun args() {
         check(argsIndex == null) { "adding *args to `$functionName`" }
         check(currentStyle < CurrentParameterStyle.NamedOnly) { "adding *args to `$functionName`" }
@@ -210,7 +196,6 @@ internal class ParametersSpecBuilder<V>(
     }
 
     /** Following parameters can be filled positionally or by name. */
-    // pub(crate) fn no_more_positional_only_args(&mut self)
     fun noMorePositionalOnlyArgs() {
         check(currentStyle == CurrentParameterStyle.PosOnly) {
             "adding / to `$functionName`"
@@ -224,7 +209,6 @@ internal class ParametersSpecBuilder<V>(
      * required, optional or defaulted
      * parameters can _only_ be supplied by name.
      */
-    // pub(crate) fn no_more_positional_args(&mut self)
     fun noMorePositionalArgs() {
         check(argsIndex == null) { "adding * to `$functionName`" }
         check(currentStyle < CurrentParameterStyle.NamedOnly) { "adding * to `$functionName`" }
@@ -236,7 +220,6 @@ internal class ParametersSpecBuilder<V>(
      * Add a `**kwargs` parameter which will be a dictionary, recorded into a map.
      * A function can only have one `kwargs` parameter.
      */
-    // pub(crate) fn kwargs(&mut self)
     fun kwargs() {
         check(kwargsIndex == null) { "adding **kwargs to `$functionName`" }
         params.add(Pair("**kwargs", ParameterKind.KWargs))
@@ -245,7 +228,6 @@ internal class ParametersSpecBuilder<V>(
     }
 
     /** Construct the parameters specification. */
-    // pub(crate) fn finish(self) -> ParametersSpec<V>
     fun finish(): ParametersSpec<V> {
         val posOnly: UInt = positionalOnly.toUInt()
         val pos: UInt = positional.toUInt()
@@ -272,9 +254,7 @@ internal class ParametersSpecBuilder<V>(
  * `*args`/`**kwargs` occur in well-formed locations.
  */
 // V = Value, or FrozenValue
-// #[derive(Debug, Clone, Trace, Freeze, Allocative)]
 // #[repr(C)]
-// pub struct ParametersSpec<V>
 class ParametersSpec<V>(
     /** Only used in error messages */
     internal val functionName: String,
@@ -288,7 +268,6 @@ class ParametersSpec<V>(
 ) {
     companion object {
         /** Create a new [`ParametersSpec`] with the given function name and an advance capacity hint. */
-        // pub(crate) fn with_capacity(function_name: String, capacity: usize) -> ParametersSpecBuilder<V>
         internal fun <V> withCapacity(functionName: String, capacity: Int = 0): ParametersSpecBuilder<V> =
             ParametersSpecBuilder(
                 functionName = functionName,
@@ -297,7 +276,6 @@ class ParametersSpec<V>(
             )
 
         /** Create a new [`ParametersSpec`]. */
-        // pub fn new_parts(...)
         fun <V> newParts(
             functionName: String,
             posOnly: List<Pair<String, ParametersSpecParam<V>>>,
@@ -334,7 +312,6 @@ class ParametersSpec<V>(
         }
 
         /** Parameter parse with only named parameters. */
-        // pub fn new_named_only(...)
         fun <V> newNamedOnly(
             functionName: String,
             namedOnly: List<Pair<String, ParametersSpecParam<V>>>,
@@ -350,7 +327,6 @@ class ParametersSpec<V>(
     }
 
     /** Produce an approximate signature for the function, combining the name and arguments. */
-    // pub fn signature(&self) -> String
     fun signature(): String {
         val collector = StringBuilder()
         collectSignature(collector)
@@ -358,7 +334,6 @@ class ParametersSpec<V>(
     }
 
     // Generate a good error message for it
-    // pub(crate) fn collect_signature(&self, collector: &mut String)
     internal fun collectSignature(collector: StringBuilder) {
         collector.append(functionName)
     }
@@ -367,7 +342,6 @@ class ParametersSpec<V>(
      * Function parameter as they would appear in `def`
      * (excluding types, default values and formatting).
      */
-    // pub fn parameters_str(&self) -> String
     fun parametersStr(): String {
         fun err(msg: String): String = "<$msg>"
 
@@ -413,19 +387,16 @@ class ParametersSpec<V>(
         return s.toString()
     }
 
-    // pub(crate) fn resolve_name(&self, name: Hashed<&str>) -> ResolvedArgName
     internal fun resolveName(name: Hashed<String>): ResolvedArgName {
         val hash = name.hash()
         val paramIndex = names.getHashedStr(name)
         return ResolvedArgName(hash = hash, paramIndex = paramIndex?.toInt())
     }
 
-    // pub(crate) fn has_args_or_kwargs(&self) -> bool
     internal fun hasArgsOrKwargs(): Boolean =
         indices.args != null || indices.kwargs != null
 
     /** Generate documentation for each of the parameters, using a custom formatter for default values. */
-    // pub fn documentation_with_default_value_formatter(...)
     fun documentationWithDefaultValueFormatter(
         parameterTypes: List<Ty>,
         parameterDocs: MutableMap<String, DocString?>,
@@ -467,14 +438,12 @@ class ParametersSpec<V>(
     }
 
     /** Number of function parameters. */
-    // pub fn len(&self) -> usize
     fun len(): Int = paramKinds.size
 
     /**
      * Move parameters from [`Arguments`] to a list of [`Value`],
      * using the supplied [`ParametersSpec`].
      */
-    // pub fn collect(...)
     fun collect(
         args: Arguments,
         slots: MutableList<Value?>,
@@ -488,7 +457,6 @@ class ParametersSpec<V>(
      *
      * This function is called by generated code.
      */
-    // pub fn collect_into<const N: usize>(...)
     fun collectInto(
         n: Int,
         args: Arguments,
@@ -503,7 +471,6 @@ class ParametersSpec<V>(
      * A variant of `collect` that is always inlined
      * for Def and NativeFunction that are hot-spots
      */
-    // pub(crate) fn collect_inline(...)
     internal fun collectInline(
         args: ArgumentsImpl<*>,
         slots: MutableList<Value?>,
@@ -512,7 +479,6 @@ class ParametersSpec<V>(
         collectInlineImpl(args, slots, heap)
     }
 
-    // fn collect_inline_impl(...)
     private fun collectInlineImpl(
         args: ArgumentsImpl<*>,
         slots: MutableList<Value?>,
@@ -536,7 +502,6 @@ class ParametersSpec<V>(
         collectSlow(args, slots, heap)
     }
 
-    // fn collect_slow(...)
     private fun collectSlow(
         args: ArgumentsImpl<*>,
         slots: MutableList<Value?>,
@@ -728,7 +693,6 @@ class ParametersSpec<V>(
     }
 
     /** Check if current parameters can be filled with given arguments signature. */
-    // pub fn can_fill_with_args(&self, pos: usize, names: &[&str]) -> bool
     fun canFillWithArgs(pos: Int, argNames: List<String>): Boolean {
         val filled = BooleanArray(paramKinds.size)
         for (p in 0 until pos) {
@@ -773,7 +737,6 @@ class ParametersSpec<V>(
     }
 
     /** Generate documentation for each of the parameters. */
-    // pub fn documentation(...)
     fun documentation(
         parameterTypes: List<Ty>,
         parameterDocs: MutableMap<String, DocString?>,
@@ -787,7 +750,6 @@ class ParametersSpec<V>(
         }
 
     /** Create a [`ParametersParser`] for given arguments. */
-    // pub fn parser(...)
     fun <R> parser(
         args: Arguments,
         eval: Evaluator,

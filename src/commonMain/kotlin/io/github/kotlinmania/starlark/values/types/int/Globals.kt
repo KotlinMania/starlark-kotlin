@@ -84,7 +84,6 @@ internal fun registerInt(globals: GlobalsBuilder) {
      * ```
      */
     // #[starlark(as_type = PointerI32, speculative_exec_safe)]
-    // fn int<'v>(
     //     #[starlark(require = pos)] a: Option<ValueOf<'v, Either<Either<NumRef<'v>, bool>, &'v str>>>,
     //     base: Option<i32>,
     //     heap: Heap<'v>,

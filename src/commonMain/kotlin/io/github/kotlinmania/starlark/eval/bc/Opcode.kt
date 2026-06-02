@@ -177,7 +177,6 @@ enum class BcOpcode {
     private fun <R> doDispatch(handler: BcOpcodeHandler<R>): R = handler.handle(BcInstr::class)
 
     /** Size of instruction representation. */
-    // pub(crate) fn size_of_repr(self) -> usize  (in Rust: repr.rs)
     fun sizeOfRepr(): Int {
         val handler =
             object : BcOpcodeHandler<Int> {

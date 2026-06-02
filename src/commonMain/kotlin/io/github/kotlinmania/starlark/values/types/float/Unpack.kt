@@ -19,12 +19,6 @@ package io.github.kotlinmania.starlark.values.types.float
  * limitations under the License.
  */
 
-// use crate::typing::Ty;
-// use crate::values::UnpackValue;
-// use crate::values::Value;
-// use crate::values::type_repr::StarlarkTypeRepr;
-// use crate::values::types::num::value::Num;
-// use crate::values::types::num::value::NumRef;
 
 import io.github.kotlinmania.starlark.typing.Ty
 import io.github.kotlinmania.starlark.values.StarlarkTypeRepr
@@ -33,21 +27,16 @@ import io.github.kotlinmania.starlark.values.layout.Value
 import io.github.kotlinmania.starlark.values.types.num.NumRef
 
 // / Unpack `int` or `float` into `f64`.
-// pub struct UnpackFloat(pub f64);
 class UnpackFloat(
     val value: Double,
 ) : StarlarkTypeRepr {
     // impl StarlarkTypeRepr for UnpackFloat
-    //     type Canonical = <Num as StarlarkTypeRepr>::Canonical;
-    //     fn starlark_type_repr() -> Ty
     override fun starlarkTypeRepr(): Ty = Ty.union2(Ty.int(), Ty.float())
 
     companion object : UnpackValue<UnpackFloat> {
         override fun starlarkTypeRepr(): Ty = Ty.union2(Ty.int(), Ty.float())
 
         // impl<'v> UnpackValue<'v> for UnpackFloat {
-        //     type Error = <NumRef<'v> as UnpackValue<'v>>::Error;
-        //     fn unpack_value_impl(value: Value<'v>) -> Result<Option<Self>, Self::Error>
         override fun unpackValueImpl(value: Value): Result<UnpackFloat?> {
             val num = NumRef.unpackValueImpl(value) ?: return Result.success(null)
             return Result.success(UnpackFloat(num.asFloat()))
@@ -55,7 +44,4 @@ class UnpackFloat(
     }
 }
 
-// #[cfg(test)]
-// mod tests {
-//     fn test_unpack_float()
 // }

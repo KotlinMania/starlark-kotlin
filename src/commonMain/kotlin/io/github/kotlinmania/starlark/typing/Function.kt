@@ -24,45 +24,33 @@ import io.github.kotlinmania.starlark.typing.oracle.TypingOracleCtx
 import io.github.kotlinmania.starlark.values.typing.typecompiled.TypeMatcherAlloc
 
 /** Custom function typechecker. */
-// pub trait TyCustomFunctionImpl: Debug + Eq + Ord + Hash + Allocative + Send + Sync + 'static
 interface TyCustomFunctionImpl {
-    // fn is_type(&self) -> bool
     fun isType(): Boolean = false
 
-    // fn validate_call(&self, span, args, oracle) -> Result<Ty, TypingOrInternalError>
     fun validateCall(
         span: Span,
         args: TyCallArgs,
         oracle: TypingOracleCtx,
     ): Result<Ty>
 
-    // fn as_callable(&self) -> TyCallable
     fun asCallable(): TyCallable
 
-    // fn as_function(&self) -> Option<&TyFunction>
     fun asFunction(): TyFunction? = null
 }
 
-// #[derive(Allocative, Eq, PartialEq, Hash, Ord, PartialOrd, Debug, derive_more::Display)]
-// pub struct TyCustomFunction<F: TyCustomFunctionImpl>(pub F);
 class TyCustomFunction<F : TyCustomFunctionImpl>(
     val inner: F,
 ) : TyCustomImpl {
     // impl TyCustomImpl for TyCustomFunction
 
-    // fn as_name(&self) -> Option<&str>
     override fun asName(): String? = "function"
 
-    // fn validate_call(&self, span, args, oracle) -> Result<Ty, TypingOrInternalError>
     override fun validateCall(span: Span, args: TyCallArgs, oracle: TypingOracleCtx): Result<Ty> = inner.validateCall(span, args, oracle)
 
-    // fn as_callable(&self) -> Option<TyCallable>
     override fun asCallable(): TyCallable? = inner.asCallable()
 
-    // fn as_function(&self) -> Option<&TyFunction>
     override fun asFunction(): TyFunction? = inner.asFunction()
 
-    // fn bin_op(&self, bin_op, rhs, ctx) -> Result<Ty, TypingNoContextOrInternalError>
     override fun binOp(binOp: TypingBinOp, rhs: TyBasic, ctx: TypingOracleCtx): Result<Ty> =
         when {
             // `str | list`.
@@ -70,17 +58,14 @@ class TyCustomFunction<F : TyCustomFunctionImpl>(
             else -> Result.failure(TypingNoContextOrInternalError.Typing)
         }
 
-    // fn index(&self, item, ctx) -> Result<Ty, TypingNoContextOrInternalError>
     override fun index(item: TyBasic, ctx: TypingOracleCtx): Result<Ty> {
         // TODO(nga): this is hack for `enum` (type) which pretends to be a function.
         //   Should be a custom type.
         return Result.success(Ty.any())
     }
 
-    // fn attribute(&self, attr: &str) -> Result<Ty, TypingNoContextError>
     override fun attribute(attr: String): Result<Ty> = Result.failure(TypingNoContextError)
 
-    // fn matcher<T: TypeMatcherAlloc>(&self, factory: T) -> T::Result
     override fun <R> matcher(factory: TypeMatcherAlloc<R>): R = factory.callable()
 
     // impl Display for TyCustomFunction
@@ -103,8 +88,6 @@ class TyCustomFunction<F : TyCustomFunctionImpl>(
 }
 
 /** A function. */
-// #[derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Allocative)]
-// pub struct TyFunction {
 //     pub(crate) type_attr: Option<Ty>,
 //     pub(crate) callable: TyCallable,
 // }
@@ -115,7 +98,6 @@ class TyFunction(
 ) : TyCustomFunctionImpl {
     companion object {
         /** Constructor. */
-        // pub fn new_with_type_attr(params, result, type_attr) -> Self
         fun newWithTypeAttr(params: ParamSpec, result: Ty, typeAttr: Ty): TyFunction =
             TyFunction(
                 typeAttr = typeAttr,
@@ -123,7 +105,6 @@ class TyFunction(
             )
 
         /** Constructor. */
-        // pub fn new(params, result) -> Self
         fun new(params: ParamSpec, result: Ty): TyFunction =
             TyFunction(
                 typeAttr = null,
@@ -132,21 +113,16 @@ class TyFunction(
     }
 
     /** Callable signature of the function. */
-    // pub fn callable(&self) -> &TyCallable
     fun callable(): TyCallable = callable
 
     // impl TyCustomFunctionImpl for TyFunction
 
-    // fn is_type(&self) -> bool
     override fun isType(): Boolean = typeAttr != null
 
-    // fn validate_call(&self, span, args, oracle) -> Result<Ty, TypingOrInternalError>
     override fun validateCall(span: Span, args: TyCallArgs, oracle: TypingOracleCtx): Result<Ty> = oracle.validateFnCall(span, callable, args)
 
-    // fn as_callable(&self) -> TyCallable
     override fun asCallable(): TyCallable = callable
 
-    // fn as_function(&self) -> Option<&TyFunction>
     override fun asFunction(): TyFunction = this
 
     override fun equals(other: Any?): Boolean {

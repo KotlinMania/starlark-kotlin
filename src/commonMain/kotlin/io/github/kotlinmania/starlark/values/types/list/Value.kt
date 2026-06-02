@@ -158,7 +158,6 @@ class ListGen<T>(
 
     override fun typecheckerTy(): Ty = Ty.anyList()
 
-    // fn get_type_starlark_repr() -> Ty
     override fun getTypeStarlarkRepr(): Ty = Ty.anyList()
 }
 
@@ -397,7 +396,6 @@ fun FrozenListData.debugString(): String = "FrozenList(content=${content()})"
 /** Alias is used in `StarlarkDocs` derive. */
 typealias FrozenList = ListGen<FrozenListData>
 
-// pub(crate) type List<'v> = ListGen<ListData<'v>>;
 typealias MutableStarlarkList = ListGen<ListData>
 
 // pub(crate) static VALUE_EMPTY_FROZEN_LIST
@@ -412,7 +410,6 @@ private class NotListError(
     type: String,
 ) : Exception("Value is not list, value type: `$type`")
 
-// pub(crate) trait ListLike<'v>: Debug + Allocative
 interface ListLike {
     fun content(): List<Value>
 
@@ -481,7 +478,6 @@ internal class FrozenListDataListLike(
 // impl Display for ListGen<T>
 fun ListGen<*>.display(): String = data.toString()
 
-// pub(crate) fn display_list
 internal fun displayList(xs: List<Value>): String =
     buildString {
         append('[')
@@ -492,7 +488,6 @@ internal fun displayList(xs: List<Value>): String =
         append(']')
     }
 
-// pub(crate) fn list_methods() -> Option<&'static Methods>
 private val LIST_METHODS_STATIC = MethodsStatic()
 
 fun listMethods(): Methods = LIST_METHODS_STATIC.methods(::listMethodsImpl)

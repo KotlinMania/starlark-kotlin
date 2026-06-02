@@ -42,8 +42,6 @@ package io.github.kotlinmania.starlark.values.layout.heap
 // # use crate::values::tuple::AllocTuple;
 // Heap::temp(|heap1| {
 //     Heap::temp(|heap2| {
-//         let s1: Value<'_> = heap1.alloc_str("abc").to_value();
-//         let v: Value<'_> = heap2.alloc(AllocTuple([s1]));
 //     })
 // })
 // ```
@@ -95,7 +93,6 @@ package io.github.kotlinmania.starlark.values.layout.heap
 //
 // ```rust,ignore
 // impl<'v> Heap<'v> {
-//     pub fn access_owned_frozen_value(self, v: OwnedFrozenValue) -> Value<'v>;
 // }
 // ```
 //

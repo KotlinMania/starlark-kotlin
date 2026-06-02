@@ -24,7 +24,6 @@ import io.github.kotlinmania.starlark.typing.TypeCheck
 /** Tests for functions, callables and calls. */
 
 // #[test]
-// fn test_type_kwargs()
 internal fun testTypeKwargs() {
     TypeCheck().check(
         "type_kwargs",
@@ -39,7 +38,6 @@ def bar():
 }
 
 // #[test]
-// fn test_types_of_args_kwargs()
 internal fun testTypesOfArgsKwargs() {
     TypeCheck().ty("args").ty("kwargs").check(
         "types_of_args_kwargs",
@@ -59,7 +57,6 @@ def test():
 }
 
 // #[test]
-// fn test_kwargs_in_native_code()
 internal fun testKwargsInNativeCode() {
     TypeCheck().check(
         "kwargs_in_native_code",
@@ -74,7 +71,6 @@ def test():
 }
 
 // #[test]
-// fn test_call_callable()
 internal fun testCallCallable() {
     TypeCheck().check(
         "call_callable",
@@ -86,7 +82,6 @@ def foo(x: typing.Callable):
 }
 
 // #[test]
-// fn test_call_not_callable()
 internal fun testCallNotCallable() {
     TypeCheck().check(
         "call_not_callable",
@@ -98,7 +93,6 @@ def foo(x: list):
 }
 
 // #[test]
-// fn test_call_callable_or_not_callable()
 internal fun testCallCallableOrNotCallable() {
     TypeCheck().check(
         "call_callable_or_not_callable",
@@ -111,7 +105,6 @@ def foo(x: [typing.Callable, str], y: [str, typing.Callable]):
 }
 
 // #[test]
-// fn test_calls()
 internal fun testCalls() {
     TypeCheck().check(
         "calls",
@@ -129,7 +122,6 @@ def g():
 }
 
 // #[test]
-// fn test_never_call_bug()
 internal fun testNeverCallBug() {
     TypeCheck().ty("y").check(
         "never_call_bug",
@@ -141,7 +133,6 @@ def foo(x: typing.Never):
 }
 
 // #[test]
-// fn test_call_pos_only()
 internal fun testCallPosOnly() {
     TypeCheck().check(
         "call_pos_only",

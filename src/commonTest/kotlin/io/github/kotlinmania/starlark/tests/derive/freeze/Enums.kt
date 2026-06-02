@@ -21,8 +21,6 @@ package io.github.kotlinmania.starlark.tests.derive.freeze
 
 // Only check it compiles.
 
-// #[derive(Freeze)]
-// enum TestFreezeEnum<V>
 @Suppress("unused")
 private sealed class TestFreezeEnum<out V> {
     // A

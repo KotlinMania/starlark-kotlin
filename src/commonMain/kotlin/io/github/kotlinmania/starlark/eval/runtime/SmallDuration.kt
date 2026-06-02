@@ -19,21 +19,13 @@ package io.github.kotlinmania.starlark.eval.runtime
  * limitations under the License.
  */
 
-// use std::iter::Sum;
-// use std::ops::Add;
-// use std::ops::AddAssign;
-// use std::ops::Div;
-// use std::time::Duration;
 
-// use allocative::Allocative;
-// use dupe::Dupe;
 
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.Duration.Companion.nanoseconds
 
 // / Slightly faster than `Duration`.
-// #[derive(Copy, Clone, Dupe, Default, Eq, PartialEq, Ord, PartialOrd, Debug, Allocative)]
 internal data class SmallDuration(
     // / `u64::MAX` nanos is 500 years.
     // pub(crate) nanos: u64,
@@ -48,15 +40,11 @@ internal data class SmallDuration(
 
         fun default(): SmallDuration = SmallDuration(0u)
 
-        // pub(crate) fn from_duration(duration: Duration) -> SmallDuration
         fun fromDuration(duration: Duration): SmallDuration = SmallDuration(duration.inWholeNanoseconds.toULong())
 
-        // #[cfg(test)]
-        // pub(crate) fn from_millis(millis: u64) -> SmallDuration
         internal fun fromMillis(millis: ULong): SmallDuration = fromDuration(millis.toLong().milliseconds)
     }
 
-    // pub(crate) fn to_duration(self) -> Duration
     fun toDuration(): Duration = nanos.toLong().nanoseconds
 
     // impl AddAssign for SmallDuration
@@ -64,22 +52,14 @@ internal data class SmallDuration(
     // Explicit plusAssign would cause ambiguity with plus operators on data classes.
 
     // impl Add<Duration> for SmallDuration
-    // type Output = SmallDuration;
-    // fn add(self, other: Duration) -> Self::Output
     operator fun plus(other: Duration): SmallDuration = SmallDuration(nanos + other.inWholeNanoseconds.toULong())
 
     // impl Add<SmallDuration> for SmallDuration
-    // type Output = SmallDuration;
-    // fn add(self, other: SmallDuration) -> SmallDuration
     operator fun plus(other: SmallDuration): SmallDuration = SmallDuration(nanos + other.nanos)
 
     // impl Div<u64> for SmallDuration
-    // type Output = SmallDuration;
-    // fn div(self, other: u64) -> SmallDuration
     operator fun div(other: ULong): SmallDuration = SmallDuration(nanos / other)
 }
 
 // impl<'a> Sum<&'a SmallDuration> for SmallDuration
-// fn sum<I>(iter: I) -> SmallDuration
-// where I: Iterator<Item = &'a SmallDuration>
 internal fun Iterable<SmallDuration>.sum(): SmallDuration = fold(SmallDuration.default()) { acc, x -> acc + x }

@@ -27,7 +27,6 @@ import io.github.kotlinmania.starlark.assert.isTrueSkipTypecheck
 
 // comprehensions should work whether they are at the root, or under a def
 // but these are actually quite different locations semantically, so test both
-// fn check_comp(lines: &[&str])
 private fun checkComp(lines: List<String>) {
     // TODO(nga): typechecker is wrong here.
     Assert.isTrueSkipTypecheck(lines.joinToString("\n"))
@@ -39,7 +38,6 @@ private fun checkComp(lines: List<String>) {
 }
 
 // #[test]
-// fn test_spec()
 internal fun testSpec() {
     // From the Starlark spec
     checkComp(listOf("[x*x for x in [0,1,2,3,4]] == [0, 1, 4, 9, 16]"))
@@ -55,7 +53,6 @@ internal fun testSpec() {
 }
 
 // #[test]
-// fn test_scopes()
 internal fun testScopes() {
     checkComp(listOf("[1//0 for x in [] for y in z for z in ()] == []"))
     Assert.failSkipTypecheck(
@@ -66,13 +63,11 @@ internal fun testScopes() {
 }
 
 // #[test]
-// fn test_dict()
 internal fun testDict() {
     checkComp(listOf("{x: 1 for x in [0,1,2]} == {0: 1, 1: 1, 2: 1}"))
 }
 
 // #[test]
-// fn test_nested()
 internal fun testNested() {
     checkComp(listOf("[[y for y in x] for x in [[1],[2,3]]] == [[1],[2,3]]"))
     checkComp(listOf("[[x for x in x] for x in [[1],[2,3]]] == [[1],[2,3]]"))
@@ -86,7 +81,6 @@ internal fun testNested() {
 }
 
 // #[test]
-// fn test_sequential()
 internal fun testSequential() {
     checkComp(
         listOf(
@@ -97,25 +91,21 @@ internal fun testSequential() {
 }
 
 // #[test]
-// fn test_if_only()
 internal fun testIfOnly() {
     Assert.fail("[1 if 0 == 0] == [0]", "Parse error")
 }
 
 // #[test]
-// fn test_same_var_twice_in_assignment()
 internal fun testSameVarTwiceInAssignment() {
     checkComp(listOf("[x for (x, x) in [(1, 2), (3, 4)]] == [2, 4]"))
 }
 
 // #[test]
-// fn test_same_var_in_two_fors()
 internal fun testSameVarInTwoFors() {
     checkComp(listOf("[x for x in [[1, 2], [3]] for x in x] == [1, 2, 3]"))
 }
 
 // #[test]
-// fn test_comprehension_blocks()
 internal fun testComprehensionBlocks() {
     Assert.failSkipTypecheck(
         """

@@ -119,7 +119,6 @@ typealias FrozenEnumValue = EnumValueGen
 
 fun enumValueMethods(methods: MethodsBuilder) {
     // #[starlark(attribute)]
-    // fn index(this: &EnumValue) -> starlark::Result<i32>
     methods.setAttributeFn(
         name = "index",
         speculativeExecSafe = true,
@@ -131,7 +130,6 @@ fun enumValueMethods(methods: MethodsBuilder) {
     }
 
     // #[starlark(attribute)]
-    // fn value(this: &EnumValue) -> starlark::Result<Value>
     methods.setAttributeFn(
         name = "value",
         speculativeExecSafe = true,

@@ -22,7 +22,6 @@ import io.github.kotlinmania.starlark.tests.bc.bcGoldenTest
  */
 
 // #[test]
-// fn test_methods_invoked_speculatively()
 internal fun testMethodsInvokedSpeculatively() {
     bcGoldenTest(
         "speculative_exec_methods_invoked_speculatively",
@@ -34,7 +33,6 @@ def test():
 }
 
 // #[test]
-// fn test_format_speculatively_before_format_instr()
 internal fun testFormatSpeculativelyBeforeFormatInstr() {
     bcGoldenTest(
         "speculative_exec_format_speculatively_before_format_instr",
@@ -47,7 +45,6 @@ def test():
 }
 
 // #[test]
-// fn test_speculatively_inline_enum()
 internal fun testSpeculativelyInlineEnum() {
     bcGoldenTest(
         "speculative_exec_enum_inline",

@@ -22,11 +22,8 @@ package io.github.kotlinmania.starlark.stdlib
 import io.github.kotlinmania.starlark.assert.Assert
 import kotlin.test.Test
 
-// #[cfg(test)]
-// mod tests
 class JsonTest {
     // #[test]
-    // fn test_json_encode()
     @Test
     fun testJsonEncode() {
         val a = Assert()
@@ -40,7 +37,6 @@ class JsonTest {
     }
 
     // #[test]
-    // fn test_json_decode()
     @Test
     fun testJsonDecode() {
         val a = Assert()
@@ -57,7 +53,6 @@ class JsonTest {
     }
 
     // #[test]
-    // fn test_json_very_large_int()
     @Test
     fun testJsonVeryLargeInt() {
         val a = Assert()
@@ -96,7 +91,6 @@ class JsonTest {
     }
 
     // #[test]
-    // fn test_json_128bit_and_beyond()
     @Test
     fun testJson128bitAndBeyond() {
         val a = Assert()

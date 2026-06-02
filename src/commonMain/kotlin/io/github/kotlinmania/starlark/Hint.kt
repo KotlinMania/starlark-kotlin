@@ -19,19 +19,11 @@ package io.github.kotlinmania.starlark
  * limitations under the License.
  */
 
-// #[cfg(rust_nightly)]
-// pub(crate) use std::intrinsics::likely;
-// #[cfg(rust_nightly)]
-// pub(crate) use std::intrinsics::unlikely;
 
-// #[cfg(not(rust_nightly))]
 // #[inline]
-// pub(crate) fn likely(b: bool) -> bool
 @Suppress("NOTHING_TO_INLINE")
 internal inline fun likely(b: Boolean): Boolean = b
 
-// #[cfg(not(rust_nightly))]
 // #[inline]
-// pub(crate) fn unlikely(b: bool) -> bool
 @Suppress("NOTHING_TO_INLINE")
 internal inline fun unlikely(b: Boolean): Boolean = b

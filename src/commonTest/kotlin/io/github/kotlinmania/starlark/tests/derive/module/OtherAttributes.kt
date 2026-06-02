@@ -30,10 +30,8 @@ import io.github.kotlinmania.starlark.values.layout.Value
 import io.github.kotlinmania.starlark.values.types.none.NoneType
 
 // #[starlark_module]
-// fn test_other_attributes_in_globals(globals: &mut GlobalsBuilder)
 @Suppress("unused")
 private fun testOtherAttributesInGlobals(globals: GlobalsBuilder) {
-    // fn test_global(#[allow(unused_variables)] foo: u32) -> Result<NoneType>
     globals.setFunction("test_global") { args, _ ->
         @Suppress("UNUSED_VARIABLE")
         val foo = args.positional<Int>(0)
@@ -42,21 +40,17 @@ private fun testOtherAttributesInGlobals(globals: GlobalsBuilder) {
 }
 
 // #[starlark_module]
-// fn test_other_attributes_in_methods(methods: &mut MethodsBuilder)
 @Suppress("unused")
 private fun testOtherAttributesInMethods(methods: MethodsBuilder) {
-    // fn test_method(#[allow(unused_variables)] this: u32) -> Result<NoneType>
     methods.setMethod("test_method") { _, _, _, _ ->
         Result.success(Value.newNone())
     }
 }
 
 // #[starlark_module]
-// fn test_other_attributes_in_atributes(methods: &mut MethodsBuilder)
 @Suppress("unused")
 private fun testOtherAttributesInAttributes(methods: MethodsBuilder) {
     // #[starlark(attribute)]
-    // fn test_attribute(#[allow(unused_variables)] this: u32) -> Result<NoneType>
     methods.setAttribute("test_attribute") { _, _ ->
         // TODO(nga): this marker is no-op.
         Result.success(Value.newNone())

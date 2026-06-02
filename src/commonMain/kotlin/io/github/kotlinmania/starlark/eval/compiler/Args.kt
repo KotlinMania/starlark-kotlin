@@ -85,7 +85,6 @@ internal class ArgsCompiledValue(
     /**
      * Return all arguments if they are positional-only (no named, star-args, or star-star-kwargs).
      */
-    // pub(crate) fn pos_only(&self) -> Option<&[IrSpanned<ExprCompiled>]>
     fun posOnly(): List<IrSpanned<ExprCompiled>>? =
         if (names.isEmpty() && args == null && kwargs == null) {
             posNamed
@@ -99,7 +98,6 @@ internal class ArgsCompiledValue(
      * The first element contains purely positional expressions, the second contains
      * expressions corresponding to the entries in [names].
      */
-    // fn split_pos_names(&self) -> (&[IrSpanned<ExprCompiled>], &[IrSpanned<ExprCompiled>])
     private fun splitPosNames(): Pair<List<IrSpanned<ExprCompiled>>, List<IrSpanned<ExprCompiled>>> {
         val splitAt = posNamed.size - names.size
         return Pair(
@@ -114,7 +112,6 @@ internal class ArgsCompiledValue(
      * Returns the result of [handler] if every argument expression is a compile-time
      * constant [FrozenValue], or `null` if any argument is not a frozen value.
      */
-    // pub(crate) fn all_values<'v, R>(
     //     &self,
     //     handler: impl FnOnce(&Arguments<'v, '_>) -> R,
     // ) -> Option<R>
@@ -126,7 +123,6 @@ internal class ArgsCompiledValue(
      * Uses [exprToValue] to attempt conversion of each expression. Returns the
      * result of [handler] if all conversions succeed, or `null` if any fails.
      */
-    // pub(crate) fn all_values_generic<'v, R>(
     //     &self,
     //     expr_to_value: impl Fn(&ExprCompiled) -> Option<Value<'v>>,
     //     handler: impl FnOnce(&Arguments<'v, '_>) -> R,
@@ -156,7 +152,6 @@ internal class ArgsCompiledValue(
     /**
      * Iterate over expressions of all arguments: positional, named, star-args, star-star-args.
      */
-    // pub(crate) fn arg_exprs(&self) -> impl Iterator<Item = &IrSpanned<ExprCompiled>>
     fun argExprs(): Sequence<IrSpanned<ExprCompiled>> =
         sequence {
             yieldAll(posNamed)
@@ -170,7 +165,6 @@ internal class ArgsCompiledValue(
      * Applies [f] to each positional, named, star-args, and star-star-kwargs expression.
      * Names are cloned unchanged. Propagates exceptions thrown by [f].
      */
-    // pub(crate) fn map_exprs<E>(
     //     &self,
     //     mut f: impl FnMut(&IrSpanned<ExprCompiled>) -> Result<IrSpanned<ExprCompiled>, E>,
     // ) -> Result<ArgsCompiledValue, E>
@@ -187,13 +181,11 @@ internal class ArgsCompiledValue(
     /**
      * Optimize all argument expressions using the given optimization context.
      */
-    // pub(crate) fn optimize(&self, ctx: &mut OptCtx) -> ArgsCompiledValue
     fun optimize(ctx: OptCtx): ArgsCompiledValue = mapExprs<Nothing> { e -> e.optimize(ctx) }
 
     /**
      * Append a positional argument expression.
      */
-    // pub(crate) fn push_pos(&mut self, expr: IrSpanned<ExprCompiled>)
     fun pushPos(expr: IrSpanned<ExprCompiled>) {
         posNamed.add(expr)
     }
@@ -206,7 +198,6 @@ internal class ArgsCompiledValue(
  * Propagates compilation errors via [Result].
  */
 // impl Compiler<'_, '_, '_, '_> {
-//     pub(crate) fn args(
 //         &mut self,
 //         args: &CallArgsP<CstPayload>,
 //     ) -> Result<ArgsCompiledValue, CompilerInternalError>

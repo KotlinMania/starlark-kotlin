@@ -41,7 +41,6 @@ import kotlin.math.truncate
 
 // `i32::abs(i32::MIN)` panics as `i32::MIN` has no corresponding
 // positive value that fits inside `i32`. For this edge case,
-// let's just hardcode the results.
 private const val I32_MIN_OCTAL: String = "-20000000000"
 private const val I32_MIN_HEX: String = "-80000000"
 

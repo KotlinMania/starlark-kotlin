@@ -47,8 +47,6 @@ class AstLoad(
     val symbols: Map<String, String>,
 )
 
-// pub trait AstModuleFields: Sized {
-//     fn into_parts(self) -> (CodeMap, AstStmt, Dialect, bool);
 // }
 data class AstModuleParts(
     val codemap: CodeMap,
@@ -67,7 +65,6 @@ class AstModule(
 
     fun statement(): AstStmt = statement
 
-    // fn into_parts(self) -> (CodeMap, AstStmt, Dialect, bool)
     fun intoParts(): AstModuleParts =
         AstModuleParts(codemap, statement, dialect, typecheck)
 
@@ -119,7 +116,6 @@ class AstModule(
         return loads
     }
 
-    // pub fn replace_binary_operators(&mut self, replace: &HashMap<String, String>)
     fun replaceBinaryOperators(replace: Map<String, String>) {
         statement = rewriteStmt(statement, replace)
     }

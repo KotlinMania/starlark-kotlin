@@ -112,7 +112,6 @@ private fun toKey(x: AstExpr): Pair<DubiousKey, Span>? =
                         // make an integer float always collide with other ints
                         DubiousKey.IntKey(StarlarkInt.from(asInt)) to lit.value.span
                     } else {
-                        // use bits representation of float to be able to always compare them for equality
                         // First normalise -0.0
                         val v = if (lit.value.node == 0.0) 0.0 else lit.value.node
                         DubiousKey.FloatKey(v.toBits()) to lit.value.span

@@ -19,21 +19,7 @@ package io.github.kotlinmania.starlark.values.types.int
  * limitations under the License.
  */
 
-// use std::any;
 
-// use crate::typing::Ty;
-// use crate::values::AllocFrozenValue;
-// use crate::values::AllocValue;
-// use crate::values::FrozenHeap;
-// use crate::values::FrozenValue;
-// use crate::values::Heap;
-// use crate::values::UnpackValue;
-// use crate::values::Value;
-// use crate::values::int::pointer_i32::PointerI32;
-// use crate::values::layout::value::IntegerTooBigError;
-// use crate::values::type_repr::StarlarkTypeRepr;
-// use crate::values::types::int::int_or_big::StarlarkInt;
-// use crate::values::types::int::int_or_big::StarlarkIntRef;
 
 import io.github.kotlinmania.starlark.typing.Ty
 import io.github.kotlinmania.starlark.values.layout.IntegerTooBigError
@@ -50,11 +36,9 @@ import io.github.kotlinmania.starlark.values.layout.Value
 fun allocValueI32(value: Int): StarlarkInt = StarlarkInt.from(value)
 
 // impl StarlarkTypeRepr for i32
-//     fn starlark_type_repr() -> Ty { PointerI32::starlark_type_repr() }
 fun i32StarlarkTypeRepr(): Ty = Ty.int()
 
 // impl UnpackValue<'_> for i32 {
-//     type Error = crate::Error;
 
 /**
  * Unpack an [Int] (Rust `i32`) from a Starlark [Value].
@@ -63,7 +47,6 @@ fun i32StarlarkTypeRepr(): Ty = Ty.int()
  * we know that `i32` is `InlineInt` on 64-bit platforms and never `BigInt`,
  * so this is faster.
  */
-// fn unpack_value_impl(value: Value) -> crate::Result<Option<Self>>
 fun unpackValueI32(value: Value): Result<Int?> {
     // Fast path: try to unpack as inline i32
     val v = value.unpackI32()

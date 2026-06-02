@@ -33,7 +33,6 @@ import io.github.kotlinmania.starlark.typing.Ty
 import io.github.kotlinmania.starlark.typing.TypeRenderConfig
 
 /** Configuration for layout rendering. */
-// pub enum LayoutRenderConfig
 enum class LayoutRenderConfig {
     Default,
 
@@ -42,7 +41,6 @@ enum class LayoutRenderConfig {
 }
 
 /** What to render from a [DocString]. */
-// enum DSOpts
 private enum class DSOpts {
     /** Just the summary. */
     Summary,
@@ -364,7 +362,6 @@ fun renderDocParam(starredName: String, item: DocParam): String = renderFunction
 private const val MAX_ARGS_BEFORE_MULTILINE = 3
 
 /** If the prototype ends up longer than this length, we'll split it anyway. */
-// const MAX_LENGTH_BEFORE_MULTILINE: usize = 80;
 private const val MAX_LENGTH_BEFORE_MULTILINE = 80
 
 private fun rawTypePrefix(prefix: String, t: Ty, renderConfig: TypeRenderConfig): String =

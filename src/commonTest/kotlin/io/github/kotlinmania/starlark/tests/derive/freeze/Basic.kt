@@ -19,7 +19,5 @@ package io.github.kotlinmania.starlark.tests.derive.freeze
  * limitations under the License.
  */
 
-// #[derive(Freeze)]
-// struct TestUnitStruct;
 @Suppress("unused")
 private class BasicTestUnitStruct

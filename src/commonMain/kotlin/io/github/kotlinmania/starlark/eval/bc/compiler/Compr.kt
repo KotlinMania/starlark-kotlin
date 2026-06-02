@@ -51,7 +51,6 @@ import io.github.kotlinmania.starlark.eval.runtime.FrameSpan
  * @param term callback to emit the comprehension body expression
  */
 // impl ClauseCompiled
-// fn write_bc(&self, bc: &mut BcWriter, rem: &[ClauseCompiled], term: impl FnOnce(&mut BcWriter))
 internal fun ClauseCompiled.writeBc(
     bc: BcWriter,
     rem: List<ClauseCompiled>,
@@ -84,7 +83,6 @@ internal fun ClauseCompiled.writeBc(
  *
  * @param bc the bytecode writer used to track definitely-assigned state
  */
-// pub(crate) fn mark_definitely_assigned_after(&self, bc: &mut BcWriter)
 internal fun ComprCompiled.markDefinitelyAssignedAfter(bc: BcWriter) {
     val clauses = this.clauses()
     // We know that first loop argument is executed, and we don't know anything else.
@@ -106,7 +104,6 @@ internal fun ComprCompiled.markDefinitelyAssignedAfter(bc: BcWriter) {
  * @param target the output slot where the final collection value is stored
  * @param bc the bytecode writer
  */
-// pub(crate) fn write_bc(&self, span: FrameSpan, target: BcSlotOut, bc: &mut BcWriter)
 internal fun ComprCompiled.writeBc(span: FrameSpan, target: BcSlotOut, bc: BcWriter) {
     bc.allocSlot { temp, bc ->
         when (this) {

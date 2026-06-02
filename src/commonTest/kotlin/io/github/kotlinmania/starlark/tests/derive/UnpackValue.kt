@@ -28,14 +28,10 @@ import io.github.kotlinmania.starlark.values.typing.StarlarkNever
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
-// #[derive(StarlarkTypeRepr, UnpackValue, Eq, PartialEq, Debug)]
-// enum EmptyEnum {}
 sealed class EmptyEnum {
     companion object
 }
 
-// #[derive(StarlarkTypeRepr, UnpackValue, Eq, PartialEq, Debug)]
-// enum JustInt { Int(i32), }
 sealed class JustInt {
     data class Int(
         val value: kotlin.Int,
@@ -44,8 +40,6 @@ sealed class JustInt {
     companion object
 }
 
-// #[derive(StarlarkTypeRepr, UnpackValue, Eq, PartialEq, Debug)]
-// enum IntOrStr { Int(i32), Str(String), }
 sealed class IntOrStr {
     data class Int(
         val value: kotlin.Int,
@@ -58,8 +52,6 @@ sealed class IntOrStr {
     companion object
 }
 
-// #[derive(StarlarkTypeRepr, UnpackValue, Eq, PartialEq, Debug)]
-// enum WithLifetime<'v> { Int(i32), Str(&'v str), }
 sealed class WithLifetime {
     data class Int(
         val value: kotlin.Int,
@@ -72,8 +64,6 @@ sealed class WithLifetime {
     companion object
 }
 
-// #[derive(StarlarkTypeRepr, UnpackValue, Eq, PartialEq, Debug)]
-// struct TransparentIntOrStr(IntOrStr);
 data class TransparentIntOrStr(
     val value: IntOrStr,
 ) {

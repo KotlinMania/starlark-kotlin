@@ -63,8 +63,6 @@ import io.github.kotlinmania.starlark.values.types.dict.dictRefFromValue
 import io.github.kotlinmania.starlark.values.types.list.ListData
 import io.github.kotlinmania.starlark.values.typing.typecompiled.TypeCompiled
 
-// #[derive(Clone, Debug)]
-// pub(crate) enum AssignModifyLhs {
 //     Dot(IrSpanned<ExprCompiled>, String),
 //     Array(IrSpanned<ExprCompiled>, IrSpanned<ExprCompiled>),
 //     Local(IrSpanned<LocalSlotId>),
@@ -96,7 +94,6 @@ internal sealed class AssignModifyLhs {
 }
 
 // impl AssignModifyLhs
-// fn optimize(&self, ctx: &mut OptCtx) -> AssignModifyLhs
 internal fun AssignModifyLhs.optimize(ctx: OptCtx): AssignModifyLhs =
     when (this) {
         is AssignModifyLhs.Dot -> AssignModifyLhs.Dot(expr.optimize(ctx), name)
@@ -106,8 +103,6 @@ internal fun AssignModifyLhs.optimize(ctx: OptCtx): AssignModifyLhs =
         is AssignModifyLhs.Module -> this
     }
 
-// #[derive(Clone, Debug)]
-// pub(crate) enum StmtCompiled {
 //     PossibleGc,
 //     Return(IrSpanned<ExprCompiled>),
 //     Expr(IrSpanned<ExprCompiled>),
@@ -159,7 +154,6 @@ internal sealed class StmtCompiled {
 }
 
 // impl IrSpanned<StmtCompiled>
-// fn optimize(&self, ctx: &mut OptCtx) -> StmtsCompiled
 internal fun IrSpanned<StmtCompiled>.optimize(ctx: OptCtx): StmtsCompiled {
     val span = this.span
     return when (val s = this.node) {
@@ -212,8 +206,6 @@ internal fun IrSpanned<StmtCompiled>.optimize(ctx: OptCtx): StmtsCompiled {
     }
 }
 
-// #[derive(Debug, Default)]
-// pub(crate) struct StmtCompileContext {
 //     pub(crate) has_return_type: bool,
 // }
 internal data class StmtCompileContext(
@@ -221,7 +213,6 @@ internal data class StmtCompileContext(
     val hasReturnType: Boolean = false,
 )
 
-// pub(crate) struct OptimizeOnFreezeContext<'v, 'a> {
 //     pub(crate) module: &'a FrozenModuleData,
 //     pub(crate) heap: Heap<'v>,
 //     pub(crate) frozen_heap: &'a FrozenHeap,
@@ -237,19 +228,14 @@ internal class OptimizeOnFreezeContext(
     internal val frozenHeap: FrozenHeap,
 )
 
-// #[derive(Clone, Debug)]
-// pub(crate) struct StmtsCompiled(SmallVec1<IrSpanned<StmtCompiled>>)
 internal class StmtsCompiled(
     private var stmts: SmallVec1<IrSpanned<StmtCompiled>>,
 ) {
     companion object {
-        // pub(crate) fn empty() -> StmtsCompiled
         fun empty(): StmtsCompiled = StmtsCompiled(SmallVec1.Vec(mutableListOf()))
 
-        // pub(crate) fn one(stmt: IrSpanned<StmtCompiled>) -> StmtsCompiled
         fun one(stmt: IrSpanned<StmtCompiled>): StmtsCompiled = StmtsCompiled(SmallVec1.One(stmt))
 
-        // fn expr(expr: IrSpanned<ExprCompiled>) -> StmtsCompiled
         fun expr(expr: IrSpanned<ExprCompiled>): StmtsCompiled {
             val span = expr.span
             return when {
@@ -296,7 +282,6 @@ internal class StmtsCompiled(
             }
         }
 
-        // fn if_stmt(span, cond, t, f) -> StmtsCompiled
         fun ifStmt(
             span: FrameSpan,
             cond: IrSpanned<ExprCompiled>,
@@ -337,7 +322,6 @@ internal class StmtsCompiled(
             }
         }
 
-        // fn for_stmt(span, var, over, body) -> StmtsCompiled
         fun forStmt(
             span: FrameSpan,
             variable: IrSpanned<AssignCompiledValue>,
@@ -356,7 +340,6 @@ internal class StmtsCompiled(
         }
     }
 
-    // pub(crate) fn is_empty(&self) -> bool
     fun isEmpty(): Boolean {
         val s = stmts
         return when (s) {
@@ -365,11 +348,9 @@ internal class StmtsCompiled(
         }
     }
 
-    // pub(crate) fn stmts(&self) -> &[IrSpanned<StmtCompiled>]
     fun stmts(): List<IrSpanned<StmtCompiled>> = stmts.asSlice()
 
     /** Last statement in this block is `break`, `continue` or `return`. */
-    // fn is_terminal(&self) -> bool
     internal fun isTerminal(): Boolean {
         val last = last() ?: return false
         return when (last.node) {
@@ -381,7 +362,6 @@ internal class StmtsCompiled(
         }
     }
 
-    // pub(crate) fn extend(&mut self, right: StmtsCompiled)
     fun extend(right: StmtsCompiled) {
         // Do not add any code after `break`, `continue` or `return`.
         if (isTerminal()) {
@@ -390,7 +370,6 @@ internal class StmtsCompiled(
         stmts = stmts.extend(right.stmts)
     }
 
-    // pub(crate) fn optimize(&self, ctx: &mut OptCtx) -> StmtsCompiled
     fun optimize(ctx: OptCtx): StmtsCompiled {
         val result = empty()
         val s = stmts
@@ -408,7 +387,6 @@ internal class StmtsCompiled(
         return result
     }
 
-    // pub(crate) fn first(&self) -> Option<&IrSpanned<StmtCompiled>>
     fun first(): IrSpanned<StmtCompiled>? {
         val s = stmts
         return when (s) {
@@ -417,7 +395,6 @@ internal class StmtsCompiled(
         }
     }
 
-    // pub(crate) fn last(&self) -> Option<&IrSpanned<StmtCompiled>>
     fun last(): IrSpanned<StmtCompiled>? {
         val s = stmts
         return when (s) {
@@ -427,8 +404,6 @@ internal class StmtsCompiled(
     }
 }
 
-// #[derive(Debug, Error)]
-// pub(crate) enum AssignError {
 //     #[error("Unpacked {1} values but expected {0}")]
 //     IncorrectNumberOfValueToUnpack(i32, i32),
 // }
@@ -439,8 +414,6 @@ internal class AssignError {
     ) : Exception("Unpacked $got values but expected $expected")
 }
 
-// #[derive(Clone, Debug, VisitSpanMut)]
-// pub(crate) enum AssignCompiledValue {
 //     Dot(IrSpanned<ExprCompiled>, String),
 //     Index(IrSpanned<ExprCompiled>, IrSpanned<ExprCompiled>),
 //     Tuple(Vec<IrSpanned<AssignCompiledValue>>),
@@ -478,7 +451,6 @@ internal sealed class AssignCompiledValue {
 }
 
 // impl AssignCompiledValue
-// fn as_local_non_captured(&self) -> Option<LocalSlotId>
 
 /** Assignment to a local non-captured variable. */
 internal fun AssignCompiledValue.asLocalNonCaptured(): LocalSlotId? =
@@ -488,7 +460,6 @@ internal fun AssignCompiledValue.asLocalNonCaptured(): LocalSlotId? =
     }
 
 // impl IrSpanned<AssignCompiledValue>
-// pub(crate) fn optimize(&self, ctx: &mut OptCtx) -> IrSpanned<AssignCompiledValue>
 internal fun IrSpanned<AssignCompiledValue>.optimize(ctx: OptCtx): IrSpanned<AssignCompiledValue> {
     val span = this.span
     val assign =
@@ -540,7 +511,6 @@ internal fun IrSpanned<AssignCompiledValue>.optimize(ctx: OptCtx): IrSpanned<Ass
 // We also require that `extra_v` is None, since otherwise the user might have
 // additional values stashed somewhere.
 
-// pub(crate) fn possible_gc(eval: &mut Evaluator)
 internal fun possibleGc(eval: Evaluator) {
     if (!eval.disableGc && eval.heap().allocatedBytes() >= eval.nextGcLevel.toLong()) {
         eval.garbageCollect()
@@ -552,7 +522,6 @@ internal fun possibleGc(eval: Evaluator) {
  * Implement lhs |= rhs, which is special in Starlark, because dicts are mutated,
  * while all other types are not.
  */
-// pub(crate) fn bit_or_assign<'v>(lhs: Value<'v>, rhs: Value<'v>, heap: Heap<'v>) -> crate::Result<Value<'v>>
 internal fun bitOrAssign(lhs: Value, rhs: Value, heap: Heap): Result<Value> {
     // The Starlark spec says dict |= mutates, while nothing else does.
     // When mutating, be careful if they alias, so we don't have `lhs`
@@ -593,7 +562,6 @@ internal fun bitOrAssign(lhs: Value, rhs: Value, heap: Heap): Result<Value> {
  * Implement lhs += rhs, which is special in Starlark, because lists are mutated,
  * while all other types are not.
  */
-// pub(crate) fn add_assign<'v>(lhs: Value<'v>, rhs: Value<'v>, heap: Heap<'v>) -> crate::Result<Value<'v>>
 internal fun addAssign(lhs: Value, rhs: Value, heap: Heap): Result<Value> {
     // Checking whether a value is an integer or a string is cheap (no virtual call),
     // and `Value::add` has optimizations for these types, so check them first
@@ -632,10 +600,8 @@ internal fun addAssign(lhs: Value, rhs: Value, heap: Heap): Result<Value> {
 
 // impl Compiler
 
-// pub(crate) fn compile_context(&self, has_return_type: bool) -> StmtCompileContext
 internal fun Compiler.compileContext(hasReturnType: Boolean): StmtCompileContext = StmtCompileContext(hasReturnType = hasReturnType)
 
-// pub fn assign_target(&mut self, expr: &CstAssignTarget) -> Result<IrSpanned<AssignCompiledValue>, CompilerInternalError>
 internal fun Compiler.assignTarget(
     expr: CstAssignTarget,
 ): Result<IrSpanned<AssignCompiledValue>> {
@@ -681,7 +647,6 @@ internal fun Compiler.assignTarget(
     return Result.success(IrSpanned(span, assign))
 }
 
-// fn assign_modify(&mut self, span_stmt: Span, lhs: &CstAssignTarget, rhs: IrSpanned<ExprCompiled>, op: AssignOp) -> Result<StmtsCompiled, CompilerInternalError>
 private fun Compiler.assignModify(
     spanStmt: Span,
     lhs: CstAssignTarget,
@@ -765,7 +730,6 @@ private fun Compiler.assignModify(
     }
 }
 
-// pub(crate) fn stmt(&mut self, stmt: &CstStmt, allow_gc: bool) -> Result<StmtsCompiled, CompilerInternalError>
 internal fun Compiler.stmt(
     stmt: CstStmt,
     allowGc: Boolean,
@@ -791,7 +755,6 @@ internal fun Compiler.stmt(
     }
 }
 
-// pub(crate) fn module_top_level_stmt(&mut self, stmt: &CstStmt) -> Result<StmtsCompiled, CompilerInternalError>
 internal fun Compiler.moduleTopLevelStmt(
     stmt: CstStmt,
 ): Result<StmtsCompiled> =
@@ -813,7 +776,6 @@ internal fun Compiler.moduleTopLevelStmt(
         else -> this.stmt(stmt, true)
     }
 
-// fn stmt_if(&mut self, span, cond, then_block, allow_gc) -> Result<StmtsCompiled, CompilerInternalError>
 private fun Compiler.stmtIf(
     span: FrameSpan,
     cond: CstExpr,
@@ -832,7 +794,6 @@ private fun Compiler.stmtIf(
     )
 }
 
-// fn stmt_if_else(&mut self, span, cond, then_block, else_block, allow_gc) -> Result<StmtsCompiled, CompilerInternalError>
 private fun Compiler.stmtIfElse(
     span: FrameSpan,
     cond: CstExpr,
@@ -846,13 +807,11 @@ private fun Compiler.stmtIfElse(
     return Result.success(StmtsCompiled.ifStmt(span, condCompiled, thenCompiled, elseCompiled))
 }
 
-// fn stmt_expr(&mut self, expr: &CstExpr) -> Result<StmtsCompiled, CompilerInternalError>
 private fun Compiler.stmtExpr(expr: CstExpr): Result<StmtsCompiled> {
     val compiled = this.expr(expr).getOrElse { return Result.failure(it) }
     return Result.success(StmtsCompiled.expr(compiled))
 }
 
-// fn stmt_direct(&mut self, stmt: &CstStmt, allow_gc: bool) -> Result<StmtsCompiled, CompilerInternalError>
 private fun Compiler.stmtDirect(
     stmt: CstStmt,
     allowGc: Boolean,

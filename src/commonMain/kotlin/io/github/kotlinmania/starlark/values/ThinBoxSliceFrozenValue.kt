@@ -21,5 +21,3 @@ package io.github.kotlinmania.starlark.values.thinboxslicefrozenvalue
  * limitations under the License.
  */
 
-// pub(crate) mod packed_impl;
-// mod thin_box;

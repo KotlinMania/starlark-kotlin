@@ -33,7 +33,6 @@ data class ValueAllocSize(
     // impl ValueAllocSize
 
     companion object {
-        // pub(crate) fn try_new(size: AlignedSize) -> Option<ValueAllocSize>
         fun tryNew(size: AlignedSize): ValueAllocSize? =
             if (size < MIN_ALLOC) {
                 null
@@ -41,18 +40,14 @@ data class ValueAllocSize(
                 ValueAllocSize(size)
             }
 
-        // pub(crate) fn new(size: AlignedSize) -> ValueAllocSize
         fun new(size: AlignedSize): ValueAllocSize =
             tryNew(size)
                 ?: error("$size is too small for a value (minimum is $MIN_ALLOC)")
     }
 
-    // pub(crate) fn layout(self) -> Layout
     // Kotlin: No `std::alloc::Layout`. Not transliterable.
 
-    // pub(crate) fn size(self) -> AlignedSize
     fun size(): AlignedSize = size
 
-    // pub(crate) const fn bytes(self) -> u32
     fun bytes(): UInt = size.bytes()
 }

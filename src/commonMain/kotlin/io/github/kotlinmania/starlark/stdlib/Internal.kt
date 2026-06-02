@@ -31,9 +31,7 @@ import io.github.kotlinmania.starlark.values.layout.Value
 import kotlin.toString
 
 // #[starlark_module]
-// fn starlark_rust_internal_members(globals: &mut GlobalsBuilder)
 private fun starlarkRustInternalMembers(globals: io.github.kotlinmania.starlark.environment.GlobalsBuilder) {
-    // fn ty_of_value_debug(#[starlark(require = pos)] value: Value) -> anyhow::Result<String>
     globals.setFunction("ty_of_value_debug") { args, eval ->
         val value: io.github.kotlinmania.starlark.values.layout.Value =
             args.full.pos.firstOrNull() ?: io.github.kotlinmania.starlark.values.layout.Value.Companion
@@ -46,7 +44,6 @@ private fun starlarkRustInternalMembers(globals: io.github.kotlinmania.starlark.
     }
 }
 
-// pub(crate) fn register_internal(globals: &mut GlobalsBuilder)
 fun registerInternal(globals: io.github.kotlinmania.starlark.environment.GlobalsBuilder) {
     globals.namespaceNoDocs("starlark_rust_internal") { s ->
         starlarkRustInternalMembers(s)

@@ -22,6 +22,3 @@ package io.github.kotlinmania.starlark.eval.runtime.params
 /** Function parameters. */
 
 // Rust mod declarations — in Kotlin, these are separate files in the params/ package.
-// pub(crate) mod display
-// pub(crate) mod parser
-// pub(crate) mod spec

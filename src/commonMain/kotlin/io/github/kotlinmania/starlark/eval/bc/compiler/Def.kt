@@ -35,7 +35,6 @@ import io.github.kotlinmania.starlark.eval.runtime.FrameSpan
 
 // impl DefCompiled
 
-// pub(crate) fn mark_definitely_assigned_after(&self, bc: &mut BcWriter)
 internal fun DefCompiled.markDefinitelyAssignedAfter(bc: BcWriter) {
     // Argument default values and types can be used
     // to mark variables definitely assigned.
@@ -43,7 +42,6 @@ internal fun DefCompiled.markDefinitelyAssignedAfter(bc: BcWriter) {
     val unused = bc
 }
 
-// pub(crate) fn write_bc(&self, span: FrameSpan, target: BcSlotOut, bc: &mut BcWriter)
 internal fun DefCompiled.writeBc(span: FrameSpan, target: BcSlotOut, bc: BcWriter) {
     val functionName = this.functionName
     val paramList = this.params.params

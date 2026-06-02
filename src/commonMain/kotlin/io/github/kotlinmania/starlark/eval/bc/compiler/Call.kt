@@ -67,7 +67,6 @@ internal fun ArgsCompiledValue.markDefinitelyAssignedAfterCall(bc: BcWriter) {
     kwargs?.markDefinitelyAssignedAfter(bc)
 }
 
-// fn write_bc(&self, bc: &mut BcWriter, k: impl FnOnce(BcCallArgsFull<Symbol>, &mut BcWriter))
 private fun ArgsCompiledValue.writeBc(bc: BcWriter, k: (BcCallArgsFull<Symbol>, BcWriter) -> Unit) {
     writeExprs(posNamed, bc) { posNamed, bc2 ->
         writeExprOpt(args, bc2) { argsSlot, bc3 ->
@@ -91,7 +90,6 @@ private fun ArgsCompiledValue.writeBc(bc: BcWriter, k: (BcCallArgsFull<Symbol>, 
  * After evaluation of call like `a[b](c.d)`,
  * variables `a`, `b`, and `c` are definitely assigned.
  */
-// pub(crate) fn mark_definitely_assigned_after(&self, bc: &mut BcWriter)
 internal fun CallCompiled.markDefinitelyAssignedAfterCall(bc: BcWriter) {
     function.markDefinitelyAssignedAfter(bc)
     args.markDefinitelyAssignedAfterCall(bc)
@@ -110,7 +108,6 @@ private fun Either<BcCallArgsPos, BcCallArgsFull<Symbol>>.toBcCallArgs(): Any =
 
 // impl IrSpanned<CallCompiled>
 
-// fn write_args(args, bc, k)
 private fun writeArgs(
     args: ArgsCompiledValue,
     bc: BcWriter,
@@ -130,7 +127,6 @@ private fun writeArgs(
     }
 }
 
-// fn write_call_frozen(span, fun, args, target, bc)
 private fun writeCallFrozen(
     span: FrameSpan,
     function: FrozenValue,
@@ -181,7 +177,6 @@ private fun writeCallFrozen(
     }
 }
 
-// fn write_call_method(target, span, this, symbol, args, bc)
 private fun writeCallMethod(
     target: BcSlotOut,
     span: FrameSpan,
@@ -233,7 +228,6 @@ private fun writeCallMethod(
 }
 
 /** Compile a call expression to bytecode. */
-// pub(crate) fn write_bc(&self, target: BcSlotOut, bc: &mut BcWriter)
 internal fun IrSpanned<CallCompiled>.writeBcCall(target: BcSlotOut, bc: BcWriter) {
     val call = this.node
 
@@ -301,7 +295,6 @@ internal fun IrSpanned<CallCompiled>.writeBcCall(target: BcSlotOut, bc: BcWriter
 }
 
 /** Simple Either type to match Rust's `either::Either`. */
-// use either::Either;
 internal sealed class Either<out L, out R> {
     data class Left<L>(
         val value: L,

@@ -20,4 +20,3 @@ package io.github.kotlinmania.starlark.values.types.string.intern
  */
 
 // Rust mod declarations — in Kotlin, these are separate files in the intern/ package.
-// pub(crate) mod interner

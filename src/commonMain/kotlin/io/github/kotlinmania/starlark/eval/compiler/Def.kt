@@ -882,7 +882,6 @@ internal class DefGen<V>(
 
     // StarlarkValue implementation
 
-    // #[starlark_value(type = FUNCTION_TYPE)]
     override val TYPE: String get() = FUNCTION_TYPE
     override val HAS_invoke: Boolean get() = true
 

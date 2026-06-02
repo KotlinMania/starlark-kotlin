@@ -24,9 +24,7 @@ import io.github.kotlinmania.starlark.environment.GlobalsBuilder
 import io.github.kotlinmania.starlark.values.layout.avalues.str.allocStrConcat
 
 // #[starlark_module]
-// fn functions(builder: &mut GlobalsBuilder)
 private fun functions(builder: GlobalsBuilder) {
-    // fn non_standard_heap_name(heap: &str, starlark_heap: Heap) -> Result<StringValue>
     builder.setFunction("non_standard_heap_name") { args, eval ->
         val heapParam = args.positional<String>(0)
         val starlarkHeap = eval.heap()
@@ -35,7 +33,6 @@ private fun functions(builder: GlobalsBuilder) {
 }
 
 // #[test]
-// fn test_non_standard_param_names()
 internal fun testNonStandardParamNames() {
     val a = Assert()
     a.globalsAdd(::functions)

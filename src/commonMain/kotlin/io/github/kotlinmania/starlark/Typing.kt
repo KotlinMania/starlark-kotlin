@@ -29,42 +29,5 @@ package io.github.kotlinmania.starlark
 
 // / Types required to support the [`typecheck`](crate::syntax::AstModule::typecheck) function.
 
-// pub(crate) mod basic;
-// pub(crate) mod bindings;
-// pub(crate) mod callable;
-// pub(crate) mod ctx;
-// pub(crate) mod custom;
-// pub(crate) mod error;
-// pub(crate) mod function;
-// pub(crate) mod interface;
-// pub(crate) mod mode;
-// pub(crate) mod oracle;
-// pub(crate) mod structs;
-// pub(crate) mod tuple;
-// pub(crate) mod ty;
-// pub(crate) mod typecheck;
-// pub(crate) mod user;
 
-// #[cfg(test)]
-// mod tests;
 
-// pub use basic::TyBasic;
-// pub use callable::TyCallable;
-// pub use callable_param::ParamIsRequired;
-// pub use callable_param::ParamSpec;
-// pub use function::TyFunction;
-// pub use interface::Interface;
-// pub use oracle::ctx::TypingOracleCtx;
-// pub use oracle::traits::TypingBinOp;
-// pub use oracle::traits::TypingUnOp;
-// pub use starlark_value::TyStarlarkValue;
-// pub use structs::TyStruct;
-// pub use ty::Approximation;
-// pub use ty::Ty;
-// pub use ty::TypeRenderConfig;
-// pub use typecheck::AstModuleTypecheck;
-// pub use typecheck::TypeMap;
-// pub use user::TyUser;
-// pub use user::TyUserFields;
-// pub use user::TyUserIndex;
-// pub use user::TyUserParams;

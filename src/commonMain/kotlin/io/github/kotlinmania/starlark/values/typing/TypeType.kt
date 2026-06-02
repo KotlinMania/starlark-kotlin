@@ -52,5 +52,4 @@ class TypeType private constructor() :
         }
     }
 
-// #[cfg(test)] mod tests
 // Tests are in commonTest, not here.

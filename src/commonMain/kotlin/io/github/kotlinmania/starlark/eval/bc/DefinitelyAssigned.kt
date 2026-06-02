@@ -19,7 +19,6 @@ package io.github.kotlinmania.starlark.eval.bc
  * limitations under the License.
  */
 
-// use crate::eval::runtime::slots::LocalSlotId;
 import io.github.kotlinmania.starlark.eval.runtime.LocalSlotId
 
 /**
@@ -37,8 +36,6 @@ import io.github.kotlinmania.starlark.eval.runtime.LocalSlotId
  * But when evaluating `bar(x)` we don't need to check `x` is assigned,
  * because we know for sure it is assigned: we checked that when evaluating `foo(x)`.
  */
-// #[derive(Clone, Debug, PartialEq, Eq)]
-// pub(crate) struct BcDefinitelyAssigned {
 //     definitely_assigned: Vec<bool>,
 // }
 class BcDefinitelyAssigned private constructor(
@@ -48,11 +45,9 @@ class BcDefinitelyAssigned private constructor(
 ) {
     // impl BcDefinitelyAssigned
 
-    // pub(crate) fn new(local_count: u32) -> BcDefinitelyAssigned
     constructor(localCount: Int) : this(BooleanArray(localCount))
 
     /** Is local variable definitely assigned at given program point? */
-    // pub(crate) fn is_definitely_assigned(&self, local: LocalSlotId) -> bool
     internal fun isDefinitelyAssigned(local: LocalSlotId): Boolean = definitelyAssigned[local.index.toInt()]
 
     /**
@@ -66,7 +61,6 @@ class BcDefinitelyAssigned private constructor(
      *
      * both `foo` and `x` are definitely assigned.
      */
-    // pub(crate) fn mark_definitely_assigned(&mut self, local: LocalSlotId)
     internal fun markDefinitelyAssigned(local: LocalSlotId) {
         definitelyAssigned[local.index.toInt()] = true
     }
@@ -75,7 +69,6 @@ class BcDefinitelyAssigned private constructor(
      * Assert that each variable definitely assigned in self,
      * also definitely assigned in other.
      */
-    // pub(crate) fn assert_smaller_then(&self, other: &BcDefinitelyAssigned)
     internal fun assertSmallerThan(other: BcDefinitelyAssigned) {
         check(definitelyAssigned.size == other.definitelyAssigned.size)
         for (i in definitelyAssigned.indices) {
@@ -85,10 +78,8 @@ class BcDefinitelyAssigned private constructor(
         }
     }
 
-    // #[derive(Clone)]
     fun copy(): BcDefinitelyAssigned = BcDefinitelyAssigned(definitelyAssigned.copyOf())
 
-    // #[derive(PartialEq, Eq)]
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other !is BcDefinitelyAssigned) return false
@@ -97,6 +88,5 @@ class BcDefinitelyAssigned private constructor(
 
     override fun hashCode(): Int = definitelyAssigned.contentHashCode()
 
-    // #[derive(Debug)]
     override fun toString(): String = "BcDefinitelyAssigned(${definitelyAssigned.toList()})"
 }

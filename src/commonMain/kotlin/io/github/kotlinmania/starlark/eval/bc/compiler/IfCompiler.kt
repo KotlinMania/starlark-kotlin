@@ -28,7 +28,6 @@ import io.github.kotlinmania.starlark.eval.compiler.IrSpanned
 import io.github.kotlinmania.starlark.eval.compiler.MaybeNot
 
 /** Common code for compiling if statements and if expressions. */
-// pub(crate) fn write_if_else(...)
 internal fun writeIfElse(
     c: IrSpanned<ExprCompiled>,
     t: (BcWriter) -> Unit,
@@ -39,7 +38,6 @@ internal fun writeIfElse(
 }
 
 /** Common code for compiling if statements and if conditions in comprehensions. */
-// pub(crate) fn write_if_then(...)
 internal fun writeIfThen(
     c: IrSpanned<ExprCompiled>,
     maybeNot: MaybeNot,
@@ -50,7 +48,6 @@ internal fun writeIfThen(
 }
 
 /** Common code for writing if-then or if-then-else expression or statement. */
-// fn write_if_else_impl<T, F>(...)
 private fun writeIfElseImpl(
     cond: IrSpanned<ExprCompiled>,
     maybeNot: MaybeNot,
@@ -90,7 +87,6 @@ private fun writeIfElseImpl(
  *
  * See `write_cond` for semantics of `t`, `f` parameters.
  */
-// fn write_cond_bin_op(...)
 private fun writeCondBinOp(
     x: IrSpanned<ExprCompiled>,
     y: IrSpanned<ExprCompiled>,
@@ -143,7 +139,6 @@ private fun writeCondBinOp(
  * This function will populate `t` and `f` with addresses of instructions
  * which jump to then or else block respectively. Caller needs to patch these.
  */
-// fn write_cond(...)
 private fun writeCond(
     cond: IrSpanned<ExprCompiled>,
     maybeNot: MaybeNot,

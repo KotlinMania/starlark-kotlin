@@ -21,31 +21,4 @@ package io.github.kotlinmania.starlark.values
  * limitations under the License.
  */
 
-// pub mod any;
 // internal val any = "any" // conflicts with Typing.kt declaration
-// pub mod any_array;
-// pub mod any_complex;
-// pub mod array;
-// pub mod bigint;
-// pub mod bool;
-// pub mod dict;
-// pub(crate) mod ellipsis;
-// pub mod enumeration;
-// pub mod float;
-// pub mod function;
-// pub mod int;
-// pub(crate) mod known_methods;
-// pub mod list;
-// pub mod list_or_tuple;
-// pub mod namespace;
-// pub mod none;
-// pub(crate) mod num;
-// pub mod range;
-// pub mod record;
-// pub mod set;
-// pub mod starlark_value_as_type;
-// pub mod string;
-// pub mod structs;
-// pub mod tuple;
-// pub(crate) mod type_instance_id;
-// pub(crate) mod unbound;

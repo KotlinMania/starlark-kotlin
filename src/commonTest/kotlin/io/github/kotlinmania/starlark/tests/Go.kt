@@ -26,7 +26,6 @@ import io.github.kotlinmania.starlark.assert.conformance
 import io.github.kotlinmania.starlark.assert.conformanceExcept
 
 /** Load a test case file from the testcases directory. */
-// macro_rules! test_case { ($name:expr) => { include_str!(...) } }
 private fun testCase(name: String): String =
     io.github.kotlinmania.starlark.tests
         .loadTestResource("eval/go/$name")
@@ -39,7 +38,6 @@ internal fun loadTestResource(path: String): String {
     error("loadTestResource not yet implemented for this platform: $path")
 }
 
-// fn ignore_bad_lines(x: &str, bad: &[&str]) -> String
 private fun ignoreBadLines(x: String, bad: List<String>): String =
     x
         .lines()
@@ -47,7 +45,6 @@ private fun ignoreBadLines(x: String, bad: List<String>): String =
         .joinToString("\n")
 
 // #[test]
-// fn test_go()
 internal fun testGo() {
     // The data for these tests was taken from
     // https://github.com/google/starlark-go/blob/e81fc95f7bd5bb1495fe69f27c1a99fcc77caa48/starlark/testdata/
@@ -181,7 +178,6 @@ internal fun testGo() {
 }
 
 // #[test]
-// fn test_in_range()
 internal fun testInRange() {
     // Go Starlark considers this a type error (I think that is a mistake)
     Assert.allTrue(

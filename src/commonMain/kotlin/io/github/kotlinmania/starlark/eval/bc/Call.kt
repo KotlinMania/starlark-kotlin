@@ -49,7 +49,6 @@ class BcCallArgsFull<S : ArgSymbol>(
     val kwargs: BcSlotIn?,
 ) {
     /** Number of positional arguments. */
-    // fn pos(&self) -> u32
     private fun pos(): UInt {
         check(posNamed.len() >= names.size.toUInt())
         return posNamed.len() - names.size.toUInt()

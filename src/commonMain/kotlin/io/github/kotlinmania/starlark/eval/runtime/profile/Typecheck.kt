@@ -31,20 +31,15 @@ import io.github.kotlinmania.starlark.util.ArcStr
 import io.github.kotlinmania.starlark.values.layout.typed.FrozenStringValue
 import kotlin.time.Duration
 
-// pub(crate) struct TypecheckProfilerType
 internal object TypecheckProfilerType : ProfilerType<TypecheckProfileData> {
-    // const PROFILE_MODE: ProfileMode = ProfileMode::Typecheck
     override val profileMode: ProfileMode = ProfileMode.Typecheck
 
-    // fn data_from_generic(profile_data: &ProfileDataImpl) -> Option<&Self::Data>
     override fun dataFromGeneric(profileData: ProfileDataImpl): TypecheckProfileData? =
         (profileData as? ProfileDataImpl.Typecheck)?.data
 
-    // fn data_to_generic(data: Self::Data) -> ProfileDataImpl
     override fun dataToGeneric(data: TypecheckProfileData): ProfileDataImpl =
         ProfileDataImpl.Typecheck(data)
 
-    // fn merge_profiles_impl(profiles: &[&Self::Data]) -> starlark_syntax::Result<Self::Data>
     override fun mergeProfilesImpl(profiles: List<TypecheckProfileData>): Result<TypecheckProfileData> {
         val byFunction = mutableMapOf<ArcStr, SmallDuration>()
         for (profile in profiles) {
@@ -56,8 +51,6 @@ internal object TypecheckProfilerType : ProfilerType<TypecheckProfileData> {
     }
 }
 
-// #[derive(Debug, thiserror::Error)]
-// enum TypecheckProfileError
 private sealed class TypecheckProfileError(
     message: String,
 ) : Exception(message) {
@@ -66,13 +59,10 @@ private sealed class TypecheckProfileError(
     class NotEnabled : TypecheckProfileError("Typecheck profile not enabled")
 }
 
-// #[derive(Default, Debug, Clone, Eq, PartialEq)]
-// pub(crate) struct TypecheckProfileData
 internal data class TypecheckProfileData(
     // by_function: SmallMap<ArcStr, SmallDuration>
     val byFunction: Map<ArcStr, SmallDuration> = emptyMap(),
 ) {
-    // pub(crate) fn gen_csv(&self) -> String
     fun genCsv(): String {
         val totalTime = byFunction.values.fold(SmallDuration.ZERO) { acc, v -> acc + v }
 
@@ -97,8 +87,6 @@ internal data class TypecheckProfileData(
     }
 }
 
-// #[derive(Default, Debug)]
-// pub(crate) struct TypecheckProfile
 internal class TypecheckProfile {
     // pub(crate) enabled: bool
     var enabled: Boolean = false
@@ -106,13 +94,11 @@ internal class TypecheckProfile {
     // by_function: HashMap<Hashed<FrozenStringValue>, SmallDuration, StarlarkHasherBuilder>
     private val byFunction: MutableMap<FrozenStringValue, SmallDuration> = mutableMapOf()
 
-    // pub(crate) fn add(&mut self, function: FrozenStringValue, time: Duration)
     fun add(function: FrozenStringValue, time: Duration) {
         check(enabled)
         byFunction[function] = (byFunction[function] ?: SmallDuration.ZERO) + SmallDuration.fromDuration(time)
     }
 
-    // pub(crate) fn gen(&self) -> crate::Result<ProfileData>
     fun gen(): ProfileData {
         if (!enabled) {
             throw Error.newOther(TypecheckProfileError.NotEnabled())

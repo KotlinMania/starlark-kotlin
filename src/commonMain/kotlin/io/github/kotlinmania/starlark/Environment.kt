@@ -49,8 +49,6 @@ package io.github.kotlinmania.starlark
  * ```
  */
 
-// #[derive(Debug, Error)]
-// enum EnvironmentError { ... }
 
 /**
  * Errors arising from module / environment operations.
