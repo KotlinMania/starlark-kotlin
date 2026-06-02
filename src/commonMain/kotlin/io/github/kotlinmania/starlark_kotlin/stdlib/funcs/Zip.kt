@@ -39,7 +39,7 @@ class ZipType : TyCustomFunctionImpl {
     }
 
     override fun validateCall(
-        _span: Span,
+        span: Span,
         args: TyCallArgs,
         oracle: TypingOracleCtx,
     ): Result<Ty> {

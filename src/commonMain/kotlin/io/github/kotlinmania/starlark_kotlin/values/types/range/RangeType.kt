@@ -193,7 +193,7 @@ data class Range(
         )))
     }
 
-    override fun iterate(me: Value, _heap: Heap): Result<Value> {
+    override fun iterate(me: Value, heap: Heap): Result<Value> {
         return Result.success(me)
     }
 

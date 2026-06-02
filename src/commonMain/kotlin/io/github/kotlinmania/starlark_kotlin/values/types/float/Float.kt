@@ -223,9 +223,9 @@ data class StarlarkFloat(val value: Double) : StarlarkTypeRepr, StarlarkValue, A
         return Result.success(heap.alloc(NumRef.Float(this) - rhs))
     }
 
-    override fun mul(other: Value, heap: Heap): Result<Value>? {
-        val rhs = other.unpackNum() ?: return null
-        return Result.success(heap.alloc(NumRef.Float(this) * rhs))
+    override fun mul(rhs: Value, heap: Heap): Result<Value>? {
+        val rhsNum = rhs.unpackNum() ?: return null
+        return Result.success(heap.alloc(NumRef.Float(this) * rhsNum))
     }
 
     override fun div(other: Value, heap: Heap): Result<Value> {

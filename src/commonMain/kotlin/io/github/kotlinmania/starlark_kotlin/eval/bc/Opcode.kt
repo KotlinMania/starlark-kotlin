@@ -153,18 +153,18 @@ enum class BcOpcode {
         }
 
         /** Get bytecode opcode for the instruction. */
-        fun forInstr(instrClass: KClass<out BcInstr>): BcOpcode {
+        fun forInstr(targetInstrClass: KClass<out BcInstr>): BcOpcode {
             var found: BcOpcode? = null
             dispatchAll(object : BcOpcodeAllHandler {
-                override fun <I : BcInstr> handle(klass: KClass<I>, opcode: BcOpcode) {
-                    if (klass.equals(instrClass)) {
+                override fun <I : BcInstr> handle(instrClass: KClass<I>, opcode: BcOpcode) {
+                    if (instrClass == targetInstrClass) {
                         check(found == null)
                         found = opcode
                     }
                 }
             })
             return found
-                ?: throw IllegalStateException("No opcode for instruction ${instrClass.simpleName}")
+                ?: throw IllegalStateException("No opcode for instruction ${targetInstrClass.simpleName}")
         }
     }
 
