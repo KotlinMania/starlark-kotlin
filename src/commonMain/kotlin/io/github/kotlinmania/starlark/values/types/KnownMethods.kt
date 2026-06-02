@@ -30,8 +30,6 @@ import io.github.kotlinmania.starlark.values.types.set.setMethods
 import io.github.kotlinmania.starlark.values.types.string.strMethods
 
 /** Method and a `Methods` container which declares it. */
-// #[derive(Clone, Copy, Dupe)]
-// pub(crate) struct KnownMethod
 internal class KnownMethod(
     /** An object where the method is defined. */
     val typeMethods: Methods,
@@ -40,24 +38,19 @@ internal class KnownMethod(
     /** Copied here from `method` to faster invocation (one fewer deref). */
     val imp: NativeMeth,
 ) {
-    // pub(crate) fn to_value<'v>(&self) -> Value<'v>
     fun toValue(): Value = method.toValue()
 
-    // pub(crate) fn invoke_method<'v>(&self, this: Value<'v>, args: &Arguments<'v, '_>, eval: &mut Evaluator<'v, '_, '_>) -> crate::Result<Value<'v>>
     fun invokeMethod(thisValue: Value, args: Arguments, eval: Evaluator): Result<Value> = imp.invoke(eval, thisValue, args)
 }
 
 /** Some of stdlib methods. */
-// struct KnownMethods
 private class KnownMethods(
     val methods: Map<String, KnownMethod>,
 ) {
     companion object {
-        // fn build() -> KnownMethods
         fun build(): KnownMethods {
             val methods = mutableMapOf<String, KnownMethod>()
 
-            // fn add_methods(...)
             fun addMethods(
                 methods: MutableMap<String, KnownMethod>,
                 typeMethods: Methods?,
@@ -99,7 +92,6 @@ private class KnownMethods(
  * or method is not very common. Return arbitrary method if more than one
  * method is found (e. g. `list.clear` and `dict.clear`).
  */
-// pub(crate) fn get_known_method(name: &str) -> Option<KnownMethod>
 // static ANY_METHODS: Lazy<KnownMethods> = Lazy::new(KnownMethods::build)
 private val anyMethods: KnownMethods by lazy { KnownMethods.build() }
 

@@ -6,18 +6,14 @@ import io.github.kotlinmania.starlark.typing.TyBasic
 import io.github.kotlinmania.starlark.values.StarlarkValue
 
 /** Type of type. */
-// #[derive(Debug, Display, Allocative, ProvidesStaticType, NoSerialize)]
-// pub enum AbstractType {}
 // An uninhabited enum in Rust — no instances can be created.
 // In Kotlin, represented as a sealed class with no subclasses.
 sealed class AbstractType : StarlarkValue {
-    // #[starlark_value(type = "type")]
     override val TYPE: String get() = "type"
     override val HAS_eval_type: Boolean get() = true
 
     override fun getTypeStarlarkRepr(): Ty = starlarkTypeRepr()
 
-    // fn eval_type(&self) -> Option<Ty>
     // This is unreachable, but this function is needed
     // so `TyStarlarkValue` could think this is a type.
     override fun evalType(): Ty? {
@@ -27,7 +23,6 @@ sealed class AbstractType : StarlarkValue {
     override fun toString(): String = "type"
 
     companion object {
-        // fn get_type_starlark_repr() -> Ty
         fun starlarkTypeRepr(): Ty = Ty.basic(TyBasic.Type)
     }
 }

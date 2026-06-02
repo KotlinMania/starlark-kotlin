@@ -20,10 +20,3 @@ package io.github.kotlinmania.starlark.values.types
  */
 
 /** Provides the `namespace` type and global. */
-
-// pub(crate) mod globals
-// mod typing
-// pub(crate) mod value
-
-// pub use value::FrozenNamespace
-// pub use value::Namespace

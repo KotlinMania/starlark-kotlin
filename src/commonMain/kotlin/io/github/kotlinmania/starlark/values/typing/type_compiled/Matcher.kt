@@ -29,7 +29,6 @@ import io.github.kotlinmania.starlark.values.layout.Value
  * In Kotlin we use a plain marker interface — all TypeMatcher implementations are
  * considered registered.
  */
-// pub unsafe trait TypeMatcherRegistered {}
 interface TypeMatcherRegistered
 
 /**
@@ -38,14 +37,12 @@ interface TypeMatcherRegistered
  * In Rust this is feature-gated behind `pagable` and requires `Allocative + Debug + Clone + Send + Sync + 'static`.
  * In Kotlin the combined constraints are represented as an empty base interface.
  */
-// pub trait TypeMatcherBase: Allocative + Debug + Clone + Sized + Send + Sync + 'static {}
 interface TypeMatcherBase
 
 /**
  * Runtime type matcher. E.g. when `isinstance(1, int)` is called,
  * implementation of `TypeMatcherT` for `int` is used.
  */
-// pub trait TypeMatcher: TypeMatcherBase
 interface TypeMatcherT : TypeMatcherBase {
     /** Check if the value matches the type. */
     fun matches(value: Value): Boolean
@@ -54,7 +51,6 @@ interface TypeMatcherT : TypeMatcherBase {
     fun isWildcard(): Boolean = false
 }
 
-// pub(crate) trait TypeMatcherDyn: Debug + Allocative + Send + Sync + 'static
 internal interface TypeMatcherDyn {
     fun matchesDyn(value: Value): Boolean
 
@@ -63,7 +59,6 @@ internal interface TypeMatcherDyn {
     fun toBox(): TypeMatcherBox
 }
 
-// impl<T: TypeMatcher> TypeMatcherDyn for T — blanket impl
 // In Kotlin we provide a wrapper adapter instead.
 internal class TypeMatcherDynAdapter<T : TypeMatcherT>(
     private val inner: T,
@@ -75,28 +70,22 @@ internal class TypeMatcherDynAdapter<T : TypeMatcherT>(
     override fun toBox(): TypeMatcherBox = TypeMatcherBox(TypeMatcherDynAdapter(inner))
 }
 
-// #[derive(Debug, Allocative)]
-// pub(crate) struct TypeMatcherBox(pub(crate) Box<dyn TypeMatcherDyn>)
 internal class TypeMatcherBox(
     internal val inner: TypeMatcherDyn,
 ) : TypeMatcherT {
     companion object {
-        // pub(crate) fn new<T: TypeMatcher>(matcher: T) -> TypeMatcherBox
         fun <T : TypeMatcherT> new(matcher: T): TypeMatcherBox = TypeMatcherBox(TypeMatcherDynAdapter(matcher))
     }
 
-    // impl Clone for TypeMatcherBox
     fun clone(): TypeMatcherBox = inner.toBox()
 
     // #[type_matcher]
-    // impl TypeMatcher for TypeMatcherBox
     override fun matches(value: Value): Boolean = inner.matchesDyn(value)
 
     override fun isWildcard(): Boolean = inner.isWildcardDyn()
 }
 
 /** Type allocator which allocates `TypeMatcher` into `TypeMatcherBox`. */
-// pub(crate) struct TypeMatcherBoxAlloc
 internal class TypeMatcherBoxAllocImpl : TypeMatcherAlloc<TypeMatcherBox> {
     override fun alloc(matcher: TypeMatcher): TypeMatcherBox =
         TypeMatcherBox.new(

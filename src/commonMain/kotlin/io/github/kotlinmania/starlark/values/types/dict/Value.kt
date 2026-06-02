@@ -44,14 +44,11 @@ import io.github.kotlinmania.starlark.values.layout.heap.ValueHolder
 import io.github.kotlinmania.starlark.values.layout.typed.StringValue
 import kotlin.reflect.KClass
 
-// #[derive(Clone, Default, Trace, Debug, ProvidesStaticType, Allocative)]
-// pub(crate) struct DictGen<T>(pub(crate) T);
 data class DictGen<T>(
     val inner: T,
 ) : ComplexValue,
     Trace,
     Freeze<StarlarkValue> {
-    // impl Freeze for DictGen<RefCell<Dict<'v>>>
     @Suppress("UNCHECKED_CAST")
     override fun freeze(freezer: Freezer): Result<StarlarkValue> {
         val mutableSelf = this as DictGen<AtomicRef<Dict>>
@@ -222,12 +219,10 @@ data class DictGen<T>(
     }
 }
 
-// impl Display for Dict
 fun Dict.display(): String =
     fmtKeyedContainer("{", "}", ": ", iter())
 
 /** Define the dict type. */
-// #[derive(Clone, Default, Trace, Debug, ProvidesStaticType, Allocative)]
 class Dict(
     /** The data stored by the dictionary. The keys must all be hashable values. */
     val content: SmallMap<Value, Value>,
@@ -335,7 +330,6 @@ class Dict(
 fun Dict.allocValue(heap: Heap): Value =
     heap.allocComplex(DictGen(AtomicRef(this)))
 
-// #[derive(Clone, Default, Debug, ProvidesStaticType, Allocative)]
 class FrozenDictData(
     /** The data stored by the dictionary. The keys must all be hashable values. */
     val content: SmallMap<FrozenValue, FrozenValue>,

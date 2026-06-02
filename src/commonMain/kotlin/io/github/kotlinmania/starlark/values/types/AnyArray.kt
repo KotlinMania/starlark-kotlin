@@ -21,32 +21,15 @@ package io.github.kotlinmania.starlark.values.types.anyarray
 
 // ! Utility to heap allocate arrays of values.
 
-// use std::fmt;
-// use std::fmt::Debug;
-// use std::mem;
-// use std::ptr;
-
-// use allocative::Allocative;
-// use starlark_derive::NoSerialize;
-// use starlark_derive::starlark_value;
-
-// use crate as starlark;
-// use crate::any::ProvidesStaticType;
-// use crate::values::StarlarkValue;
-
 import io.github.kotlinmania.starlark.values.StarlarkValue
 
-// #[derive(derive_more::Display, ProvidesStaticType, NoSerialize, Allocative)]
 // #[repr(C)]
-// pub(crate) struct AnyArray<T: Debug + 'static> {
-//     pub(crate) len: usize,
 //     content: [T; 0],
 // }
 // Kotlin: GC handles memory layout. AnyArray is a simple wrapper around a list.
 internal class AnyArray<T>(
     private val content: MutableList<T>,
 ) : StarlarkValue {
-    // pub(crate) len: usize
     val len: Int get() = content.size
 
     companion object {
@@ -54,15 +37,12 @@ internal class AnyArray<T>(
          * This function is unsafe in Rust because it does not initialize content array,
          * but drops in destructor.
          */
-        // pub(crate) unsafe fn new(len: usize) -> AnyArray<T>
         // Kotlin: creates an empty array with the given capacity.
         fun <T> new(len: Int): AnyArray<T> = AnyArray(ArrayList(len))
     }
 
-    // fn as_slice(&self) -> &[T]
     fun asSlice(): List<T> = content
 
-    // pub(crate) fn offset_of_content() -> usize
     // Kotlin: not applicable (no C repr layout). Kept for API parity.
     @Suppress("UNUSED")
     fun offsetOfContent(): Int = 0
@@ -78,17 +58,11 @@ internal class AnyArray<T>(
         content.add(value)
     }
 
-    // impl Debug for AnyArray<T>
-    // fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result
     override fun toString(): String = "AnyArray(${asSlice()})"
 
-    // impl Drop for AnyArray<T>
     // Kotlin: GC handles cleanup. No explicit drop needed.
 
-    // #[starlark_value(type = "AnyArray")]
-    // impl StarlarkValue for AnyArray<T>
     override val TYPE: String get() = "AnyArray"
 }
 
-// #[cfg(test)] mod tests
 // Tests are in commonTest.

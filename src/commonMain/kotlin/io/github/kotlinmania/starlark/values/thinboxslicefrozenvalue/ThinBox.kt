@@ -36,22 +36,17 @@ package io.github.kotlinmania.starlark.values.thinboxslicefrozenvalue
  * since Kotlin has garbage collection and does not need the low-level
  * memory layout optimizations of the Rust version.
  */
-// pub(super) struct AllocatedThinBoxSlice<T>
 internal class AllocatedThinBoxSlice<T>(
     private val items: MutableList<T> = mutableListOf(),
 ) : AbstractList<T>() {
     companion object {
-        // pub(super) const fn empty() -> AllocatedThinBoxSlice<T>
         fun <T> empty(): AllocatedThinBoxSlice<T> = AllocatedThinBoxSlice(mutableListOf())
 
-        // pub(super) fn new_uninit(len: usize) -> AllocatedThinBoxSlice<MaybeUninit<T>>
         fun <T> newUninit(len: Int): AllocatedThinBoxSlice<T?> = AllocatedThinBoxSlice(MutableList(len) { null })
 
-        // impl FromIterator<T> for AllocatedThinBoxSlice<T>
         fun <T> fromIter(iter: Iterable<T>): AllocatedThinBoxSlice<T> = AllocatedThinBoxSlice(iter.toMutableList())
     }
 
-    // fn read_len(&self) -> usize
     fun readLen(): Int = items.size
 
     override val size: Int get() = items.size
@@ -62,12 +57,10 @@ internal class AllocatedThinBoxSlice<T>(
         items[index] = value
     }
 
-    // pub(super) fn run_drop(self)
     fun runDrop() {
         items.clear()
     }
 
-    // pub const unsafe fn into_inner(self) -> usize
     fun intoInner(): List<T> = items.toList()
 
     override fun equals(other: Any?): Boolean {

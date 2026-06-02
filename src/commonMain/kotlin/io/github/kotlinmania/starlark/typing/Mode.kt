@@ -19,9 +19,6 @@ package io.github.kotlinmania.starlark.typing
  * limitations under the License.
  */
 
-// #[derive(Copy, Clone, Dupe, Debug, Eq, PartialEq)]
-// pub(crate) enum TypecheckMode { Lint, Compiler }
-
 /**
  * Mode in which the typechecker is operating.
  */

@@ -40,8 +40,6 @@ package io.github.kotlinmania.starlark.eval.bc
 private fun BcOpcode.dropInPlace(ptr: BcPtrAddr) {
 }
 
-// unsafe fn drop_instrs(instrs: &[u64])
-
 /**
  * Invoke drop for instructions in the buffer.
  *
@@ -49,19 +47,14 @@ private fun BcOpcode.dropInPlace(ptr: BcPtrAddr) {
  * instruction. In Kotlin, the garbage collector handles cleanup.
  */
 private fun dropInstrs(instrs: List<Any>) {
-    // let end = BcPtrAddr::for_slice_end(instrs);
-    // let mut ptr = BcPtrAddr::for_slice_start(instrs);
     // while ptr != end {
     //     assert!(ptr < end);
-    //     let opcode = ptr.get_opcode();
     //     opcode.drop_in_place(ptr);
     //     ptr = ptr.add(opcode.size_of_repr());
     // }
 }
 
 // --- Static empty instructions ---
-
-// fn empty_instrs() -> &'static [u64]
 
 /**
  * Statically allocate a valid instruction buffer micro-optimization.
@@ -85,10 +78,7 @@ private fun emptyInstrs(): List<Any> {
     //     },
     //     _align: [],
     // };
-    // unsafe {
-    //     slice::from_raw_parts(
     //         &END_OF_BC as *const BcInstrRepr<_> as *const u64,
-    //         mem::size_of_val(&END_OF_BC) / mem::size_of::<u64>(),
     //     )
     // }
     return listOf(
@@ -98,8 +88,6 @@ private fun emptyInstrs(): List<Any> {
 }
 
 // --- BcInstrs ---
-
-// pub(crate) struct BcInstrs
 
 /**
  * Bytecode instructions container.
@@ -115,19 +103,11 @@ private fun emptyInstrs(): List<Any> {
 class BcInstrs private constructor(
     // instrs: Either<Box<[u64]>, &'static [u64]>
     private val instrs: List<Any>,
-    // pub(crate) stmt_locs: BcStatementLocations
     internal val stmtLocs: BcStatementLocations,
 ) {
-    // impl Default for BcInstrs
-    //   fn default() -> Self {
-    //       Self::for_instrs(Either::Right(empty_instrs()), BcStatementLocations::new())
     //   }
 
-    // impl Drop for BcInstrs
-    //   fn drop(&mut self) {
     //       match &self.instrs {
-    //           Either::Left(heap_allocated) => unsafe { drop_instrs(heap_allocated); },
-    //           Either::Right(_statically_allocated) => {}
     //       }
     //   }
     // In Kotlin, GC handles cleanup.
@@ -136,7 +116,6 @@ class BcInstrs private constructor(
         /** Create a default (empty) [BcInstrs] containing only the End instruction. */
         fun default(): BcInstrs = forInstrs(emptyInstrs(), BcStatementLocations.new())
 
-        // pub(crate) fn for_instrs(
         //     instrs: Either<Box<[u64]>, &'static [u64]>,
         //     stmt_locs: BcStatementLocations,
         // ) -> Self
@@ -145,12 +124,8 @@ class BcInstrs private constructor(
         fun forInstrs(instrs: List<Any>, stmtLocs: BcStatementLocations): BcInstrs = BcInstrs(instrs, stmtLocs)
     }
 
-    // pub(crate) fn start_ptr(&self) -> BcPtrAddr<'_>
-
     /** Get a pointer to the start of the instruction buffer. */
     fun startPtr(): BcPtrAddr = BcPtrAddr.forSliceStart(instrs)
-
-    // pub(crate) fn end(&self) -> BcAddr
 
     /**
      * Get the end address of the instruction buffer.
@@ -160,13 +135,8 @@ class BcInstrs private constructor(
      */
     fun end(): BcAddr = BcAddr(instrs.size.toUInt())
 
-    // pub(crate) fn end_ptr(&self) -> BcPtrAddr<'_>
-
     /** Get a pointer to the end of the instruction buffer. */
     fun endPtr(): BcPtrAddr = startPtr().offset(end())
-
-    // #[cfg(test)]
-    // pub(crate) fn opcodes(&self) -> Vec<BcOpcode>
 
     /**
      * Get all opcodes in the instruction buffer.
@@ -185,8 +155,6 @@ class BcInstrs private constructor(
         }
         return result
     }
-
-    // fn iter(&self) -> impl Iterator<Item = (BcPtrAddr<'_>, BcAddr)>
 
     /**
      * Iterate over all instructions, yielding `(ptr, ip)` pairs.
@@ -210,8 +178,6 @@ class BcInstrs private constructor(
         }
     }
 
-    // fn end_arg(&self) -> Option<&BcInstrEndArg>
-
     /**
      * Find the [BcInstrEndArg] from the `End` instruction, if present.
      *
@@ -225,8 +191,6 @@ class BcInstrs private constructor(
         }
         return null
     }
-
-    // pub(crate) fn fmt_impl(&self, f: &mut dyn Write, newline: bool) -> fmt::Result
 
     /**
      * Format the instructions for display.
@@ -291,7 +255,6 @@ class BcInstrs private constructor(
                 sb.appendLine()
             }
             if (opcode == BcOpcode.Iter) {
-                // let for_loop = ptr.get_instr::<InstrIter>();
                 // loop_ends.push(ip.offset(for_loop.arg.4));
                 val iterOffset = getIterForwardOffset(ptr)
                 if (iterOffset != null) {
@@ -301,8 +264,6 @@ class BcInstrs private constructor(
         }
     }
 
-    // pub(crate) fn dump_debug(&self) -> String
-
     /** Dump instructions in debug (multiline) format. */
     internal fun dumpDebug(): String {
         val sb = StringBuilder()
@@ -310,8 +271,6 @@ class BcInstrs private constructor(
         return sb.toString()
     }
 
-    // impl Display for BcInstrs
-    // fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
     //     self.fmt_impl(f, false)
     // }
     override fun toString(): String {
@@ -428,8 +387,6 @@ class BcInstrs private constructor(
 
 // --- PatchAddr ---
 
-// pub(crate) struct PatchAddr
-
 /**
  * Address to be patched later with the actual target address.
  *
@@ -437,15 +394,11 @@ class BcInstrs private constructor(
  * address is not yet known at write time.
  */
 class PatchAddr(
-    // pub(crate) instr_start: BcAddr,
     val instrStart: BcAddr,
-    // pub(crate) arg: BcAddr,
     val arg: BcAddr,
 )
 
 // --- BcInstrsWriter ---
-
-// pub(crate) struct BcInstrsWriter
 
 /**
  * Raw instructions writer.
@@ -458,24 +411,17 @@ class PatchAddr(
  * garbage collector handles cleanup.
  */
 class BcInstrsWriter {
-    // pub(crate) instrs: Vec<u64>
     internal val instrs: MutableList<Any> = mutableListOf()
 
-    // impl Drop for BcInstrsWriter
-    //   fn drop(&mut self) {
-    //       unsafe { drop_instrs(&self.instrs); }
     //   }
     // In Kotlin, GC handles cleanup.
 
     companion object {
-        // pub(crate) fn new() -> BcInstrsWriter
         fun new(): BcInstrsWriter = BcInstrsWriter()
     }
 
     /** Current number of elements in the instructions list. */
     fun instrsSize(): Int = instrs.size
-
-    // fn instrs_len_bytes(&self) -> usize
 
     /**
      * Length of instructions buffer.
@@ -485,16 +431,12 @@ class BcInstrsWriter {
      */
     private fun instrsLenBytes(): Int = instrs.size
 
-    // pub(crate) fn ip(&self) -> BcAddr
-
     /**
      * Current instruction pointer (address of next instruction to be written).
      *
      * In Rust: `BcAddr(self.instrs_len_bytes().try_into().unwrap())`
      */
     fun ip(): BcAddr = BcAddr(instrsLenBytes().toUInt())
-
-    // pub(crate) fn write<I: BcInstr>(&mut self, arg: I::Arg) -> (BcAddr, *const I::Arg)
 
     /**
      * Write an instruction with the given header and argument.
@@ -504,14 +446,8 @@ class BcInstrsWriter {
      * and arg to the list and return the instruction address.
      */
     fun write(header: BcInstrHeader, arg: Any): BcAddr {
-        // let repr = BcInstrRepr::<I>::new(arg);
         // assert!(mem::size_of_val(&repr).is_multiple_of(mem::size_of::<u64>()));
-        // let ip = self.ip();
-        // let offset_bytes = self.instrs_len_bytes();
         // self.instrs.resize(..., 0);
-        // unsafe {
-        //     let ptr = ...;
-        //     ptr::write(ptr, repr);
         //     (ip, &(*ptr).arg)
         // }
         val instrIp = ip()
@@ -519,8 +455,6 @@ class BcInstrsWriter {
         instrs.add(arg)
         return instrIp
     }
-
-    // pub(crate) fn addr_to_patch(&self, instr_start: BcAddr, addr: *const BcAddrOffset) -> PatchAddr
 
     /**
      * Create a [PatchAddr] for a forward jump that needs to be patched later.
@@ -533,16 +467,12 @@ class BcInstrsWriter {
      * @param argIndex the index in the instrs list of the offset to be patched.
      */
     fun addrToPatch(instrStart: BcAddr, argIndex: Int): PatchAddr {
-        // unsafe { assert_eq!(*addr, BcAddrOffset::FORWARD) };
-        // let offset_bytes = unsafe { (addr as *const u8).offset_from(self.instrs.as_ptr() as *const u8) };
         // assert!((offset_bytes as usize) < self.instrs_len_bytes());
         return PatchAddr(
             instrStart = instrStart,
             arg = BcAddr(argIndex.toUInt()),
         )
     }
-
-    // pub(crate) fn patch_addr(&mut self, addr: PatchAddr)
 
     /**
      * Patch a previously written forward jump address with the current IP.
@@ -584,8 +514,6 @@ class BcInstrsWriter {
             }
     }
 
-    // pub(crate) fn finish(mut self, slow_args, stmt_locs, local_names) -> BcInstrs
-
     /**
      * Finish writing instructions.
      *
@@ -616,10 +544,7 @@ class BcInstrsWriter {
                         .new(localNames),
             ),
         )
-        // let instrs = mem::take(&mut self.instrs);
-        // let instrs = instrs.into_boxed_slice();
         // assert!((instrs.as_ptr() as usize).is_multiple_of(BC_INSTR_ALIGN));
-        // BcInstrs::for_instrs(Either::Left(instrs), stmt_locs)
         return BcInstrs.forInstrs(instrs.toList(), stmtLocs)
     }
 }

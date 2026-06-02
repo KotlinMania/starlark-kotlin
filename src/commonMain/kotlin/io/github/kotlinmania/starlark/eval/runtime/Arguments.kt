@@ -36,8 +36,6 @@ import io.github.kotlinmania.starlark.values.types.dict.dictRefFromValue
 import io.github.kotlinmania.starlark.Error as StarlarkError
 import io.github.kotlinmania.starlark.values.types.dict.Either as DictEither
 
-// #[derive(Debug, Clone, Error)]
-// pub(crate) enum FunctionError
 sealed class FunctionError(
     private val text: String,
 ) : Exception() {
@@ -86,9 +84,6 @@ sealed class FunctionError(
         )
 }
 
-// impl From<FunctionError> for crate::Error {
-//     fn from(e: FunctionError) -> Self {
-//         crate::Error::new_kind(crate::ErrorKind::Function(anyhow::Error::new(e)))
 //     }
 // }
 
@@ -96,27 +91,21 @@ sealed class FunctionError(
 fun from(e: FunctionError): StarlarkError = StarlarkError.newKind(ErrorKind.Function(e))
 
 /** An object accompanying argument name for faster argument resolution. */
-// pub(crate) trait ArgSymbol: Debug + Coerce<Self> + 'static
 interface ArgSymbol {
-    // fn get_index_from_param_spec<'v, V: ValueLike<'v>>(&self, ps: &ParametersSpec<V>) -> Option<usize>
     fun <V> getIndexFromParamSpec(ps: ParametersSpec<V>): Int?
 
-    // fn small_hash(&self) -> StarlarkHashValue
     fun smallHash(): StarlarkHashValue
 }
 
 /**
  * `Symbol` resolved to function parameter index.
  */
-// #[derive(Debug)]
-// pub(crate) struct ResolvedArgName
 data class ResolvedArgName(
     /** Hash of the argument name. */
     val hash: StarlarkHashValue,
     /** Parameter index or `null` if the argument should go to kwargs. */
     val paramIndex: Int?,
 ) : ArgSymbol {
-    // impl ArgSymbol for ResolvedArgName
     override fun <V> getIndexFromParamSpec(
         ps: ParametersSpec<V>,
     ): Int? = paramIndex
@@ -124,24 +113,18 @@ data class ResolvedArgName(
     override fun smallHash(): StarlarkHashValue = hash
 }
 
-// unsafe impl Coerce<ResolvedArgName> for ResolvedArgName {}
 // Kotlin: no Coerce equivalent needed.
 
-// #[derive(Debug, Clone_, Dupe_)]
-// pub(crate) struct ArgNames<'a, 'v, S: ArgSymbol>
 class ArgNames<S : ArgSymbol>(
     /** Names are guaranteed to be unique here. */
     private val namedArguments: List<Pair<S, StringValue>>,
 ) {
-    // impl<'a, 'v, S: ArgSymbol> Default for ArgNames<'a, 'v, S>
     constructor() : this(emptyList())
 
     fun names(): List<Pair<S, StringValue>> = namedArguments
 
     companion object {
         fun <S : ArgSymbol> default(): ArgNames<S> = ArgNames()
-
-        // pub(crate) fn new_unique(names: &'a [(S, StringValue<'v>)]) -> ArgNames<'a, 'v, S>
 
         /**
          * Names must be unique.
@@ -153,7 +136,6 @@ class ArgNames<S : ArgSymbol>(
          */
         fun <S : ArgSymbol> newUnique(names: List<Pair<S, StringValue>>): ArgNames<S> = ArgNames(names)
 
-        // pub(crate) fn new_check_unique(names: &'a [(S, StringValue<'v>)]) -> crate::Result<ArgNames<'a, 'v, S>>
         fun <S : ArgSymbol> newCheckUnique(
             names: List<Pair<S, StringValue>>,
         ): Result<ArgNames<S>> {
@@ -171,22 +153,15 @@ class ArgNames<S : ArgSymbol>(
 }
 
 /** Either full arguments, or short arguments for positional-only calls. */
-// pub(crate) trait ArgumentsImpl<'v, 'a>: Debug
 interface ArgumentsImpl<S : ArgSymbol> {
-    // type ArgSymbol: ArgSymbol
-    // fn pos(&self) -> &[Value<'v>]
     fun pos(): List<Value>
 
-    // fn named(&self) -> &[Value<'v>]
     fun named(): List<Value>
 
-    // fn names(&self) -> ArgNames<'a, 'v, Self::ArgSymbol>
     fun names(): ArgNames<S>
 
-    // fn args(&self) -> Option<Value<'v>>
     fun args(): Value?
 
-    // fn kwargs(&self) -> Option<Value<'v>>
     fun kwargs(): Value?
 }
 
@@ -194,8 +169,6 @@ interface ArgumentsImpl<S : ArgSymbol> {
  * Arguments object is passed from the starlark interpreter to function implementation
  * when evaluation function or method calls.
  */
-// #[derive(Clone_, Dupe_, Debug)]
-// pub(crate) struct ArgumentsFull<'v, 'a, S: ArgSymbol>
 class ArgumentsFull<S : ArgSymbol>(
     /** Positional arguments. */
     var pos: List<Value> = emptyList(),
@@ -212,10 +185,8 @@ class ArgumentsFull<S : ArgSymbol>(
     /** `**kwargs` argument. */
     var kwargs: Value? = null,
 ) : ArgumentsImpl<S> {
-    // impl<'v, 'a, S: ArgSymbol> Default for ArgumentsFull<'v, 'a, S>
     // Handled by default parameter values above.
 
-    // impl<'v, 'a, S: ArgSymbol> ArgumentsImpl<'v, 'a> for ArgumentsFull<'v, 'a, S>
     override fun pos(): List<Value> = pos
 
     override fun named(): List<Value> = named
@@ -230,12 +201,9 @@ class ArgumentsFull<S : ArgSymbol>(
 /**
  * Positional-only arguments, smaller and faster than [ArgumentsFull].
  */
-// #[derive(Debug)]
-// pub(crate) struct ArgumentsPos<'v, 'a, S: ArgSymbol>
 class ArgumentsPos<S : ArgSymbol>(
     val pos: List<Value>,
 ) : ArgumentsImpl<S> {
-    // impl<'a, 'v, S: ArgSymbol> ArgumentsImpl<'v, 'a> for ArgumentsPos<'v, 'a, S>
     override fun pos(): List<Value> = pos
 
     override fun named(): List<Value> = emptyList()
@@ -251,8 +219,6 @@ class ArgumentsPos<S : ArgSymbol>(
  * Arguments object is passed from the starlark interpreter to function implementation
  * when evaluation function or method calls.
  */
-// #[derive(Default, Clone, Dupe_)]
-// pub struct Arguments<'v, 'a>(pub(crate) ArgumentsFull<'v, 'a, Symbol>);
 class Arguments(
     @PublishedApi internal val full: ArgumentsFull<Symbol> = ArgumentsFull(),
 ) {
@@ -263,7 +229,6 @@ class Arguments(
      *
      * This operation fails if named argument names are not unique.
      */
-    // pub fn names_map(&self) -> crate::Result<SmallMap<StringValue<'v>, Value<'v>>>
     fun namesMap(): Result<SmallMap<StringValue, Value>> {
         val kwargsResult = unpackKwargs()
         if (kwargsResult.isFailure) {
@@ -329,7 +294,6 @@ class Arguments(
      *
      * This operation fails if the `kwargs` is not a dictionary, or `args` does not support `len`.
      */
-    // pub fn len(&self) -> crate::Result<usize>
     fun len(): Result<Int> {
         val argsLen =
             when (val a = full.args) {
@@ -351,7 +315,6 @@ class Arguments(
      *
      * This operation fails if named argument names are not unique.
      */
-    // pub(crate) fn names(&self) -> crate::Result<Dict<'v>>
     internal fun names(): Result<Dict> {
         val mapResult = namesMap()
         if (mapResult.isFailure) return Result.failure(mapResult.exceptionOrNull()!!)
@@ -362,7 +325,6 @@ class Arguments(
     /**
      * Unpack all positional parameters into an iterator.
      */
-    // pub fn positions<'b>(&'b self, heap: Heap<'v>) -> crate::Result<impl Iterator<Item = Value<'v>> + 'b>
     fun positions(heap: Heap): Result<Iterator<Value>> {
         val tail: Iterator<Value> =
             when (val a = full.args) {
@@ -382,7 +344,6 @@ class Arguments(
      * will _not_ have been validated to be strings (as they must be).
      * The arguments may also overlap with named, which would be an error.
      */
-    // pub(crate) fn unpack_kwargs(&self) -> crate::Result<Option<DictRef>>
     internal fun unpackKwargs(): Result<DictRef?> =
         when (val kw = full.kwargs) {
             null -> Result.success(null)
@@ -397,20 +358,17 @@ class Arguments(
         }
 
     /** Confirm that a key in the `kwargs` field is indeed a string, or error. */
-    // pub(crate) fn unpack_kwargs_key_as_value(k: Value<'v>) -> crate::Result<StringValue<'v>>
     internal fun unpackKwargsKeyAsValue(k: Value): Result<StringValue> {
         val sv = StringValue.new(k) ?: return Result.failure(FunctionError.ArgsValueIsNotString)
         return Result.success(sv)
     }
 
     /** Confirm that a key in the `kwargs` field is indeed a string, or error. */
-    // pub(crate) fn unpack_kwargs_key(k: Value<'v>) -> crate::Result<&'v str>
     internal fun unpackKwargsKey(k: Value): Result<String> = unpackKwargsKeyAsValue(k).map { it.asStr() }
 
     /**
      * Produce error if there are any positional arguments.
      */
-    // pub fn no_positional_args(&self, heap: Heap<'v>) -> crate::Result<()>
     fun noPositionalArgs(heap: Heap): Result<Unit> {
         val result = positional(0, heap)
         if (result.isFailure) return Result.failure(result.exceptionOrNull()!!)
@@ -426,7 +384,6 @@ class Arguments(
     /**
      * Produce error if there are any named (i.e. non-positional) arguments.
      */
-    // pub fn no_named_args(&self) -> crate::Result<()>
     fun noNamedArgs(): Result<Unit> {
         if (full.named.isEmpty() && full.kwargs == null) {
             return Result.success(Unit)
@@ -438,7 +395,6 @@ class Arguments(
      * Collect exactly `n` positional arguments from the [Arguments],
      * failing if there are too many/few arguments. Ignores named arguments.
      */
-    // pub(crate) fn positional<const N: usize>(&self, heap: Heap<'v>) -> crate::Result<[Value<'v>; N]>
     internal fun positional(n: Int, heap: Heap): Result<List<Value>> {
         val (required, optional) =
             optional(n, 0, heap).let {
@@ -453,7 +409,6 @@ class Arguments(
      * from the [Arguments], failing if there are too many/few arguments. Ignores named arguments.
      * The optional list will never have a non-null after a null.
      */
-    // pub(crate) fn optional<const REQUIRED: usize, const OPTIONAL: usize>(...)
     internal fun optional(
         required: Int,
         optional: Int,
@@ -478,7 +433,6 @@ class Arguments(
      * Collect 1 positional arguments from the [Arguments], failing if there are too many/few
      * arguments. Ignores named arguments.
      */
-    // pub fn positional1(&self, heap: Heap<'v>) -> crate::Result<Value<'v>>
     fun positional1(heap: Heap): Result<Value> {
         // Could be implemented more directly, let's see if profiling shows it up
         val result = positional(1, heap)
@@ -490,7 +444,6 @@ class Arguments(
      * Collect up to 1 optional arguments from the [Arguments], failing if there are too many
      * arguments. Ignores named arguments.
      */
-    // pub(crate) fn optional1(&self, heap: Heap<'v>) -> crate::Result<Option<Value<'v>>>
     internal fun optional1(heap: Heap): Result<Value?> {
         // Could be implemented more directly, let's see if profiling shows it up
         val (_, opt) =
@@ -559,8 +512,6 @@ class Arguments(
     companion object {
         fun default(): Arguments = Arguments()
 
-        // pub(crate) fn unpack_kwargs_key_as_value(k: Value<'v>) -> crate::Result<StringValue<'v>>
-
         /** Confirm that a key in the `kwargs` field is indeed a string, or error. */
         fun unpackKwargsKeyAsValue(k: Value): Result<StringValue> {
             val sv =
@@ -569,20 +520,16 @@ class Arguments(
             return Result.success(sv)
         }
 
-        // pub(crate) fn unpack_kwargs_key(k: Value<'v>) -> crate::Result<&'v str>
-
         /** Confirm that a key in the `kwargs` field is indeed a string, or error. */
         fun unpackKwargsKey(k: Value): Result<String> = unpackKwargsKeyAsValue(k).map { it.asStr() }
     }
 }
 
 // impl<'a> Arguments<'static, 'a>
-// pub(crate) fn frozen_to_v<'v>(&self) -> &Arguments<'v, 'a>
 // Kotlin: No lifetime erasure needed. Arguments does not have a lifetime parameter.
 
 // #[cold]
 // #[inline(never)]
-// fn bad(x: &Arguments) -> crate::Result<()>
 
 /**
  * Cold path for [Arguments.noNamedArgs]: collects extra named argument names
@@ -621,7 +568,6 @@ private fun bad(x: Arguments): Result<Unit> {
 
 // #[cold]
 // #[inline(never)]
-// fn rare<'v, const REQUIRED: usize, const OPTIONAL: usize>(
 //     x: &Arguments<'v, '_>, heap: Heap<'v>,
 // ) -> crate::Result<([Value<'v>; REQUIRED], [Option<Value<'v>>; OPTIONAL])>
 
@@ -684,7 +630,6 @@ private fun DictRef.keys(): Sequence<Value> =
 private fun DictRef.downcastRefKeyString(): SmallMap<StringValue, Value>? =
     dict().downcastRefKeyString()
 
-// #[cfg(test)] mod tests
 // Tests are in commonTest, not here.
 
 /**

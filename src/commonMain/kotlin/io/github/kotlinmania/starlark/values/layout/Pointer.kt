@@ -28,33 +28,24 @@ package io.github.kotlinmania.starlark.values.layout
 // Kotlin: GC handles all memory. We simulate pointer tagging using
 // an enum for the tag and a backing array for identity-based indexing.
 
-// const TAG_BITS: usize = 3;
-// const TAG_MASK: usize = 0b111;
 private const val TAG_BITS: Int = 3
 private const val TAG_MASK: Int = 0b111
 
-// const TAG_INT: usize = 0b010;
 private const val TAG_INT: Int = 0b010
 
-// const TAG_STR: usize = 0b100;
 private const val TAG_STR: Int = 0b100
 
-// const TAG_UNFROZEN: usize = 0b001;
 private const val TAG_UNFROZEN: Int = 0b001
 
-// const TAG_NICHE: usize = 0b1;
 private const val TAG_NICHE: Int = 0b1
 
-// const INT_SHIFT: usize = mem::size_of::<usize>() * 8 - InlineInt::BITS;
 // Kotlin: Long is 64 bits, InlineInt.BITS is 32
 private const val INT_SHIFT: Int = 64 - 32 // = 32
 
-// const INT_DATA_MASK: usize = ((1usize << InlineInt::BITS) - 1) << INT_SHIFT;
 private const val INT_DATA_MASK: Long = ((1L shl 32) - 1L) shl INT_SHIFT
 
 /** All possible tag values, three least significant bits of a pointer. */
 // #[repr(usize)]
-// pub(crate) enum PointerTags { Int, StrUnfrozen, StrFrozen, OtherUnfrozen, OtherFrozen }
 internal enum class PointerTags(
     val bits: Int,
 ) {
@@ -66,28 +57,22 @@ internal enum class PointerTags(
     ;
 
     companion object {
-        // unsafe fn from_usize_unchecked(x: usize) -> Self
         fun fromUsize(x: Int): PointerTags = entries.first { it.bits == x }
 
-        // fn from_pointer(ptr: RawPointer) -> Self
         fun fromPointer(ptr: RawPointer): PointerTags = fromUsize(ptr.ptrValue().toInt() and TAG_MASK)
     }
 
     /** String value, frozen or not. */
-    // fn is_str(self) -> bool
     fun isStr(): Boolean = bits and TAG_STR != 0
 
     /** Inline integer. */
-    // fn is_int(self) -> bool
     fun isInt(): Boolean = this == Int
 
     /** Not frozen, not an integer. */
-    // fn is_unfrozen(self) -> bool
     fun isUnfrozen(): Boolean = bits and TAG_UNFROZEN != 0
 }
 
 /** All possible tag values for frozen pointers. */
-// enum _FrozenPointerTags { Int, Str, Other }
 private enum class FrozenPointerTags(
     val bits: Int,
 ) {
@@ -103,8 +88,6 @@ private enum class FrozenPointerTags(
 // array indices as simulated pointers.
 
 /** Tagged pointer logically equivalent to `*mut AValueHeader`. */
-// #[derive(Clone, Copy, Dupe, PartialEq, Eq, Hash, Allocative)]
-// pub(crate) struct RawPointer(pub(crate) NonZeroUsize);
 internal class RawPointer private constructor(
     // Kotlin: stores the tagged value as a Long.
     // For int tags: upper bits hold InlineInt, lower bits hold TAG_INT.
@@ -116,16 +99,13 @@ internal class RawPointer private constructor(
     }
 
     companion object {
-        // unsafe fn new_unchecked(ptr: usize) -> RawPointer
         fun newUnchecked(ptr: Long): RawPointer = RawPointer(ptr)
 
-        // pub(crate) fn new_int(i: InlineInt) -> RawPointer
         fun newInt(i: Int): RawPointer {
             val ptr = ((i.toLong()) shl INT_SHIFT) or TAG_INT.toLong()
             return newUnchecked(ptr)
         }
 
-        // pub(crate) fn new_unfrozen(ptr: &AValueHeader, is_string: bool) -> RawPointer
         fun newUnfrozen(index: Long, isString: Boolean): RawPointer {
             require(index and TAG_MASK.toLong() == 0L) { "Index must be aligned" }
             var ptr = index
@@ -136,7 +116,6 @@ internal class RawPointer private constructor(
             return newUnchecked(ptr)
         }
 
-        // pub(crate) fn new_frozen(ptr: &AValueHeader, is_string: bool) -> RawPointer
         fun newFrozen(index: Long, isString: Boolean): RawPointer {
             require(index and TAG_MASK.toLong() == 0L) { "Index must be aligned" }
             var ptr = index
@@ -147,22 +126,16 @@ internal class RawPointer private constructor(
         }
     }
 
-    // pub(crate) fn ptr_value(self) -> usize
     fun ptrValue(): Long = raw
 
-    // pub(crate) fn tags(self) -> PointerTags
     fun tags(): PointerTags = PointerTags.fromPointer(this)
 
-    // pub(crate) fn is_str(self) -> bool
     fun isStr(): Boolean = tags().isStr()
 
-    // pub(crate) fn is_int(self) -> bool
     fun isInt(): Boolean = tags().isInt()
 
-    // pub(crate) fn is_unfrozen(self) -> bool
     fun isUnfrozen(): Boolean = tags().isUnfrozen()
 
-    // pub(crate) fn unpack_int(self) -> Option<InlineInt>
     fun unpackInt(): Int? =
         if (!isInt()) {
             null
@@ -171,53 +144,40 @@ internal class RawPointer private constructor(
         }
 
     /** Unpack integer when it is known to be not a pointer. */
-    // pub(crate) unsafe fn unpack_int_unchecked(self) -> InlineInt
     fun unpackIntUnchecked(): Int = ((raw) shr INT_SHIFT).toInt()
 
     /** Unpack the index (stripping tag bits) when known to be not an int. */
-    // pub(crate) unsafe fn unpack_ptr_no_int_unchecked(self) -> &'v AValueOrForward
     fun unpackPtrNoIntUnchecked(): Long = raw and (TAG_STR.toLong() or TAG_UNFROZEN.toLong()).inv()
 
-    // impl Debug for RawPointer
     override fun toString(): String = "RawPointer(0x${raw.toString(16)})"
 
-    // impl PartialEq for RawPointer
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other !is RawPointer) return false
         return raw == other.raw
     }
 
-    // impl Hash for RawPointer
     override fun hashCode(): Int = raw.hashCode()
 }
 
-// unsafe fn untag_pointer<'a>(x: usize) -> &'a AValueOrForward
 private fun untagPointer(x: Long): Long = x and TAG_MASK.toLong().inv()
 
 /** Pointer which may be frozen or unfrozen. */
-// pub(crate) struct Pointer<'p> { ptr: RawPointer, _phantom: PhantomData<*mut &'p ()> }
 internal class Pointer private constructor(
     private val ptr: RawPointer,
 ) {
     companion object {
-        // unsafe fn new(ptr: RawPointer) -> Pointer<'p>
         fun new(ptr: RawPointer): Pointer = Pointer(ptr)
 
-        // pub(crate) unsafe fn new_unfrozen_usize_with_str_tag(x: usize) -> Self
         fun newUnfrozenUsizeWithStrTag(x: Long): Pointer = new(RawPointer.newUnchecked(x or TAG_UNFROZEN.toLong()))
 
-        // pub(crate) fn new_unfrozen(x: &'p AValueHeader, is_string: bool) -> Self
         fun newUnfrozen(index: Long, isString: Boolean): Pointer = new(RawPointer.newUnfrozen(index, isString))
     }
 
-    // pub(crate) fn is_str(self) -> bool
     fun isStr(): Boolean = ptr.isStr()
 
-    // pub(crate) fn is_unfrozen(self) -> bool
     fun isUnfrozen(): Boolean = ptr.isUnfrozen()
 
-    // pub(crate) fn unpack(self) -> Either<&'p AValueOrForward, &'static PointerI32>
     // Kotlin: returns Pair<Long?, Int?> where first is ptr index, second is int value
     // (exactly one is non-null)
     fun unpackIsInt(): Boolean = ptr.isInt()
@@ -226,10 +186,8 @@ internal class Pointer private constructor(
 
     fun unpackIntValue(): Int = ptr.unpackIntUnchecked()
 
-    // pub(crate) fn unpack_int(self) -> Option<InlineInt>
     fun unpackInt(): Int? = ptr.unpackInt()
 
-    // pub(crate) fn unpack_ptr(self) -> Option<&'p AValueOrForward>
     fun unpackPtrOpt(): Long? =
         if (!ptr.isInt()) {
             untagPointer(ptr.ptrValue())
@@ -238,68 +196,51 @@ internal class Pointer private constructor(
         }
 
     /** Unpack pointer when it is known to be not an integer. */
-    // pub(crate) unsafe fn unpack_ptr_no_int_unchecked(self) -> &'p AValueOrForward
     fun unpackPtrNoIntUnchecked(): Long = untagPointer(ptr.ptrValue())
 
     /** Unpack integer when it is known to be not a pointer. */
-    // pub(crate) unsafe fn unpack_pointer_i32_unchecked(self) -> &'static PointerI32
     fun unpackPointerI32Unchecked(): Int = ptr.unpackIntUnchecked()
 
-    // pub(crate) fn ptr_eq(self, other: Pointer<'_>) -> bool
     fun ptrEq(other: Pointer): Boolean = ptr == other.ptr
 
-    // pub(crate) fn raw(self) -> RawPointer
     fun raw(): RawPointer = ptr
 
-    // pub(crate) unsafe fn cast_lifetime<'p2>(self) -> Pointer<'p2>
     // Kotlin: no lifetimes, just return same pointer
     fun castLifetime(): Pointer = Pointer(ptr)
 
-    // pub(crate) unsafe fn to_frozen_pointer_unchecked(self) -> FrozenPointer<'p>
     fun toFrozenPointerUnchecked(): FrozenPointer = FrozenPointer.new(ptr)
 }
 
 /** Pointer which is known to be frozen (immutable). */
-// pub(crate) struct FrozenPointer<'p> { ptr: RawPointer, phantom: PhantomData<&'p AValueHeader> }
 internal class FrozenPointer private constructor(
     private val ptr: RawPointer,
 ) {
     companion object {
-        // pub(crate) unsafe fn new(ptr: RawPointer) -> FrozenPointer<'p>
         fun new(ptr: RawPointer): FrozenPointer {
             require(!ptr.isUnfrozen()) { "FrozenPointer must not be unfrozen" }
             return FrozenPointer(ptr)
         }
 
-        // pub(crate) fn new_frozen_usize_with_str_tag(x: usize) -> Self
         fun newFrozenUsizeWithStrTag(x: Long): FrozenPointer = new(RawPointer.newUnchecked(x))
 
-        // pub(crate) fn new_frozen(x: &'p AValueHeader, is_str: bool) -> Self
         fun newFrozen(index: Long, isStr: Boolean): FrozenPointer = new(RawPointer.newFrozen(index, isStr))
 
-        // pub(crate) fn new_int(x: InlineInt) -> Self
         fun newInt(x: Int): FrozenPointer = new(RawPointer.newInt(x))
     }
 
     /** It is safe to bitcast `FrozenPointer` to `Pointer` but not vice versa. */
-    // pub(crate) fn to_pointer(self) -> Pointer<'p>
     fun toPointer(): Pointer = Pointer.new(ptr)
 
-    // pub(crate) fn raw(self) -> RawPointer
     fun raw(): RawPointer = ptr
 
     /** Unpack pointer when it is known to be not an integer. */
-    // pub(crate) unsafe fn unpack_ptr_no_int_unchecked(self) -> &'p AValueOrForward
     fun unpackPtrNoIntUnchecked(): Long = ptr.unpackPtrNoIntUnchecked()
 
     /** Unpack integer when it is known to be not a pointer. */
-    // pub(crate) unsafe fn unpack_pointer_i32_unchecked(self) -> &'static PointerI32
     fun unpackPointerI32Unchecked(): Int = ptr.unpackIntUnchecked()
 
     /** Unpack pointer when it is known to be frozen, not an integer, not a string. */
-    // pub(crate) unsafe fn unpack_ptr_no_int_no_str_unchecked(self) -> &'p AValueOrForward
     fun unpackPtrNoIntNoStrUnchecked(): Long = ptr.ptrValue()
 }
 
-// #[cfg(test)] #[test] fn test_int_tag()
 // Tests are in commonTest, not here.

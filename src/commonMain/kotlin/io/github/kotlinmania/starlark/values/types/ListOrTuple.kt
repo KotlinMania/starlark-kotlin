@@ -22,23 +22,16 @@ package io.github.kotlinmania.starlark.values.types.listortuple
 /** Utility for unpacking a value of type `list[T]` or `tuple[T, ...]` into a list. */
 
 /** Unpack a value of type `list[T]` or `tuple[T, ...]` into a list. */
-// #[derive(Debug, Clone, Eq, PartialEq, Hash, Ord, PartialOrd)]
-// pub struct UnpackListOrTuple<T> { pub items: Vec<T> }
 class UnpackListOrTuple<T>(
     /** Unpacked items of the list or tuple. */
     val items: MutableList<T>,
 ) : Iterable<T> {
-    // impl Default for UnpackListOrTuple<T>
     constructor() : this(mutableListOf())
 
     companion object {
-        // impl StarlarkTypeRepr for UnpackListOrTuple<T>
-        // fn starlark_type_repr() -> Ty
         // Kotlin: type representation delegates to Either<UnpackList<T>, UnpackTuple<T>>
         // Actual type repr will be resolved when UnpackList/UnpackTuple are ported.
 
-        // impl UnpackValue for UnpackListOrTuple<T>
-        // fn unpack_value_impl(value: Value<'v>) -> Result<Option<Self>, Self::Error>
         fun <T> unpackValueImpl(
             value: Any,
             unpackList: (Any) -> List<T>?,
@@ -56,23 +49,17 @@ class UnpackListOrTuple<T>(
         }
     }
 
-    // impl IntoIterator for UnpackListOrTuple<T>
-    // fn into_iter(self) -> Self::IntoIter
     override fun iterator(): Iterator<T> = items.iterator()
 
-    // impl PartialEq for UnpackListOrTuple<T>
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other !is UnpackListOrTuple<*>) return false
         return items == other.items
     }
 
-    // impl Hash for UnpackListOrTuple<T>
     override fun hashCode(): Int = items.hashCode()
 
-    // impl Debug for UnpackListOrTuple<T>
     override fun toString(): String = "UnpackListOrTuple(items=$items)"
 }
 
-// #[cfg(test)] mod tests
 // Tests are in commonTest, not here.

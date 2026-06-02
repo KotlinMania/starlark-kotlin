@@ -19,21 +19,9 @@ package io.github.kotlinmania.starlark.values.layout
  * limitations under the License.
  */
 
-// use std::fmt::Debug;
-// use std::fmt::Display;
-
-// use allocative::Allocative;
-// use dupe::Dupe;
-// use serde::Serialize;
-
-// use crate::sealed::Sealed;
-// use crate::values::Freeze;
-// use crate::values::FrozenValue;
-
 import io.github.kotlinmania.starlark.values.Freeze
 
 // / Implemented by [`Value`](crate::values::Value) and [`FrozenValue`](crate::values::FrozenValue).
-// pub trait ValueLifetimeless:
 //     Sealed
 //     + Eq
 //     + Copy

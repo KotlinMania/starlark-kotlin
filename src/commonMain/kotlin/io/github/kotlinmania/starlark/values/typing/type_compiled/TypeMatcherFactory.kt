@@ -21,14 +21,9 @@ package io.github.kotlinmania.starlark.values.typing.typecompiled
 
 import io.github.kotlinmania.starlark.values.layout.Value
 
-// #[derive(Allocative, Debug)]
-// struct TypeMatcherFactoryImpl<M: TypeMatcher> { matcher: M }
 private class TypeMatcherFactoryImpl(
     private val matcher: TypeMatcher,
 ) : TypeMatcherFactoryDyn {
-    // impl<M: TypeMatcher> TypeMatcherFactoryDyn for TypeMatcherFactoryImpl<M>
-
-    // fn matcher_box(&self) -> TypeMatcherBox
     override fun matcherBox(): TypeMatcherBox =
         TypeMatcherBox.new(
             object : TypeMatcherT {
@@ -36,15 +31,11 @@ private class TypeMatcherFactoryImpl(
             },
         )
 
-    // fn type_compiled<'v>(&self, factory: TypeCompiledFactory<'_, 'v>) -> TypeCompiled>
     override fun typeCompiled(factory: TypeCompiledFactory): TypeCompiled = factory.alloc(matcher)
 
     override fun toString(): String = "TypeMatcherFactoryImpl($matcher)"
 }
 
-// pub(crate) trait TypeMatcherFactoryDyn: Allocative + Debug + Send + Sync + 'static {
-//     fn matcher_box(&self) -> TypeMatcherBox;
-//     fn type_compiled<'v>(&self, factory: TypeCompiledFactory<'_, 'v>) -> TypeCompiled>;
 // }
 internal interface TypeMatcherFactoryDyn {
     fun matcherBox(): TypeMatcherBox

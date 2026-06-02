@@ -19,8 +19,6 @@ package io.github.kotlinmania.starlark.eval.bc
  * limitations under the License.
  */
 
-// use dupe::Dupe;
-
 // / Depth of the loop. For example,
 // /
 // / ```text
@@ -29,11 +27,9 @@ package io.github.kotlinmania.starlark.eval.bc
 // /     for j in range(20): # depth 1
 // /       pass
 // / ```
-// #[derive(
 //     Default, Debug, Copy, Clone, Dupe, derive_more::Display,
 //     Eq, PartialEq, Ord, PartialOrd
 // )]
-// pub(crate) struct LoopDepth(pub(crate) u32);
 data class LoopDepth(
     val depth: Int = 0,
 ) : Comparable<LoopDepth> {

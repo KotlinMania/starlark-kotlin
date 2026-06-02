@@ -26,8 +26,6 @@ import kotlin.reflect.KClass
 // In Kotlin, type erasure means there's no direct equivalent to Rust's TypeId for non-static lifetimes.
 // We provide a KClass-based approximation for test utilities.
 
-// pub(crate) fn non_static_type_id<T: ?Sized>() -> TypeId
-
 /**
  * Get the runtime type identifier for a type.
  *
@@ -36,5 +34,4 @@ import kotlin.reflect.KClass
  */
 internal inline fun <reified T : Any> nonStaticTypeId(): KClass<T> = T::class
 
-// #[cfg(test)] mod tests
 // Tests are in commonTest, not here.

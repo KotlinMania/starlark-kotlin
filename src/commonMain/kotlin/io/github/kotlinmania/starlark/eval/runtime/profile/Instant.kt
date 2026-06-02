@@ -25,10 +25,6 @@ import kotlin.time.TimeSource
 import kotlin.time.toDuration
 
 // / Real `Instant` for production code, thread-local counter for tests.
-// #[derive(Debug, Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Allocative)]
-// pub(crate) struct ProfilerInstant(
-//     #[cfg(not(test))] std::time::Instant,
-//     #[cfg(test)] u64, // Millis.
 // );
 internal class ProfilerInstant private constructor(
     private val value: Long, // millis in test mode, nanos in production
@@ -36,8 +32,6 @@ internal class ProfilerInstant private constructor(
     // impl ProfilerInstant
 
     companion object {
-        // #[cfg(test)]
-        // pub(crate) const TEST_TICK_MILLIS: u64 = 7;
         const val TEST_TICK_MILLIS: Long = 7L
 
         // Rust uses #[cfg(test)] for compile-time switching; Kotlin uses runtime flag.
@@ -51,9 +45,7 @@ internal class ProfilerInstant private constructor(
         private val epoch: TimeSource.Monotonic.ValueTimeMark = TimeSource.Monotonic.markNow()
 
         // #[inline]
-        // pub(crate) fn now() -> Self
         fun now(): ProfilerInstant {
-            // #[cfg(test)]
             // thread_local! {
             //     static NOW_MILLIS: std::cell::Cell<u64> = const { std::cell::Cell::new(100003) };
             // }
@@ -63,7 +55,6 @@ internal class ProfilerInstant private constructor(
                 nowMillis += TEST_TICK_MILLIS
                 ProfilerInstant(r)
             } else {
-                // #[cfg(not(test))]
                 // ProfilerInstant(std::time::Instant::now())
                 val elapsed = epoch.elapsedNow()
                 ProfilerInstant(elapsed.inWholeNanoseconds)
@@ -72,16 +63,12 @@ internal class ProfilerInstant private constructor(
     }
 
     // #[inline]
-    // pub(crate) fn duration_since(&self, earlier: ProfilerInstant) -> Duration
     fun durationSince(earlier: ProfilerInstant): Duration =
         if (testMode) {
-            // #[cfg(test)]
-            // Duration::from_millis(self.0.checked_sub(earlier.0).unwrap())
             val diffMillis = value - earlier.value
             require(diffMillis >= 0) { "ProfilerInstant::duration_since: earlier is later than self" }
             diffMillis.toDuration(DurationUnit.MILLISECONDS)
         } else {
-            // #[cfg(not(test))]
             // self.0.duration_since(earlier.0)
             val diffNanos = value - earlier.value
             require(diffNanos >= 0) { "ProfilerInstant::duration_since: earlier is later than self" }
@@ -89,19 +76,12 @@ internal class ProfilerInstant private constructor(
         }
 
     // #[inline]
-    // pub(crate) fn elapsed(&self) -> Duration
     fun elapsed(): Duration {
-        // #[cfg(not(test))]
         // self.0.elapsed()
-        // #[cfg(test)]
-        // ProfilerInstant::now().duration_since(*self)
         return now().durationSince(this)
     }
 
-    // impl Sub for ProfilerInstant
-    // type Output = Duration;
     // #[inline]
-    // fn sub(self, rhs: Self) -> Self::Output
     operator fun minus(rhs: ProfilerInstant): Duration = durationSince(rhs)
 
     override fun compareTo(other: ProfilerInstant): Int = value.compareTo(other.value)

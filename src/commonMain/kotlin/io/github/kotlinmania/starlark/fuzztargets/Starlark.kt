@@ -26,7 +26,6 @@ import io.github.kotlinmania.starlark.eval.runtime.Evaluator
 import io.github.kotlinmania.starlark.syntax.AstModule
 import io.github.kotlinmania.starlark.syntax.dialect.Dialect
 
-// fn run_arbitrary_starlark_err(content: &str) -> starlark::Result<String>
 private fun runArbitraryStarlarkErr(content: String): Result<String> {
     val ast =
         AstModule
@@ -43,7 +42,6 @@ private fun runArbitraryStarlarkErr(content: String): Result<String> {
     }
 }
 
-// fn run_arbitrary_starlark(content: &str) -> String
 private fun runArbitraryStarlark(content: String): String =
     when (val result = runArbitraryStarlarkErr(content)) {
         else -> {

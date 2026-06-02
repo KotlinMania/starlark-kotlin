@@ -19,15 +19,8 @@ package io.github.kotlinmania.starlark.values.layout.heap
  * limitations under the License.
  */
 
-// use std::cell::Cell;
-// use std::cell::UnsafeCell;
-// use std::mem;
-// use std::mem::MaybeUninit;
-
 // / Faster but less safe alternative to `RefCell<T>`:
 // / all operations except `borrow` are `unsafe` and may lead to undefined behavior.
-// #[derive(Debug)]
-// pub(crate) struct FastCell<T> {
 //     value: UnsafeCell<MaybeUninit<T>>,
 //     init: Cell<bool>,
 // }
@@ -39,13 +32,9 @@ internal class FastCell<T>(
     // init: Cell<bool>,
     private var init: Boolean = value != null
 
-    // impl Drop for FastCell<T>
-    //     fn drop(&mut self) { ... }
     // Kotlin: GC handles drop. No explicit destructor needed.
 
-    // impl Default for FastCell<T>
     companion object {
-        // fn default() -> Self
         fun <T> default(defaultValue: T): FastCell<T> = FastCell(defaultValue)
     }
 
@@ -55,7 +44,6 @@ internal class FastCell<T>(
     // /
     // / This operation is safe under assumption that other `unsafe` operations
     // / do not leave self in invalid state.
-    // pub(crate) fn borrow(&self) -> &T
     fun borrow(): T {
         // debug_assert!(self.init.get());
         check(init) { "FastCell: borrow on uninitialized cell" }
@@ -63,7 +51,6 @@ internal class FastCell<T>(
         return value as T
     }
 
-    // pub(crate) fn try_borrow(&self) -> Option<&T>
     fun tryBorrow(): T? =
         if (init) {
             // Some(self.borrow())
@@ -77,7 +64,6 @@ internal class FastCell<T>(
     // / This function is unsafe because it's caller responsibility to guarantee
     // / there are no other references to the value, and nobody is going
     // / to obtain references to value while mutable reference exists.
-    // pub(crate) unsafe fn get_mut(&self) -> *mut T
     fun getMut(): T {
         // debug_assert!(self.init.get());
         check(init) { "FastCell: getMut on uninitialized cell" }
@@ -86,7 +72,6 @@ internal class FastCell<T>(
     }
 
     // / Take the value out of the cell.
-    // pub(crate) unsafe fn take(&self) -> T
     fun take(): T {
         // assert!(self.init.get());
         check(init) { "FastCell: take on uninitialized cell" }
@@ -95,13 +80,11 @@ internal class FastCell<T>(
         @Suppress("UNCHECKED_CAST")
         val v = value as T
         // Replace the `value` field with zeros so that accessing it will crash.
-        // mem::replace(&mut *self.value.get(), MaybeUninit::zeroed()).assume_init()
         value = null
         return v
     }
 
     // / Put the value into the cell.
-    // pub(crate) unsafe fn set(&self, value: T)
     fun set(value: T) {
         // assert!(!self.init.get());
         check(!init) { "FastCell: set on already initialized cell" }
@@ -111,6 +94,5 @@ internal class FastCell<T>(
         this.value = value
     }
 
-    // #[derive(Debug)]
     override fun toString(): String = "FastCell(init=$init, value=$value)"
 }

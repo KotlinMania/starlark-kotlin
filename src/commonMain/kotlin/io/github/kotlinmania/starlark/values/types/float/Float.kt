@@ -99,7 +99,6 @@ internal fun writeScientific(
         // start with "-" for a negative number
         if (f.toBits() < 0L) output.append('-')
 
-        // use the whole integral part of normal (a single digit)
         output.append(floor(normal).toInt().toString())
 
         // calculate the fractional tail for given precision
@@ -137,7 +136,6 @@ internal fun writeCompact(output: Appendable, f: Double, exponentChar: Char) {
         val exponent = if (f == 0.0) 0 else floor(log10(abs)).toInt()
 
         if (abs(exponent) >= WRITE_PRECISION) {
-            // use scientific notation if exponent is outside of our precision (but strip 0s)
             writeScientific(output, f, exponentChar, true)
         } else if (f - floor(f) == 0.0) {
             // make sure there's a fractional part even if the number doesn't have it
@@ -263,17 +261,10 @@ data class StarlarkFloat(
     override fun typecheckerTy(): Ty = Ty.float()
 }
 
-// impl AllocValue for StarlarkFloat -- implemented via AllocValue interface on StarlarkFloat
-
-// impl AllocFrozenValue for StarlarkFloat -- implemented via AllocFrozenValue interface on StarlarkFloat
-
-// impl StarlarkTypeRepr for f64
 fun Double.starlarkTypeRepr(): Ty = Ty.float()
 
-// impl AllocValue for f64
 fun Double.allocValue(heap: Heap): Value = heap.alloc(StarlarkFloat(this))
 
-// impl AllocFrozenValue for f64
 fun Double.allocFrozenValue(heap: FrozenHeap): FrozenValue = heap.alloc(StarlarkFloat(this))
 
 /** Allows only a float - an int will not be accepted. */

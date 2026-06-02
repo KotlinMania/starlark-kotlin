@@ -29,16 +29,12 @@ import io.github.kotlinmania.starlark.values.layout.heap.ValueHolder
 
 // A value akin to Frame, but can be created cheaply, since it doesn't resolve
 // anything in advance.
-// #[derive(Clone, Copy, Dupe)]
-// struct CheapFrame<'v>
 private class CheapFrame(
     var function: Value,
     var span: FrozenRef<FrameSpan>?,
 ) {
-    // fn location(&self) -> Option<FileSpan>
     fun location(): FileSpan? = span?.asRef()?.span?.toFileSpan()
 
-    // fn extend_frames(&self, frames: &mut Vec<Frame>)
     fun extendFrames(frames: MutableList<Frame>) {
         span?.let { s ->
             s.asRef().inlinedFrames.extendFrames(frames)
@@ -46,7 +42,6 @@ private class CheapFrame(
         frames.add(toFrame())
     }
 
-    // fn to_frame(&self) -> Frame
     fun toFrame(): Frame =
         Frame(
             name = function.nameForCallStack(),
@@ -56,8 +51,6 @@ private class CheapFrame(
     override fun toString(): String = "Frame(function=$function, span=$span)"
 }
 
-// #[derive(Debug, thiserror::Error)]
-// enum CallStackError
 private sealed class CallStackError(
     override val message: String,
 ) : Exception(message) {
@@ -75,14 +68,11 @@ private sealed class CallStackError(
 }
 
 /** Starlark call stack. */
-// #[derive(Debug)]
-// pub(crate) struct CheapCallStack<'v>
 // Kotlin: no lifetime parameter.
 internal class CheapCallStack {
     private var count: Int = 0
     private var stack: Array<CheapFrame> = emptyArray()
 
-    // unsafe impl Trace for CheapCallStack
     fun trace(tracer: Tracer) {
         for (i in 0 until count) {
             val holder = ValueHolder(stack[i].function)
@@ -96,7 +86,6 @@ internal class CheapCallStack {
         }
     }
 
-    // pub(crate) fn alloc_if_needed(&mut self, max_size: usize) -> anyhow::Result<()>
     fun allocIfNeeded(maxSize: Int) {
         if (stack.isNotEmpty()) {
             if (stack.size == maxSize) {
@@ -119,7 +108,6 @@ internal class CheapCallStack {
      * Push an element to the stack. It is important the each `push` is paired
      * with a `pop`.
      */
-    // pub(crate) fn push(&mut self, function, span) -> crate::Result<()>
     fun push(
         function: Value,
         span: FrozenRef<FrameSpan>?,
@@ -132,14 +120,12 @@ internal class CheapCallStack {
     }
 
     /** Remove the top element from the stack. Called after `push`. */
-    // pub(crate) fn pop(&mut self)
     fun pop() {
         check(count >= 1) { "CheapCallStack.pop: stack is empty" }
         count -= 1
     }
 
     /** Current size (in frames) of the stack. */
-    // pub(crate) fn count(&self) -> usize
     fun count(): Int = count
 
     /**
@@ -147,39 +133,33 @@ internal class CheapCallStack {
      * either there the stack is empty, or the top of the stack lacks location
      * information (e.g. called from Rust).
      */
-    // pub(crate) fn top_frame(&self) -> Option<Frame>
     fun topFrame(): Frame? {
         if (stack.isEmpty()) return null
         return stack.lastOrNull()?.toFrame()
     }
 
     /** The location at the top of the stack. */
-    // pub(crate) fn top_location(&self) -> Option<FileSpan>
     fun topLocation(): FileSpan? {
         if (count == 0) return null
         return stack[count - 1].location()
     }
 
-    // pub(crate) fn nth_location(&self, n: usize) -> Option<FileSpan>
     fun nthLocation(n: Int): FileSpan? {
         if (n >= count) return null
         return stack[count - 1 - n].location()
     }
 
     /** `n`-th element from the top of the stack. */
-    // pub(crate) fn top_nth_function(&self, n: usize) -> anyhow::Result<Value<'v>>
     fun topNthFunction(n: Int): Value =
         topNthFunctionOpt(n)
             ?: throw CallStackError.StackIsTooShallowForNthTopFrame(n, count)
 
-    // pub(crate) fn top_nth_function_opt(&self, n: usize) -> Option<Value<'v>>
     fun topNthFunctionOpt(n: Int): Value? {
         val index = (count - 1 - n)
         if (index < 0) return null
         return stack[index].function
     }
 
-    // pub(crate) fn to_diagnostic_frames(&self, inlined_frames) -> CallStack
     internal fun toDiagnosticFrames(inlinedFrames: InlinedFrames): CallStack {
         // The first entry is just the entire module, so skip it
         val frames = mutableListOf<Frame>()
@@ -191,7 +171,6 @@ internal class CheapCallStack {
     }
 
     /** List the entries on the stack as values. */
-    // pub(crate) fn to_function_values(&self) -> Vec<Value<'v>>
     fun toFunctionValues(): List<Value> = (1 until count).map { stack[it].function }
 
     override fun toString(): String = "CheapCallStack(count=$count, stack=${stack.take(count)})"

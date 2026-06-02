@@ -41,9 +41,6 @@ import kotlin.reflect.KClass
  * [F] (its frozen StarlarkValue counterpart). Both type parameters are reified where
  * needed via inline factory methods.
  */
-// #[derive(Copy_, Clone_, Dupe_, Allocative)]
-// pub struct ValueTypedComplex<'v, T>(Value<'v>, PhantomData<T>)
-// where T: ComplexValue<'v>, T::Frozen: StarlarkValue<'static>;
 class ValueTypedComplex<T : ComplexValue, F : StarlarkValue>
     @PublishedApi
     internal constructor(
@@ -76,13 +73,11 @@ class ValueTypedComplex<T : ComplexValue, F : StarlarkValue>
             }
 
             /** Downcast. */
-            // pub fn new(value: Value<'v>) -> Option<Self>
             inline fun <reified T : ComplexValue, reified F : StarlarkValue> new(
                 value: Value,
             ): ValueTypedComplex<T, F>? = newImpl(value, T::class, F::class)
 
             /** Downcast. */
-            // pub fn new_err(value: Value<'v>) -> crate::Result<Self>
             inline fun <reified T : ComplexValue, reified F : StarlarkValue> newErr(
                 value: Value,
             ): Result<ValueTypedComplex<T, F>> {
@@ -99,14 +94,12 @@ class ValueTypedComplex<T : ComplexValue, F : StarlarkValue>
             }
 
             /** Convert from a ValueTyped to a ValueTypedComplex. */
-            // impl From<ValueTyped<'v, T>> for ValueTypedComplex<'v, T>
             inline fun <reified T : ComplexValue, reified F : StarlarkValue> from(
                 typed: ValueTyped<T>,
             ): ValueTypedComplex<T, F> = ValueTypedComplex(typed.toValue(), T::class, F::class)
         }
 
         /** Get the value back. */
-        // pub fn to_value(self) -> Value<'v>
         fun toValue(): Value = value
 
         /** Downcast a Value to T using its stored KClass, via the AValueDyn raw pointer. */
@@ -128,7 +121,6 @@ class ValueTypedComplex<T : ComplexValue, F : StarlarkValue>
          *
          * Returns either the mutable value (Left) or the frozen value (Right).
          */
-        // pub fn unpack(self) -> Either<&'v T, &'v T::Frozen>
         fun unpack(): Any {
             val mutable = downcastMutable()
             if (mutable != null) return mutable
@@ -143,9 +135,6 @@ class ValueTypedComplex<T : ComplexValue, F : StarlarkValue>
         /** Unpack the frozen value, or null if mutable. */
         fun unpackFrozen(): F? = downcastFrozen()
 
-        // impl StarlarkTypeRepr for ValueTypedComplex
-        // type Canonical = <T as StarlarkTypeRepr>::Canonical;
-        // fn starlark_type_repr() -> Ty { T::starlark_type_repr() }
         override fun starlarkTypeRepr(): Ty {
             // Delegate to the mutable type's repr.
             val instance = downcastMutable()
@@ -155,22 +144,14 @@ class ValueTypedComplex<T : ComplexValue, F : StarlarkValue>
             return Ty.any()
         }
 
-        // impl AllocValue for ValueTypedComplex
-        // fn alloc_value(self, _heap: &'v Heap) -> Value<'v> { self.0 }
         fun allocValue(
             @Suppress("UNUSED_PARAMETER") heap: Heap,
         ): Value = value
 
-        // impl UnpackValue for ValueTypedComplex
-        // fn unpack_value_impl(value: Value<'v>) -> Result<Option<Self>, Self::Error> { Ok(Self::new(value)) }
         // Kotlin: static unpack is handled via the `new` companion method.
 
-        // impl Debug for ValueTypedComplex
-        // fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result
         override fun toString(): String = "ValueTypedComplex($value)"
 
-        // impl Trace for ValueTypedComplex
-        // fn trace(&mut self, tracer: &Tracer<'v>)
         override fun trace(tracer: Tracer) {
             val holder = ValueHolder(value)
             tracer.trace(holder)
@@ -179,8 +160,6 @@ class ValueTypedComplex<T : ComplexValue, F : StarlarkValue>
             // debug_assert!(Self::new(self.0).is_some());
         }
 
-        // impl Freeze for ValueTypedComplex
-        // fn freeze(self, freezer: &Freezer) -> Result<FrozenValueTyped<'static, T::Frozen>>
         fun freeze(freezer: Freezer): Result<FrozenValueTyped<F>> {
             val frozenResult = value.freeze(freezer)
             if (frozenResult.isFailure) {
@@ -204,5 +183,4 @@ class ValueTypedComplex<T : ComplexValue, F : StarlarkValue>
         }
     }
 
-// #[cfg(test)] mod tests { ... }
 // Tests are in commonTest, not here.

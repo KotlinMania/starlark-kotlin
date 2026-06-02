@@ -192,7 +192,6 @@ fun <T : StarlarkTypeRepr> ValueOfUncheckedGeneric.Companion.newChecked(
  * }
  * ```
  */
-// impl<'v, T: StarlarkTypeRepr> UnpackValue<'v> for ValueOfUnchecked<'v, T>
 class ValueOfUncheckedUnpackValue<T : StarlarkTypeRepr>(
     private val typeRepr: StarlarkTypeRepr,
 ) : UnpackValue<ValueOfUnchecked<T>> {

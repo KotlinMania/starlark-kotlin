@@ -38,7 +38,6 @@ import io.github.kotlinmania.starlark.values.types.string.starlarkStrPercent
 import io.github.kotlinmania.starlark.values.types.string.starlarkStrSlice
 import io.github.kotlinmania.starlark.values.types.string.strMethods
 
-// pub struct StarlarkStr { ... }
 class StarlarkStr(
     val value: String,
 ) : StarlarkValue {
@@ -51,10 +50,8 @@ class StarlarkStr(
     // In Kotlin: set by starlarkStr() factory, otherwise computed from value.
     internal var precomputedHash: StarlarkHashValue = UNINIT_HASH
 
-    // pub fn as_str(&self) -> &str
     fun asStr(): String = value
 
-    // pub fn len(&self) -> usize
     fun len(): Int = value.encodeToByteArray().size
 
     override fun getHash(): Result<StarlarkHashValue> {
@@ -66,7 +63,6 @@ class StarlarkStr(
         return Result.success(h)
     }
 
-    // fn equals(&self, other: Value) -> crate::Result<bool>
     override fun equals(other: Value): Result<Boolean> {
         val otherStr = other.unpackStarlarkStr()
         return if (otherStr != null) {
@@ -76,7 +72,6 @@ class StarlarkStr(
         }
     }
 
-    // fn compare(&self, other: Value) -> crate::Result<Ordering>
     override fun compare(other: Value): Result<Int> {
         val otherStr = other.unpackStarlarkStr()
         return if (otherStr != null) {
@@ -86,7 +81,6 @@ class StarlarkStr(
         }
     }
 
-    // fn is_in(&self, other: Value) -> crate::Result<bool>
     override fun isIn(other: Value): Result<Boolean> {
         val s =
             other.unpackStarlarkStr()
@@ -97,21 +91,16 @@ class StarlarkStr(
         return Result.success(value.contains(s.value))
     }
 
-    // fn is_special(_: Private) -> bool
     override fun isSpecial(): Boolean = true
 
-    // fn get_methods() -> Option<&'static Methods>
     override fun getMethods(): Methods? = strMethods()
 
-    // fn collect_repr(&self, buffer: &mut String)
     override fun collectRepr(collector: StringBuilder) {
         starlarkStrCollectRepr(this, collector)
     }
 
-    // fn to_bool(&self) -> bool
     override fun toBool(): Boolean = value.isNotEmpty()
 
-    // fn write_hash(&self, hasher: &mut StarlarkHasher) -> crate::Result<()>
     override fun writeHash(hasher: StarlarkHasher): Result<Unit> {
         // Don't defer to str because we cache the Hash in StarlarkStr
         val hashValue = getHash().getOrThrow()
@@ -119,31 +108,23 @@ class StarlarkStr(
         return Result.success(Unit)
     }
 
-    // fn at(&self, index: Value<'v>, heap: Heap<'v>) -> crate::Result<Value<'v>>
     override fun at(index: Value, heap: Heap): Result<Value> = starlarkStrAt(this, index, heap)
 
-    // fn length(&self) -> crate::Result<i32>
     override fun length(): Result<Int> {
         // In Starlark, len() returns the number of Unicode codepoints, not bytes
         return Result.success(value.length)
     }
 
-    // fn slice(...)
     override fun slice(start: Value?, stop: Value?, stride: Value?, heap: Heap): Result<Value> = starlarkStrSlice(this, start, stop, stride, heap)
 
-    // fn add(&self, other: Value<'v>, heap: Heap<'v>) -> Option<crate::Result<Value<'v>>>
     override fun add(rhs: Value, heap: Heap): Result<Value>? = starlarkStrAdd(this, rhs, heap)
 
-    // fn mul(&self, other: Value<'v>, heap: Heap<'v>) -> Option<crate::Result<Value<'v>>>
     override fun mul(rhs: Value, heap: Heap): Result<Value>? = starlarkStrMul(this, rhs, heap)
 
-    // fn rmul(&self, lhs: Value<'v>, heap: Heap<'v>) -> Option<crate::Result<Value<'v>>>
     override fun rmul(lhs: Value, heap: Heap): Result<Value>? = mul(lhs, heap)
 
-    // fn percent(&self, other: Value<'v>, heap: Heap<'v>) -> crate::Result<Value<'v>>
     override fun percent(other: Value, heap: Heap): Result<Value> = starlarkStrPercent(this, other, heap)
 
-    // fn typechecker_ty(&self) -> Option<Ty>
     override fun typecheckerTy(): Ty = Ty.string()
 
     override fun toString(): String = value
@@ -157,13 +138,10 @@ class StarlarkStr(
     }
 
     companion object {
-        // pub(crate) const UNINIT_HASH: StarlarkHashValue = StarlarkHashValue::new_unchecked(0)
         val UNINIT_HASH: StarlarkHashValue get() = StarlarkHashValue.newUnchecked(0u)
 
-        // pub const fn payload_len_for_len(len: usize) -> usize { len.div_ceil(mem::size_of::<usize>()) }
         fun payloadLenForLen(len: Int): Int = (len + 7) / 8
 
-        // pub(crate) fn offset_of_content() -> usize { memoffset::offset_of!(StarlarkStrN<0>, body) }
         fun offsetOfContent(): Int = 8
     }
 }

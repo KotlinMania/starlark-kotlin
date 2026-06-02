@@ -19,12 +19,6 @@ package io.github.kotlinmania.starlark.values.layout.heap
  * limitations under the License.
  */
 
-// unsafe impl Send for FrozenValue {}
-// unsafe impl Sync for FrozenValue {}
-
-// unsafe impl Send for Value<'static> {}
-// unsafe impl Sync for Value<'static> {}
-
 /**
  * A trait for handling the unusual sendness requirements of starlark values.
  *
@@ -86,16 +80,8 @@ package io.github.kotlinmania.starlark.values.layout.heap
  *  hand, the `'static` thing together with the impl on `Value` means that it is actually satisfied
  *  for a `T` that contains a `Value<'v>`, which is what we want.
  */
-// pub trait HeapSendable<'v>: sealed_send::Sealed {}
 interface HeapSendable
 
-// impl<'v, T: ProvidesStaticType<'v>> HeapSendable<'v> for T
-// where <T as ProvidesStaticType<'v>>::StaticType: Send {}
-
-// mod sealed_send {
-//     pub trait Sealed {}
-//     impl<'v, T: ProvidesStaticType<'v>> Sealed for T
-//     where <T as ProvidesStaticType<'v>>::StaticType: Send {}
 // }
 
 /**
@@ -104,16 +90,8 @@ interface HeapSendable
  * Mostly see the docs on [HeapSendable], which is slightly more interesting - this one is just
  * needed on frozen heaps.
  */
-// pub trait HeapSyncable<'v>: sealed_sync::Sealed {}
 interface HeapSyncable
 
-// impl<'v, T: ProvidesStaticType<'v>> HeapSyncable<'v> for T
-// where <T as ProvidesStaticType<'v>>::StaticType: Sync {}
-
-// mod sealed_sync {
-//     pub trait Sealed {}
-//     impl<'v, T: ProvidesStaticType<'v>> Sealed for T
-//     where <T as ProvidesStaticType<'v>>::StaticType: Sync {}
 // }
 
 /**
@@ -143,35 +121,22 @@ interface HeapSyncable
  * }
  * ```
  */
-// #[derive(Trace, Allocative)]
-// pub struct DynStarlark<'v, T>(PhantomData<dyn HeapSendable<'v>>, T)
-// where T: ?Sized;
 class DynStarlark<T>(
     private var inner: T,
 ) {
     companion object {
-        // pub fn new(v: T) -> Self
         fun <T> new(v: T): DynStarlark<T> = DynStarlark(v)
     }
 
-    // pub fn into_inner(self) -> T
     fun intoInner(): T = inner
 
-    // impl Deref for DynStarlark
-    // fn deref(&self) -> &Self::Target
     fun get(): T = inner
 
-    // impl DerefMut for DynStarlark
-    // fn deref_mut(&mut self) -> &mut Self::Target
     fun set(value: T) {
         inner = value
     }
 
-    // impl Debug for DynStarlark
-    // fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result
     fun debug(): String = inner.toString()
 
-    // impl Display for DynStarlark
-    // fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result
     override fun toString(): String = inner.toString()
 }

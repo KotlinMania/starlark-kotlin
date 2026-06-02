@@ -33,20 +33,17 @@ class TyEnumData(
     /** Type of enum type value. */
     internal val tyEnumType: Ty,
 ) : Comparable<TyEnumData> {
-    // impl PartialEq for TyEnumData
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other !is TyEnumData) return false
         return id == other.id
     }
 
-    // impl Hash for TyEnumData
     override fun hashCode(): Int {
         // Do not hash `id` because hashing should be deterministic.
         return name.hashCode()
     }
 
-    // impl Ord for TyEnumData
     override fun compareTo(other: TyEnumData): Int {
         val nameCmp = name.compareTo(other.name)
         if (nameCmp != 0) return nameCmp

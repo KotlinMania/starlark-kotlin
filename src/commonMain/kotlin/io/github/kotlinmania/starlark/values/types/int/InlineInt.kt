@@ -41,8 +41,6 @@ data class InlineInt internal constructor(
     private val value: Int,
 ) : Comparable<InlineInt> {
     // Rust: impl Debug for InlineInt
-    // fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
-    //     Debug::fmt(&self.0, f)
     // }
     override fun toString(): String = value.toString()
 
@@ -56,7 +54,6 @@ data class InlineInt internal constructor(
 
         /** Number of bits in the integer. */
         // Rust: #[cfg(target_pointer_width = "64")]
-        // pub(crate) const BITS: usize = 32;
         // Kotlin Multiplatform targets 64-bit, so we use 32.
         internal const val BITS: Int = 32
 
@@ -112,7 +109,6 @@ data class InlineInt internal constructor(
             }
 
         // Rust: fn try_from_impl<I>(i: I) -> Result<InlineInt, InlineIntOverflow>
-        //     where i32: TryFrom<I>,
         private fun <T> tryFromImpl(value: T): Result<InlineInt>
             where T : Number, T : Comparable<T> {
             val i =
@@ -301,7 +297,6 @@ internal class InlineIntOverflow : Exception("InlineInt overflow")
 // --- Trait impls that InlineInt cannot directly implement as a value class ---
 
 /** Rust: impl StarlarkTypeRepr for InlineInt */
-// type Canonical = <StarlarkInt as StarlarkTypeRepr>::Canonical;
 object InlineIntStarlarkTypeRepr : StarlarkTypeRepr {
     // Rust: fn starlark_type_repr() -> Ty { PointerI32::starlark_type_repr() }
     override fun starlarkTypeRepr(): Ty = Ty.int()
@@ -329,7 +324,6 @@ object InlineIntAllocValue : AllocValue {
 
 /** Extension to allocate an [InlineInt] as a [Value]. */
 // Rust: impl<'v> AllocValue<'v> for InlineInt
-//     fn alloc_value(self, _heap: Heap<'v>) -> Value<'v> { Value::new_int(self) }
 internal fun InlineInt.allocValue(
     @Suppress("UNUSED_PARAMETER") heap: Heap,
 ): Value = Value.newInt(this)
@@ -347,7 +341,6 @@ object InlineIntAllocFrozenValue : AllocFrozenValue {
 
 /** Extension to allocate an [InlineInt] as a [FrozenValue]. */
 // Rust: impl AllocFrozenValue for InlineInt
-//     fn alloc_frozen_value(self, _heap: &FrozenHeap) -> FrozenValue { FrozenValue::new_int(self) }
 internal fun InlineInt.allocFrozenValue(
     @Suppress("UNUSED_PARAMETER") heap: FrozenHeap,
 ): FrozenValue = FrozenValue.newInt(this)

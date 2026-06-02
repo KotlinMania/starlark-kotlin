@@ -27,8 +27,6 @@ import io.github.kotlinmania.starlark.values.layout.heap.profile.alloccounts.sum
  * the function `allocated_summary` available on [`Heap`](crate::values::Heap)
  * and [`FrozenHeap`](crate::values::FrozenHeap)
  */
-// #[derive(Debug, Default, Clone, Allocative)]
-// pub struct HeapSummary
 class HeapSummary(
     /**
      * For each type, give the (number of entries, size of all entries).
@@ -38,7 +36,6 @@ class HeapSummary(
     internal val summary: SmallMap<String, AllocCounts> = SmallMap(),
 ) {
     /** (Count, total size) by type. */
-    // pub fn summary(&self) -> HashMap<String, (usize, usize)>
     fun summary(): Map<String, Pair<Int, Long>> {
         val result = mutableMapOf<String, Pair<Int, Long>>()
         for ((k, v) in summary) {
@@ -47,21 +44,17 @@ class HeapSummary(
         return result
     }
 
-    // pub(crate) fn total(&self) -> AllocCounts
     internal fun total(): AllocCounts = summary.values().toList().sum()
 
     /** Total number of bytes allocated. */
-    // pub fn total_allocated_bytes(&self) -> usize
     fun totalAllocatedBytes(): Long = total().bytes
 
-    // pub(crate) fn add(&mut self, t: &'static str, s: AllocCounts)
     internal fun add(t: String, s: AllocCounts) {
         val existing = summary.entry(t).orDefault { AllocCounts() }
         existing += s
     }
 
     companion object {
-        // pub(crate) fn merge(heaps: impl IntoIterator<Item = &HeapSummary>) -> HeapSummary
         internal fun merge(heaps: Iterable<HeapSummary>): HeapSummary {
             val summary = SmallMap<String, AllocCounts>()
             for (heap in heaps) {
@@ -74,7 +67,6 @@ class HeapSummary(
         }
     }
 
-    // #[derive(Clone)]
     fun copy(): HeapSummary {
         val newSummary = SmallMap<String, AllocCounts>()
         for ((k, v) in summary) {
@@ -83,8 +75,6 @@ class HeapSummary(
         return HeapSummary(newSummary)
     }
 
-    // #[cfg(test)]
-    // pub(crate) fn normalize_for_golden_tests(&mut self)
     internal fun normalizeForGoldenTests() {
         for (v in summary.values()) {
             v.normalizeForGoldenTests()

@@ -30,25 +30,18 @@ import io.github.kotlinmania.starlark.values.layout.avalues.AllocStaticSimple
 import io.github.kotlinmania.starlark.values.layout.heap.FrozenHeap
 import io.github.kotlinmania.starlark.values.layout.heap.Heap
 
-// #[derive(Debug, Display, Allocative, ProvidesStaticType, NoSerialize)]
-// pub(crate) struct TypingNever;
 internal class TypingNever :
     StarlarkValue,
     AllocFrozenValue {
-    // #[starlark_value(type = "typing.Never")]
     override val TYPE: String get() = TYPE_NAME
     override val HAS_eval_type: Boolean get() = true
 
     override fun toString(): String = TYPE_NAME
 
-    // impl StarlarkTypeRepr for TypingNever
     override fun starlarkTypeRepr(): Ty = Ty.never()
 
-    // fn eval_type(&self) -> Option<Ty>
     override fun evalType(): Ty = Ty.never()
 
-    // impl AllocFrozenValue for TypingNever
-    // fn alloc_frozen_value(self, _heap: &FrozenHeap) -> FrozenValue
     override fun allocFrozenValue(
         @Suppress("unused") heap: FrozenHeap,
     ): FrozenValue = NEVER.toFrozenValue()
@@ -62,21 +55,16 @@ internal class TypingNever :
 }
 
 /** Never type, can be used as native function return type. */
-// pub enum StarlarkNever {}
 // An uninhabited enum in Rust — no instances can be created.
 sealed class StarlarkNever :
     StarlarkTypeRepr,
     AllocValue {
     companion object : StarlarkTypeRepr {
-        // impl StarlarkTypeRepr for StarlarkNever
-        // fn starlark_type_repr() -> Ty
         override fun starlarkTypeRepr(): Ty = Ty.never()
     }
 
     override fun starlarkTypeRepr(): Ty = Companion.starlarkTypeRepr()
 
-    // impl AllocValue for StarlarkNever
-    // fn alloc_value(self, _heap: Heap) -> Value
     override fun allocValue(
         @Suppress("unused") heap: Heap,
     ): Value {

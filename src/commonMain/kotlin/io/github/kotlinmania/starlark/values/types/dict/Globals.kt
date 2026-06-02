@@ -73,7 +73,6 @@ private fun unpackPair(pair: Value, heap: Heap): Result<Pair<Value, Value>> {
  */
 internal fun registerDict(globals: GlobalsBuilder) {
     // Rust: #[starlark(as_type = FrozenDict, speculative_exec_safe, special_builtin_function = SpecialBuiltinFunction::Dict)]
-    // fn dict<'v>(args: &Arguments<'v, '_>, heap: Heap<'v>) -> starlark::Result<Dict<'v>>
     globals.setFunction("dict", asType = Ty.starlarkValue(TyStarlarkValue.dict())) { args: Arguments, eval: Evaluator ->
         // Dict is super hot, and has a slightly odd signature, so we can do a bunch of special cases on it.
         // In particular, we don't generate the kwargs if there are no positional arguments.

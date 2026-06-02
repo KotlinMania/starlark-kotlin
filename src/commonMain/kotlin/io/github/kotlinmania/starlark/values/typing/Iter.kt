@@ -28,34 +28,25 @@ import io.github.kotlinmania.starlark.values.layout.avalues.AllocStaticSimple
 import io.github.kotlinmania.starlark.values.layout.heap.FrozenHeap
 
 /** `StarlarkTypeRepr` for iterable types. */
-// pub struct StarlarkIter<T: StarlarkTypeRepr>(PhantomData<T>, NonInstantiable)
 // PhantomData<T> + NonInstantiable → uninhabited generic marker type
 class StarlarkIter<T : StarlarkTypeRepr> private constructor() {
     companion object {
-        // impl<T: StarlarkTypeRepr> StarlarkTypeRepr for StarlarkIter<T>
-        // fn starlark_type_repr() -> Ty
         fun starlarkTypeRepr(inner: Ty): Ty = Ty.iter(inner)
     }
 }
 
-// #[derive(Debug, Display, Allocative, ProvidesStaticType, NoSerialize)]
-// pub(crate) struct TypingIterable;
 internal class TypingIterable :
     StarlarkValue,
     AllocFrozenValue {
-    // #[starlark_value(type = "typing.Iterable")]
     override val TYPE: String get() = TYPE_NAME
     override val HAS_eval_type: Boolean get() = true
 
     override fun toString(): String = TYPE_NAME
 
-    // fn eval_type(&self) -> Option<Ty>
     override fun evalType(): Ty = Ty.iter(Ty.any())
 
     override fun starlarkTypeRepr(): Ty = Ty.iter(Ty.any())
 
-    // impl AllocFrozenValue for TypingIterable
-    // fn alloc_frozen_value(self, _heap: &FrozenHeap) -> FrozenValue
     override fun allocFrozenValue(
         @Suppress("unused") heap: FrozenHeap,
     ): FrozenValue = ANY.toFrozenValue()

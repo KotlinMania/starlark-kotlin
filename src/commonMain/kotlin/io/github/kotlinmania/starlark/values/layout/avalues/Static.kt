@@ -39,34 +39,27 @@ import io.github.kotlinmania.starlark.values.starlarktypeid.StarlarkTypeId
  * For types which are only allocated statically (never in heap).
  * Technically we can use `AValueSimple` for these, but this is more explicit and safe.
  */
-// pub(crate) struct AValueBasic<T>(PhantomData<T>);
 internal class AValueBasic<T : StarlarkValue> : AValue {
-    // fn extra_len(_value: &T) -> usize
     override fun extraLen(value: StarlarkValue): Int {
         error("Basic types don't appear in the heap")
     }
 
-    // fn offset_of_extra() -> usize
     override fun offsetOfExtra(): Int {
         error("Basic types don't appear in the heap")
     }
 
-    // unsafe fn heap_freeze(me, freezer) -> Result<FrozenValue>
     override fun heapFreeze(freezer: Freezer): Result<FrozenValue> {
         error("Basic types don't appear in the heap")
     }
 
-    // unsafe fn heap_copy(me, tracer) -> Value
     override fun heapCopy(tracer: Tracer): Value {
         error("Basic types don't appear in the heap")
     }
 
-    // fn unpack() -> StarlarkValue
     override fun unpack(): StarlarkValue {
         error("Basic types don't appear in the heap")
     }
 
-    // fn total_memory_for_profile(_value: &Self::StarlarkValue) -> usize
     override fun totalMemoryForProfile(value: StarlarkValue): Int {
         // This avalue is always statically allocated so don't charge anyone for the memory.
         //
@@ -79,7 +72,6 @@ internal class AValueBasic<T : StarlarkValue> : AValue {
 }
 
 /** Allocate simple value statically. */
-// pub struct AllocStaticSimple<T: StarlarkValue<'static>>(AValueRepr<AValueImpl<AValueBasic<T>>>)
 class AllocStaticSimple<T : StarlarkValue> internal constructor(
     private val repr: AValueRepr<AValueImpl<AValueBasic<T>>>,
 ) {
@@ -89,7 +81,6 @@ class AllocStaticSimple<T : StarlarkValue> internal constructor(
          * The vtable carries the actual [StarlarkValue] so that
          * `Value.getRef().downcastRef<T>()` and method dispatch work correctly.
          */
-        // pub const fn alloc(value: T) -> Self
         fun <T : StarlarkValue> alloc(value: T): AllocStaticSimple<T> {
             val typeId = ConstTypeId.of(value::class)
             val vtable =
@@ -117,10 +108,8 @@ class AllocStaticSimple<T : StarlarkValue> internal constructor(
     }
 
     /** Get the value. */
-    // pub fn unpack(&'static self) -> FrozenValueTyped<'static, T>
     fun unpack(): FrozenValueTyped<T> = FrozenValueTyped.newRepr(repr)
 
     /** Get the value. */
-    // pub fn to_frozen_value(&'static self) -> FrozenValue
     fun toFrozenValue(): FrozenValue = unpack().toFrozenValue()
 }

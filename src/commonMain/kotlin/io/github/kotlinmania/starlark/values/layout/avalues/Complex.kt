@@ -40,8 +40,6 @@ import io.github.kotlinmania.starlark.values.layout.heap.Tracer
 import io.github.kotlinmania.starlark.values.layout.heapCopyImpl
 import io.github.kotlinmania.starlark.values.layout.tryFreezeDirectly
 
-// #[derive(Debug, thiserror::Error)]
-// enum AValueError
 private sealed class AValueError : Exception() {
     // #[error("Value of type `{0}` cannot be frozen")]
     // CannotBeFrozen(&'static str),
@@ -53,27 +51,16 @@ private sealed class AValueError : Exception() {
 }
 
 /** AValue implementation for ComplexValue types that support freezing. */
-// struct AValueComplex<T>(PhantomData<T>);
-// impl<'v, T> AValue<'v> for AValueComplex<T>
-// where
 //     T: ComplexValue<'v>,
-//     T::Frozen: StarlarkValue<'static>,
 internal class AValueComplex<T>(
     private val value: T,
 ) : AValue where T : ComplexValue, T : Freeze<out StarlarkValue> {
-    // type StarlarkValue = T;
-    // type ExtraElem = ();
-
-    // fn extra_len(_value: &T) -> usize
     override fun extraLen(value: StarlarkValue): Int = 0
 
-    // fn offset_of_extra() -> usize
     override fun offsetOfExtra(): Int = 0
 
-    // fn alloc_size_for_extra_len(extra_len: usize) -> ValueAllocSize
     override fun allocSizeForExtraLen(extraLen: Int): ValueAllocSize = ValueAllocSize(AlignedSize(0u))
 
-    // unsafe fn heap_freeze(me: *mut AValueRepr<Self::StarlarkValue>, freezer: &Freezer) -> Result<FrozenValue>
     override fun heapFreeze(freezer: Freezer): Result<FrozenValue> {
         // if let Some(f) = try_freeze_directly::<Self>(me, freezer)
         val direct = tryFreezeDirectly(value, freezer)
@@ -81,9 +68,6 @@ internal class AValueComplex<T>(
             return direct
         }
 
-        // let (fv, r) = freezer.reserve::<AValueSimple<T::Frozen>>();
-        // let x = AValueHeader::overwrite_with_forward(...);
-        // let res = x.freeze(freezer)?;
         // r.fill(res);
         val result = value.freeze(freezer)
         val frozen = result.getOrElse { return Result.failure(it) }
@@ -130,39 +114,27 @@ internal class AValueComplex<T>(
         return Result.success(fv)
     }
 
-    // unsafe fn heap_copy(me: *mut AValueRepr<Self::StarlarkValue>, tracer: &Tracer<'v>) -> Value<'v>
     override fun heapCopy(tracer: Tracer): Value = heapCopyImpl(value, tracer) { v, t -> (v as Trace).trace(t) }
 
     override fun unpack(): StarlarkValue = value
 }
 
 /** AValue implementation for types that can be traced but cannot be frozen. */
-// pub(crate) struct AValueComplexNoFreeze<T>(PhantomData<T>);
-// impl<'v, T> AValue<'v> for AValueComplexNoFreeze<T>
-// where
 //     T: StarlarkValue<'v> + Trace<'v>,
 internal class AValueComplexNoFreeze(
     private val value: StarlarkValue,
 ) : AValue {
-    // type StarlarkValue = T;
-    // type ExtraElem = ();
-
-    // fn extra_len(_value: &T) -> usize
     override fun extraLen(value: StarlarkValue): Int = 0
 
-    // fn offset_of_extra() -> usize
     override fun offsetOfExtra(): Int = 0
 
-    // fn alloc_size_for_extra_len(extra_len: usize) -> ValueAllocSize
     override fun allocSizeForExtraLen(extraLen: Int): ValueAllocSize = ValueAllocSize(AlignedSize(0u))
 
-    // unsafe fn heap_freeze(...) -> Result<FrozenValue>
     override fun heapFreeze(freezer: Freezer): Result<FrozenValue> =
         Result.failure(
             FreezeError(AValueError.CannotBeFrozen(value::class.simpleName ?: "unknown").message),
         )
 
-    // unsafe fn heap_copy(me: *mut AValueRepr<Self::StarlarkValue>, tracer: &Tracer<'v>) -> Value<'v>
     override fun heapCopy(tracer: Tracer): Value = heapCopyImpl(value, tracer) { v, t -> (v as Trace).trace(t) }
 
     override fun unpack(): StarlarkValue = value
@@ -171,14 +143,12 @@ internal class AValueComplexNoFreeze(
 // impl<'v> Heap<'v>
 
 /** Allocate a [ComplexValue] on the [Heap]. */
-// pub fn alloc_complex<T>(self, x: T) -> Value<'v>
 fun <T> Heap.allocComplex(x: T): Value where T : ComplexValue, T : Freeze<out StarlarkValue> {
     check(!x.isSpecial())
     return allocRaw(AValueImpl.new(x, AValueComplex(x))).toValue()
 }
 
 /** Allocate a value which can be traced (garbage collected), but cannot be frozen. */
-// pub fn alloc_complex_no_freeze<T>(self, x: T) -> Value<'v>
 fun Heap.allocComplexNoFreeze(x: StarlarkValue): Value {
     check(x is Trace)
     check(!x.isSpecial())

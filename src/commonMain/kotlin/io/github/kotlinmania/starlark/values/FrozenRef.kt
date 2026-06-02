@@ -55,7 +55,6 @@ class FrozenRef<T> internal constructor(
         return FrozenRef(value = mapped)
     }
 
-    // impl Display for FrozenRef
     override fun toString(): String = value.toString()
 
     // Rust: impl Display for FrozenRef: fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result
@@ -65,10 +64,8 @@ class FrozenRef<T> internal constructor(
         return value.toString()
     }
 
-    // impl Deref for FrozenRef
     fun deref(): T = value
 
-    // impl Borrow<T> for FrozenRef<T>
     fun borrow(): T = value
 
     // Rust has a second `Borrow` impl for `FrozenRef<Box<T>>` (same method name).
@@ -84,7 +81,6 @@ class FrozenRef<T> internal constructor(
         // Do nothing, because `FrozenRef` can only point to frozen value.
     }
 
-    // impl PartialEq/Eq for FrozenRef
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other !is FrozenRef<*>) return false
@@ -94,7 +90,6 @@ class FrozenRef<T> internal constructor(
     // Rust: impl PartialEq for FrozenRef: fn eq(&self, other: &Self) -> bool
     fun eq(other: FrozenRef<T>): Boolean = value == other.value
 
-    // impl Hash for FrozenRef
     override fun hashCode(): Int = value.hashCode()
 
     // Rust: impl Hash for FrozenRef: fn hash<H: Hasher>(&self, state: &mut H)
@@ -103,16 +98,13 @@ class FrozenRef<T> internal constructor(
         state.writeU64(value.hashCode().toULong())
     }
 
-    // impl Freeze for FrozenRef
     override fun freeze(
         @Suppress("UNUSED_PARAMETER") freezer: Freezer,
     ): Result<FrozenRef<T>> = Result.success(this)
 }
 
-// impl PartialOrd for FrozenRef
 fun <T : Comparable<T>> FrozenRef<T>.partialCmp(other: FrozenRef<T>): Int = value.compareTo(other.value)
 
-// impl Ord for FrozenRef
 fun <T : Comparable<T>> FrozenRef<T>.cmp(other: FrozenRef<T>): Int = value.compareTo(other.value)
 
 /** `Atomic<Option<FrozenRef<T>>>`. */

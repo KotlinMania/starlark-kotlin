@@ -19,18 +19,7 @@ package io.github.kotlinmania.starlark.values.layout.heap.profile.alloccounts
  * limitations under the License.
  */
 
-// use std::iter::Sum;
-// use std::ops::Add;
-// use std::ops::AddAssign;
-
-// use allocative::Allocative;
-// use dupe::Dupe;
-
 // / Allocations counters.
-// #[derive(Default, Copy, Clone, Dupe, Debug, Allocative)]
-// pub(crate) struct AllocCounts {
-//     pub(crate) bytes: usize,
-//     pub(crate) count: usize,
 // }
 data class AllocCounts(
     var bytes: Long = 0,
@@ -38,23 +27,16 @@ data class AllocCounts(
 ) {
     // impl AllocCounts
 
-    // #[cfg(test)]
-    // pub(crate) fn normalize_for_golden_tests(&mut self)
     internal fun normalizeForGoldenTests() {
         // Value sizes depend on compiler version, so normalize them.
         bytes = count.toLong() * 8
     }
 
-    // impl AddAssign for AllocCounts
-    // fn add_assign(&mut self, other: AllocCounts)
     operator fun plusAssign(other: AllocCounts) {
         bytes += other.bytes
         count += other.count
     }
 
-    // impl Add for AllocCounts
-    // type Output = AllocCounts;
-    // fn add(self, other: AllocCounts) -> AllocCounts
     operator fun plus(other: AllocCounts): AllocCounts =
         AllocCounts(
             bytes = bytes + other.bytes,
@@ -66,7 +48,4 @@ data class AllocCounts(
     }
 }
 
-// impl<'a> Sum<&'a AllocCounts> for AllocCounts
-// fn sum<I>(iter: I) -> AllocCounts
-// where I: Iterator<Item = &'a AllocCounts>
 fun Iterable<AllocCounts>.sum(): AllocCounts = fold(AllocCounts.default()) { acc, x -> acc + x }

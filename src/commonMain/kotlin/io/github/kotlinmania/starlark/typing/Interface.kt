@@ -20,8 +20,6 @@ package io.github.kotlinmania.starlark.typing
  */
 
 /** Interface representing the types of all bindings in a module. */
-// #[derive(Default, Dupe, Clone, Debug)]
-// pub struct Interface(Arc<HashMap<String, Ty>>);
 class Interface private constructor(
     private val bindings: Map<String, Ty>,
 ) {
@@ -29,15 +27,12 @@ class Interface private constructor(
 
     companion object {
         /** Create an empty interface, with no bindings. */
-        // pub fn empty() -> Self
         fun empty(): Interface = Interface(emptyMap())
 
         /** Create a new interface with the given bindings. */
-        // pub fn new(bindings: HashMap<String, Ty>) -> Self
         fun new(bindings: Map<String, Ty>): Interface = Interface(bindings)
     }
 
     /** Get the type for a given binding. */
-    // pub fn get(&self, name: &str) -> Option<&Ty>
     fun get(name: String): Ty? = bindings[name]
 }

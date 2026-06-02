@@ -27,17 +27,12 @@ import io.github.kotlinmania.starlark.values.Trace
 import io.github.kotlinmania.starlark.values.layout.Value
 
 // / A type which is either drop or non-drop.
-// pub(crate) trait MaybeDrop: Debug + Sync + Send + Allocative + 'static {}
 internal interface MaybeDrop
 
 // / Type which has `Drop`.
-// #[derive(ProvidesStaticType, Debug, Trace, Allocative)]
-// pub(crate) struct NeedsDrop;
 internal class NeedsDrop :
     MaybeDrop,
     AutoCloseable {
-    // impl Drop for NeedsDrop
-    // fn drop(&mut self) {
     //     // Just make this type `Drop`.
     //     // Note `mem::needs_drop()` would return `true` for this type,
     //     // even if `drop` is optimized away.
@@ -48,19 +43,8 @@ internal class NeedsDrop :
 }
 
 // / Type which doesn't have `Drop`.
-// #[derive(ProvidesStaticType, Debug, Trace, Allocative)]
-// pub(crate) struct NoDrop;
 internal class NoDrop : MaybeDrop
 
-// impl MaybeDrop for NeedsDrop {}
-// impl MaybeDrop for NoDrop {}
-
-// #[derive(Trace, Debug, Display, ProvidesStaticType, NoSerialize, Allocative)]
-// #[display("CallEnter")]
-// pub(crate) struct CallEnter<'v, D: MaybeDrop + 'static> {
-//     pub(crate) function: Value<'v>,
-//     pub(crate) time: ProfilerInstant,
-//     pub(crate) maybe_drop: D,
 // }
 internal class CallEnter<D : MaybeDrop>(
     var function: Value,
@@ -68,9 +52,6 @@ internal class CallEnter<D : MaybeDrop>(
     val maybeDrop: D,
 ) : StarlarkValue,
     Trace {
-    // #[starlark_value(type = "call_enter")]
-    // impl<'v, D: MaybeDrop + Trace<'v> + 'v> StarlarkValue<'v> for CallEnter<'v, D> {
-    //     type Canonical = Self;
     // }
     override val TYPE: String get() = "call_enter"
 
@@ -80,26 +61,16 @@ internal class CallEnter<D : MaybeDrop>(
         function = holder.value
     }
 
-    // #[display("CallEnter")]
     override fun toString(): String = "CallEnter"
 }
 
-// #[derive(Debug, Display, ProvidesStaticType, NoSerialize, Allocative)]
-// #[display("CallExit")]
-// pub(crate) struct CallExit<D: MaybeDrop + 'static> {
-//     pub(crate) time: ProfilerInstant,
-//     pub(crate) maybe_drop: D,
 // }
 internal class CallExit<D : MaybeDrop>(
     val time: ProfilerInstant,
     val maybeDrop: D,
 ) : StarlarkValue {
-    // #[starlark_value(type = "call_exit")]
-    // impl<'v, D: MaybeDrop> StarlarkValue<'v> for CallExit<D> {
-    //     type Canonical = Self;
     // }
     override val TYPE: String get() = "call_exit"
 
-    // #[display("CallExit")]
     override fun toString(): String = "CallExit"
 }

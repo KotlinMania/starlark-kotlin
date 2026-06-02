@@ -27,7 +27,6 @@ import io.github.kotlinmania.starlark.values.typing.typecompiled.TypeMatcher
 internal data class EnumTypeMatcher(
     val id: TypeInstanceId,
 ) : TypeMatcher {
-    // impl TypeMatcher for EnumTypeMatcher
     override fun matches(value: Value): Boolean {
         val en = value.downcastRef<EnumValueGen>() ?: return false
         return en.id == id
