@@ -96,7 +96,7 @@ class ListGen<T>(val data: T) : StarlarkValue {
         return compareSlice<Exception, Value, Value>(listLike().content(), otherRef.content()) { x, y -> x.compare(y) }
     }
 
-    override fun at(index: Value, _heap: Heap): Result<Value> {
+    override fun at(index: Value, heap: Heap): Result<Value> {
         val i = convertIndex(index, listLike().content().size).getOrElse {
             return Result.failure(it)
         }
@@ -217,7 +217,7 @@ class ListData(
         // Also note Array removes extra capacity on GC.
         val finalCap = max(newCap, 4)
         if (content is ArrayList) {
-            (content as ArrayList).ensureCapacity(finalCap)
+            content.ensureCapacity(finalCap)
         }
     }
 
@@ -416,7 +416,7 @@ internal class ListDataListLike(private val data: ListData) : ListLike {
         return me
     }
 
-    override fun iterSizeHint(_index: Int): Pair<Int, Int?> {
+    override fun iterSizeHint(index: Int): Pair<Int, Int?> {
         error("Iteration is performed on Array")
     }
 
@@ -469,130 +469,6 @@ internal fun displayList(xs: List<Value>): String = buildString {
 private val LIST_METHODS_STATIC = MethodsStatic()
 
 fun listMethods(): Methods? = LIST_METHODS_STATIC.methods(::listMethodsImpl)
-
-// #[starlark_value(type = ListData::TYPE)]
-// impl StarlarkValue for ListGen<T>
-
-// fn is_special
-fun ListGen<out ListLike>.isSpecialValue(): Boolean = true
-
-// fn get_methods
-fun ListGen<out ListLike>.getStarlarkMethods(): Methods? = listMethods()
-
-// fn collect_repr
-// Fast path as repr() for lists is quite hot
-fun ListGen<out ListLike>.collectRepr(s: StringBuilder) {
-    s.append('[')
-    data.content().forEachIndexed { i, v ->
-        if (i != 0) {
-            s.append(", ")
-        }
-        v.collectRepr(s)
-    }
-    s.append(']')
-}
-
-// fn collect_repr_cycle
-fun ListGen<out ListLike>.collectReprCycle(collector: StringBuilder) {
-    collector.append("[...]")
-}
-
-// fn to_bool
-fun ListGen<out ListLike>.toBool(): Boolean = data.content().isNotEmpty()
-
-// fn equals
-fun ListGen<out ListLike>.starlarkEquals(other: Value): Result<Boolean> {
-    val otherRef = ListRef.fromValue(other) ?: return Result.success(false)
-    return equalsSlice<Exception, Value, Value>(data.content(), otherRef.content()) { x, y -> x.equals(y) }
-}
-
-// fn compare
-fun ListGen<out ListLike>.starlarkCompare(other: Value): Result<Int> {
-    val otherRef = ListRef.fromValue(other)
-        ?: return ValueError.unsupportedWith(ListData.TYPE, "cmp()", other)
-    return compareSlice<Exception, Value, Value>(data.content(), otherRef.content()) { x, y -> x.compare(y) }
-}
-
-// fn at
-fun ListGen<out ListLike>.at(index: Value, heap: Heap): Result<Value> {
-    val i = convertIndex(index, data.content().size as Int).getOrElse {
-        return Result.failure(it)
-    }
-    return Result.success(data.content()[i])
-}
-
-// fn length
-fun ListGen<out ListLike>.length(): Result<Int> =
-    Result.success(data.content().size as Int)
-
-// fn is_in
-fun ListGen<out ListLike>.isIn(other: Value): Result<Boolean> {
-    for (x in data.content()) {
-        if (x.equals(other).getOrElse { return Result.failure(it) }) {
-            return Result.success(true)
-        }
-    }
-    return Result.success(false)
-}
-
-// fn slice
-fun ListGen<out ListLike>.slice(
-    start: Value?,
-    stop: Value?,
-    stride: Value?,
-    heap: Heap,
-): Result<Value> {
-    val xs = data.content()
-    val res = applySlice(xs, start, stop, stride).getOrElse { return Result.failure(it) }
-    return Result.success(heap.allocList(res))
-}
-
-// unsafe fn iterate
-fun ListGen<out ListLike>.iterate(me: Value, heap: Heap): Result<Value> =
-    Result.success(data.newIter(me))
-
-// unsafe fn iter_size_hint
-fun ListGen<out ListLike>.iterSizeHint(index: Int): Pair<Int, Int?> =
-    data.iterSizeHint(index)
-
-// unsafe fn iter_next
-fun ListGen<out ListLike>.iterNext(index: Int, heap: Heap): Value? =
-    data.iterNext(index)
-
-// unsafe fn iter_stop
-fun ListGen<out ListLike>.iterStop() = data.iterStop()
-
-// fn add
-fun ListGen<out ListLike>.add(other: Value, heap: Heap): Result<Value>? {
-    val otherRef = ListRef.fromValue(other) ?: return null
-    return Result.success(heap.allocListConcat(data.content(), otherRef.content()))
-}
-
-// fn mul
-fun ListGen<out ListLike>.mul(other: Value, heap: Heap): Result<Value>? {
-    val l = other.unpackI32() ?: return null
-    val content = data.content()
-    val resultSize = content.size * max(0, l)
-    val result = ArrayList<Value>(resultSize)
-    for (unused in 0 until l) {
-        result.addAll(content)
-    }
-    return Result.success(heap.allocList(result))
-}
-
-// fn rmul
-fun ListGen<out ListLike>.rmul(lhs: Value, heap: Heap): Result<Value>? = mul(lhs, heap)
-
-// fn set_at
-fun ListGen<out ListLike>.setAt(index: Value, allocValue: Value): Result<Unit> {
-    val i = convertIndex(index, data.content().size as Int).getOrElse {
-        return Result.failure(it)
-    }
-    return data.setAt(i, allocValue)
-}
-
-// fn typechecker_ty
-fun ListGen<out ListLike>.typecheckerTy(): Ty? = Ty.anyList()
 
 // impl Serialize for ListGen<T>
 fun ListGen<out ListLike>.serialize(): List<Value> = data.content().toList()

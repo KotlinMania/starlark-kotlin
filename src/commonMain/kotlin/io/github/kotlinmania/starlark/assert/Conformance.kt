@@ -1,7 +1,7 @@
 // port-lint: source src/assert/conformance.rs
 package io.github.kotlinmania.starlark_kotlin.assert
 
-import io.github.kotlinmania.starlark_kotlin.Error
+import io.github.kotlinmania.starlark.assert.Assert
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.

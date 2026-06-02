@@ -23,7 +23,6 @@ package io.github.kotlinmania.starlark_kotlin.eval.bc.compiler
 
 import io.github.kotlinmania.starlark_kotlin.collections.Hashed
 import io.github.kotlinmania.starlark_kotlin.collections.SmallMap
-import io.github.kotlinmania.starlark_kotlin.eval.bc.BcSlot
 import io.github.kotlinmania.starlark_kotlin.eval.bc.BcSlotIn
 import io.github.kotlinmania.starlark_kotlin.eval.bc.BcSlotInRange
 import io.github.kotlinmania.starlark_kotlin.eval.bc.BcSlotOut

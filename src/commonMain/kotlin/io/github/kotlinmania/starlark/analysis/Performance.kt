@@ -1,11 +1,9 @@
 // port-lint: source src/analysis/performance.rs
-package io.github.kotlinmania.starlark_kotlin.analysis
+package io.github.kotlinmania.starlark.analysis
 
 import io.github.kotlinmania.starlark_kotlin.syntax.ast.ExprP
-import io.github.kotlinmania.starlark_kotlin.codemap.*
 import io.github.kotlinmania.starlark_kotlin.codemap.CodeMap
 import io.github.kotlinmania.starlark_kotlin.syntax.ast.AstExpr
-import io.github.kotlinmania.starlark_kotlin.values.layout.size
 
 
 /*
@@ -28,7 +26,6 @@ import io.github.kotlinmania.starlark_kotlin.values.layout.size
 
 import io.github.kotlinmania.starlark_kotlin.syntax.ast.ArgumentP
 import io.github.kotlinmania.starlark_kotlin.syntax.AstModule
-import io.github.kotlinmania.starlark_kotlin.values.layout.size
 
 // pub(crate) enum Performance
 internal sealed class Performance : LintWarning {

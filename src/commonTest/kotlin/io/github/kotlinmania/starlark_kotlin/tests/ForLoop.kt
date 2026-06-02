@@ -19,7 +19,7 @@ package io.github.kotlinmania.starlark_kotlin.tests
  * limitations under the License.
  */
 
-import io.github.kotlinmania.starlark_kotlin.assert.Assert
+import io.github.kotlinmania.starlark.assert.Assert
 
 // #[test]
 // fn test_for_loop_bug_1()

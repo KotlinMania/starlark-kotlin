@@ -25,7 +25,6 @@ import io.github.kotlinmania.starlark_kotlin.docs.DocParams
 import io.github.kotlinmania.starlark_kotlin.docs.DocString
 import io.github.kotlinmania.starlark_kotlin.typing.ParamIsRequired
 import io.github.kotlinmania.starlark_kotlin.typing.Ty
-import io.github.kotlinmania.starlark_kotlin.values.layout.ValueLike
 import io.github.kotlinmania.starlark_kotlin.values.layout.typed.StringValue
 import io.github.kotlinmania.starlark_kotlin.collections.Hashed
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.Evaluator
@@ -41,7 +40,6 @@ import io.github.kotlinmania.starlark_kotlin.eval.runtime.params.ParametersParse
 import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Heap
 import io.github.kotlinmania.starlark_kotlin.values.layout.Value
 import io.github.kotlinmania.starlark_kotlin.values.types.dict.Dict
-import io.github.kotlinmania.starlark_kotlin.values.types.dict.DictRef
 import io.github.kotlinmania.starlark_kotlin.values.types.dict.dictRefFromValue
 import io.github.kotlinmania.starlark_kotlin.values.types.dict.getValue
 import io.github.kotlinmania.starlark_kotlin.values.types.dict.allocValue

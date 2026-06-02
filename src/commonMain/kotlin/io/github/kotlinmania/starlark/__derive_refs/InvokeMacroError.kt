@@ -1,5 +1,5 @@
 // port-lint: source src/__derive_refs/invoke_macro_error.rs
-package io.github.kotlinmania.starlark_kotlin.__derive_refs
+package io.github.kotlinmania.starlark.__derive_refs
 
 /*
  * Copyright 2018 The Starlark in Rust Authors.

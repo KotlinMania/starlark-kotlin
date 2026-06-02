@@ -19,7 +19,6 @@ package io.github.kotlinmania.starlark_kotlin.eval.bc
  * limitations under the License.
  */
 
-import io.github.kotlinmania.starlark_kotlin.eval.bc.BcAddr
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.FrameSpan
 import io.github.kotlinmania.starlark_kotlin.values.FrozenRef
 import io.github.kotlinmania.starlark_kotlin.values.layout.typed.FrozenStringValue

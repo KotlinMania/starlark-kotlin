@@ -20,7 +20,6 @@ package io.github.kotlinmania.starlark_kotlin.syntax.type_expr
  */
 
 import io.github.kotlinmania.starlark_kotlin.codemap.CodeMap
-import io.github.kotlinmania.starlark_kotlin.codemap.Span
 import io.github.kotlinmania.starlark_kotlin.codemap.Spanned
 import io.github.kotlinmania.starlark_kotlin.syntax.ast.AstExprP
 import io.github.kotlinmania.starlark_kotlin.syntax.ast.AstIdentP

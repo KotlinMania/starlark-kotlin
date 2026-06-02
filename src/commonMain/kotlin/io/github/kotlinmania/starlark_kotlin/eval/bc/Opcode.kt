@@ -22,8 +22,6 @@ package io.github.kotlinmania.starlark_kotlin.eval.bc
 /** Instruction opcode. */
 
 import kotlin.reflect.KClass
-import io.github.kotlinmania.starlark_kotlin.eval.bc.BcInstr
-import io.github.kotlinmania.starlark_kotlin.eval.bc.BcInstrRepr
 
 /** Callback for the `dispatch` function. */
 interface BcOpcodeHandler<R> {

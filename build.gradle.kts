@@ -54,6 +54,8 @@ val commonOptIns =
     listOf(
         "kotlin.time.ExperimentalTime",
         "kotlin.concurrent.atomics.ExperimentalAtomicApi",
+        "kotlin.ExperimentalUnsignedTypes",
+        "kotlinx.serialization.ExperimentalSerializationApi",
     )
 
 // ============================================================================
@@ -250,7 +252,9 @@ kotlin {
         apiVersion.set(KotlinVersion.KOTLIN_2_3)
         allWarningsAsErrors.set(!isCodeqlBuild)
         optIn.addAll(commonOptIns)
-        freeCompilerArgs.add("-Xexpect-actual-classes")
+        freeCompilerArgs.addAll(
+            "-Xexpect-actual-classes",
+        )
     }
 
     val xcf = XCFramework(frameworkName)

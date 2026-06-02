@@ -26,8 +26,6 @@ import io.github.kotlinmania.starlark_kotlin.eval.runtime.Arguments
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.Evaluator
 import io.github.kotlinmania.starlark_kotlin.values.layout.typed.StringValue
 import io.github.kotlinmania.starlark_kotlin.values.types.enumeration.enum_type.EnumType
-import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Heap
-import io.github.kotlinmania.starlark_kotlin.values.layout.Value
 
 // #[starlark_module]
 // pub fn register_enum(builder: &mut GlobalsBuilder)

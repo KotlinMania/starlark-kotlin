@@ -27,8 +27,6 @@ import io.github.kotlinmania.starlark_kotlin.typing.Ty
 import io.github.kotlinmania.starlark_kotlin.values.ComplexValue
 import io.github.kotlinmania.starlark_kotlin.values.Freeze
 import io.github.kotlinmania.starlark_kotlin.values.layout.Freezer
-import io.github.kotlinmania.starlark_kotlin.values.StarlarkValue
-import io.github.kotlinmania.starlark_kotlin.values.freeze
 import io.github.kotlinmania.starlark_kotlin.values.freezeList
 import io.github.kotlinmania.starlark_kotlin.values.types.record.record_type.RecordTypeGen
 import io.github.kotlinmania.starlark_kotlin.collections.Hashed
@@ -142,8 +140,7 @@ class RecordGen internal constructor(
 
     // fn get_record_fields(&self) -> &'v SmallMap<String, FieldGen<Value<'v>>>
     private fun getRecordFields(): SmallMap<String, Field> {
-        @Suppress("UNCHECKED_CAST")
-        return recordFields(getRecordType()) as SmallMap<String, Field>
+        return recordFields(getRecordType())
     }
 
     /** Iterate over the elements in the record. */

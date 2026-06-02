@@ -19,10 +19,7 @@ package io.github.kotlinmania.starlark_kotlin.values.thin_box_slice_frozen_value
  * limitations under the License.
  */
 
-import io.github.kotlinmania.starlark_kotlin.values.layout.heap.FrozenHeap
 import io.github.kotlinmania.starlark_kotlin.values.layout.FrozenValue
-import io.github.kotlinmania.starlark_kotlin.values.types.int.InlineInt
-import io.github.kotlinmania.starlark_kotlin.values.layout.avalues.str_.allocStr
 
 /**
  * Wrapper to handle the packing and most of the unsafety.

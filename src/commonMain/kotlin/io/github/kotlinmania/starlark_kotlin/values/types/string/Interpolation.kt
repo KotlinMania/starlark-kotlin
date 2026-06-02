@@ -14,7 +14,6 @@ import io.github.kotlinmania.starlark_kotlin.values.types.num.NumRef
 import io.github.kotlinmania.starlark_kotlin.values.ValueError
 import io.github.kotlinmania.starlark_kotlin.values.types.tuple.Tuple
 import io.github.kotlinmania.starlark_kotlin.values.types.tuple.fromValue
-import com.ionspin.kotlin.bignum.integer.BigInteger
 import kotlin.math.truncate
 
 

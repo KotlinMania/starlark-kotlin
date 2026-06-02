@@ -19,11 +19,6 @@ package io.github.kotlinmania.starlark_kotlin.values.typing.type_compiled
  * limitations under the License.
  */
 
-import io.github.kotlinmania.starlark_kotlin.values.typing.type_compiled.TypeCompiledFactory
-import io.github.kotlinmania.starlark_kotlin.values.typing.type_compiled.TypeCompiled
-import io.github.kotlinmania.starlark_kotlin.values.typing.type_compiled.TypeMatcherBoxAlloc
-import io.github.kotlinmania.starlark_kotlin.values.typing.type_compiled.TypeMatcherBox
-import io.github.kotlinmania.starlark_kotlin.values.typing.type_compiled.TypeMatcher
 import io.github.kotlinmania.starlark_kotlin.values.layout.Value
 
 // #[derive(Allocative, Debug)]

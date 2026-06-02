@@ -1,6 +1,8 @@
 // port-lint: source src/hash_value.rs
 package io.github.kotlinmania.starlark_kotlin.collections
 
+import kotlin.ConsistentCopyVisibility
+
 /*
  * Copyright 2019 The Starlark in Rust Authors.
  * Copyright (c) Facebook, Inc. and its affiliates.
@@ -22,6 +24,7 @@ package io.github.kotlinmania.starlark_kotlin.collections
 /**
  * A hash value.
  */
+@ConsistentCopyVisibility
 data class StarlarkHashValue private constructor(
     private val value: UInt,
 ) {

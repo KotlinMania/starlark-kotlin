@@ -19,11 +19,7 @@ package io.github.kotlinmania.starlark_kotlin
  * limitations under the License.
  */
 
-import io.github.kotlinmania.starlark_kotlin.analysis.LintMessage
-import io.github.kotlinmania.starlark_kotlin.analysis.EvalMessage
-import io.github.kotlinmania.starlark_kotlin.analysis.EvalSeverity
 import io.github.kotlinmania.starlark_kotlin.analysis.Lint
-import io.github.kotlinmania.starlark_kotlin.analysis.LintT
 import io.github.kotlinmania.starlark_kotlin.syntax.AstModule
 
 /**

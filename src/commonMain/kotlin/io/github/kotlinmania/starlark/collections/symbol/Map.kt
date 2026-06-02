@@ -40,7 +40,6 @@ package io.github.kotlinmania.starlark_kotlin.collections.symbol
  * so we can reasonably expect to hit the smaller cases most often.
  */
 
-import io.github.kotlinmania.starlark_kotlin.collections.symbol.Symbol
 import io.github.kotlinmania.starlark_kotlin.collections.Hashed
 
 /**

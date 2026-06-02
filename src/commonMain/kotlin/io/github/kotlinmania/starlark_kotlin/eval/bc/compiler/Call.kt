@@ -21,7 +21,6 @@ package io.github.kotlinmania.starlark_kotlin.eval.bc.compiler
 
 /** Compile function calls. */
 
-import io.github.kotlinmania.starlark_kotlin.eval.bc.BcSlotIn
 import io.github.kotlinmania.starlark_kotlin.collections.symbol.Symbol
 import io.github.kotlinmania.starlark_kotlin.eval.bc.BcCallArgsFull
 import io.github.kotlinmania.starlark_kotlin.eval.bc.BcCallArgsPos
@@ -49,7 +48,6 @@ import io.github.kotlinmania.starlark_kotlin.values.types.NativeFunction
 import io.github.kotlinmania.starlark_kotlin.eval.compiler.IrSpanned
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.FrameSpan
 import io.github.kotlinmania.starlark_kotlin.values.types.getKnownMethod
-import io.github.kotlinmania.starlark_kotlin.eval.bc.compiler.assign.markDefinitelyAssignedAfter
 import io.github.kotlinmania.starlark_kotlin.values.layout.FrozenValueTyped
 import io.github.kotlinmania.starlark_kotlin.eval.compiler.FrozenDef
 

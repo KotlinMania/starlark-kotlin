@@ -19,20 +19,10 @@ package io.github.kotlinmania.starlark_kotlin.values.layout
  * limitations under the License.
  */
 
-import io.github.kotlinmania.starlark_kotlin.values.layout.FrozenValue
 import io.github.kotlinmania.starlark_kotlin.values.StarlarkValue
 import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Tracer
-import io.github.kotlinmania.starlark_kotlin.values.layout.Freezer
-import io.github.kotlinmania.starlark_kotlin.values.layout.Value
-import io.github.kotlinmania.starlark_kotlin.values.layout.AlignedSize
-import io.github.kotlinmania.starlark_kotlin.values.layout.avalues.allocTuple
 import io.github.kotlinmania.starlark_kotlin.values.layout.heap.AValueHeader
-import io.github.kotlinmania.starlark_kotlin.values.layout.heap.AValueRepr
-import io.github.kotlinmania.starlark_kotlin.values.layout.heap.ForwardPtr
 import io.github.kotlinmania.starlark_kotlin.values.layout.heap.arena.MIN_ALLOC
-import io.github.kotlinmania.starlark_kotlin.values.layout.ValueAllocSize
-import io.github.kotlinmania.starlark_kotlin.values.types.list.ListData
-import io.github.kotlinmania.starlark_kotlin.values.types.list.allocList
 
 /** Extended vtable methods (those not covered by [StarlarkValue]). */
 interface AValue {

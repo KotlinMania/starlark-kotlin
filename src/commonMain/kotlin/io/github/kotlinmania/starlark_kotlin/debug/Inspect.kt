@@ -23,7 +23,6 @@ import io.github.kotlinmania.starlark_kotlin.collections.SmallMap
 import io.github.kotlinmania.starlark_kotlin.eval.compiler.Def
 import io.github.kotlinmania.starlark_kotlin.eval.compiler.FrozenDef
 import io.github.kotlinmania.starlark_kotlin.values.layout.typed.FrozenStringValue
-import io.github.kotlinmania.starlark_kotlin.values.layout.ValueLike
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.Evaluator
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.LocalSlotIdCapturedOrNot
 import io.github.kotlinmania.starlark_kotlin.values.layout.Value

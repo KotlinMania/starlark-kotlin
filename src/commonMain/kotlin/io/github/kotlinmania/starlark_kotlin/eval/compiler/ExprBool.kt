@@ -22,7 +22,6 @@ package io.github.kotlinmania.starlark_kotlin.eval.compiler
 /** Boolean expression. */
 
 import io.github.kotlinmania.starlark_kotlin.values.layout.FrozenValue
-import io.github.kotlinmania.starlark_kotlin.values.layout.Value
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.FrameSpan
 
 /** Boolean expression. */

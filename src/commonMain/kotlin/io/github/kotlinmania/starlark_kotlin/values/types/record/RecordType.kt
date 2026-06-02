@@ -26,7 +26,6 @@ import io.github.kotlinmania.starlark_kotlin.environment.MethodsBuilder
 import io.github.kotlinmania.starlark_kotlin.environment.MethodsStatic
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.Arguments
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.Evaluator
-import io.github.kotlinmania.starlark_kotlin.eval.runtime.params.ParametersParser
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.params.spec.ParametersSpec
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.params.spec.ParametersSpecParam
 import io.github.kotlinmania.starlark_kotlin.typing.ParamIsRequired
@@ -41,7 +40,6 @@ import io.github.kotlinmania.starlark_kotlin.values.ComplexValue
 import io.github.kotlinmania.starlark_kotlin.values.Freeze
 import io.github.kotlinmania.starlark_kotlin.values.layout.Freezer
 import io.github.kotlinmania.starlark_kotlin.values.layout.FrozenValue
-import io.github.kotlinmania.starlark_kotlin.values.StarlarkValue
 import io.github.kotlinmania.starlark_kotlin.values.ValueUnpackValue
 import io.github.kotlinmania.starlark_kotlin.values.freezeSmallMap
 import io.github.kotlinmania.starlark_kotlin.values.layout.Value
@@ -224,7 +222,7 @@ class RecordTypeGen internal constructor(
     }
 
     // fn export_as(...)
-    override fun exportAs(variableName: String, _eval: Evaluator): Result<Unit> {
+    override fun exportAs(variableName: String, eval: Evaluator): Result<Unit> {
         getOrInitTy {
             val fieldsTy = linkedMapOf<String, Ty>().apply {
                 for ((name, field) in fields) {

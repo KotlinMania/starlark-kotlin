@@ -22,8 +22,6 @@ package io.github.kotlinmania.starlark_kotlin.eval.runtime
 import io.github.kotlinmania.starlark_kotlin.values.FrozenRef
 import io.github.kotlinmania.starlark_kotlin.CallStack
 import io.github.kotlinmania.starlark_kotlin.Frame
-import io.github.kotlinmania.starlark_kotlin.eval.runtime.InlinedFrames
-import io.github.kotlinmania.starlark_kotlin.eval.runtime.FrameSpan
 import io.github.kotlinmania.starlark_kotlin.values.layout.Value
 import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Tracer
 import io.github.kotlinmania.starlark_kotlin.values.layout.heap.ValueHolder

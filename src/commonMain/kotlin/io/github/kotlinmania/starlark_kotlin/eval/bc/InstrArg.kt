@@ -32,8 +32,6 @@ import io.github.kotlinmania.starlark_kotlin.collections.Hashed
 import io.github.kotlinmania.starlark_kotlin.collections.SmallMap
 import io.github.kotlinmania.starlark_kotlin.collections.symbol.Symbol
 import io.github.kotlinmania.starlark_kotlin.environment.ModuleSlotId
-import io.github.kotlinmania.starlark_kotlin.eval.bc.BcInstr
-import io.github.kotlinmania.starlark_kotlin.eval.bc.BcInstrRepr
 import io.github.kotlinmania.starlark_kotlin.values.FrozenRef
 import io.github.kotlinmania.starlark_kotlin.values.layout.FrozenValue
 import io.github.kotlinmania.starlark_kotlin.values.StarlarkValue

@@ -19,7 +19,7 @@ package io.github.kotlinmania.starlark_kotlin.tests.derive.module
  * limitations under the License.
  */
 
-import io.github.kotlinmania.starlark_kotlin.assert.Assert
+import io.github.kotlinmania.starlark.assert.Assert
 import io.github.kotlinmania.starlark_kotlin.environment.GlobalsBuilder
 import io.github.kotlinmania.starlark_kotlin.environment.MethodsBuilder
 import io.github.kotlinmania.starlark_kotlin.typing.Ty

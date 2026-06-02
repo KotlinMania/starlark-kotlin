@@ -22,7 +22,6 @@ package io.github.kotlinmania.starlark_kotlin.values.typing.type_compiled
 /** TypeMatcher implementations for runtime type checking. */
 
 import io.github.kotlinmania.starlark_kotlin.values.starlark_type_id.StarlarkTypeId
-import io.github.kotlinmania.starlark_kotlin.values.types.dict.DictRef
 import io.github.kotlinmania.starlark_kotlin.values.types.dict.dictRefFromValue
 import io.github.kotlinmania.starlark_kotlin.values.types.dict.iter
 import io.github.kotlinmania.starlark_kotlin.values.types.int.StarlarkIntRef

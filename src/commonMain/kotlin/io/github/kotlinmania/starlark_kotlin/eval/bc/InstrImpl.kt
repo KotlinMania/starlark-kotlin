@@ -1,9 +1,6 @@
 // port-lint: source src/eval/bc/instr_impl.rs
 package io.github.kotlinmania.starlark_kotlin.eval.bc
 
-import io.github.kotlinmania.starlark_kotlin.eval.bc.InstrControl
-import io.github.kotlinmania.starlark_kotlin.eval.bc.BcInstr
-import io.github.kotlinmania.starlark_kotlin.values.toValue
 import io.github.kotlinmania.starlark_kotlin.values.layout.avalues.allocTuple
 import io.github.kotlinmania.starlark_kotlin.values.layout.typed.FrozenStringValue
 import io.github.kotlinmania.starlark_kotlin.typing.EvalException
@@ -29,7 +26,6 @@ import io.github.kotlinmania.starlark_kotlin.eval.runtime.ArgumentsImpl
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.LocalSlotId
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.LocalCapturedSlotId
 // Types from eval.bc.frame (sub-package)
-import io.github.kotlinmania.starlark_kotlin.eval.bc.BcFramePtr
 // Types from values.types.dict
 import io.github.kotlinmania.starlark_kotlin.values.types.dict.Dict
 // Types from eval.runtime.params.spec
@@ -48,11 +44,9 @@ import io.github.kotlinmania.starlark_kotlin.eval.compiler.FrozenDef
 import io.github.kotlinmania.starlark_kotlin.eval.compiler.newDef
 import io.github.kotlinmania.starlark_kotlin.eval.compiler.isStarOrStarStar
 import io.github.kotlinmania.starlark_kotlin.eval.compiler.nameTy
-import io.github.kotlinmania.starlark_kotlin.eval.compiler.IrSpanned
 import io.github.kotlinmania.starlark_kotlin.values.types.KnownMethod
 import io.github.kotlinmania.starlark_kotlin.eval.compiler.DefInfo
 import io.github.kotlinmania.starlark_kotlin.eval.compiler.EvalError
-import io.github.kotlinmania.starlark_kotlin.eval.compiler.MemberOrValue
 import io.github.kotlinmania.starlark_kotlin.eval.compiler.getAttrHashedRaw
 import io.github.kotlinmania.starlark_kotlin.eval.compiler.getAttrHashedBind
 import io.github.kotlinmania.starlark_kotlin.values.layout.FrozenValueNotSpecial
@@ -62,7 +56,6 @@ import io.github.kotlinmania.starlark_kotlin.eval.compiler.AssignError
 import io.github.kotlinmania.starlark_kotlin.values.types.list.allocList
 import io.github.kotlinmania.starlark_kotlin.values.types.dict.allocValue
 import io.github.kotlinmania.starlark_kotlin.values.types.bigint.allocValue
-import kotlin.reflect.KClass
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.

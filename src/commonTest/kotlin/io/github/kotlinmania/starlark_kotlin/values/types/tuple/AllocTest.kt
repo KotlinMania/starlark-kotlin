@@ -23,8 +23,6 @@ import io.github.kotlinmania.starlark_kotlin.values.layout.heap.FrozenHeap
 import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Heap
 import io.github.kotlinmania.starlark_kotlin.values.types.num.Num
 import io.github.kotlinmania.starlark_kotlin.values.types.int.StarlarkInt
-import io.github.kotlinmania.starlark_kotlin.values.types.tuple.FrozenTupleRef
-import io.github.kotlinmania.starlark_kotlin.values.types.tuple.TupleRef
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue

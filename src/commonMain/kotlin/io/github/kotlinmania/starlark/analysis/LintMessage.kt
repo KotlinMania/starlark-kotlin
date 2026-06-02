@@ -1,5 +1,5 @@
 // port-lint: source src/analysis/lint_message.rs
-package io.github.kotlinmania.starlark_kotlin.analysis
+package io.github.kotlinmania.starlark.analysis
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.
@@ -20,7 +20,6 @@ package io.github.kotlinmania.starlark_kotlin.analysis
  */
 
 import kotlinx.serialization.Serializable
-import kotlinx.serialization.Transient
 
 /**
  * A JSON-deriving type that gives a stable interface to downstream types.

@@ -19,7 +19,7 @@ package io.github.kotlinmania.starlark_kotlin.eval.runtime.profile
  * limitations under the License.
  */
 
-import io.github.kotlinmania.starlark_kotlin.assert.testFunctions
+import io.github.kotlinmania.starlark.assert.testFunctions
 import io.github.kotlinmania.starlark_kotlin.codemap.CodeMap
 import io.github.kotlinmania.starlark_kotlin.codemap.CodeMaps
 import io.github.kotlinmania.starlark_kotlin.codemap.FileSpan
@@ -32,11 +32,9 @@ import io.github.kotlinmania.starlark_kotlin.eval.runtime.Evaluator
 import io.github.kotlinmania.starlark_kotlin.eval.evalModule
 import io.github.kotlinmania.starlark_kotlin.syntax.AstModule
 import io.github.kotlinmania.starlark_kotlin.syntax.dialect.Dialect
-import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Heap
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.profile.data.ProfileData
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.profile.data.ProfileDataImpl
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.profile.mode.ProfileMode
-import io.github.kotlinmania.starlark_kotlin.eval.runtime.profile.ProfilerInstant
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.SmallDuration
 import kotlin.test.AfterTest
 import kotlin.test.BeforeTest

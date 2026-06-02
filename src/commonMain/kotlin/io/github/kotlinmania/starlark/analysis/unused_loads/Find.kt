@@ -1,5 +1,5 @@
 // port-lint: source src/analysis/unused_loads/find.rs
-package io.github.kotlinmania.starlark_kotlin.analysis.unused_loads
+package io.github.kotlinmania.starlark.analysis.unused_loads
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.
@@ -21,7 +21,6 @@ package io.github.kotlinmania.starlark_kotlin.analysis.unused_loads
 
 import io.github.kotlinmania.starlark_kotlin.codemap.CodeMap
 import io.github.kotlinmania.starlark_kotlin.codemap.FileSpan
-import io.github.kotlinmania.starlark_kotlin.codemap.Span
 import io.github.kotlinmania.starlark_kotlin.codemap.Spanned
 import io.github.kotlinmania.starlark_kotlin.environment.MutableNames
 import io.github.kotlinmania.starlark_kotlin.eval.compiler.BindingId

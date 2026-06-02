@@ -19,9 +19,6 @@ package io.github.kotlinmania.starlark_kotlin.collections
  * limitations under the License.
  */
 
-import io.github.kotlinmania.starlark_kotlin.collections.Equivalent
-import io.github.kotlinmania.starlark_kotlin.collections.Hashed
-
 /**
  * A map with deterministic iteration order.
  *

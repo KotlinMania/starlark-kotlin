@@ -34,7 +34,6 @@ import io.github.kotlinmania.starlark_kotlin.values.types.array.ValueEmptyArray
 import io.github.kotlinmania.starlark_kotlin.values.layout.ValueTyped
 import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Heap
 import io.github.kotlinmania.starlark_kotlin.values.layout.Value
-import io.github.kotlinmania.starlark_kotlin.values.toValue
 import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Tracer
 import io.github.kotlinmania.starlark_kotlin.values.layout.AlignedSize
 import io.github.kotlinmania.starlark_kotlin.values.types.allocAny
@@ -70,7 +69,7 @@ internal object AValueArray : AValue {
     override fun allocSizeForExtraLen(extraLen: Int): ValueAllocSize = ValueAllocSize(AlignedSize(0u))
 
     // unsafe fn heap_freeze(...) -> Result<FrozenValue>
-    override fun heapFreeze(_freezer: Freezer): Result<FrozenValue> {
+    override fun heapFreeze(freezer: Freezer): Result<FrozenValue> {
         error("arrays should not be frozen")
     }
 
@@ -122,12 +121,12 @@ internal class AValueAnyArray<T> : AValue {
     override fun allocSizeForExtraLen(extraLen: Int): ValueAllocSize = ValueAllocSize(AlignedSize(0u))
 
     // unsafe fn heap_freeze(...) -> Result<FrozenValue>
-    override fun heapFreeze(_freezer: Freezer): Result<FrozenValue> {
+    override fun heapFreeze(freezer: Freezer): Result<FrozenValue> {
         error("AnyArray for now can only be allocated in FrozenHeap")
     }
 
     // unsafe fn heap_copy(...) -> Value<'v>
-    override fun heapCopy(_tracer: Tracer): Value {
+    override fun heapCopy(tracer: Tracer): Value {
         error("AnyArray for now can only be allocated in FrozenHeap")
     }
 

@@ -1,5 +1,5 @@
 // port-lint: source src/analysis/underscore.rs
-package io.github.kotlinmania.starlark_kotlin.analysis
+package io.github.kotlinmania.starlark.analysis
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.

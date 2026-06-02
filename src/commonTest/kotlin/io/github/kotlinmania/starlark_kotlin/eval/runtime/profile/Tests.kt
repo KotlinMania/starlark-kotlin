@@ -27,7 +27,7 @@ import io.github.kotlinmania.starlark_kotlin.eval.runtime.Evaluator
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.profile.data.ProfileData
 import io.github.kotlinmania.starlark_kotlin.syntax.dialect.Dialect
 import io.github.kotlinmania.starlark_kotlin.eval.evalModule
-import io.github.kotlinmania.starlark_kotlin.assert.testFunctions
+import io.github.kotlinmania.starlark.assert.testFunctions
 import io.github.kotlinmania.starlark_kotlin.syntax.AstModule
 import io.github.kotlinmania.starlark_kotlin.golden_test_template.goldenTestTemplate
 

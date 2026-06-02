@@ -19,7 +19,7 @@ package io.github.kotlinmania.starlark_kotlin.values.types.float
  * limitations under the License.
  */
 
-import io.github.kotlinmania.starlark_kotlin.assert.Assert
+import io.github.kotlinmania.starlark.assert.Assert
 import kotlin.math.E
 import kotlin.math.PI
 import kotlin.test.Test

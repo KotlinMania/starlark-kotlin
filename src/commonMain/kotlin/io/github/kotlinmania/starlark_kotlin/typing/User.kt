@@ -23,7 +23,6 @@ import io.github.kotlinmania.starlark_kotlin.codemap.Span
 import io.github.kotlinmania.starlark_kotlin.typing.oracle.TypingOracleCtx
 import io.github.kotlinmania.starlark_kotlin.values.types.TypeInstanceId
 import io.github.kotlinmania.starlark_kotlin.values.typing.type_compiled.TypeMatcherAlloc
-import io.github.kotlinmania.starlark_kotlin.values.typing.type_compiled.TypeMatcherFactory
 import io.github.kotlinmania.starlark_kotlin.values.typing.type_compiled.TypeMatcherFactory as TypeMatcherFactoryBoxed
 
 // #[derive(Debug, thiserror::Error)]

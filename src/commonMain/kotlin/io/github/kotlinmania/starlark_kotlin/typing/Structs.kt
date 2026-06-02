@@ -19,7 +19,6 @@ package io.github.kotlinmania.starlark_kotlin.typing
  * limitations under the License.
  */
 
-import io.github.kotlinmania.starlark_kotlin.typing.TypingNoContextOrInternalError
 import io.github.kotlinmania.starlark_kotlin.values.layout.Value
 import io.github.kotlinmania.starlark_kotlin.values.typing.type_compiled.TypeMatcherAlloc
 import io.github.kotlinmania.starlark_kotlin.values.typing.type_compiled.TypeMatcher

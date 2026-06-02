@@ -19,7 +19,7 @@ package io.github.kotlinmania.starlark_kotlin.tests.opt
  * limitations under the License.
  */
 
-import io.github.kotlinmania.starlark_kotlin.assert.Assert
+import io.github.kotlinmania.starlark.assert.Assert
 import io.github.kotlinmania.starlark_kotlin.tests.bc.bcGoldenTest
 
 // #[test]

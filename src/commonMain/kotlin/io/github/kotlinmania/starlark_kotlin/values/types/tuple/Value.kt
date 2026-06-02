@@ -27,7 +27,6 @@ import io.github.kotlinmania.starlark_kotlin.values.layout.ValueLike
 import io.github.kotlinmania.starlark_kotlin.values.layout.avalues.AllocStaticSimple
 import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Heap
 import io.github.kotlinmania.starlark_kotlin.values.layout.Value
-import io.github.kotlinmania.starlark_kotlin.values.toValue
 import io.github.kotlinmania.starlark_kotlin.values.layout.avalues.allocTuple
 import io.github.kotlinmania.starlark_kotlin.values.equalsSlice
 import io.github.kotlinmania.starlark_kotlin.values.convertIndex
@@ -100,7 +99,7 @@ class TupleGen<V>(
         return compareSlice<Exception, V, Value>(content(), otherTuple.content()) { x, y -> (x as ValueLike).compare(y) }
     }
 
-    override fun at(index: Value, _heap: Heap): Result<Value> {
+    override fun at(index: Value, heap: Heap): Result<Value> {
         val i = convertIndex(index, len()).getOrElse { return Result.failure(it) }
         return Result.success((content()[i] as ValueLike).toValue())
     }

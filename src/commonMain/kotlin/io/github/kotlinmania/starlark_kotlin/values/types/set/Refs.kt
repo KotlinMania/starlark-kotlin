@@ -20,7 +20,6 @@ package io.github.kotlinmania.starlark_kotlin.values.types.set
  */
 
 import io.github.kotlinmania.starlark_kotlin.typing.Ty
-import io.github.kotlinmania.starlark_kotlin.values.layout.FrozenValue
 import io.github.kotlinmania.starlark_kotlin.values.UnpackValue
 import io.github.kotlinmania.starlark_kotlin.values.ValueError
 import io.github.kotlinmania.starlark_kotlin.collections.Hashed
@@ -112,7 +111,7 @@ class SetMut internal constructor(
         /**
          * Downcast the value to a mutable set reference.
          */
-        internal inline fun fromValue(x: Value): Result<SetMut> {
+        internal fun fromValue(x: Value): Result<SetMut> {
             val ptr = x.downcastRef<SetGen<RefCell<SetData>>>()
             return when (ptr) {
                 null -> Result.failure(error(x))

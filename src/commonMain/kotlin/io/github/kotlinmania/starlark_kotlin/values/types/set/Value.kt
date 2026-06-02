@@ -51,7 +51,7 @@ data class SetGen<T>(val inner: T) : ComplexValue, Trace, Freeze<StarlarkValue> 
     @Suppress("UNCHECKED_CAST")
     override fun freeze(freezer: Freezer): Result<StarlarkValue> {
         val mutableSelf = this as MutableSet
-        return mutableSelf.freeze(freezer) as Result<StarlarkValue>
+        return mutableSelf.freezeToFrozenSet(freezer).map { it as StarlarkValue }
     }
     override val TYPE: String get() = SET_TYPE
     override val HAS_iterate: Boolean get() = true
@@ -94,7 +94,7 @@ data class SetGen<T>(val inner: T) : ComplexValue, Trace, Freeze<StarlarkValue> 
     override fun getMethods(): Methods? = setMethods()
 
     // unsafe fn iterate(&self, me: Value<'v>, _heap: Heap<'v>) -> crate::Result<Value<'v>>
-    override fun iterate(me: Value, _heap: Heap): Result<Value> {
+    override fun iterate(me: Value, heap: Heap): Result<Value> {
         setLike().iterStart()
         return Result.success(me)
     }
@@ -121,11 +121,11 @@ data class SetGen<T>(val inner: T) : ComplexValue, Trace, Freeze<StarlarkValue> 
         !setLike().content().isEmpty()
 
     // fn bit_or(&self, rhs: Value<'v>, heap: Heap<'v>) -> crate::Result<Value<'v>>
-    override fun bitOr(rhs: Value, heap: Heap): Result<Value> {
+    override fun bitOr(other: Value, heap: Heap): Result<Value> {
         return try {
             // Unlike in `union` it is not possible to `|` `set` and iterable. This is due python semantics.
-            val rhsSet = SetRef.unpackValueOpt(rhs)
-                ?: return ValueError.unsupportedWith(SET_TYPE, "|", rhs)
+            val rhsSet = SetRef.unpackValueOpt(other)
+                ?: return ValueError.unsupportedWith(SET_TYPE, "|", other)
 
             if (setLike().content().isEmpty()) {
                 return Result.success(copySetData(rhsSet.content).allocValue(heap))
@@ -142,10 +142,10 @@ data class SetGen<T>(val inner: T) : ComplexValue, Trace, Freeze<StarlarkValue> 
     }
 
     // fn bit_and(&self, rhs: Value<'v>, heap: Heap<'v>) -> crate::Result<Value<'v>>
-    override fun bitAnd(rhs: Value, heap: Heap): Result<Value> {
+    override fun bitAnd(other: Value, heap: Heap): Result<Value> {
         return try {
-            val rhsSet = SetRef.unpackValueOpt(rhs)
-                ?: return ValueError.unsupportedWith(SET_TYPE, "&", rhs)
+            val rhsSet = SetRef.unpackValueOpt(other)
+                ?: return ValueError.unsupportedWith(SET_TYPE, "&", other)
 
             if (setLike().content().isEmpty()) {
                 return Result.success(SetData().allocValue(heap))
@@ -165,10 +165,10 @@ data class SetGen<T>(val inner: T) : ComplexValue, Trace, Freeze<StarlarkValue> 
     }
 
     // fn bit_xor(&self, rhs: Value<'v>, heap: Heap<'v>) -> crate::Result<Value<'v>>
-    override fun bitXor(rhs: Value, heap: Heap): Result<Value> {
+    override fun bitXor(other: Value, heap: Heap): Result<Value> {
         return try {
-            val rhsSet = SetRef.unpackValueOpt(rhs)
-                ?: return ValueError.unsupportedWith(SET_TYPE, "^", rhs)
+            val rhsSet = SetRef.unpackValueOpt(other)
+                ?: return ValueError.unsupportedWith(SET_TYPE, "^", other)
 
             if (rhsSet.content.isEmpty()) {
                 return Result.success(copySetData(setLike().content()).allocValue(heap))
@@ -193,10 +193,10 @@ data class SetGen<T>(val inner: T) : ComplexValue, Trace, Freeze<StarlarkValue> 
     }
 
     // fn sub(&self, rhs: Value<'v>, heap: Heap<'v>) -> crate::Result<Value<'v>>
-    override fun sub(rhs: Value, heap: Heap): Result<Value> {
+    override fun sub(other: Value, heap: Heap): Result<Value> {
         return try {
-            val rhsSet = SetRef.unpackValueOpt(rhs)
-                ?: return ValueError.unsupportedWith(SET_TYPE, "-", rhs)
+            val rhsSet = SetRef.unpackValueOpt(other)
+                ?: return ValueError.unsupportedWith(SET_TYPE, "-", other)
 
             if (setLike().content().isEmpty()) {
                 return Result.success(SetData().allocValue(heap))
@@ -315,7 +315,7 @@ fun SetData.starlarkTypeRepr(): Ty {
 /**
  * Freeze implementation for MutableSet.
  */
-fun MutableSet.freeze(freezer: Freezer): Result<FrozenSet> {
+fun MutableSet.freezeToFrozenSet(freezer: Freezer): Result<FrozenSet> {
     val contentResult = freezeSmallSet(
         this.inner.borrow().data.content,
         freezer,

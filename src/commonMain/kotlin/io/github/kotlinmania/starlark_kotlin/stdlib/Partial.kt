@@ -28,7 +28,6 @@ import io.github.kotlinmania.starlark_kotlin.eval.runtime.Evaluator
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.rust_loc.rustLoc
 import io.github.kotlinmania.starlark_kotlin.values.ComplexValue
 import io.github.kotlinmania.starlark_kotlin.values.Freeze
-import io.github.kotlinmania.starlark_kotlin.values.layout.FrozenValue
 import io.github.kotlinmania.starlark_kotlin.values.StarlarkValue
 import io.github.kotlinmania.starlark_kotlin.values.Trace
 import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Tracer
@@ -156,7 +155,7 @@ open class PartialGen<V : Any, S : Any>(
 
     // fn invoke(&self, _me: Value, args: &Arguments, eval: &mut Evaluator) -> crate::Result<Value>
     override fun invoke(
-        _me: Value,
+        me: Value,
         args: Arguments,
         eval: Evaluator,
     ): Result<Value> {

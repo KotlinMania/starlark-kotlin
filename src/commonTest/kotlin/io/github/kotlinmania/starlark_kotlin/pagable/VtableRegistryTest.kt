@@ -21,7 +21,6 @@ package io.github.kotlinmania.starlark_kotlin.pagable
 
 import kotlin.test.Test
 import kotlin.test.assertTrue
-import kotlin.test.assertFalse
 import kotlin.test.assertEquals
 
 /// Tests for the vtable registry.

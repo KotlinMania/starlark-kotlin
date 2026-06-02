@@ -1,5 +1,5 @@
 // port-lint: source src/assert/assert.rs
-package io.github.kotlinmania.starlark_kotlin.assert
+package io.github.kotlinmania.starlark.assert
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.
@@ -21,12 +21,12 @@ package io.github.kotlinmania.starlark_kotlin.assert
 
 /** Utilities to test Starlark code execution. */
 
+import io.github.kotlinmania.starlark_kotlin.Error
 import io.github.kotlinmania.starlark_kotlin.environment.FrozenModule
 import io.github.kotlinmania.starlark_kotlin.environment.Globals
 import io.github.kotlinmania.starlark_kotlin.environment.GlobalsBuilder
 import io.github.kotlinmania.starlark_kotlin.environment.Module
 import io.github.kotlinmania.starlark_kotlin.stdlib.PrintHandler
-import io.github.kotlinmania.starlark_kotlin.values.AllocValue
 import io.github.kotlinmania.starlark_kotlin.values.typing.type_compiled.TypeCompiled
 import io.github.kotlinmania.starlark_kotlin.values.types.structs.AllocStruct
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.Evaluator
@@ -47,7 +47,7 @@ import io.github.kotlinmania.starlark_kotlin.values.types.bigint.allocFrozenValu
  *
  * Mirrors `Error::eprint` in the Rust implementation.
  */
-private fun io.github.kotlinmania.starlark_kotlin.Error.eprint() {
+private fun Error.eprint() {
     if (hasDiagnostic()) {
         println(this)
     } else {
@@ -328,17 +328,17 @@ class Assert(
         program: String,
         module: Module,
         gc: GcStrategy,
-    ): io.github.kotlinmania.starlark_kotlin.Error {
+    ): Error {
         return when (val result = execute("assert.bzl", program, module, gc)) {
             else -> if (result.isSuccess) {
                 val v = result.getOrThrow()
                 error("starlark::assert::$func, didn't fail!\nCode:\n$program\nResult:\n$v\n")
             } else {
                 val e = result.exceptionOrNull()!!
-                if (e is io.github.kotlinmania.starlark_kotlin.Error) {
+                if (e is Error) {
                     e
                 } else {
-                    io.github.kotlinmania.starlark_kotlin.Error.newOther(e)
+                    Error.newOther(e)
                 }
             }
         }
@@ -356,7 +356,7 @@ class Assert(
                 result.getOrThrow()
             } else {
                 val err = result.exceptionOrNull()!!
-                if (err is io.github.kotlinmania.starlark_kotlin.Error) {
+                if (err is Error) {
                     err.eprint()
                 }
                 error("starlark::assert::$func, failed to execute!\nCode:\n$program\nGot error: $err\nStack trace:\n${err.stackTraceToString()}")
@@ -444,7 +444,7 @@ class Assert(
         globals(mkEnvironment().with(f).build())
     }
 
-    private fun failsWithName(func: String, program: String, msgs: List<String>): io.github.kotlinmania.starlark_kotlin.Error {
+    private fun failsWithName(func: String, program: String, msgs: List<String>): Error {
         return withGc { gc ->
             Module.withTempHeap { moduleEnv ->
                 val original = executeFail(func, program, moduleEnv, gc)
@@ -481,7 +481,7 @@ class Assert(
      * Assert().fail("fail('hello')", "ello")
      * ```
      */
-    fun fail(program: String, msg: String): io.github.kotlinmania.starlark_kotlin.Error {
+    fun fail(program: String, msg: String): Error {
         return failsWithName("fail", program, listOf(msg))
     }
 
@@ -496,7 +496,7 @@ class Assert(
      * Assert().fails("fail('hello')", listOf("fail", "ello"))
      * ```
      */
-    fun fails(program: String, msgs: List<String>): io.github.kotlinmania.starlark_kotlin.Error {
+    fun fails(program: String, msgs: List<String>): Error {
         return failsWithName("fails", program, msgs)
     }
 
@@ -612,30 +612,30 @@ class Assert(
      */
     companion object {
         /** See [Assert.eq]. */
-        fun eq(lhs: String, rhs: String) = io.github.kotlinmania.starlark_kotlin.assert.eq(lhs, rhs)
+        fun eq(lhs: String, rhs: String) = io.github.kotlinmania.starlark.assert.eq(lhs, rhs)
 
         /** See [Assert.fail]. */
-        fun fail(program: String, msg: String): io.github.kotlinmania.starlark_kotlin.Error =
-            io.github.kotlinmania.starlark_kotlin.assert.fail(program, msg)
+        fun fail(program: String, msg: String): Error =
+            io.github.kotlinmania.starlark.assert.fail(program, msg)
 
         /** See [Assert.fails]. */
-        fun fails(program: String, msgs: List<String>): io.github.kotlinmania.starlark_kotlin.Error =
-            io.github.kotlinmania.starlark_kotlin.assert.fails(program, msgs)
+        fun fails(program: String, msgs: List<String>): Error =
+            io.github.kotlinmania.starlark.assert.fails(program, msgs)
 
         /** See [Assert.isTrue]. */
-        fun isTrue(program: String) = io.github.kotlinmania.starlark_kotlin.assert.isTrue(program)
+        fun isTrue(program: String) = io.github.kotlinmania.starlark.assert.isTrue(program)
 
         /** See [Assert.isFalse]. */
-        fun isFalse(program: String) = io.github.kotlinmania.starlark_kotlin.assert.isFalse(program)
+        fun isFalse(program: String) = io.github.kotlinmania.starlark.assert.isFalse(program)
 
         /** See [Assert.allTrue]. */
-        fun allTrue(expressions: String) = io.github.kotlinmania.starlark_kotlin.assert.allTrue(expressions)
+        fun allTrue(expressions: String) = io.github.kotlinmania.starlark.assert.allTrue(expressions)
 
         /** See [Assert.pass]. */
-        fun pass(program: String): OwnedFrozenValue = io.github.kotlinmania.starlark_kotlin.assert.pass(program)
+        fun pass(program: String): OwnedFrozenValue = io.github.kotlinmania.starlark.assert.pass(program)
 
         /** See [Assert.passModule]. */
-        fun passModule(program: String): FrozenModule = io.github.kotlinmania.starlark_kotlin.assert.passModule(program)
+        fun passModule(program: String): FrozenModule = io.github.kotlinmania.starlark.assert.passModule(program)
     }
 }
 
@@ -647,12 +647,12 @@ fun eq(lhs: String, rhs: String) {
 }
 
 /** See [Assert.fail]. */
-fun fail(program: String, msg: String): io.github.kotlinmania.starlark_kotlin.Error {
+fun fail(program: String, msg: String): Error {
     return Assert().fail(program, msg)
 }
 
 /** See [Assert.fails]. */
-fun fails(program: String, msgs: List<String>): io.github.kotlinmania.starlark_kotlin.Error {
+fun fails(program: String, msgs: List<String>): Error {
     return Assert().fails(program, msgs)
 }
 

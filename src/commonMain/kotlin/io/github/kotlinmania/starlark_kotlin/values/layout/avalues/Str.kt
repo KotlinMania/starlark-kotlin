@@ -30,7 +30,6 @@ import io.github.kotlinmania.starlark_kotlin.values.layout.AValue
 import io.github.kotlinmania.starlark_kotlin.values.layout.AValueImpl
 import io.github.kotlinmania.starlark_kotlin.values.layout.ConstTypeId
 import io.github.kotlinmania.starlark_kotlin.values.layout.AValueVTable
-import io.github.kotlinmania.starlark_kotlin.values.layout.StarlarkValueRawPtr
 import io.github.kotlinmania.starlark_kotlin.values.layout.ValueAllocSize
 import io.github.kotlinmania.starlark_kotlin.values.layout.AlignedSize
 import io.github.kotlinmania.starlark_kotlin.values.layout.typed.FrozenStringValue

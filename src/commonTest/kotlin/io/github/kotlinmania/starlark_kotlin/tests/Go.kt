@@ -21,7 +21,7 @@ package io.github.kotlinmania.starlark_kotlin.tests
 
 /** Run Go implementation tests. */
 
-import io.github.kotlinmania.starlark_kotlin.assert.Assert
+import io.github.kotlinmania.starlark.assert.Assert
 import io.github.kotlinmania.starlark_kotlin.assert.conformanceExcept
 import io.github.kotlinmania.starlark_kotlin.assert.conformance
 

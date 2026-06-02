@@ -19,7 +19,7 @@ package io.github.kotlinmania.starlark_kotlin.values.types.int
  * limitations under the License.
  */
 
-import io.github.kotlinmania.starlark_kotlin.assert.Assert
+import io.github.kotlinmania.starlark.assert.Assert
 import io.github.kotlinmania.starlark_kotlin.values.layout.FrozenValue
 import io.github.kotlinmania.starlark_kotlin.values.layout.Value
 import kotlin.test.Test

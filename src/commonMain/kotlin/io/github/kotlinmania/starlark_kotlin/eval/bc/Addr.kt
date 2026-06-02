@@ -22,10 +22,6 @@ package io.github.kotlinmania.starlark_kotlin.eval.bc
 /** Address types used in bytecode interpreter. */
 
 import kotlin.reflect.KClass
-import io.github.kotlinmania.starlark_kotlin.eval.bc.BcInstr
-import io.github.kotlinmania.starlark_kotlin.eval.bc.BcInstrRepr
-import io.github.kotlinmania.starlark_kotlin.eval.bc.BcInstrHeader
-import io.github.kotlinmania.starlark_kotlin.eval.bc.BC_INSTR_ALIGN
 
 /** Address relative to bytecode start. */
 // #[derive(Eq, PartialEq, Copy, Clone, Dupe, Debug, PartialOrd, Ord, Display, Hash, Default)]

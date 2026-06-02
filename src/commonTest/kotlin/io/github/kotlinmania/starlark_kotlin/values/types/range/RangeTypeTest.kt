@@ -19,7 +19,7 @@ package io.github.kotlinmania.starlark_kotlin.values.types.range
  * limitations under the License.
  */
 
-import io.github.kotlinmania.starlark_kotlin.assert.Assert
+import io.github.kotlinmania.starlark.assert.Assert
 import io.github.kotlinmania.starlark_kotlin.values.ValueError
 import io.github.kotlinmania.starlark_kotlin.values.layout.avalues.simple.allocSimple
 import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Heap

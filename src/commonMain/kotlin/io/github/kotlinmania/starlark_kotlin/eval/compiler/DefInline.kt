@@ -3,7 +3,6 @@ package io.github.kotlinmania.starlark_kotlin.eval.compiler
 
 import io.github.kotlinmania.starlark_kotlin.eval.compiler.args.ArgsCompiledValue
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.FrameSpan
-import io.github.kotlinmania.starlark_kotlin.eval.runtime.LocalSlotId
 import io.github.kotlinmania.starlark_kotlin.values.layout.FrozenValue
 import io.github.kotlinmania.starlark_kotlin.values.layout.typed.FrozenStringValue
 import io.github.kotlinmania.starlark_kotlin.values.layout.FrozenValueTyped

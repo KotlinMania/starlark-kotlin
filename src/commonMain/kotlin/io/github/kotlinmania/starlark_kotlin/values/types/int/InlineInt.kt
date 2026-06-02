@@ -30,10 +30,13 @@ import io.github.kotlinmania.starlark_kotlin.values.StarlarkTypeRepr
 import io.github.kotlinmania.starlark_kotlin.values.UnpackValue
 import io.github.kotlinmania.starlark_kotlin.values.layout.Value
 import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Heap
+import kotlin.ConsistentCopyVisibility
+
 /** Integer which is stored inline in `RawPointer`. */
 // Rust: #[derive(Clone, Copy, Dupe, derive_more::Display, Eq, PartialEq, Hash, Ord, PartialOrd, Serialize)]
 // Rust: #[serde(transparent)]
 // Rust: pub struct InlineInt(i32)
+@ConsistentCopyVisibility
 data class InlineInt internal constructor(private val value: Int) : Comparable<InlineInt> {
 
     // Rust: impl Debug for InlineInt
@@ -122,7 +125,7 @@ data class InlineInt internal constructor(private val value: Int) : Comparable<I
 
         // Rust: fn try_from_impl<I>(i: I) -> Result<InlineInt, InlineIntOverflow>
         //     where i32: TryFrom<I>,
-        private inline fun <T> tryFromImpl(value: T): Result<InlineInt>
+        private fun <T> tryFromImpl(value: T): Result<InlineInt>
             where T : Number, T : Comparable<T> {
             val i = when (value) {
                 is Int -> value

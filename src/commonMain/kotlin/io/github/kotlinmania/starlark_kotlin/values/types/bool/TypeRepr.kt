@@ -20,7 +20,6 @@ package io.github.kotlinmania.starlark_kotlin.values.types.bool
  */
 
 import io.github.kotlinmania.starlark_kotlin.typing.Ty
-import io.github.kotlinmania.starlark_kotlin.values.StarlarkTypeRepr
 
 // impl StarlarkTypeRepr for Boolean
 // Kotlin: Boolean type repr delegates to StarlarkBool.

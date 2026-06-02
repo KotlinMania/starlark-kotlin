@@ -32,7 +32,6 @@ import io.github.kotlinmania.starlark_kotlin.values.layout.ValueAllocSize
 import io.github.kotlinmania.starlark_kotlin.values.layout.heapCopyImpl
 import io.github.kotlinmania.starlark_kotlin.values.layout.heapFreezeSimpleImpl
 import io.github.kotlinmania.starlark_kotlin.values.layout.tryFreezeDirectly
-import io.github.kotlinmania.starlark_kotlin.values.layout.avalues.str_.VALUE_STR_A_VALUE_PTR
 import io.github.kotlinmania.starlark_kotlin.values.layout.typed.StarlarkStr
 import io.github.kotlinmania.starlark_kotlin.values.layout.heap.AValueHeader
 import io.github.kotlinmania.starlark_kotlin.values.layout.heap.AValueOrForward
@@ -41,8 +40,6 @@ import io.github.kotlinmania.starlark_kotlin.values.layout.heap.AValueRepr
 import io.github.kotlinmania.starlark_kotlin.values.layout.heap.CallEnter
 import io.github.kotlinmania.starlark_kotlin.values.layout.heap.CallExit
 import io.github.kotlinmania.starlark_kotlin.values.layout.heap.HeapKind
-import io.github.kotlinmania.starlark_kotlin.values.layout.heap.NeedsDrop
-import io.github.kotlinmania.starlark_kotlin.values.layout.heap.NoDrop
 import io.github.kotlinmania.starlark_kotlin.values.layout.heap.profile.HeapSummary
 import io.github.kotlinmania.starlark_kotlin.values.layout.heap.profile.SmallMap
 import io.github.kotlinmania.starlark_kotlin.values.layout.heap.profile.alloc_counts.AllocCounts

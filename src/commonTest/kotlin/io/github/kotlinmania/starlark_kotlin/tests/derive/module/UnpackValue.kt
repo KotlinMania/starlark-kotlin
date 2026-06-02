@@ -19,12 +19,11 @@ package io.github.kotlinmania.starlark_kotlin.tests.derive.module
  * limitations under the License.
  */
 
-import io.github.kotlinmania.starlark_kotlin.assert.Assert
+import io.github.kotlinmania.starlark.assert.Assert
 import io.github.kotlinmania.starlark_kotlin.environment.GlobalsBuilder
 import io.github.kotlinmania.starlark_kotlin.values.value_of.ValueOf
 import io.github.kotlinmania.starlark_kotlin.values.types.dict.UnpackDictEntries
 import io.github.kotlinmania.starlark_kotlin.values.types.list.UnpackList
-import io.github.kotlinmania.starlark_kotlin.values.layout.Value
 
 private sealed class Either<out L, out R> {
     class Left<L>(val value: L) : Either<L, Nothing>()

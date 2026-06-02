@@ -23,7 +23,6 @@ import io.github.kotlinmania.starlark_kotlin.codemap.CodeMap
 import io.github.kotlinmania.starlark_kotlin.codemap.CodeMapId
 import io.github.kotlinmania.starlark_kotlin.codemap.CodeMaps
 import io.github.kotlinmania.starlark_kotlin.codemap.FileSpan
-import io.github.kotlinmania.starlark_kotlin.codemap.Pos
 import io.github.kotlinmania.starlark_kotlin.codemap.ResolvedFileSpan
 import io.github.kotlinmania.starlark_kotlin.codemap.Span
 import io.github.kotlinmania.starlark_kotlin.codemap.FileSpanRef

@@ -30,7 +30,6 @@ import io.github.kotlinmania.starlark_kotlin.syntax.ast.CallArgsP
 import io.github.kotlinmania.starlark_kotlin.syntax.ast.DefP
 import io.github.kotlinmania.starlark_kotlin.syntax.ast.ExprP
 import io.github.kotlinmania.starlark_kotlin.syntax.ast.IdentP
-import io.github.kotlinmania.starlark_kotlin.syntax.ast.LoadArgP
 import io.github.kotlinmania.starlark_kotlin.syntax.ast.BinOp
 import io.github.kotlinmania.starlark_kotlin.syntax.ast.StmtP
 import io.github.kotlinmania.starlark_kotlin.syntax.ast.ForP

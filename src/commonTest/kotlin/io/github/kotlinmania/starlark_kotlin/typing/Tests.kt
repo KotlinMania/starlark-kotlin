@@ -19,16 +19,14 @@ package io.github.kotlinmania.starlark_kotlin.typing
  * limitations under the License.
  */
 
-import io.github.kotlinmania.starlark_kotlin.assert.Assert
+import io.github.kotlinmania.starlark.assert.Assert
 import io.github.kotlinmania.starlark_kotlin.environment.FrozenModule
 import io.github.kotlinmania.starlark_kotlin.environment.GlobalsBuilder
 import io.github.kotlinmania.starlark_kotlin.environment.Module
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.file_loader.ReturnOwnedFileLoader
-import io.github.kotlinmania.starlark_kotlin.typing.ParamIsRequired
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.Evaluator
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.Arguments
 import io.github.kotlinmania.starlark_kotlin.values.types.none.NoneType
-import io.github.kotlinmania.starlark_kotlin.typing.Interface
 import io.github.kotlinmania.starlark_kotlin.syntax.dialect.Dialect
 import io.github.kotlinmania.starlark_kotlin.tests.trimRustBacktrace
 import io.github.kotlinmania.starlark_kotlin.eval.evalModule

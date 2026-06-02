@@ -19,7 +19,7 @@ package io.github.kotlinmania.starlark_kotlin.debug
  * limitations under the License.
  */
 
-import io.github.kotlinmania.starlark_kotlin.assert.Assert
+import io.github.kotlinmania.starlark.assert.Assert
 import io.github.kotlinmania.starlark_kotlin.environment.GlobalsBuilder
 import io.github.kotlinmania.starlark_kotlin.isWasm
 import io.github.kotlinmania.starlark_kotlin.syntax.AstModule

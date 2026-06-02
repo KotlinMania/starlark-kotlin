@@ -20,18 +20,13 @@ package io.github.kotlinmania.starlark_kotlin.values.layout
  */
 
 import io.github.kotlinmania.starlark_kotlin.typing.Ty
-import io.github.kotlinmania.starlark_kotlin.values.AllocValue
 import io.github.kotlinmania.starlark_kotlin.values.ComplexValue
-import io.github.kotlinmania.starlark_kotlin.values.Freeze
-import io.github.kotlinmania.starlark_kotlin.values.layout.Freezer
 import io.github.kotlinmania.starlark_kotlin.values.StarlarkValue
 import io.github.kotlinmania.starlark_kotlin.values.Trace
-import io.github.kotlinmania.starlark_kotlin.values.UnpackValue
 import io.github.kotlinmania.starlark_kotlin.values.freeze_error.FreezeError
 import io.github.kotlinmania.starlark_kotlin.values.StarlarkTypeRepr
 import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Heap
 import io.github.kotlinmania.starlark_kotlin.values.layout.heap.ValueHolder
-import io.github.kotlinmania.starlark_kotlin.values.trace
 import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Tracer
 import kotlin.reflect.KClass
 

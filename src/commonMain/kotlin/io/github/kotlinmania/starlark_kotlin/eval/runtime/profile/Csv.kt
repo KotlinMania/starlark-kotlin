@@ -22,7 +22,6 @@ package io.github.kotlinmania.starlark_kotlin.eval.runtime.profile.csv
 /** Write CSV files. */
 
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.SmallDuration
-import io.github.kotlinmania.starlark_kotlin.values.types.string.format
 
 // fn quote_str_for_csv(s: &str) -> String
 internal fun quoteStrForCsv(s: String): String =

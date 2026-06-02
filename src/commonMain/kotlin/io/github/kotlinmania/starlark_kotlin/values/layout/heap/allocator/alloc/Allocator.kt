@@ -22,7 +22,6 @@ package io.github.kotlinmania.starlark_kotlin.values.layout.heap.allocator.alloc
 import io.github.kotlinmania.starlark_kotlin.values.layout.AlignedSize
 import io.github.kotlinmania.starlark_kotlin.values.layout.heap.allocator.ArenaAllocator
 import io.github.kotlinmania.starlark_kotlin.values.layout.heap.allocator.ChunkAllocationDirection
-import io.github.kotlinmania.starlark_kotlin.values.layout.heap.allocator.alloc.chunk_part.ChunkPart
 import io.github.kotlinmania.starlark_kotlin.values.layout.ValueAllocSize
 
 /**

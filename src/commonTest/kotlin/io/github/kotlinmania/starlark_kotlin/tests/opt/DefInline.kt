@@ -21,7 +21,7 @@ package io.github.kotlinmania.starlark_kotlin.tests.opt
 
 /** Test function bodies inlined. */
 
-import io.github.kotlinmania.starlark_kotlin.assert.Assert
+import io.github.kotlinmania.starlark.assert.Assert
 import io.github.kotlinmania.starlark_kotlin.eval.compiler.DefGen
 import io.github.kotlinmania.starlark_kotlin.eval.bc.BcOpcode
 import io.github.kotlinmania.starlark_kotlin.tests.bc.bcGoldenTest

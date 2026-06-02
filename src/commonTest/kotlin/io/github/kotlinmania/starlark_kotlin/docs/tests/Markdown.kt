@@ -19,7 +19,7 @@ package io.github.kotlinmania.starlark_kotlin.docs.tests
  * limitations under the License.
  */
 
-import io.github.kotlinmania.starlark_kotlin.assert.Assert
+import io.github.kotlinmania.starlark.assert.Assert
 import io.github.kotlinmania.starlark_kotlin.docs.DocItem
 import io.github.kotlinmania.starlark_kotlin.docs.DocModuleInfo
 import io.github.kotlinmania.starlark_kotlin.docs.DocType

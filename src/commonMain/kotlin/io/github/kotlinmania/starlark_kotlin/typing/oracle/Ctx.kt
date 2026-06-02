@@ -5,9 +5,7 @@ import io.github.kotlinmania.starlark_kotlin.codemap.CodeMap
 import io.github.kotlinmania.starlark_kotlin.codemap.Span
 import io.github.kotlinmania.starlark_kotlin.codemap.Spanned
 import io.github.kotlinmania.starlark_kotlin.syntax.ast.BinOp
-import io.github.kotlinmania.starlark_kotlin.typing.ArcTy
 import io.github.kotlinmania.starlark_kotlin.typing.InternalError
-import io.github.kotlinmania.starlark_kotlin.typing.Param
 import io.github.kotlinmania.starlark_kotlin.typing.ParamIsRequired
 import io.github.kotlinmania.starlark_kotlin.typing.ParamMode
 import io.github.kotlinmania.starlark_kotlin.typing.ParamSpec
@@ -15,15 +13,12 @@ import io.github.kotlinmania.starlark_kotlin.typing.Ty
 import io.github.kotlinmania.starlark_kotlin.typing.TyBasic
 import io.github.kotlinmania.starlark_kotlin.typing.TyCallArgs
 import io.github.kotlinmania.starlark_kotlin.typing.TyCallable
-import io.github.kotlinmania.starlark_kotlin.typing.TyCustom
 import io.github.kotlinmania.starlark_kotlin.typing.EvalException
 import io.github.kotlinmania.starlark_kotlin.typing.TyStarlarkValue
-import io.github.kotlinmania.starlark_kotlin.typing.TyTuple
 import io.github.kotlinmania.starlark_kotlin.typing.TypingBinOp
 import io.github.kotlinmania.starlark_kotlin.typing.TypingError
 import io.github.kotlinmania.starlark_kotlin.typing.TypingNoContextError
 import io.github.kotlinmania.starlark_kotlin.typing.TypingOrInternalError
-import io.github.kotlinmania.starlark_kotlin.values.types.list.ListType
 
 // Missing value types not yet ported from Rust (crate::values::*::value):
 //   - List (crate::values::list::value::List)

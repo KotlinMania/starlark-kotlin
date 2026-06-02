@@ -21,7 +21,7 @@ package io.github.kotlinmania.starlark_kotlin.tests
 
 /** Test dict and list comprehension. */
 
-import io.github.kotlinmania.starlark_kotlin.assert.Assert
+import io.github.kotlinmania.starlark.assert.Assert
 import io.github.kotlinmania.starlark_kotlin.assert.failSkipTypecheck
 import io.github.kotlinmania.starlark_kotlin.assert.isTrueSkipTypecheck
 

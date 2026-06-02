@@ -64,7 +64,7 @@ internal class TypingCallable : StarlarkValue, AllocFrozenValue {
     }
 
     // fn at2(&self, param_types: Value<'v>, ret: Value<'v>, heap: Heap<'v>, _private: Private) -> crate::Result<Value<'v>>
-    override fun at2(paramTypes: Value, ret: Value, heap: Heap): Result<Value> {
+    override fun at2(index0: Value, index1: Value, heap: Heap): Result<Value> {
         return runCatching {
             val unpacker = UnpackListUnpackValue<Value>(
                 object : UnpackValue<Value> {
@@ -72,8 +72,8 @@ internal class TypingCallable : StarlarkValue, AllocFrozenValue {
                     override fun unpackValueImpl(value: Value): Result<Value?> = Result.success(value)
                 }
             )
-            val paramTypesList = unpacker.unpackValueErr(paramTypes)
-            val retTy = TypeCompiled.new(ret, heap).asTy()
+            val paramTypesList = unpacker.unpackValueErr(index0)
+            val retTy = TypeCompiled.new(index1, heap).asTy()
             val paramTys = mutableListOf<Ty>()
             for (p in paramTypesList.items) {
                 val ty = TypeCompiled.new(p, heap).asTy()
@@ -171,7 +171,7 @@ class StarlarkCallable<P : StarlarkCallableParamSpec, R : StarlarkTypeRepr>(
     }
 
     // impl AllocValue for StarlarkCallable
-    override fun allocValue(_heap: Heap): Value {
+    override fun allocValue(heap: Heap): Value {
         return value
     }
 }
@@ -204,7 +204,7 @@ class FrozenStarlarkCallable<P : StarlarkCallableParamSpec, R : StarlarkTypeRepr
     }
 
     // impl AllocFrozenValue for FrozenStarlarkCallable
-    override fun allocFrozenValue(_heap: FrozenHeap): FrozenValue {
+    override fun allocFrozenValue(heap: FrozenHeap): FrozenValue {
         return value
     }
 
@@ -272,7 +272,7 @@ class StarlarkCallableChecked<P : StarlarkCallableParamSpec, R : StarlarkTypeRep
     }
 
     // impl AllocValue for StarlarkCallableChecked
-    override fun allocValue(_heap: Heap): Value {
+    override fun allocValue(heap: Heap): Value {
         return value
     }
 }

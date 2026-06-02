@@ -20,21 +20,15 @@ package io.github.kotlinmania.starlark_kotlin.values.types.string
  */
 
 import kotlin.math.max
-import io.github.kotlinmania.starlark_kotlin.collections.Hashed
 import io.github.kotlinmania.starlark_kotlin.collections.StarlarkHashValue
 import io.github.kotlinmania.starlark_kotlin.collections.StarlarkHasher
-import io.github.kotlinmania.starlark_kotlin.collections.aligned_padded_str.AlignedPaddedStr
 import io.github.kotlinmania.starlark_kotlin.environment.Methods
-import io.github.kotlinmania.starlark_kotlin.environment.MethodsBuilder
 import io.github.kotlinmania.starlark_kotlin.environment.MethodsStatic
 import io.github.kotlinmania.starlark_kotlin.typing.Ty
 import io.github.kotlinmania.starlark_kotlin.values.ValueError
 import io.github.kotlinmania.starlark_kotlin.values.layout.Value
 import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Heap
 import io.github.kotlinmania.starlark_kotlin.values.layout.typed.StarlarkStr
-import io.github.kotlinmania.starlark_kotlin.values.layout.typed.StringValue
-import io.github.kotlinmania.starlark_kotlin.values.toValue
-import io.github.kotlinmania.starlark_kotlin.values.types.none.NoneOr
 
 /**
  * The result of calling `type()` on strings.

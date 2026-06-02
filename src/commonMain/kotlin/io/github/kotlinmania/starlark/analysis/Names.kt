@@ -1,5 +1,5 @@
 // port-lint: source src/analysis/names.rs
-package io.github.kotlinmania.starlark_kotlin.analysis
+package io.github.kotlinmania.starlark.analysis
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.
@@ -36,7 +36,6 @@ import io.github.kotlinmania.starlark_kotlin.syntax.ast.ExprP
 import io.github.kotlinmania.starlark_kotlin.syntax.ast.ClauseP
 import io.github.kotlinmania.starlark_kotlin.syntax.ast.StmtP
 import io.github.kotlinmania.starlark_kotlin.syntax.ast.AssignTargetP
-import io.github.kotlinmania.starlark_kotlin.syntax.ast.AssignIdentP
 import io.github.kotlinmania.starlark_kotlin.syntax.ast.ParameterP
 import io.github.kotlinmania.starlark_kotlin.syntax.ast.AstNoPayload
 import io.github.kotlinmania.starlark_kotlin.codemap.CodeMap

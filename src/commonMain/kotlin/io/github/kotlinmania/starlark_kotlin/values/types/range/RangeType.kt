@@ -29,7 +29,9 @@ import io.github.kotlinmania.starlark_kotlin.values.layout.avalues.simple.allocS
 import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Heap
 import io.github.kotlinmania.starlark_kotlin.values.types.bigint.allocValue
 import io.github.kotlinmania.starlark_kotlin.values.types.int.InlineInt
+import kotlin.ConsistentCopyVisibility
 
+@ConsistentCopyVisibility
 data class NonZeroI32 private constructor(val value: Int) {
     companion object {
         fun new(value: Int): NonZeroI32? =
@@ -193,7 +195,7 @@ data class Range(
         )))
     }
 
-    override fun iterate(me: Value, _heap: Heap): Result<Value> {
+    override fun iterate(me: Value, heap: Heap): Result<Value> {
         return Result.success(me)
     }
 

@@ -4,7 +4,6 @@ package io.github.kotlinmania.starlark_kotlin.values.types.int
 import io.github.kotlinmania.starlark_kotlin.environment.GlobalsBuilder
 import io.github.kotlinmania.starlark_kotlin.typing.Ty
 import io.github.kotlinmania.starlark_kotlin.values.layout.Value
-import io.github.kotlinmania.starlark_kotlin.values.types.float.StarlarkFloat
 import io.github.kotlinmania.starlark_kotlin.values.types.num.NumRef
 import kotlin.math.truncate
 

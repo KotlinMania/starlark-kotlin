@@ -19,7 +19,7 @@ package io.github.kotlinmania.starlark_kotlin.values.types.set
  * limitations under the License.
  */
 
-import io.github.kotlinmania.starlark_kotlin.assert.Assert
+import io.github.kotlinmania.starlark.assert.Assert
 import kotlin.test.Test
 
 internal class SetTest {

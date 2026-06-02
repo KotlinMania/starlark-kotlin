@@ -39,7 +39,6 @@ import io.github.kotlinmania.starlark_kotlin.eval.compiler.scope.CstPayload
 import io.github.kotlinmania.starlark_kotlin.eval.compiler.scope.CstStmt
 import io.github.kotlinmania.starlark_kotlin.eval.compiler.scope.CstAssignIdent
 import io.github.kotlinmania.starlark_kotlin.eval.compiler.scope.CstIdentAssignPayload
-import io.github.kotlinmania.starlark_kotlin.eval.compiler.scope.CstParameter
 import io.github.kotlinmania.starlark_kotlin.eval.compiler.opt_ctx.OptCtx
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.Evaluator
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.FrameSpan
@@ -50,7 +49,6 @@ import io.github.kotlinmania.starlark_kotlin.eval.runtime.frozen_file_span.Froze
 import io.github.kotlinmania.starlark_kotlin.syntax.ast.AssignOp
 import io.github.kotlinmania.starlark_kotlin.syntax.ast.AssignTargetP
 import io.github.kotlinmania.starlark_kotlin.syntax.ast.DefP
-import io.github.kotlinmania.starlark_kotlin.syntax.ast.ForP
 import io.github.kotlinmania.starlark_kotlin.syntax.ast.StmtP
 import io.github.kotlinmania.starlark_kotlin.values.layout.heap.FrozenHeap
 import io.github.kotlinmania.starlark_kotlin.values.layout.FrozenValue
@@ -58,8 +56,6 @@ import io.github.kotlinmania.starlark_kotlin.values.ValueError
 import io.github.kotlinmania.starlark_kotlin.values.layout.Value
 import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Heap
 import io.github.kotlinmania.starlark_kotlin.values.types.dict.Dict
-import io.github.kotlinmania.starlark_kotlin.values.types.dict.DictMut
-import io.github.kotlinmania.starlark_kotlin.values.types.dict.DictRef
 import io.github.kotlinmania.starlark_kotlin.values.types.dict.Either
 import io.github.kotlinmania.starlark_kotlin.values.types.dict.dictMutFromValue
 import io.github.kotlinmania.starlark_kotlin.values.types.dict.dictRefFromValue

@@ -23,7 +23,6 @@ import io.github.kotlinmania.starlark_kotlin.codemap.Pos
 import io.github.kotlinmania.starlark_kotlin.codemap.Span
 import io.github.kotlinmania.starlark_kotlin.syntax.ast.AstStmt
 import io.github.kotlinmania.starlark_kotlin.syntax.lexer.Lexeme
-import io.github.kotlinmania.starlark_kotlin.syntax.lexer.Token
 import io.github.kotlinmania.starlark_kotlin.syntax.state.ParserState
 import io.github.kotlinmania.starlark_kotlin.typing.EvalException
 import io.github.kotlinmania.starlark_kotlin.typing.StarlarkError

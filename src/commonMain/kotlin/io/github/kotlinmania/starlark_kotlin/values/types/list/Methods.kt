@@ -35,7 +35,6 @@ import io.github.kotlinmania.starlark_kotlin.values.layout.Value
 import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Heap
 import io.github.kotlinmania.starlark_kotlin.values.types.none.NoneOr
 import io.github.kotlinmania.starlark_kotlin.values.types.none.NoneType
-import io.github.kotlinmania.starlark_kotlin.values.UnpackValue
 import io.github.kotlinmania.starlark_kotlin.values.toValue
 
 // -- Index conversion helpers (from starlark_syntax::convert_indices) ----------

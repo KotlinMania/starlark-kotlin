@@ -19,7 +19,7 @@ package io.github.kotlinmania.starlark_kotlin.values.types.starlark_value_as_typ
  * limitations under the License.
  */
 
-import io.github.kotlinmania.starlark_kotlin.assert.Assert
+import io.github.kotlinmania.starlark.assert.Assert
 import io.github.kotlinmania.starlark_kotlin.environment.GlobalsBuilder
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.Arguments
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.Evaluator
@@ -31,7 +31,6 @@ import io.github.kotlinmania.starlark_kotlin.values.StarlarkValue
 import io.github.kotlinmania.starlark_kotlin.values.layout.avalues.simple.allocSimple
 import io.github.kotlinmania.starlark_kotlin.values.layout.Value
 import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Heap
-import io.github.kotlinmania.starlark_kotlin.values.types.bigint.allocValue
 import kotlin.test.Test
 
 private class CompilerArgs(private val value: String) : StarlarkValue, StarlarkTypeRepr, AllocValue {

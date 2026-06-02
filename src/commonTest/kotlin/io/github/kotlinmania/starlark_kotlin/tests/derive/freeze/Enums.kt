@@ -21,8 +21,6 @@ package io.github.kotlinmania.starlark_kotlin.tests.derive.freeze
 
 // Only check it compiles.
 
-import io.github.kotlinmania.starlark_kotlin.values.Freeze
-
 // #[derive(Freeze)]
 // enum TestFreezeEnum<V>
 @Suppress("unused")

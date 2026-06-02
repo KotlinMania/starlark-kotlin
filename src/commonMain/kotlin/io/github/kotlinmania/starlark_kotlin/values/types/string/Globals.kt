@@ -3,7 +3,6 @@ package io.github.kotlinmania.starlark_kotlin.values.types.string
 import io.github.kotlinmania.starlark_kotlin.environment.GlobalsBuilder
 
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.Evaluator
-import io.github.kotlinmania.starlark_kotlin.values.toValue
 import io.github.kotlinmania.starlark_kotlin.values.layout.Value
 import io.github.kotlinmania.starlark_kotlin.values.layout.typed.StringValue
 import io.github.kotlinmania.starlark_kotlin.values.types.bigint.allocValue

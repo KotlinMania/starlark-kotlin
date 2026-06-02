@@ -52,7 +52,7 @@ sealed class NoneOr<out T> : StarlarkTypeRepr {
     }
 
     /** Convert the [NoneOr] to a nullable type. */
-    inline fun intoOption(): T? {
+    fun intoOption(): T? {
         return when (this) {
             is None -> null
             is Other -> this.value
@@ -66,7 +66,7 @@ sealed class NoneOr<out T> : StarlarkTypeRepr {
 
     companion object {
         /** Convert a nullable type to a [NoneOr]. */
-        inline fun <T> fromOption(option: T?): NoneOr<T> {
+        fun <T> fromOption(option: T?): NoneOr<T> {
             return when (option) {
                 null -> None
                 else -> Other(option)

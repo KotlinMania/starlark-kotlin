@@ -19,7 +19,6 @@ package io.github.kotlinmania.starlark_kotlin.values.layout
  * limitations under the License.
  */
 
-import io.github.kotlinmania.starlark_kotlin.values.layout.FrozenValue
 import io.github.kotlinmania.starlark_kotlin.values.layout.heap.AValueHeader
 import io.github.kotlinmania.starlark_kotlin.values.stackGuard
 

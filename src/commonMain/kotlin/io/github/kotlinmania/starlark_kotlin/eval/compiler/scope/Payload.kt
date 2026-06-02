@@ -24,23 +24,18 @@ package io.github.kotlinmania.starlark_kotlin.eval.compiler.scope
 // We use CST as acronym for compiler-specific AST.
 
 import io.github.kotlinmania.starlark_kotlin.eval.compiler.BindingId
-import io.github.kotlinmania.starlark_kotlin.eval.compiler.ModuleScopeData
 import io.github.kotlinmania.starlark_kotlin.eval.compiler.ResolvedIdent
 import io.github.kotlinmania.starlark_kotlin.eval.compiler.ScopeId
 import io.github.kotlinmania.starlark_kotlin.typing.Ty
-import io.github.kotlinmania.starlark_kotlin.typing.InternalError
 import io.github.kotlinmania.starlark_kotlin.typing.Interface
 import io.github.kotlinmania.starlark_kotlin.syntax.ast.AstTypeExprP
 import io.github.kotlinmania.starlark_kotlin.syntax.ast.AstStmtP
 import io.github.kotlinmania.starlark_kotlin.syntax.ast.AstPayload
 import io.github.kotlinmania.starlark_kotlin.syntax.ast.AstParameterP
-import io.github.kotlinmania.starlark_kotlin.syntax.ast.AstNoPayload
 import io.github.kotlinmania.starlark_kotlin.syntax.ast.AstIdentP
 import io.github.kotlinmania.starlark_kotlin.syntax.ast.AstExprP
 import io.github.kotlinmania.starlark_kotlin.syntax.ast.AstAssignTargetP
 import io.github.kotlinmania.starlark_kotlin.syntax.ast.AstAssignIdentP
-import io.github.kotlinmania.starlark_kotlin.syntax.ast.AstStmt
-import io.github.kotlinmania.starlark_kotlin.codemap.CodeMap
 
 /** Compiler-specific AST payload. */
 // #[derive(Debug, Clone)]

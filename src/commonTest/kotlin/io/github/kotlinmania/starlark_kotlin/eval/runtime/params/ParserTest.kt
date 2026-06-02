@@ -19,7 +19,7 @@ package io.github.kotlinmania.starlark_kotlin.eval.runtime.params
  * limitations under the License.
  */
 
-import io.github.kotlinmania.starlark_kotlin.assert.Assert
+import io.github.kotlinmania.starlark.assert.Assert
 import io.github.kotlinmania.starlark_kotlin.docs.DocParam
 import io.github.kotlinmania.starlark_kotlin.docs.DocParams
 import io.github.kotlinmania.starlark_kotlin.docs.DocString

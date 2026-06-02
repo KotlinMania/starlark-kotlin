@@ -72,7 +72,7 @@ internal object StructType : TyCustomFunctionImpl {
         return Result.success(
             Ty.custom(
                 TyStruct(
-                    fields = fields.toList().sortedBy { it.first.toString() }.toMap(),
+                    fields = fields.toList().sortedBy { it.first }.toMap(),
                     extra = extra
                 )
             )

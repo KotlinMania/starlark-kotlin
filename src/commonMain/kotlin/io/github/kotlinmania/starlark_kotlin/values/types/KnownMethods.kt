@@ -20,8 +20,6 @@ package io.github.kotlinmania.starlark_kotlin.values.types
  */
 
 import io.github.kotlinmania.starlark_kotlin.environment.Methods
-import io.github.kotlinmania.starlark_kotlin.values.types.NativeMeth
-import io.github.kotlinmania.starlark_kotlin.values.types.NativeMethod
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.Evaluator
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.Arguments
 import io.github.kotlinmania.starlark_kotlin.values.layout.Value

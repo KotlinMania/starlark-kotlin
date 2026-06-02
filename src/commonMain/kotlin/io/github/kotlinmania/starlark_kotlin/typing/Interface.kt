@@ -19,8 +19,6 @@ package io.github.kotlinmania.starlark_kotlin.typing
  * limitations under the License.
  */
 
-import io.github.kotlinmania.starlark_kotlin.typing.Ty
-
 /** Interface representing the types of all bindings in a module. */
 // #[derive(Default, Dupe, Clone, Debug)]
 // pub struct Interface(Arc<HashMap<String, Ty>>);

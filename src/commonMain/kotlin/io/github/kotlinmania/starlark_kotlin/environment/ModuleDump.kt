@@ -21,7 +21,6 @@ package io.github.kotlinmania.starlark_kotlin.environment
 
 import io.github.kotlinmania.starlark_kotlin.eval.compiler.FrozenDef
 import io.github.kotlinmania.starlark_kotlin.values.layout.heap.FrozenHeapRef
-import io.github.kotlinmania.starlark_kotlin.values.types.string.format
 import io.github.kotlinmania.starlark_kotlin.values.layout.FrozenValueTyped
 
 // impl FrozenModule

@@ -25,11 +25,8 @@ import io.github.kotlinmania.starlark_kotlin.collections.StarlarkHasher
 import io.github.kotlinmania.starlark_kotlin.docs.DocItem
 import io.github.kotlinmania.starlark_kotlin.environment.Methods
 import io.github.kotlinmania.starlark_kotlin.typing.Ty
-import io.github.kotlinmania.starlark_kotlin.values.layout.Freezer
-import io.github.kotlinmania.starlark_kotlin.values.layout.FrozenValue
 import io.github.kotlinmania.starlark_kotlin.values.StarlarkValue
 import io.github.kotlinmania.starlark_kotlin.values.demand.Demand
-import io.github.kotlinmania.starlark_kotlin.values.layout.ValueAllocSize
 import io.github.kotlinmania.starlark_kotlin.values.starlark_type_id.StarlarkTypeId
 import io.github.kotlinmania.starlark_kotlin.values.types.int.PointerI32
 import io.github.kotlinmania.starlark_kotlin.values.layout.typed.FrozenStringValue

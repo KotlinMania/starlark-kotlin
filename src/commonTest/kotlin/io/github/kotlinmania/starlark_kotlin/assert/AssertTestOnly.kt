@@ -18,6 +18,8 @@ package io.github.kotlinmania.starlark_kotlin.assert
  * limitations under the License.
  */
 
+import io.github.kotlinmania.starlark.assert.Assert
+import io.github.kotlinmania.starlark.assert.fails
 import io.github.kotlinmania.starlark_kotlin.Error
 import io.github.kotlinmania.starlark_kotlin.golden_test_template.goldenTestTemplate
 

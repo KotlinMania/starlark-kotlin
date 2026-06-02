@@ -29,8 +29,6 @@ import io.github.kotlinmania.starlark_kotlin.typing.TyCallable
 import io.github.kotlinmania.starlark_kotlin.typing.TyCustomFunctionImpl
 import io.github.kotlinmania.starlark_kotlin.typing.TyCallArgs
 import io.github.kotlinmania.starlark_kotlin.typing.oracle.TypingOracleCtx
-import io.github.kotlinmania.starlark_kotlin.eval.runtime.Arguments
-import io.github.kotlinmania.starlark_kotlin.eval.runtime.Evaluator
 import io.github.kotlinmania.starlark_kotlin.values.layout.Value
 import io.github.kotlinmania.starlark_kotlin.values.layout.avalues.allocListIter
 import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Heap

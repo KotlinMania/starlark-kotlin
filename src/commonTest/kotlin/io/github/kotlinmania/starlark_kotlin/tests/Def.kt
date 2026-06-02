@@ -21,7 +21,7 @@ package io.github.kotlinmania.starlark_kotlin.tests
 
 /** Test for `def` and `lambda`. */
 
-import io.github.kotlinmania.starlark_kotlin.assert.Assert
+import io.github.kotlinmania.starlark.assert.Assert
 import io.github.kotlinmania.starlark_kotlin.environment.Module
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.Evaluator
 import io.github.kotlinmania.starlark_kotlin.eval.evalFunction

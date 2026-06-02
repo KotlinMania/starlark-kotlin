@@ -19,7 +19,7 @@ package io.github.kotlinmania.starlark_kotlin.debug.adapter_impl
  * limitations under the License.
  */
 
-import io.github.kotlinmania.starlark_kotlin.assert.testFunctions
+import io.github.kotlinmania.starlark.assert.testFunctions
 import io.github.kotlinmania.starlark_kotlin.debug.*
 import io.github.kotlinmania.starlark_kotlin.environment.FrozenModule
 import io.github.kotlinmania.starlark_kotlin.environment.GlobalsBuilder

@@ -1,11 +1,8 @@
 // port-lint: source src/values/typing/type_compiled/factory.rs
 package io.github.kotlinmania.starlark_kotlin.values.typing.type_compiled
 
-import io.github.kotlinmania.starlark_kotlin.values.layout.Value
 import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Heap
 import io.github.kotlinmania.starlark_kotlin.typing.Ty
-import io.github.kotlinmania.starlark_kotlin.values.typing.type_compiled.TypeCompiled
-import io.github.kotlinmania.starlark_kotlin.values.typing.type_compiled.TypeCompiledImplAsStarlarkValue
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.

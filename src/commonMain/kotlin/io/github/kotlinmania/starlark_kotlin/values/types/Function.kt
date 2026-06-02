@@ -41,7 +41,6 @@ import io.github.kotlinmania.starlark_kotlin.values.layout.FrozenValue
 import io.github.kotlinmania.starlark_kotlin.values.StarlarkValue
 import io.github.kotlinmania.starlark_kotlin.values.StarlarkTypeRepr
 import io.github.kotlinmania.starlark_kotlin.values.ValueError
-import io.github.kotlinmania.starlark_kotlin.values.toValue
 import io.github.kotlinmania.starlark_kotlin.values.types.ellipsis.Ellipsis
 import io.github.kotlinmania.starlark_kotlin.values.typing.type_compiled.TypeCompiled
 import io.github.kotlinmania.starlark_kotlin.values.layout.ValueLike
@@ -141,7 +140,7 @@ internal class NativeFunction(
     }
 
     // fn invoke(&self, _me: Value<'v>, args: &Arguments<'v, '_>, eval: &mut Evaluator<'v, '_, '_>) -> crate::Result<Value<'v>>
-    override fun invoke(_me: Value, args: Arguments, eval: Evaluator): Result<Value> {
+    override fun invoke(me: Value, args: Arguments, eval: Evaluator): Result<Value> {
         return function.invoke(eval, args)
     }
 
@@ -158,7 +157,7 @@ internal class NativeFunction(
     override fun evalType(): Ty? = asType
 
     // fn has_attr(&self, _attribute: &str, _heap: Heap<'v>) -> bool
-    override fun hasAttr(_attribute: String, _heap: Heap): Boolean {
+    override fun hasAttr(attribute: String, heap: Heap): Boolean {
         return false
     }
 
@@ -327,7 +326,7 @@ internal class BoundMethodGen<V>(
     }
 
     // fn invoke(&self, _me: Value<'v>, args: &Arguments<'v, '_>, eval: &mut Evaluator<'v, '_, '_>) -> crate::Result<Value<'v>>
-    override fun invoke(_me: Value, args: Arguments, eval: Evaluator): Result<Value> {
+    override fun invoke(me: Value, args: Arguments, eval: Evaluator): Result<Value> {
         return method.asRef().function.invoke(eval, thisAsValue(), args)
     }
 

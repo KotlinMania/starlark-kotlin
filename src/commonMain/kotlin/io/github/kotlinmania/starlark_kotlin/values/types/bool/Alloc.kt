@@ -19,8 +19,6 @@ package io.github.kotlinmania.starlark_kotlin.values.types.bool
  * limitations under the License.
  */
 
-import io.github.kotlinmania.starlark_kotlin.values.AllocFrozenValue
-import io.github.kotlinmania.starlark_kotlin.values.AllocValue
 import io.github.kotlinmania.starlark_kotlin.values.layout.heap.FrozenHeap
 import io.github.kotlinmania.starlark_kotlin.values.layout.FrozenValue
 import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Heap

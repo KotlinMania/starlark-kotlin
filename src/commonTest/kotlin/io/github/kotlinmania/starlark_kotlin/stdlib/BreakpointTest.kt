@@ -19,10 +19,9 @@ package io.github.kotlinmania.starlark_kotlin.stdlib
  * limitations under the License.
  */
 
-import io.github.kotlinmania.starlark_kotlin.assert.Assert
+import io.github.kotlinmania.starlark.assert.Assert
 import io.github.kotlinmania.starlark_kotlin.ReentrantLock
 import io.github.kotlinmania.starlark_kotlin.withLock
-import io.github.kotlinmania.starlark_kotlin.stdlib.resetBreakpointState
 import kotlin.test.Test
 import kotlin.test.assertEquals
 

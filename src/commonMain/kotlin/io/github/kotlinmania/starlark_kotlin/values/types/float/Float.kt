@@ -26,17 +26,14 @@ import io.github.kotlinmania.starlark_kotlin.typing.TyBasic
 import io.github.kotlinmania.starlark_kotlin.typing.oracle.TypingBinOp
 import io.github.kotlinmania.starlark_kotlin.values.AllocFrozenValue
 import io.github.kotlinmania.starlark_kotlin.values.AllocValue
-import io.github.kotlinmania.starlark_kotlin.values.Freeze
 import io.github.kotlinmania.starlark_kotlin.values.StarlarkTypeRepr
 import io.github.kotlinmania.starlark_kotlin.values.StarlarkValue
-import io.github.kotlinmania.starlark_kotlin.values.Trace
 import io.github.kotlinmania.starlark_kotlin.values.ValueError
 import io.github.kotlinmania.starlark_kotlin.values.layout.Value
 import io.github.kotlinmania.starlark_kotlin.values.layout.FrozenValue
 import io.github.kotlinmania.starlark_kotlin.values.layout.avalues.simple.allocSimple
 import io.github.kotlinmania.starlark_kotlin.values.layout.heap.FrozenHeap
 import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Heap
-import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Tracer
 import io.github.kotlinmania.starlark_kotlin.values.types.num.NumRef
 import io.github.kotlinmania.starlark_kotlin.values.types.num.NumTy
 import io.github.kotlinmania.starlark_kotlin.values.types.num.typecheckNumBinOp
@@ -223,9 +220,9 @@ data class StarlarkFloat(val value: Double) : StarlarkTypeRepr, StarlarkValue, A
         return Result.success(heap.alloc(NumRef.Float(this) - rhs))
     }
 
-    override fun mul(other: Value, heap: Heap): Result<Value>? {
-        val rhs = other.unpackNum() ?: return null
-        return Result.success(heap.alloc(NumRef.Float(this) * rhs))
+    override fun mul(rhs: Value, heap: Heap): Result<Value>? {
+        val rhsNum = rhs.unpackNum() ?: return null
+        return Result.success(heap.alloc(NumRef.Float(this) * rhsNum))
     }
 
     override fun div(other: Value, heap: Heap): Result<Value> {

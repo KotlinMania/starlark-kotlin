@@ -36,9 +36,7 @@ import io.github.kotlinmania.starlark_kotlin.environment.Globals
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.Evaluator
 import io.github.kotlinmania.starlark_kotlin.eval.compiler.scope.CstAssignIdent
 import io.github.kotlinmania.starlark_kotlin.eval.compiler.scope.CstParameter
-import io.github.kotlinmania.starlark_kotlin.eval.compiler.scope.CstPayload
 import io.github.kotlinmania.starlark_kotlin.eval.compiler.scope.CstStmt
-import io.github.kotlinmania.starlark_kotlin.eval.compiler.scope.CstExpr
 import io.github.kotlinmania.starlark_kotlin.eval.compiler.scope.CstTypeExpr
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.FrameSpan
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.LocalSlotId
@@ -47,10 +45,8 @@ import io.github.kotlinmania.starlark_kotlin.eval.runtime.frozen_file_span.Froze
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.params.spec.ParametersSpec
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.profile.ProfilerInstant
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.Arguments
-import io.github.kotlinmania.starlark_kotlin.eval.runtime.ArgumentsFull
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.ArgumentsImpl
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.ResolvedArgName
-import io.github.kotlinmania.starlark_kotlin.collections.symbol.Symbol
 import io.github.kotlinmania.starlark_kotlin.eval.bc.Bc
 import io.github.kotlinmania.starlark_kotlin.eval.bc.allocaFrame
 import io.github.kotlinmania.starlark_kotlin.eval.bc.compiler.asBc
@@ -72,7 +68,6 @@ import io.github.kotlinmania.starlark_kotlin.values.StarlarkValue
 import io.github.kotlinmania.starlark_kotlin.values.types.FUNCTION_TYPE
 import io.github.kotlinmania.starlark_kotlin.values.layout.Value
 import io.github.kotlinmania.starlark_kotlin.values.layout.ValueLike
-import io.github.kotlinmania.starlark_kotlin.values.toValue
 import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Heap
 import io.github.kotlinmania.starlark_kotlin.values.typing.type_compiled.TypeCompiled
 import io.github.kotlinmania.starlark_kotlin.values.layout.typed.FrozenStringValue

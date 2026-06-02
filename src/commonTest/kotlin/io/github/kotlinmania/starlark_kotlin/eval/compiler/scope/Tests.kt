@@ -40,7 +40,6 @@ import io.github.kotlinmania.starlark_kotlin.syntax.ast.ForClauseP
 import io.github.kotlinmania.starlark_kotlin.syntax.ast.FStringP
 import io.github.kotlinmania.starlark_kotlin.values.layout.heap.FrozenHeap
 import io.github.kotlinmania.starlark_kotlin.values.FrozenRef
-import io.github.kotlinmania.starlark_kotlin.codemap.*
 
 // fn test_with_module(program: &str, expected: &str, module: &MutableNames)
 private fun testWithModule(program: String, expected: String, module: MutableNames) {

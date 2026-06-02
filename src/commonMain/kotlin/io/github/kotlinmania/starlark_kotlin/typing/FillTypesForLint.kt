@@ -16,8 +16,6 @@ import io.github.kotlinmania.starlark_kotlin.eval.compiler.scope.CstAssignIdent
 import io.github.kotlinmania.starlark_kotlin.eval.compiler.scope.CstStmt
 import io.github.kotlinmania.starlark_kotlin.eval.compiler.scope.CstTypeExpr
 import io.github.kotlinmania.starlark_kotlin.eval.compiler.scope.CstPayload
-import io.github.kotlinmania.starlark_kotlin.eval.compiler.scope.CstIdentPayload
-import io.github.kotlinmania.starlark_kotlin.eval.compiler.scope.CstIdentAssignPayload
 import io.github.kotlinmania.starlark_kotlin.eval.compiler.scope.CstTypeExprPayload
 import io.github.kotlinmania.starlark_kotlin.codemap.Spanned
 import io.github.kotlinmania.starlark_kotlin.codemap.Span

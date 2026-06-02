@@ -22,8 +22,6 @@ package io.github.kotlinmania.starlark_kotlin.docs
 import io.github.kotlinmania.starlark_kotlin.typing.Ty
 import io.github.kotlinmania.starlark_kotlin.syntax.ast.ExprP
 import io.github.kotlinmania.starlark_kotlin.syntax.ast.StmtP
-import io.github.kotlinmania.starlark_kotlin.values.layout.Value
-import io.github.kotlinmania.starlark_kotlin.syntax.ast.Expr
 import io.github.kotlinmania.starlark_kotlin.syntax.ast.AstStmtP
 import io.github.kotlinmania.starlark_kotlin.syntax.ast.AstPayload
 import io.github.kotlinmania.starlark_kotlin.syntax.ast.AstLiteral

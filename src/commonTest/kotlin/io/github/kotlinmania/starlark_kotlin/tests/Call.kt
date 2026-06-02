@@ -21,7 +21,7 @@ package io.github.kotlinmania.starlark_kotlin.tests
 
 /** Test call expression and parameter binding. */
 
-import io.github.kotlinmania.starlark_kotlin.assert.Assert
+import io.github.kotlinmania.starlark.assert.Assert
 
 // #[test]
 // fn funcall_test()

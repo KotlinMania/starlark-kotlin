@@ -33,7 +33,6 @@ import io.github.kotlinmania.starlark_kotlin.values.Trace
 import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Tracer
 import io.github.kotlinmania.starlark_kotlin.values.layout.heap.ValueHolder
 import io.github.kotlinmania.starlark_kotlin.values.ValueError
-import io.github.kotlinmania.starlark_kotlin.values.freeze
 import io.github.kotlinmania.starlark_kotlin.values.freezeSmallMap
 import io.github.kotlinmania.starlark_kotlin.values.layout.Value
 import io.github.kotlinmania.starlark_kotlin.values.layout.avalues.AllocStaticSimple
@@ -41,9 +40,7 @@ import io.github.kotlinmania.starlark_kotlin.values.layout.avalues.allocComplex
 import io.github.kotlinmania.starlark_kotlin.values.layout.avalues.simple.allocSimple
 import io.github.kotlinmania.starlark_kotlin.values.layout.heap.FrozenHeap
 import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Heap
-import io.github.kotlinmania.starlark_kotlin.values.layout.typed.FrozenStringValue
 import io.github.kotlinmania.starlark_kotlin.values.layout.typed.StringValue
-import io.github.kotlinmania.starlark_kotlin.values.toValue
 import io.github.kotlinmania.starlark_kotlin.collections.Equivalent
 import kotlin.reflect.KClass
 
@@ -119,7 +116,7 @@ data class DictGen<T>(val inner: T) : ComplexValue, Trace, Freeze<StarlarkValue>
         return equalsSmallMap(innerVal.content(), otherDict) { x, y -> x.equals(y) }
     }
 
-    override fun at(index: Value, _heap: Heap): Result<Value> {
+    override fun at(index: Value, heap: Heap): Result<Value> {
         val innerVal = inner
         if (innerVal !is DictLike) return ValueError.unsupported(TYPE, "[]")
         val hashed = index.getHashed().getOrElse { return Result.failure(it) }
@@ -141,7 +138,7 @@ data class DictGen<T>(val inner: T) : ComplexValue, Trace, Freeze<StarlarkValue>
         return Result.success(innerVal.content().getHashedByValue(hashed) != null)
     }
 
-    override fun iterate(me: Value, _heap: Heap): Result<Value> {
+    override fun iterate(me: Value, heap: Heap): Result<Value> {
         val innerVal = inner
         if (innerVal !is DictLike) return ValueError.unsupported(TYPE, "(iter)")
         innerVal.iterStart()

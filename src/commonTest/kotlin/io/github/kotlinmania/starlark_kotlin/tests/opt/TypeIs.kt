@@ -21,10 +21,9 @@ package io.github.kotlinmania.starlark_kotlin.tests.opt
 
 /** Test for type-is optimizations. */
 
-import io.github.kotlinmania.starlark_kotlin.assert.Assert
+import io.github.kotlinmania.starlark.assert.Assert
 import io.github.kotlinmania.starlark_kotlin.environment.GlobalsBuilder
 import io.github.kotlinmania.starlark_kotlin.eval.compiler.DefGen
-import io.github.kotlinmania.starlark_kotlin.values.layout.ValueLike
 import io.github.kotlinmania.starlark_kotlin.eval.compiler.InlineDefBody
 import io.github.kotlinmania.starlark_kotlin.values.layout.Value
 

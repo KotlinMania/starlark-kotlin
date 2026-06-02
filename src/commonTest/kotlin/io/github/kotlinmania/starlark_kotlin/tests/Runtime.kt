@@ -21,11 +21,10 @@ package io.github.kotlinmania.starlark_kotlin.tests
 
 /** Test of runtime. */
 
-import io.github.kotlinmania.starlark_kotlin.assert.Assert
+import io.github.kotlinmania.starlark.assert.Assert
 import io.github.kotlinmania.starlark_kotlin.environment.GlobalsBuilder
 import io.github.kotlinmania.starlark_kotlin.values.layout.heap.FrozenHeap
 import kotlin.concurrent.atomics.AtomicInt
-import io.github.kotlinmania.starlark_kotlin.eval.runtime.Evaluator
 import io.github.kotlinmania.starlark_kotlin.values.types.StarlarkAny
 import kotlin.test.Test
 import kotlin.test.assertTrue

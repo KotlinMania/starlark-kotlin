@@ -96,7 +96,7 @@ sealed class StarlarkInt {
                 Small(i)
             } else {
                 val bi = BigInteger.tryFromDouble(f, exactRequired = true)
-                if (bi != null && bi.doubleValue(exactRequired = false) == f) {
+                if (bi.doubleValue(exactRequired = false) == f) {
                     from(bi)
                 } else {
                     throw StarlarkIntError.CannotRepresentAsExact(f)

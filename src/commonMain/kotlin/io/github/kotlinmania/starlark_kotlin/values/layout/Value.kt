@@ -47,26 +47,17 @@ import io.github.kotlinmania.starlark_kotlin.values.FrozenRef
 import io.github.kotlinmania.starlark_kotlin.values.StarlarkValue
 import io.github.kotlinmania.starlark_kotlin.values.ValueError
 import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Heap
-import io.github.kotlinmania.starlark_kotlin.values.layout.heap.AValueOrForwardUnpack
 import io.github.kotlinmania.starlark_kotlin.values.layout.heap.AValueHeader
 import io.github.kotlinmania.starlark_kotlin.values.layout.heap.AValueRepr
-import io.github.kotlinmania.starlark_kotlin.values.layout.AValue
-import io.github.kotlinmania.starlark_kotlin.values.layout.AValueImpl
-import io.github.kotlinmania.starlark_kotlin.values.layout.FrozenPointer
-import io.github.kotlinmania.starlark_kotlin.values.layout.Pointer
-import io.github.kotlinmania.starlark_kotlin.values.layout.RawPointer
-import io.github.kotlinmania.starlark_kotlin.values.layout.ValueLifetimeless
 import io.github.kotlinmania.starlark_kotlin.values.layout.typed.FrozenStringValue
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.Evaluator
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.Arguments
-import io.github.kotlinmania.starlark_kotlin.values.layout.typed.StringValue
 import io.github.kotlinmania.starlark_kotlin.values.layout.typed.StarlarkStr
 import io.github.kotlinmania.starlark_kotlin.values.types.int.PointerI32
 import io.github.kotlinmania.starlark_kotlin.values.types.int.InlineInt
 import io.github.kotlinmania.starlark_kotlin.values.types.num.NumRef
 import io.github.kotlinmania.starlark_kotlin.values.types.int.StarlarkIntRef
 import io.github.kotlinmania.starlark_kotlin.values.starlark_type_id.StarlarkTypeId
-import io.github.kotlinmania.starlark_kotlin.values.layout.Freezer
 import io.github.kotlinmania.starlark_kotlin.values.StarlarkIterator
 import io.github.kotlinmania.starlark_kotlin.values.stackGuard
 import io.github.kotlinmania.starlark_kotlin.values.reprStackPush
@@ -85,7 +76,6 @@ import io.github.kotlinmania.starlark_kotlin.values.types.list.FrozenListData
 import io.github.kotlinmania.starlark_kotlin.values.types.dict.FrozenDictRef
 import io.github.kotlinmania.starlark_kotlin.values.types.tuple.FrozenTuple
 import io.github.kotlinmania.starlark_kotlin.values.types.tuple.Tuple
-import io.github.kotlinmania.starlark_kotlin.values.types.tuple.TupleGen
 import io.github.kotlinmania.starlark_kotlin.values.types.tuple.fromValue
 import io.github.kotlinmania.starlark_kotlin.values.types.range.Range
 import io.github.kotlinmania.starlark_kotlin.values.types.record.record_type.RecordTypeGen
@@ -94,12 +84,8 @@ import io.github.kotlinmania.starlark_kotlin.values.types.enumeration.enum_type.
 import io.github.kotlinmania.starlark_kotlin.values.types.enumeration.value.FrozenEnumValue
 import io.github.kotlinmania.starlark_kotlin.values.types.structs.FrozenStruct
 import io.github.kotlinmania.starlark_kotlin.values.StarlarkTypeRepr
-import io.github.kotlinmania.starlark_kotlin.values.layout.typed.StringValueLike
-import io.github.kotlinmania.starlark_kotlin.values.Trace
-import io.github.kotlinmania.starlark_kotlin.util.ArcStr
 import io.github.kotlinmania.starlark_kotlin.values.types.float.StarlarkFloat
 import io.github.kotlinmania.starlark_kotlin.values.types.none.VALUE_NONE
-import io.github.kotlinmania.starlark_kotlin.values.types.none.NoneType
 import io.github.kotlinmania.starlark_kotlin.values.types.bool.VALUE_FALSE_TRUE
 import io.github.kotlinmania.starlark_kotlin.values.layout.avalues.str_.allocStrConcat
 // VALUE_EMPTY_STRING is in the same package (values.layout) via StaticString.kt
@@ -1843,7 +1829,7 @@ interface ValueLike : ValueLifetimeless {
      * Get hash value.
      */
     // fn get_hashed(self) -> crate::Result<Hashed<Self>>
-    fun getHashed(): Result<Hashed<out ValueLike>> {
+    fun getHashed(): Result<Hashed<ValueLike>> {
         val v = toValue()
         val str = v.unpackStarlarkStr()
         val hash = try {

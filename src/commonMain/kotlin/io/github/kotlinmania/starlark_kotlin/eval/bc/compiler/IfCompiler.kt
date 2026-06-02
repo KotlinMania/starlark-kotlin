@@ -19,7 +19,6 @@ package io.github.kotlinmania.starlark_kotlin.eval.bc.compiler
  * limitations under the License.
  */
 
-import io.github.kotlinmania.starlark_kotlin.eval.bc.BcSlotIn
 import io.github.kotlinmania.starlark_kotlin.eval.bc.BcWriter
 import io.github.kotlinmania.starlark_kotlin.eval.compiler.Builtin1
 import io.github.kotlinmania.starlark_kotlin.eval.compiler.ExprCompiled

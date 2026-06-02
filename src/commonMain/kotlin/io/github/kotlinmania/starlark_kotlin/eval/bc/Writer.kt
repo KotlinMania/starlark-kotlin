@@ -22,9 +22,6 @@ package io.github.kotlinmania.starlark_kotlin.eval.bc
 /** Bytecode writer. */
 
 import kotlin.math.max
-import io.github.kotlinmania.starlark_kotlin.eval.bc.BcDefinitelyAssigned
-import io.github.kotlinmania.starlark_kotlin.eval.bc.BC_INSTR_ALIGN
-import io.github.kotlinmania.starlark_kotlin.eval.bc.BcInstrHeader
 import io.github.kotlinmania.starlark_kotlin.eval.compiler.MaybeNot
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.FrameSpan
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.LocalCapturedSlotId

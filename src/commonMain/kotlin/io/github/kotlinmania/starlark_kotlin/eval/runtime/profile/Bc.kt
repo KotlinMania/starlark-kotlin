@@ -21,17 +21,11 @@ package io.github.kotlinmania.starlark_kotlin.eval.runtime.profile
 
 /** Bytecode profiler. */
 
-import io.github.kotlinmania.starlark_kotlin.environment.Globals
-import io.github.kotlinmania.starlark_kotlin.environment.Module
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.profile.csv.CsvWriter
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.profile.data.ProfileDataImpl
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.profile.mode.ProfileMode
-import io.github.kotlinmania.starlark_kotlin.eval.runtime.Evaluator
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.profile.data.ProfileData
 import io.github.kotlinmania.starlark_kotlin.eval.bc.BcOpcode
-import io.github.kotlinmania.starlark_kotlin.syntax.dialect.Dialect
-import io.github.kotlinmania.starlark_kotlin.eval.evalModule
-import io.github.kotlinmania.starlark_kotlin.syntax.AstModule
 import kotlin.math.roundToLong
 
 // Format a Double to 3 decimal places (KMP-safe, no String.format)

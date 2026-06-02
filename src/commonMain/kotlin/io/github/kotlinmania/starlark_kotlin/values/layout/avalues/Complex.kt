@@ -20,7 +20,6 @@ package io.github.kotlinmania.starlark_kotlin.values.layout.avalues
  */
 
 import io.github.kotlinmania.starlark_kotlin.eval.compiler.DefGen
-import io.github.kotlinmania.starlark_kotlin.eval.compiler.FrozenDef
 import io.github.kotlinmania.starlark_kotlin.values.ComplexValue
 import io.github.kotlinmania.starlark_kotlin.values.layout.FrozenValue
 import io.github.kotlinmania.starlark_kotlin.values.StarlarkValue
@@ -128,9 +127,9 @@ internal class AValueComplexNoFreeze(
     override fun allocSizeForExtraLen(extraLen: Int): ValueAllocSize = ValueAllocSize(AlignedSize(0u))
 
     // unsafe fn heap_freeze(...) -> Result<FrozenValue>
-    override fun heapFreeze(_freezer: Freezer): Result<FrozenValue> {
+    override fun heapFreeze(freezer: Freezer): Result<FrozenValue> {
         return Result.failure(
-            FreezeError(AValueError.CannotBeFrozen(value::class.simpleName ?: "unknown").message!!)
+            FreezeError(AValueError.CannotBeFrozen(value::class.simpleName ?: "unknown").message)
         )
     }
 

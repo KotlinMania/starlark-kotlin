@@ -1,5 +1,5 @@
 // port-lint: source src/__derive_refs/parse_args.rs
-package io.github.kotlinmania.starlark_kotlin.__derive_refs
+package io.github.kotlinmania.starlark.__derive_refs
 
 /*
  * Copyright 2018 The Starlark in Rust Authors.
@@ -25,7 +25,6 @@ import io.github.kotlinmania.starlark_kotlin.values.UnpackValue
 import io.github.kotlinmania.starlark_kotlin.values.layout.FrozenValue
 import io.github.kotlinmania.starlark_kotlin.values.layout.Value
 import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Heap
-import io.github.kotlinmania.starlark_kotlin.values.layout.typed.StringValue
 import io.github.kotlinmania.starlark_kotlin.values.types.dict.Dict
 import io.github.kotlinmania.starlark_kotlin.values.types.dict.allocValue
 import io.github.kotlinmania.starlark_kotlin.values.ValueError

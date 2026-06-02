@@ -21,9 +21,7 @@ package io.github.kotlinmania.starlark_kotlin.values.typing.type_compiled
 
 import io.github.kotlinmania.starlark_kotlin.typing.Ty
 import io.github.kotlinmania.starlark_kotlin.typing.TyBasic
-import io.github.kotlinmania.starlark_kotlin.typing.TyCallable
 import io.github.kotlinmania.starlark_kotlin.typing.TyStarlarkValue
-import io.github.kotlinmania.starlark_kotlin.typing.TyTuple
 import io.github.kotlinmania.starlark_kotlin.typing.TyCustom
 import io.github.kotlinmania.starlark_kotlin.values.layout.Value
 

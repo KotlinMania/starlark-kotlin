@@ -19,8 +19,8 @@ package io.github.kotlinmania.starlark_kotlin.tests
  * limitations under the License.
  */
 
-import io.github.kotlinmania.starlark_kotlin.assert.fail
-import io.github.kotlinmania.starlark_kotlin.assert.pass
+import io.github.kotlinmania.starlark.assert.fail
+import io.github.kotlinmania.starlark.assert.pass
 import kotlin.test.Test
 import kotlin.test.assertTrue
 

@@ -1,6 +1,6 @@
 package io.github.kotlinmania.starlark_kotlin.values.types.tuple
 
-import io.github.kotlinmania.starlark_kotlin.assert.Assert
+import io.github.kotlinmania.starlark.assert.Assert
 import kotlin.test.Test
 
 class TupleDebugTest {

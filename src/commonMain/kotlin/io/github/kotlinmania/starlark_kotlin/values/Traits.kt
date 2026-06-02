@@ -49,7 +49,6 @@ import io.github.kotlinmania.starlark_kotlin.values.layout.Freezer
 import io.github.kotlinmania.starlark_kotlin.values.layout.FrozenValue
 import io.github.kotlinmania.starlark_kotlin.values.layout.Value
 import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Heap
-import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Tracer
 import io.github.kotlinmania.starlark_kotlin.values.layout.typed.FrozenStringValue
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.Evaluator
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.Arguments
@@ -129,7 +128,7 @@ interface StarlarkValue {
     fun isSpecial(): Boolean = false
 
     /** Function is implemented for type values. */
-    fun typeMatchesValue(_value: Value): Boolean {
+    fun typeMatchesValue(value: Value): Boolean {
         error("typeMatchesValue should only be called on special types")
     }
 

@@ -20,10 +20,9 @@ package io.github.kotlinmania.starlark_kotlin.values.layout
  */
 
 import com.ionspin.kotlin.bignum.integer.BigInteger
-import io.github.kotlinmania.starlark_kotlin.assert.Assert
+import io.github.kotlinmania.starlark.assert.Assert
 import io.github.kotlinmania.starlark_kotlin.environment.Globals
 import io.github.kotlinmania.starlark_kotlin.typing.Ty
-import io.github.kotlinmania.starlark_kotlin.values.layout.avalues.str_.allocStr
 import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Heap
 import io.github.kotlinmania.starlark_kotlin.values.layout.typed.StarlarkStr
 import io.github.kotlinmania.starlark_kotlin.values.types.bigint.allocValue

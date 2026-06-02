@@ -2,7 +2,6 @@
 package io.github.kotlinmania.starlark_kotlin.values.typing.type_compiled
 
 import io.github.kotlinmania.starlark_kotlin.typing.Ty
-import io.github.kotlinmania.starlark_kotlin.values.typing.type_compiled.TypeCompiledFactory
 import io.github.kotlinmania.starlark_kotlin.values.layout.Value
 import io.github.kotlinmania.starlark_kotlin.values.layout.FrozenValue
 import io.github.kotlinmania.starlark_kotlin.values.layout.typed.StringValue
@@ -142,7 +141,7 @@ class TypeCompiledImplAsStarlarkValue<T : TypeMatcher>(
 
 /** Dummy type matcher used as a canonical type. */
 class DummyTypeMatcher : TypeMatcher {
-    override fun matches(_value: Value): Boolean {
+    override fun matches(value: Value): Boolean {
         throw IllegalStateException("unreachable")
     }
 

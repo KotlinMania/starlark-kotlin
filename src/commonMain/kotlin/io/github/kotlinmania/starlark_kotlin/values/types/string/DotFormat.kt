@@ -38,7 +38,6 @@ internal fun parseFormatOne(s: String): Pair<String, String>? {
     while (true) {
         val token = parser.next().getOrNull() ?: return null
         when (token) {
-            null -> return null
             is FormatToken.Text -> before.append(token.text)
             is FormatToken.Escape -> before.append(token.escape.asStr())
             is FormatToken.Capture -> {
@@ -55,7 +54,6 @@ internal fun parseFormatOne(s: String): Pair<String, String>? {
     while (true) {
         val token = parser.next().getOrNull() ?: break
         when (token) {
-            null -> break
             is FormatToken.Text -> after.append(token.text)
             is FormatToken.Escape -> after.append(token.escape.asStr())
             is FormatToken.Capture -> return null
