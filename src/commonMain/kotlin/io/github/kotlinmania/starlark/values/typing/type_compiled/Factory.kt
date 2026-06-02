@@ -1,5 +1,5 @@
 // port-lint: source src/values/typing/type_compiled/factory.rs
-package io.github.kotlinmania.starlark.values.typing.type_compiled
+package io.github.kotlinmania.starlark.values.typing.typecompiled
 
 import io.github.kotlinmania.starlark.values.layout.heap.Heap
 import io.github.kotlinmania.starlark.typing.Ty
@@ -30,66 +30,52 @@ class TypeCompiledFactory(
     private val heap: Heap,
     private val ty: Ty,
 ) : TypeMatcherAlloc<TypeCompiled> {
+    override fun alloc(matcher: TypeMatcher): TypeCompiled = TypeCompiled.alloc(matcher, ty, heap)
 
-    override fun alloc(matcher: TypeMatcher): TypeCompiled {
-        return TypeCompiled.alloc(matcher, ty, heap)
-    }
+    override fun custom(custom: TyCustom): TypeCompiled = custom.matcherWithTypeCompiledFactory(this)
 
-    override fun custom(custom: TyCustom): TypeCompiled {
-        return custom.matcherWithTypeCompiledFactory(this)
-    }
+    override fun fromTypeMatcherFactory(factory: TypeMatcherFactory): TypeCompiled = factory.factory.typeCompiled(this)
 
-    override fun fromTypeMatcherFactory(factory: TypeMatcherFactory): TypeCompiled {
-        return factory.factory.typeCompiled(this)
-    }
-
-    override fun any(): TypeCompiled {
-        return if (ty == Ty.any()) {
+    override fun any(): TypeCompiled =
+        if (ty == Ty.any()) {
             TypeCompiled.any().toValue()
         } else {
             alloc(IsAny)
         }
-    }
 
-    override fun none(): TypeCompiled {
-        return if (ty == Ty.none()) {
+    override fun none(): TypeCompiled =
+        if (ty == Ty.none()) {
             val isNone = TypeCompiledImplAsStarlarkValue.allocStatic(IsNone, Ty.none())
             TypeCompiled.uncheckedNew(isNone.toFrozenValue().toValue())
         } else {
             alloc(IsNone)
         }
-    }
 
-    override fun bool(): TypeCompiled {
-        return if (ty == Ty.bool()) {
+    override fun bool(): TypeCompiled =
+        if (ty == Ty.bool()) {
             val isBool = TypeCompiledImplAsStarlarkValue.allocStatic(IsBool, Ty.bool())
             TypeCompiled.uncheckedNew(isBool.toFrozenValue().toValue())
         } else {
             alloc(IsBool)
         }
-    }
 
-    override fun int(): TypeCompiled {
-        return if (ty == Ty.int()) {
+    override fun int(): TypeCompiled =
+        if (ty == Ty.int()) {
             val isInt = TypeCompiledImplAsStarlarkValue.allocStatic(IsInt, Ty.int())
             TypeCompiled.uncheckedNew(isInt.toFrozenValue().toValue())
         } else {
             alloc(IsInt)
         }
-    }
 
-    override fun str(): TypeCompiled {
-        return if (ty == Ty.string()) {
+    override fun str(): TypeCompiled =
+        if (ty == Ty.string()) {
             val isString = TypeCompiledImplAsStarlarkValue.allocStatic(IsStr, Ty.string())
             TypeCompiled.uncheckedNew(isString.toFrozenValue().toValue())
         } else {
             alloc(IsStr)
         }
-    }
 
     companion object {
-        internal fun allocTy(ty: Ty, heap: Heap): TypeCompiled {
-            return TypeCompiledFactory(heap, ty).ty(ty)
-        }
+        internal fun allocTy(ty: Ty, heap: Heap): TypeCompiled = TypeCompiledFactory(heap, ty).ty(ty)
     }
 }

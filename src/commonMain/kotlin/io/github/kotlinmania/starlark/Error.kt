@@ -36,12 +36,9 @@ class Error private constructor(
     private var fileSpan: FileSpan? = null,
     private var callStackFrames: List<Frame> = emptyList(),
 ) : Exception(kind.toString()) {
-
     companion object {
         /** Create a new error. */
-        fun newKind(kind: ErrorKind): Error {
-            return Error(kind)
-        }
+        fun newKind(kind: ErrorKind): Error = Error(kind)
 
         /** Create a new error with a span. */
         fun newSpanned(kind: ErrorKind, span: Span, codemap: CodeMap): Error {
@@ -50,19 +47,13 @@ class Error private constructor(
         }
 
         /** Create a new error with no diagnostic and of kind [ErrorKind.Other]. */
-        fun newOther(e: Throwable): Error {
-            return Error(ErrorKind.Other(e))
-        }
+        fun newOther(e: Throwable): Error = Error(ErrorKind.Other(e))
 
         /** Create a new error with no diagnostic and of kind [ErrorKind.Native]. */
-        fun newNative(e: Throwable): Error {
-            return Error(ErrorKind.Native(e))
-        }
+        fun newNative(e: Throwable): Error = Error(ErrorKind.Native(e))
 
         /** Create a new error with no diagnostic and of kind [ErrorKind.Value]. */
-        fun newValue(e: Throwable): Error {
-            return Error(ErrorKind.Value(e))
-        }
+        fun newValue(e: Throwable): Error = Error(ErrorKind.Value(e))
     }
 
     /** The kind of this error. */
@@ -72,9 +63,7 @@ class Error private constructor(
     fun intoKind(): ErrorKind = kind
 
     /** Whether this error has diagnostic information attached. */
-    fun hasDiagnostic(): Boolean {
-        return fileSpan != null || callStackFrames.isNotEmpty()
-    }
+    fun hasDiagnostic(): Boolean = fileSpan != null || callStackFrames.isNotEmpty()
 
     /**
      * Returns the error kind, which can be used to format this error without including the
@@ -103,22 +92,20 @@ class Error private constructor(
     }
 
     /** Change error kind to internal error. */
-    fun intoInternalError(): Error {
-        return if (kind is ErrorKind.Internal) {
+    fun intoInternalError(): Error =
+        if (kind is ErrorKind.Internal) {
             this
         } else {
             Error(kind.intoInternalError(), fileSpan, callStackFrames)
         }
-    }
 
-    override fun toString(): String {
-        return if (hasDiagnostic()) {
+    override fun toString(): String =
+        if (hasDiagnostic()) {
             val spanStr = fileSpan?.let { " at $it" } ?: ""
-            "${kind}${spanStr}"
+            "${kind}$spanStr"
         } else {
             kind.toString()
         }
-    }
 }
 
 /** Truncate a source code snippet to a maximum character length. */
@@ -157,8 +144,8 @@ data class Frame(
         if (location != null) {
             val line = location.file.sourceLineAtPos(location.span.begin).trim()
             val (truncated, ddd) = truncateSnippet(line, 80)
-            sb.appendLine("${indent}* ${location.resolve().beginFileLine()}, in $caller")
-            sb.appendLine("${indent}    $truncated$ddd")
+            sb.appendLine("$indent* ${location.resolve().beginFileLine()}, in $caller")
+            sb.appendLine("$indent    $truncated$ddd")
         } else {
             sb.appendLine("${indent}File <builtin>, in $caller")
         }
@@ -168,47 +155,67 @@ data class Frame(
 /** The different kinds of errors that can be produced by starlark. */
 sealed class ErrorKind {
     /** An explicit `fail` invocation. */
-    class Fail(val error: Throwable) : ErrorKind()
+    class Fail(
+        val error: Throwable,
+    ) : ErrorKind()
 
     /** Starlark call stack overflow. */
-    class StackOverflow(val error: Throwable) : ErrorKind()
+    class StackOverflow(
+        val error: Throwable,
+    ) : ErrorKind()
 
     /**
      * An error approximately associated with a value.
      * Includes unsupported operations, missing attributes, things of that sort.
      */
-    class Value(val error: Throwable) : ErrorKind()
+    class Value(
+        val error: Throwable,
+    ) : ErrorKind()
 
     /** Errors relating to the way a function is called (wrong number of args, etc.). */
-    class Function(val error: Throwable) : ErrorKind()
+    class Function(
+        val error: Throwable,
+    ) : ErrorKind()
 
     /** Out of scope variables and similar. */
-    class Scope(val error: Throwable) : ErrorKind()
+    class Scope(
+        val error: Throwable,
+    ) : ErrorKind()
 
     /** Syntax error. */
-    class Parser(val error: Throwable) : ErrorKind()
+    class Parser(
+        val error: Throwable,
+    ) : ErrorKind()
 
     /** Freeze errors. Should have no metadata attached. */
-    class Freeze(val error: Throwable) : ErrorKind()
+    class Freeze(
+        val error: Throwable,
+    ) : ErrorKind()
 
     /** Indicates a logic bug in starlark. */
-    class Internal(val error: Throwable) : ErrorKind()
+    class Internal(
+        val error: Throwable,
+    ) : ErrorKind()
 
     /**
      * Error from user provided native function
      * (but not from native functions provided by starlark crate).
      */
-    class Native(val error: Throwable) : ErrorKind()
+    class Native(
+        val error: Throwable,
+    ) : ErrorKind()
 
     /**
      * Fallback option.
      * For errors produced by starlark which have not yet been assigned their own kind.
      */
-    class Other(val error: Throwable) : ErrorKind()
+    class Other(
+        val error: Throwable,
+    ) : ErrorKind()
 
     /** The source of the error, akin to [Throwable.cause]. */
-    fun source(): Throwable? {
-        return when (this) {
+    fun source(): Throwable? =
+        when (this) {
             is Fail -> null
             is StackOverflow -> null
             is Value -> null
@@ -220,49 +227,51 @@ sealed class ErrorKind {
             is Native -> error.cause
             is Other -> error.cause
         }
-    }
 
     /** Change type to [Internal]. */
     internal fun intoInternalError(): ErrorKind {
-        val e = when (this) {
-            is Internal -> error
-            is Fail -> error
-            is Value -> error
-            is Function -> error
-            is Scope -> error
-            is Freeze -> error
-            is Parser -> error
-            is StackOverflow -> error
-            is Native -> error
-            is Other -> error
-        }
+        val e =
+            when (this) {
+                is Internal -> error
+                is Fail -> error
+                is Value -> error
+                is Function -> error
+                is Scope -> error
+                is Freeze -> error
+                is Parser -> error
+                is StackOverflow -> error
+                is Native -> error
+                is Other -> error
+            }
         return Internal(e)
     }
 
     /** The inner error. */
-    fun innerError(): Throwable = when (this) {
-        is Fail -> error
-        is StackOverflow -> error
-        is Value -> error
-        is Function -> error
-        is Scope -> error
-        is Parser -> error
-        is Freeze -> error
-        is Internal -> error
-        is Native -> error
-        is Other -> error
-    }
+    fun innerError(): Throwable =
+        when (this) {
+            is Fail -> error
+            is StackOverflow -> error
+            is Value -> error
+            is Function -> error
+            is Scope -> error
+            is Parser -> error
+            is Freeze -> error
+            is Internal -> error
+            is Native -> error
+            is Other -> error
+        }
 
-    override fun toString(): String = when (this) {
-        is Fail -> "fail:${error.message}"
-        is StackOverflow -> error.message ?: "stack overflow"
-        is Value -> error.message ?: "value error"
-        is Function -> error.message ?: "function error"
-        is Scope -> error.message ?: "scope error"
-        is Parser -> error.message ?: "parser error"
-        is Freeze -> error.message ?: "freeze error"
-        is Internal -> "Internal error: ${error.message}"
-        is Native -> error.message ?: "native error"
-        is Other -> error.message ?: "error"
-    }
+    override fun toString(): String =
+        when (this) {
+            is Fail -> "fail:${error.message}"
+            is StackOverflow -> error.message ?: "stack overflow"
+            is Value -> error.message ?: "value error"
+            is Function -> error.message ?: "function error"
+            is Scope -> error.message ?: "scope error"
+            is Parser -> error.message ?: "parser error"
+            is Freeze -> error.message ?: "freeze error"
+            is Internal -> "Internal error: ${error.message}"
+            is Native -> error.message ?: "native error"
+            is Other -> error.message ?: "error"
+        }
 }

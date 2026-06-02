@@ -19,10 +19,10 @@ package io.github.kotlinmania.starlark.eval
  * limitations under the License.
  */
 
+import io.github.kotlinmania.starlark.eval.runtime.params.spec.ParametersSpec
+import io.github.kotlinmania.starlark.eval.runtime.params.spec.ParametersSpecParam
 import io.github.kotlinmania.starlark.typing.ParamSpec
 import io.github.kotlinmania.starlark.typing.Ty
-import io.github.kotlinmania.starlark.eval.runtime.params.spec.ParametersSpecParam
-import io.github.kotlinmania.starlark.eval.runtime.params.spec.ParametersSpec
 
 /**
  * Build both [ParametersSpec] (for parsing) and [ParamSpec] (for typechecking)
@@ -36,22 +36,24 @@ fun <V> paramSpecs(
     namedOnly: List<Triple<String, ParametersSpecParam<V>, Ty>>,
     kwargs: Ty?,
 ): Pair<ParametersSpec<V>, ParamSpec> {
-    val parametersSpec = ParametersSpec.newParts(
-        functionName,
-        posOnly.map { (name, param, _) -> Pair(name, param) },
-        posOrNamed.map { (name, param, _) -> Pair(name, param) },
-        args != null,
-        namedOnly.map { (name, param, _) -> Pair(name, param) },
-        kwargs != null,
-    )
+    val parametersSpec =
+        ParametersSpec.newParts(
+            functionName,
+            posOnly.map { (name, param, _) -> Pair(name, param) },
+            posOrNamed.map { (name, param, _) -> Pair(name, param) },
+            args != null,
+            namedOnly.map { (name, param, _) -> Pair(name, param) },
+            kwargs != null,
+        )
 
-    val paramSpec = ParamSpec.newParts(
-        posOnly.map { (_, param, ty) -> Pair(param.isRequired(), ty) },
-        posOrNamed.map { (name, param, ty) -> Triple(name, param.isRequired(), ty) },
-        args,
-        namedOnly.map { (name, param, ty) -> Triple(name, param.isRequired(), ty) },
-        kwargs,
-    )
+    val paramSpec =
+        ParamSpec.newParts(
+            posOnly.map { (_, param, ty) -> Pair(param.isRequired(), ty) },
+            posOrNamed.map { (name, param, ty) -> Triple(name, param.isRequired(), ty) },
+            args,
+            namedOnly.map { (name, param, ty) -> Triple(name, param.isRequired(), ty) },
+            kwargs,
+        )
 
     return Pair(parametersSpec, paramSpec)
 }

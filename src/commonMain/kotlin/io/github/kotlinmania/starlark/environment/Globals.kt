@@ -20,36 +20,36 @@ package io.github.kotlinmania.starlark.environment
  */
 
 import io.github.kotlinmania.starlark.LibraryExtension
-import io.github.kotlinmania.starlark.deriverefs.NativeCallableComponents
 import io.github.kotlinmania.starlark.collections.SmallMap
 import io.github.kotlinmania.starlark.collections.symbol.SymbolMap
+import io.github.kotlinmania.starlark.deriverefs.NativeCallableComponents
 import io.github.kotlinmania.starlark.docs.DocFunction
 import io.github.kotlinmania.starlark.docs.DocItem
 import io.github.kotlinmania.starlark.docs.DocMember
 import io.github.kotlinmania.starlark.docs.DocModule
 import io.github.kotlinmania.starlark.docs.DocString
 import io.github.kotlinmania.starlark.docs.DocStringKind
-import io.github.kotlinmania.starlark.docs.fromDocstring
 import io.github.kotlinmania.starlark.docs.DocType
+import io.github.kotlinmania.starlark.docs.fromDocstring
 import io.github.kotlinmania.starlark.eval.runtime.params.spec.ParametersSpec
 import io.github.kotlinmania.starlark.standardEnvironment
 import io.github.kotlinmania.starlark.typing.Ty
 import io.github.kotlinmania.starlark.values.AllocFrozenValue
+import io.github.kotlinmania.starlark.values.layout.FrozenValue
+import io.github.kotlinmania.starlark.values.layout.Value
+import io.github.kotlinmania.starlark.values.layout.avalues.simple.allocSimple
+import io.github.kotlinmania.starlark.values.layout.avalues.str.allocStr
 import io.github.kotlinmania.starlark.values.layout.heap.FrozenHeap
 import io.github.kotlinmania.starlark.values.layout.heap.FrozenHeapRef
-import io.github.kotlinmania.starlark.values.layout.FrozenValue
+import io.github.kotlinmania.starlark.values.layout.typed.FrozenStringValue
 import io.github.kotlinmania.starlark.values.owned.OwnedFrozenValue
 import io.github.kotlinmania.starlark.values.types.NativeFunc
 import io.github.kotlinmania.starlark.values.types.NativeFuncFn
 import io.github.kotlinmania.starlark.values.types.NativeFunction
 import io.github.kotlinmania.starlark.values.types.SpecialBuiltinFunction
+import io.github.kotlinmania.starlark.values.types.bigint.allocFrozenValue
 import io.github.kotlinmania.starlark.values.types.namespace.FrozenNamespace
 import io.github.kotlinmania.starlark.values.types.namespace.MaybeDocHiddenValue
-import io.github.kotlinmania.starlark.values.layout.typed.FrozenStringValue
-import io.github.kotlinmania.starlark.values.layout.Value
-import io.github.kotlinmania.starlark.values.layout.avalues.simple.allocSimple
-import io.github.kotlinmania.starlark.values.layout.avalues.str_.allocStr
-import io.github.kotlinmania.starlark.values.types.bigint.allocFrozenValue
 import kotlin.concurrent.Volatile
 
 /** Type alias matching Rust: `type GlobalValue = MaybeDocHiddenValue<'static, FrozenValue>` */
@@ -64,22 +64,17 @@ internal typealias GlobalValue = MaybeDocHiddenValue<FrozenValue>
 class Globals internal constructor(
     internal val data: GlobalsData,
 ) {
-
     companion object {
         /**
          * Create an empty [Globals], with no functions in scope.
          */
-        fun new(): Globals {
-            return GlobalsBuilder.new().build()
-        }
+        fun new(): Globals = GlobalsBuilder.new().build()
 
         /**
          * Create a [Globals] following the
          * [Starlark standard](https://github.com/bazelbuild/starlark/blob/master/spec.md#built-in-constants-and-functions).
          */
-        fun standard(): Globals {
-            return GlobalsBuilder.standard().build()
-        }
+        fun standard(): Globals = GlobalsBuilder.standard().build()
 
         /**
          * Create a [Globals] combining those functions in the Starlark standard plus
@@ -88,42 +83,32 @@ class Globals internal constructor(
          * This function is public to use in the `starlark` binary,
          * but users of starlark should list the extensions they want explicitly.
          */
-        fun extendedInternal(): Globals {
-            return GlobalsBuilder.extended().build()
-        }
+        fun extendedInternal(): Globals = GlobalsBuilder.extended().build()
 
         /** Empty globals. */
         private val EMPTY: Globals by lazy { GlobalsBuilder.new().build() }
 
         /** Empty globals. */
-        internal fun empty(): Globals {
-            return EMPTY
-        }
+        internal fun empty(): Globals = EMPTY
 
         /**
          * Create a [Globals] combining those functions in the Starlark standard plus
          * all those given in the [LibraryExtension] arguments.
          */
-        fun extendedBy(extensions: List<LibraryExtension>): Globals {
-            return GlobalsBuilder.extendedBy(extensions).build()
-        }
+        fun extendedBy(extensions: List<LibraryExtension>): Globals = GlobalsBuilder.extendedBy(extensions).build()
     }
 
     /**
      * This function is only safe if you first call [heap] and keep a reference to it.
      * Therefore, don't expose it on the public API.
      */
-    internal fun get(name: String): Value? {
-        return getFrozen(name)?.toValue()
-    }
+    internal fun get(name: String): Value? = getFrozen(name)?.toValue()
 
     /**
      * This function is only safe if you first call [heap] and keep a reference to it.
      * Therefore, don't expose it on the public API.
      */
-    internal fun getFrozen(name: String): FrozenValue? {
-        return data.variables.getStr(name)?.value
-    }
+    internal fun getFrozen(name: String): FrozenValue? = data.variables.getStr(name)?.value
 
     internal fun getOwned(name: String): OwnedFrozenValue? {
         val v = getFrozen(name) ?: return null
@@ -133,42 +118,39 @@ class Globals internal constructor(
     }
 
     /** Get all the names defined in this environment. */
-    fun names(): Iterator<FrozenStringValue> {
-        return data.variableNames.iterator()
-    }
+    fun names(): Iterator<FrozenStringValue> = data.variableNames.iterator()
 
     /**
      * Iterate over all the items in this environment.
      * Note returned values are owned by this globals.
      */
-    fun iter(): Iterator<Pair<String, FrozenValue>> {
-        return data.variables.iter().map { (n, v) -> Pair(n.asStr(), v.value) }.iterator()
-    }
+    fun iter(): Iterator<Pair<String, FrozenValue>> =
+        data.variables
+            .iter()
+            .map { (n, v) -> Pair(n.asStr(), v.value) }
+            .iterator()
 
-    internal fun heap(): FrozenHeapRef {
-        return data.heap
-    }
+    internal fun heap(): FrozenHeapRef = data.heap
 
     /** Print information about the values in this object. */
-    fun describe(): String {
-        return data.variables.iter().joinToString("\n") { (name, value) ->
+    fun describe(): String =
+        data.variables.iter().joinToString("\n") { (name, value) ->
             value.value.toValue().describe(name.asStr())
         }
-    }
 
     /** Get the documentation for the object itself. */
-    fun docstring(): String? {
-        return data.docstring
-    }
+    fun docstring(): String? = data.docstring
 
     /** Get the documentation for both the object itself, and its members. */
     fun documentation(): DocModule {
-        val (docs, members) = commonDocumentation(
-            data.docstring,
-            data.variables.iter()
-                .filter { (_, v) -> !v.docHidden }
-                .map { (n, v) -> Pair(n.asStr(), v.value) },
-        )
+        val (docs, members) =
+            commonDocumentation(
+                data.docstring,
+                data.variables
+                    .iter()
+                    .filter { (_, v) -> !v.docHidden }
+                    .map { (n, v) -> Pair(n.asStr(), v.value) },
+            )
         return DocModule(
             docs = docs,
             members = members,
@@ -202,30 +184,25 @@ class GlobalsBuilder private constructor(
 ) {
     companion object {
         /** Create an empty [GlobalsBuilder], with no functions in scope. */
-        fun new(): GlobalsBuilder {
-            return GlobalsBuilder(
+        fun new(): GlobalsBuilder =
+            GlobalsBuilder(
                 heap = FrozenHeap.new(),
                 variables = SymbolMap(),
                 namespaceFields = mutableListOf(),
                 docstring = null,
             )
-        }
 
         /**
          * Create a [GlobalsBuilder] following the
          * [Starlark standard](https://github.com/bazelbuild/starlark/blob/master/spec.md#built-in-constants-and-functions).
          */
-        fun standard(): GlobalsBuilder {
-            return standardEnvironment()
-        }
+        fun standard(): GlobalsBuilder = standardEnvironment()
 
         /**
          * Create a [GlobalsBuilder] combining those functions in the Starlark standard plus
          * all those defined in [LibraryExtension].
          */
-        internal fun extended(): GlobalsBuilder {
-            return extendedBy(LibraryExtension.all())
-        }
+        internal fun extended(): GlobalsBuilder = extendedBy(LibraryExtension.all())
 
         /**
          * Create a [GlobalsBuilder] combining those functions in the Starlark standard plus
@@ -284,9 +261,11 @@ class GlobalsBuilder private constructor(
 
     /** Called at the end to build a [Globals]. */
     fun build(): Globals {
-        val variableNames: MutableList<FrozenStringValue> = variables.keys()
-            .map { x -> heap.allocStrIntern(x.asStr()) }
-            .toMutableList()
+        val variableNames: MutableList<FrozenStringValue> =
+            variables
+                .keys()
+                .map { x -> heap.allocStrIntern(x.asStr()) }
+                .toMutableList()
         variableNames.sort()
         return Globals(
             GlobalsData(
@@ -294,7 +273,7 @@ class GlobalsBuilder private constructor(
                 variables = variables,
                 variableNames = variableNames,
                 docstring = docstring,
-            )
+            ),
         )
     }
 
@@ -313,22 +292,24 @@ class GlobalsBuilder private constructor(
      * Corresponds to the `const` syntax inside Rust's `#[starlark_module]` macro.
      */
     fun setConst(name: String, value: Any) {
-        val frozenValue = when (value) {
-            is AllocFrozenValue -> value.allocFrozenValue(heap)
-            is Int -> value.allocFrozenValue(heap)
-            is Long -> value.allocFrozenValue(heap)
-            is Boolean -> FrozenValue.newBool(value)
-            is String -> heap.allocStr(value).toFrozenValue()
-            else -> error("setConst: unsupported value type ${value::class.simpleName}")
-        }
+        val frozenValue =
+            when (value) {
+                is AllocFrozenValue -> value.allocFrozenValue(heap)
+                is Int -> value.allocFrozenValue(heap)
+                is Long -> value.allocFrozenValue(heap)
+                is Boolean -> FrozenValue.newBool(value)
+                is String -> heap.allocStr(value).toFrozenValue()
+                else -> error("setConst: unsupported value type ${value::class.simpleName}")
+            }
         setInner(name, frozenValue, false)
     }
 
     internal fun setInner(name: String, value: FrozenValue, docHidden: Boolean) {
-        val globalValue = MaybeDocHiddenValue(
-            value = value,
-            docHidden = docHidden,
-        )
+        val globalValue =
+            MaybeDocHiddenValue(
+                value = value,
+                docHidden = docHidden,
+            )
         val lastNamespace = namespaceFields.lastOrNull()
         when (lastNamespace) {
             null -> {
@@ -361,10 +342,12 @@ class GlobalsBuilder private constructor(
                 name = name,
                 speculativeExecSafe = components.speculativeExecSafe,
                 asType = asType?.first,
-                ty = ty ?: Ty.fromNativeCallableComponents(
-                    components,
-                    asType?.first,
-                ).getOrThrow(),
+                ty =
+                    ty ?: Ty
+                        .fromNativeCallableComponents(
+                            components,
+                            asType?.first,
+                        ).getOrThrow(),
                 docs = components.intoDocs(asType),
                 specialBuiltinFunction = specialBuiltinFunction,
             ),
@@ -381,11 +364,15 @@ class GlobalsBuilder private constructor(
         name: String,
         speculativeExecSafe: Boolean = false,
         asType: Ty? = null,
-        f: (io.github.kotlinmania.starlark.eval.runtime.Arguments,
-            io.github.kotlinmania.starlark.eval.runtime.Evaluator) -> Any?,
+        f: (
+            io.github.kotlinmania.starlark.eval.runtime.Arguments,
+            io.github.kotlinmania.starlark.eval.runtime.Evaluator,
+        ) -> Any?,
     ) {
-        val sig = io.github.kotlinmania.starlark.eval.runtime.params.spec.ParametersSpec
-            .withCapacity<FrozenValue>(name).finish()
+        val sig =
+            io.github.kotlinmania.starlark.eval.runtime.params.spec.ParametersSpec
+                .withCapacity<FrozenValue>(name)
+                .finish()
         val nativeFn: NativeFuncFn = { eval, _, args ->
             try {
                 @Suppress("UNCHECKED_CAST")
@@ -396,7 +383,10 @@ class GlobalsBuilder private constructor(
                     is kotlin.Result<*> ->
                         result as kotlin.Result<io.github.kotlinmania.starlark.values.layout.Value>
                     else ->
-                        kotlin.Result.success(io.github.kotlinmania.starlark.values.layout.Value.newNone())
+                        kotlin.Result.success(
+                            io.github.kotlinmania.starlark.values.layout.Value
+                                .newNone(),
+                        )
                 }
             } catch (e: Exception) {
                 kotlin.Result.failure(e)
@@ -417,18 +407,14 @@ class GlobalsBuilder private constructor(
     }
 
     /** Heap where globals are allocated. Can be used to allocate additional values. */
-    fun frozenHeap(): FrozenHeap {
-        return heap
-    }
+    fun frozenHeap(): FrozenHeap = heap
 
     /**
      * Allocate a value using the same underlying heap as the [GlobalsBuilder],
      * only intended for values that are referred to by those which are passed
      * to [set].
      */
-    fun alloc(value: AllocFrozenValue): FrozenValue {
-        return value.allocFrozenValue(heap)
-    }
+    fun alloc(value: AllocFrozenValue): FrozenValue = value.allocFrozenValue(heap)
 
     /**
      * Set per module docstring.
@@ -448,7 +434,6 @@ class GlobalsBuilder private constructor(
  * Uses a synchronized lazy pattern for thread-safe initialization.
  */
 class GlobalsStatic {
-
     /** Create a new [GlobalsStatic]. */
     constructor()
 
@@ -494,12 +479,14 @@ fun commonDocumentation(
     docstring: String?,
     members: Iterable<Pair<String, FrozenValue>>,
 ): Pair<DocString?, SmallMap<String, DocItem>> {
-    val mainDocs = docstring?.let { ds ->
-        DocString.fromDocstring(DocStringKind.Rust, ds)
-    }
-    val sorted = members
-        .map { (name, value) -> Pair(name, value.toValue().documentation()) }
-        .sortedBy { (name, _) -> name }
+    val mainDocs =
+        docstring?.let { ds ->
+            DocString.fromDocstring(DocStringKind.Rust, ds)
+        }
+    val sorted =
+        members
+            .map { (name, value) -> Pair(name, value.toValue().documentation()) }
+            .sortedBy { (name, _) -> name }
     val memberDocs = SmallMap.new<String, DocItem>()
     for ((name, doc) in sorted) {
         memberDocs.insert(name, doc)

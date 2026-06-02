@@ -1,5 +1,5 @@
 // port-lint: source starlark_syntax/src/syntax/type_expr.rs
-package io.github.kotlinmania.starlark.syntax.type_expr
+package io.github.kotlinmania.starlark.syntax.typeexpr
 
 /*
  * Copyright 2018 The Starlark in Rust Authors.
@@ -31,17 +31,27 @@ import io.github.kotlinmania.starlark.typing.WithDiagnostic
 
 // #[derive(Debug, thiserror::Error)]
 // pub enum TypeExprUnpackError
-sealed class TypeExprUnpackError(message: String) : Exception(message) {
+sealed class TypeExprUnpackError(
+    message: String,
+) : Exception(message) {
     // #[error("{0} expression is not allowed in type expression")]
-    class InvalidType(val invalidType: String) : TypeExprUnpackError("$invalidType expression is not allowed in type expression")
+    class InvalidType(
+        val invalidType: String,
+    ) : TypeExprUnpackError("$invalidType expression is not allowed in type expression")
+
     // #[error("Empty list is not allowed in type expression")]
     class EmptyListInType : TypeExprUnpackError("Empty list is not allowed in type expression")
+
     // #[error("Only dot expression of form `ident.ident` is allowed in type expression")]
     class DotInType : TypeExprUnpackError("Only dot expression of form `ident.ident` is allowed in type expression")
+
     // #[error("Expecting path like `a.b.c`")]
     class ExpectingPath : TypeExprUnpackError("Expecting path like `a.b.c`")
+
     // #[error(r#"`{0}.type` is not allowed in type expression, use `{0}` instead"#)]
-    class DotTypeBan(val name: String) : TypeExprUnpackError("`$name.type` is not allowed in type expression, use `$name` instead")
+    class DotTypeBan(
+        val name: String,
+    ) : TypeExprUnpackError("`$name.type` is not allowed in type expression, use `$name` instead")
 }
 
 /**
@@ -49,9 +59,7 @@ sealed class TypeExprUnpackError(message: String) : Exception(message) {
  * (also deprecated).
  */
 // pub fn type_str_literal_is_wildcard(s: &str) -> bool
-fun typeStrLiteralIsWildcard(s: String): Boolean {
-    return s == "" || s.startsWith('_')
-}
+fun typeStrLiteralIsWildcard(s: String): Boolean = s == "" || s.startsWith('_')
 
 /** Path component of type. */
 // #[derive(Debug)]
@@ -67,21 +75,42 @@ data class TypePathP<P : AstPayload, IP>(
 sealed class TypeExprUnpackP<P : AstPayload, IP> {
     // Ellipsis
     class Ellipsis<P : AstPayload, IP> : TypeExprUnpackP<P, IP>()
+
     // Path(TypePathP<'a, P>)
-    data class Path<P : AstPayload, IP>(val path: TypePathP<P, IP>) : TypeExprUnpackP<P, IP>()
+    data class Path<P : AstPayload, IP>(
+        val path: TypePathP<P, IP>,
+    ) : TypeExprUnpackP<P, IP>()
+
     /** `list[str]`. */
     // Index(&'a AstIdentP<P>, Box<Spanned<TypeExprUnpackP<'a, P>>>)
-    data class Index<P : AstPayload, IP>(val ident: AstIdentP<P, IP>, val index: Spanned<TypeExprUnpackP<P, IP>>) : TypeExprUnpackP<P, IP>()
+    data class Index<P : AstPayload, IP>(
+        val ident: AstIdentP<P, IP>,
+        val index: Spanned<TypeExprUnpackP<P, IP>>,
+    ) : TypeExprUnpackP<P, IP>()
+
     /** `dict[str, int]` or `typing.Callable[[int], str]`. */
     // Index2(Spanned<TypePathP<'a, P>>, Box<Spanned<TypeExprUnpackP<'a, P>>>, Box<Spanned<TypeExprUnpackP<'a, P>>>)
-    data class Index2<P : AstPayload, IP>(val path: Spanned<TypePathP<P, IP>>, val i0: Spanned<TypeExprUnpackP<P, IP>>, val i1: Spanned<TypeExprUnpackP<P, IP>>) : TypeExprUnpackP<P, IP>()
+    data class Index2<P : AstPayload, IP>(
+        val path: Spanned<TypePathP<P, IP>>,
+        val i0: Spanned<TypeExprUnpackP<P, IP>>,
+        val i1: Spanned<TypeExprUnpackP<P, IP>>,
+    ) : TypeExprUnpackP<P, IP>()
+
     /** List argument in `typing.Callable[[int], str]`. */
     // List(Vec<Spanned<TypeExprUnpackP<'a, P>>>)
-    data class List<P : AstPayload, IP>(val items: kotlin.collections.List<Spanned<TypeExprUnpackP<P, IP>>>) : TypeExprUnpackP<P, IP>()
+    data class List<P : AstPayload, IP>(
+        val items: kotlin.collections.List<Spanned<TypeExprUnpackP<P, IP>>>,
+    ) : TypeExprUnpackP<P, IP>()
+
     // Union(Vec<Spanned<TypeExprUnpackP<'a, P>>>)
-    data class Union<P : AstPayload, IP>(val xs: kotlin.collections.List<Spanned<TypeExprUnpackP<P, IP>>>) : TypeExprUnpackP<P, IP>()
+    data class Union<P : AstPayload, IP>(
+        val xs: kotlin.collections.List<Spanned<TypeExprUnpackP<P, IP>>>,
+    ) : TypeExprUnpackP<P, IP>()
+
     // Tuple(Vec<Spanned<TypeExprUnpackP<'a, P>>>)
-    data class Tuple<P : AstPayload, IP>(val xs: kotlin.collections.List<Spanned<TypeExprUnpackP<P, IP>>>) : TypeExprUnpackP<P, IP>()
+    data class Tuple<P : AstPayload, IP>(
+        val xs: kotlin.collections.List<Spanned<TypeExprUnpackP<P, IP>>>,
+    ) : TypeExprUnpackP<P, IP>()
 
     companion object {
         // fn unpack_path(expr: &'a AstExprP<P>, codemap: &CodeMap) -> Result<Spanned<TypePathP<'a, P>>, WithDiagnostic<TypeExprUnpackError>>
@@ -92,13 +121,15 @@ sealed class TypeExprUnpackP<P : AstPayload, IP> {
         ): Spanned<TypePathP<P, IP>> {
             val span = expr.span
             return when (val node = expr.node) {
-                is ExprP.Identifier<*, *> -> Spanned(
-                    node = TypePathP(
-                        first = node.ident as AstIdentP<P, IP>,
-                        rem = emptyList(),
-                    ),
-                    span = span,
-                )
+                is ExprP.Identifier<*, *> ->
+                    Spanned(
+                        node =
+                            TypePathP(
+                                first = node.ident as AstIdentP<P, IP>,
+                                rem = emptyList(),
+                            ),
+                        span = span,
+                    )
                 is ExprP.Dot<*> -> {
                     var current: AstExprP<P> = node.expr as AstExprP<P>
                     val rem = mutableListOf(Spanned(node = node.field.node, span = node.field.span))
@@ -122,7 +153,7 @@ sealed class TypeExprUnpackP<P : AstPayload, IP> {
                                             TypeExprUnpackError.DotTypeBan(fullPath),
                                             current.span,
                                             codemap,
-                                        )
+                                        ),
                                     )
                                 }
                                 return Spanned(
@@ -135,7 +166,7 @@ sealed class TypeExprUnpackP<P : AstPayload, IP> {
                                     TypeExprUnpackError.DotInType(),
                                     current.span,
                                     codemap,
-                                )
+                                ),
                             )
                         }
                     }
@@ -147,7 +178,7 @@ sealed class TypeExprUnpackP<P : AstPayload, IP> {
                         TypeExprUnpackError.ExpectingPath(),
                         expr.span,
                         codemap,
-                    )
+                    ),
                 )
             }
         }
@@ -161,9 +192,10 @@ sealed class TypeExprUnpackP<P : AstPayload, IP> {
             val span = expr.span
             return when (val node = expr.node) {
                 is ExprP.ListExpr<*> -> {
-                    val items = (node.elements as kotlin.collections.List<AstExprP<P>>).map { x ->
-                        unpackArgument<P, IP>(x, codemap)
-                    }
+                    val items =
+                        (node.elements as kotlin.collections.List<AstExprP<P>>).map { x ->
+                            unpackArgument<P, IP>(x, codemap)
+                        }
                     Spanned(
                         node = List(items),
                         span = span,
@@ -180,21 +212,21 @@ sealed class TypeExprUnpackP<P : AstPayload, IP> {
             codemap: CodeMap,
         ): Spanned<TypeExprUnpackP<P, IP>> {
             val span = expr.span
-            fun err(t: String): Nothing {
-                throw WithDiagnosticException(
-                    WithDiagnostic(
-                        TypeExprUnpackError.InvalidType(t),
-                        expr.span,
-                        codemap,
-                    )
-                )
-            }
+
+            fun err(t: String): Nothing = throw WithDiagnosticException(
+                WithDiagnostic(
+                    TypeExprUnpackError.InvalidType(t),
+                    expr.span,
+                    codemap,
+                ),
+            )
 
             return when (val node = expr.node) {
                 is ExprP.Tuple<*> -> {
-                    val xs = (node.elements as kotlin.collections.List<AstExprP<P>>).map { x ->
-                        unpack<P, IP>(x, codemap)
-                    }
+                    val xs =
+                        (node.elements as kotlin.collections.List<AstExprP<P>>).map { x ->
+                            unpack<P, IP>(x, codemap)
+                        }
                     Spanned(node = Tuple(xs), span = span)
                 }
                 is ExprP.Dot<*> -> {
@@ -234,12 +266,13 @@ sealed class TypeExprUnpackP<P : AstPayload, IP> {
                     Spanned(node = Path(path.node), span = span)
                 }
                 is ExprP.Lambda<*, *> -> err("lambda")
-                is ExprP.Literal<*> -> when (node.literal) {
-                    is AstLiteral.String -> err("string literal")
-                    is AstLiteral.Int -> err("int")
-                    is AstLiteral.Float -> err("float")
-                    is AstLiteral.Ellipsis -> Spanned(node = Ellipsis(), span = span)
-                }
+                is ExprP.Literal<*> ->
+                    when (node.literal) {
+                        is AstLiteral.String -> err("string literal")
+                        is AstLiteral.Int -> err("int")
+                        is AstLiteral.Float -> err("float")
+                        is AstLiteral.Ellipsis -> Spanned(node = Ellipsis(), span = span)
+                    }
                 is ExprP.Not<*> -> err("not")
                 is ExprP.Minus<*> -> err("minus")
                 is ExprP.Plus<*> -> err("plus")
@@ -262,7 +295,7 @@ sealed class TypeExprUnpackP<P : AstPayload, IP> {
                                 TypeExprUnpackError.EmptyListInType(),
                                 expr.span,
                                 codemap,
-                            )
+                            ),
                         )
                     } else if (xs.size == 1) {
                         err("list of 1 element")

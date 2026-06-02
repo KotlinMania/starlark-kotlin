@@ -26,74 +26,97 @@ package io.github.kotlinmania.starlark.analysis
 //
 // But it does as things stand.
 
-import io.github.kotlinmania.starlark.syntax.ast.AstIdent
-import io.github.kotlinmania.starlark.syntax.ast.AstAssignTarget
-import io.github.kotlinmania.starlark.syntax.ast.AstAssignIdent
-import io.github.kotlinmania.starlark.syntax.ast.AstTypeExpr
-import io.github.kotlinmania.starlark.syntax.ast.AstStmt
-import io.github.kotlinmania.starlark.syntax.ast.AstExpr
-import io.github.kotlinmania.starlark.syntax.ast.ExprP
-import io.github.kotlinmania.starlark.syntax.ast.ClauseP
-import io.github.kotlinmania.starlark.syntax.ast.StmtP
-import io.github.kotlinmania.starlark.syntax.ast.AssignTargetP
-import io.github.kotlinmania.starlark.syntax.ast.ParameterP
-import io.github.kotlinmania.starlark.syntax.ast.AstNoPayload
 import io.github.kotlinmania.starlark.codemap.CodeMap
-import io.github.kotlinmania.starlark.codemap.Spanned
 import io.github.kotlinmania.starlark.codemap.Span
+import io.github.kotlinmania.starlark.codemap.Spanned
 import io.github.kotlinmania.starlark.syntax.AstModule
+import io.github.kotlinmania.starlark.syntax.ast.AssignTargetP
+import io.github.kotlinmania.starlark.syntax.ast.AstAssignIdent
+import io.github.kotlinmania.starlark.syntax.ast.AstAssignTarget
+import io.github.kotlinmania.starlark.syntax.ast.AstExpr
+import io.github.kotlinmania.starlark.syntax.ast.AstIdent
+import io.github.kotlinmania.starlark.syntax.ast.AstNoPayload
+import io.github.kotlinmania.starlark.syntax.ast.AstStmt
+import io.github.kotlinmania.starlark.syntax.ast.AstTypeExpr
+import io.github.kotlinmania.starlark.syntax.ast.ClauseP
+import io.github.kotlinmania.starlark.syntax.ast.ExprP
+import io.github.kotlinmania.starlark.syntax.ast.ParameterP
+import io.github.kotlinmania.starlark.syntax.ast.StmtP
 
 sealed class NameWarning : LintWarning {
-    data class UnusedLoad(val name: String) : NameWarning()
-    data class UnusedAssign(val name: String) : NameWarning()
-    data class UnusedArgument(val name: String) : NameWarning()
-    data class UsingUnassigned(val name: String) : NameWarning()
-    data class UsingUndefined(val name: String) : NameWarning()
-    data class UsingMaybeUndefined(val name: String) : NameWarning()
+    data class UnusedLoad(
+        val name: String,
+    ) : NameWarning()
 
-    override fun toString(): String = when (this) {
-        is UnusedLoad -> "Unused `load` of `$name`"
-        is UnusedAssign -> "Unused assignment of `$name`"
-        is UnusedArgument -> "Unused argument `$name`"
-        is UsingUnassigned -> "Use of unassigned variable `$name`"
-        is UsingUndefined -> "Use of undefined variable `$name`"
-        is UsingMaybeUndefined -> "Use of potentially undefined variable `$name`"
-    }
+    data class UnusedAssign(
+        val name: String,
+    ) : NameWarning()
 
-    override fun severity(): EvalSeverity = when (this) {
-        is UsingUnassigned, is UsingMaybeUndefined -> EvalSeverity.Warning
-        else -> EvalSeverity.Disabled
-    }
+    data class UnusedArgument(
+        val name: String,
+    ) : NameWarning()
 
-    override fun shortName(): String = when (this) {
-        is UnusedLoad -> "unused-load"
-        is UnusedAssign -> "unused-assign"
-        is UnusedArgument -> "unused-argument"
-        is UsingUnassigned -> "using-unassigned"
-        is UsingUndefined -> "using-undefined"
-        is UsingMaybeUndefined -> "using-maybe-undefined"
-    }
+    data class UsingUnassigned(
+        val name: String,
+    ) : NameWarning()
 
-    fun about(): String = when (this) {
-        is UnusedLoad -> name
-        is UnusedAssign -> name
-        is UnusedArgument -> name
-        is UsingUnassigned -> name
-        is UsingUndefined -> name
-        is UsingMaybeUndefined -> name
-    }
+    data class UsingUndefined(
+        val name: String,
+    ) : NameWarning()
+
+    data class UsingMaybeUndefined(
+        val name: String,
+    ) : NameWarning()
+
+    override fun toString(): String =
+        when (this) {
+            is UnusedLoad -> "Unused `load` of `$name`"
+            is UnusedAssign -> "Unused assignment of `$name`"
+            is UnusedArgument -> "Unused argument `$name`"
+            is UsingUnassigned -> "Use of unassigned variable `$name`"
+            is UsingUndefined -> "Use of undefined variable `$name`"
+            is UsingMaybeUndefined -> "Use of potentially undefined variable `$name`"
+        }
+
+    override fun severity(): EvalSeverity =
+        when (this) {
+            is UsingUnassigned, is UsingMaybeUndefined -> EvalSeverity.Warning
+            else -> EvalSeverity.Disabled
+        }
+
+    override fun shortName(): String =
+        when (this) {
+            is UnusedLoad -> "unused-load"
+            is UnusedAssign -> "unused-assign"
+            is UnusedArgument -> "unused-argument"
+            is UsingUnassigned -> "using-unassigned"
+            is UsingUndefined -> "using-undefined"
+            is UsingMaybeUndefined -> "using-maybe-undefined"
+        }
+
+    fun about(): String =
+        when (this) {
+            is UnusedLoad -> name
+            is UnusedAssign -> name
+            is UnusedArgument -> name
+            is UsingUnassigned -> name
+            is UsingUndefined -> name
+            is UsingMaybeUndefined -> name
+        }
 }
 
 private enum class Kind {
     Load,
     Argument,
-    Assign;
+    Assign,
+    ;
 
-    fun unused(name: String): NameWarning = when (this) {
-        Load -> NameWarning.UnusedLoad(name)
-        Argument -> NameWarning.UnusedArgument(name)
-        Assign -> NameWarning.UnusedAssign(name)
-    }
+    fun unused(name: String): NameWarning =
+        when (this) {
+            Load -> NameWarning.UnusedLoad(name)
+            Argument -> NameWarning.UnusedArgument(name)
+            Assign -> NameWarning.UnusedAssign(name)
+        }
 }
 
 private enum class Assigned {
@@ -117,8 +140,9 @@ private fun astStrFromAssignIdent(x: AstAssignIdent): AstStr {
 private enum class Abort {
     /** Abort the loop (e.g. `continue` or `break`) */
     Loop,
+
     /** Abort the function (e.g. `return`) */
-    Function;
+    Function,
 }
 
 /**
@@ -214,10 +238,11 @@ private fun AstExpr.visitExprChildren(visitor: (AstExpr) -> Unit) {
             visitor(e.v2 as AstExpr)
         }
         is ExprP.ListExpr<*> -> e.elements.forEach { visitor(it as AstExpr) }
-        is ExprP.Dict<*> -> e.elements.forEach { (k, v) ->
-            visitor(k as AstExpr)
-            visitor(v as AstExpr)
-        }
+        is ExprP.Dict<*> ->
+            e.elements.forEach { (k, v) ->
+                visitor(k as AstExpr)
+                visitor(v as AstExpr)
+            }
         is ExprP.ListComprehension<*> -> {
             visitor(e.expr as AstExpr)
             visitor(e.forClause.over as AstExpr)
@@ -239,7 +264,9 @@ private fun AstExpr.visitExprChildren(visitor: (AstExpr) -> Unit) {
                 }
             }
         }
-        is ExprP.FString<*> -> e.fstring.node.expressions.forEach { visitor(it as AstExpr) }
+        is ExprP.FString<*> ->
+            e.fstring.node.expressions
+                .forEach { visitor(it as AstExpr) }
         is ExprP.Identifier<*, *>, is ExprP.Lambda<*, *>, is ExprP.Literal -> {}
     }
 }
@@ -254,20 +281,25 @@ private class ScopeState {
      * If these are set later on, then it is a unassigned usage error.
      */
     val cantSet: MutableList<AstStr> = mutableListOf()
+
     /**
      * Those identifiers that I couldn't find at the point I saw them.
      * Since the child runs in a different order with respect to the parent, they might resolve later.
      */
     val unbound: MutableList<AstStr> = mutableListOf()
+
     /** Those definition sites that we have ended up using. */
     val used: MutableSet<AstStr> = mutableSetOf()
+
     /** Those definitions that we have set. */
     val set: MutableList<Pair<AstStr, Kind>> = mutableListOf()
+
     /**
      * The last location/locations where I was set.
      * The assigned is whether I am always set or not.
      */
     var lastSet: MutableMap<String, Pair<Assigned, MutableSet<Span>>> = mutableMapOf()
+
     /** Whether I can be reached. */
     var abort: Abort? = null
 }
@@ -323,10 +355,12 @@ private class State(
         for ((ident, kind) in scope.set) {
             if (ident !in scope.used && ident.node !in unboundDefinedNames) {
                 val underscore = ident.node.startsWith('_')
-                val exported = top
-                    && !underscore
-                    && kind == Kind.Assign // Assume loads don't automatically export
-                    && scope.lastSet[ident.node]?.second?.contains(ident.span) == true
+                val exported =
+                    top &&
+                        !underscore &&
+                        kind == Kind.Assign &&
+                        // Assume loads don't automatically export
+                        scope.lastSet[ident.node]?.second?.contains(ident.span) == true
                 val ignored = !top && underscore
 
                 if (!exported && !ignored) {
@@ -629,10 +663,11 @@ internal fun namesLint(
     module: AstModule,
     globals: Set<String>?,
 ): List<LintT<NameWarning>> {
-    val state = State(
-        codemap = module.codemap,
-        globals = globals,
-    )
+    val state =
+        State(
+            codemap = module.codemap,
+            globals = globals,
+        )
     state.module(module)
     return state.warnings
 }

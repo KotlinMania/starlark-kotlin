@@ -30,4 +30,3 @@ class AtomicU64
 class AtomicIsize
 
 class AtomicUsize
-

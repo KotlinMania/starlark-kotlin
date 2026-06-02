@@ -21,10 +21,10 @@ package io.github.kotlinmania.starlark.stdlib
 
 /** Implementation of `call_stack` function. */
 
-import io.github.kotlinmania.starlark.values.types.none.allocValue
 import io.github.kotlinmania.starlark.CallStack
 import io.github.kotlinmania.starlark.eval.runtime.Evaluator
 import io.github.kotlinmania.starlark.values.layout.avalues.allocComplexNoFreeze
+import io.github.kotlinmania.starlark.values.types.none.allocValue
 
 /** A frame of the call-stack. */
 internal data class StackFrame(
@@ -33,8 +33,8 @@ internal data class StackFrame(
     /** The location of the definition, or `null` for native functions. */
     val location: io.github.kotlinmania.starlark.codemap.FileSpan?,
 ) : io.github.kotlinmania.starlark.values.StarlarkValue,
-    io.github.kotlinmania.starlark.values.AllocValue, io.github.kotlinmania.starlark.values.Trace {
-
+    io.github.kotlinmania.starlark.values.AllocValue,
+    io.github.kotlinmania.starlark.values.Trace {
     override fun trace(_tracer: io.github.kotlinmania.starlark.values.layout.heap.Tracer) {
         // No Value fields to trace.
         _tracer.hashCode()
@@ -58,7 +58,8 @@ internal data class StackFrame(
     companion object {
         const val TYPE: String = "StackFrame"
         private val RES: io.github.kotlinmania.starlark.environment.MethodsStatic =
-            _root_ide_package_.io.github.kotlinmania.starlark.environment.MethodsStatic()
+            io.github.kotlinmania.starlark.environment
+                .MethodsStatic()
     }
 }
 
@@ -69,8 +70,10 @@ private fun funcName(thisRef: StackFrame): String =
 /** Returns a path of the module, or `null` for native functions. */
 private fun modulePath(thisRef: StackFrame): io.github.kotlinmania.starlark.values.types.none.NoneOr<String> =
     when (val location = thisRef.location) {
-        null -> _root_ide_package_.io.github.kotlinmania.starlark.values.types.none.NoneOr.None
-        else -> _root_ide_package_.io.github.kotlinmania.starlark.values.types.none.NoneOr.Other(location.file.filename)
+        null -> io.github.kotlinmania.starlark.values.types.none.NoneOr.None
+        else ->
+            io.github.kotlinmania.starlark.values.types.none.NoneOr
+                .Other(location.file.filename)
     }
 
 /** Define attribute methods on StackFrame values. */
@@ -82,10 +85,14 @@ private fun stackFrameMethods(builder: io.github.kotlinmania.starlark.environmen
     builder.setAttribute("module_path") { thisValue, heap ->
         val frame = thisValue.downcastRefUnchecked<StackFrame>()
         val result = modulePath(frame)
-        Result.success(when (result) {
-            is io.github.kotlinmania.starlark.values.types.none.NoneOr.None -> _root_ide_package_.io.github.kotlinmania.starlark.values.layout.Value.Companion.newNone()
-            is io.github.kotlinmania.starlark.values.types.none.NoneOr.Other -> heap.allocStr(result.value)
-        })
+        Result.success(
+            when (result) {
+                is io.github.kotlinmania.starlark.values.types.none.NoneOr.None ->
+                    io.github.kotlinmania.starlark.values.layout.Value.Companion
+                        .newNone()
+                is io.github.kotlinmania.starlark.values.types.none.NoneOr.Other -> heap.allocStr(result.value)
+            },
+        )
     }
 }
 
@@ -115,16 +122,17 @@ private fun callStack(stripFrames: Int, eval: Evaluator): String {
 private fun callStackFrame(n: Int, eval: Evaluator): io.github.kotlinmania.starlark.values.types.none.NoneOr<StackFrame> {
     val stack = eval.callStack()
     if (n >= stack.frames.size) {
-        return _root_ide_package_.io.github.kotlinmania.starlark.values.types.none.NoneOr.None
+        return io.github.kotlinmania.starlark.values.types.none.NoneOr.None
     }
     return when (val frame = stack.frames.getOrNull(stack.frames.size - n - 1)) {
-        null -> _root_ide_package_.io.github.kotlinmania.starlark.values.types.none.NoneOr.None
-        else -> _root_ide_package_.io.github.kotlinmania.starlark.values.types.none.NoneOr.Other(
-            StackFrame(
-                name = frame.name,
-                location = frame.location,
+        null -> io.github.kotlinmania.starlark.values.types.none.NoneOr.None
+        else ->
+            io.github.kotlinmania.starlark.values.types.none.NoneOr.Other(
+                StackFrame(
+                    name = frame.name,
+                    location = frame.location,
+                ),
             )
-        )
     }
 }
 

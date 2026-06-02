@@ -26,14 +26,16 @@ import io.github.kotlinmania.starlark.values.StarlarkValue
 import io.github.kotlinmania.starlark.values.Trace
 import io.github.kotlinmania.starlark.values.layout.Value
 
-/// A type which is either drop or non-drop.
+// / A type which is either drop or non-drop.
 // pub(crate) trait MaybeDrop: Debug + Sync + Send + Allocative + 'static {}
 internal interface MaybeDrop
 
-/// Type which has `Drop`.
+// / Type which has `Drop`.
 // #[derive(ProvidesStaticType, Debug, Trace, Allocative)]
 // pub(crate) struct NeedsDrop;
-internal class NeedsDrop : MaybeDrop, AutoCloseable {
+internal class NeedsDrop :
+    MaybeDrop,
+    AutoCloseable {
     // impl Drop for NeedsDrop
     // fn drop(&mut self) {
     //     // Just make this type `Drop`.
@@ -45,7 +47,7 @@ internal class NeedsDrop : MaybeDrop, AutoCloseable {
     }
 }
 
-/// Type which doesn't have `Drop`.
+// / Type which doesn't have `Drop`.
 // #[derive(ProvidesStaticType, Debug, Trace, Allocative)]
 // pub(crate) struct NoDrop;
 internal class NoDrop : MaybeDrop
@@ -64,7 +66,8 @@ internal class CallEnter<D : MaybeDrop>(
     var function: Value,
     val time: ProfilerInstant,
     val maybeDrop: D,
-) : StarlarkValue, Trace {
+) : StarlarkValue,
+    Trace {
     // #[starlark_value(type = "call_enter")]
     // impl<'v, D: MaybeDrop + Trace<'v> + 'v> StarlarkValue<'v> for CallEnter<'v, D> {
     //     type Canonical = Self;

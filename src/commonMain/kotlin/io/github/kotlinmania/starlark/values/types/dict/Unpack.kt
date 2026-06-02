@@ -20,8 +20,8 @@ package io.github.kotlinmania.starlark.values.types.dict
  */
 
 import io.github.kotlinmania.starlark.typing.Ty
-import io.github.kotlinmania.starlark.values.layout.Value
 import io.github.kotlinmania.starlark.values.StarlarkTypeRepr
+import io.github.kotlinmania.starlark.values.layout.Value
 
 /**
  * Unpack `dict`.
@@ -31,20 +31,16 @@ import io.github.kotlinmania.starlark.values.StarlarkTypeRepr
  */
 class UnpackDictEntries<K, V>(
     /** Entries of the dictionary. */
-    val entries: MutableList<Pair<K, V>> = mutableListOf()
+    val entries: MutableList<Pair<K, V>> = mutableListOf(),
 ) {
     companion object {
         /** Default constructor matching Rust's `Default` trait. */
-        fun <K, V> default(): UnpackDictEntries<K, V> {
-            return UnpackDictEntries(mutableListOf())
-        }
+        fun <K, V> default(): UnpackDictEntries<K, V> = UnpackDictEntries(mutableListOf())
 
         /**
          * StarlarkTypeRepr implementation for UnpackDictEntries<K, V>.
          */
-        inline fun <reified K : StarlarkTypeRepr, reified V : StarlarkTypeRepr> starlarkTypeRepr(): Ty {
-            return DictType.starlarkTypeRepr<K, V>()
-        }
+        inline fun <reified K : StarlarkTypeRepr, reified V : StarlarkTypeRepr> starlarkTypeRepr(): Ty = DictType.starlarkTypeRepr<K, V>()
 
         /**
          * UnpackValue implementation for UnpackDictEntries<K, V> where K: UnpackValue, V: UnpackValue.
@@ -58,6 +54,7 @@ class UnpackDictEntries<K, V>(
             for ((k, v) in dict.iter()) {
                 @Suppress("UNCHECKED_CAST")
                 val unpackedK = (k as? K) ?: return Result.success(null)
+
                 @Suppress("UNCHECKED_CAST")
                 val unpackedV = (v as? V) ?: return Result.success(null)
                 entries.add(Pair(unpackedK, unpackedV))

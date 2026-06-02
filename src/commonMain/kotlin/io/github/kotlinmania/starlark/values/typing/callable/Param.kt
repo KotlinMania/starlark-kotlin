@@ -35,20 +35,17 @@ interface StarlarkCallableParamSpec {
 
 /** Indicates that a callable accepts any number of positional and keyword arguments. */
 // pub struct StarlarkCallableParamAny
+
 /** `*args` and `**kwargs` parameters. */
 // impl StarlarkCallableParamSpec for StarlarkCallableParamAny
 object StarlarkCallableParamAny : StarlarkCallableParamSpec {
-    override fun params(): ParamSpec {
-        return ParamSpec.any()
-    }
+    override fun params(): ParamSpec = ParamSpec.any()
 }
 
 /** No parameters. */
 // impl StarlarkCallableParamSpec for ()
 object StarlarkCallableParamSpecNone : StarlarkCallableParamSpec {
-    override fun params(): ParamSpec {
-        return ParamSpec.posOnly(emptyList(), emptyList())
-    }
+    override fun params(): ParamSpec = ParamSpec.posOnly(emptyList(), emptyList())
 }
 
 /** Single positional-only parameter. */
@@ -56,9 +53,7 @@ object StarlarkCallableParamSpecNone : StarlarkCallableParamSpec {
 class StarlarkCallableParamSpec1(
     private val a: Ty,
 ) : StarlarkCallableParamSpec {
-    override fun params(): ParamSpec {
-        return ParamSpec.posOnly(listOf(a), emptyList())
-    }
+    override fun params(): ParamSpec = ParamSpec.posOnly(listOf(a), emptyList())
 }
 
 /** Two positional-only parameters. */
@@ -67,9 +62,7 @@ class StarlarkCallableParamSpec2(
     private val a: Ty,
     private val b: Ty,
 ) : StarlarkCallableParamSpec {
-    override fun params(): ParamSpec {
-        return ParamSpec.posOnly(listOf(a, b), emptyList())
-    }
+    override fun params(): ParamSpec = ParamSpec.posOnly(listOf(a, b), emptyList())
 }
 
 /** Three positional-only parameters. */
@@ -79,9 +72,7 @@ class StarlarkCallableParamSpec3(
     private val b: Ty,
     private val c: Ty,
 ) : StarlarkCallableParamSpec {
-    override fun params(): ParamSpec {
-        return ParamSpec.posOnly(listOf(a, b, c), emptyList())
-    }
+    override fun params(): ParamSpec = ParamSpec.posOnly(listOf(a, b, c), emptyList())
 }
 
 /** Four positional-only parameters. */
@@ -92,7 +83,5 @@ class StarlarkCallableParamSpec4(
     private val c: Ty,
     private val d: Ty,
 ) : StarlarkCallableParamSpec {
-    override fun params(): ParamSpec {
-        return ParamSpec.posOnly(listOf(a, b, c, d), emptyList())
-    }
+    override fun params(): ParamSpec = ParamSpec.posOnly(listOf(a, b, c, d), emptyList())
 }

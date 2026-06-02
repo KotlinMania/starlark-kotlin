@@ -19,18 +19,18 @@ package io.github.kotlinmania.starlark.eval.runtime
  * limitations under the License.
  */
 
-import io.github.kotlinmania.starlark.eval.compiler.CompareOp
-import io.github.kotlinmania.starlark.values.Tuple4
-import io.github.kotlinmania.starlark.values.FrozenRef
-import io.github.kotlinmania.starlark.values.layout.FrozenValue
-import io.github.kotlinmania.starlark.values.StarlarkValue
-import io.github.kotlinmania.starlark.values.typing.type_compiled.TypeCompiled
-import io.github.kotlinmania.starlark.environment.ModuleSlotId
-import io.github.kotlinmania.starlark.typing.DefParamIndices
 import io.github.kotlinmania.starlark.collections.symbol.Symbol
+import io.github.kotlinmania.starlark.environment.ModuleSlotId
+import io.github.kotlinmania.starlark.eval.compiler.CompareOp
 import io.github.kotlinmania.starlark.eval.compiler.IrSpanned
+import io.github.kotlinmania.starlark.typing.DefParamIndices
 import io.github.kotlinmania.starlark.typing.DefRegularParamMode
+import io.github.kotlinmania.starlark.values.FrozenRef
+import io.github.kotlinmania.starlark.values.StarlarkValue
+import io.github.kotlinmania.starlark.values.Tuple4
+import io.github.kotlinmania.starlark.values.layout.FrozenValue
 import io.github.kotlinmania.starlark.values.layout.FrozenValueTyped
+import io.github.kotlinmania.starlark.values.typing.typecompiled.TypeCompiled
 
 /** Visitor for code spans in the IR. */
 internal interface VisitSpanMut {

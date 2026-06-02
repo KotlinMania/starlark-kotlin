@@ -21,20 +21,28 @@ package io.github.kotlinmania.starlark.typing
 
 private sealed class SmallArcVec1Impl<out T> {
     data object Zero : SmallArcVec1Impl<Nothing>()
-    class One<T>(val value: T) : SmallArcVec1Impl<T>() {
+
+    class One<T>(
+        val value: T,
+    ) : SmallArcVec1Impl<T>() {
         override fun equals(other: Any?): Boolean {
             if (this === other) return true
             if (other !is One<*>) return false
             return value == other.value
         }
+
         override fun hashCode(): Int = value.hashCode()
     }
-    class Many<T>(val values: List<T>) : SmallArcVec1Impl<T>() {
+
+    class Many<T>(
+        val values: List<T>,
+    ) : SmallArcVec1Impl<T>() {
         override fun equals(other: Any?): Boolean {
             if (this === other) return true
             if (other !is Many<*>) return false
             return values == other.values
         }
+
         override fun hashCode(): Int = values.hashCode()
     }
 }
@@ -42,23 +50,17 @@ private sealed class SmallArcVec1Impl<out T> {
 internal class SmallArcVec1<T> private constructor(
     private val impl: SmallArcVec1Impl<T>,
 ) : Comparable<SmallArcVec1<T>> where T : Comparable<T> {
-
     companion object {
-        fun <T : Comparable<T>> empty(): SmallArcVec1<T> {
-            return SmallArcVec1(SmallArcVec1Impl.Zero)
-        }
+        fun <T : Comparable<T>> empty(): SmallArcVec1<T> = SmallArcVec1(SmallArcVec1Impl.Zero)
 
-        fun <T : Comparable<T>> one(x: T): SmallArcVec1<T> {
-            return SmallArcVec1(SmallArcVec1Impl.One(x))
-        }
+        fun <T : Comparable<T>> one(x: T): SmallArcVec1<T> = SmallArcVec1(SmallArcVec1Impl.One(x))
 
-        fun <T : Comparable<T>> cloneFromSlice(slice: List<T>): SmallArcVec1<T> {
-            return when (slice.size) {
+        fun <T : Comparable<T>> cloneFromSlice(slice: List<T>): SmallArcVec1<T> =
+            when (slice.size) {
                 0 -> empty()
                 1 -> one(slice[0])
                 else -> SmallArcVec1(SmallArcVec1Impl.Many(slice.toList()))
             }
-        }
 
         fun <T : Comparable<T>> fromIterator(iter: Iterator<T>): SmallArcVec1<T> {
             if (!iter.hasNext()) {
@@ -77,8 +79,8 @@ internal class SmallArcVec1<T> private constructor(
         }
     }
 
-    fun asSlice(): List<T> {
-        return when (val i = impl) {
+    fun asSlice(): List<T> =
+        when (val i = impl) {
             is SmallArcVec1Impl.Zero -> emptyList()
             is SmallArcVec1Impl.One -> listOf(i.value)
             is SmallArcVec1Impl.Many -> {
@@ -86,7 +88,6 @@ internal class SmallArcVec1<T> private constructor(
                 i.values
             }
         }
-    }
 
     val size: Int get() = asSlice().size
 

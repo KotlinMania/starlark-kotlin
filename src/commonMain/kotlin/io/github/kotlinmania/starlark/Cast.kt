@@ -21,9 +21,7 @@ package io.github.kotlinmania.starlark.cast
 
 /** Convert a reference to a usize-like integer (identity hash). */
 @Suppress("NOTHING_TO_INLINE")
-internal inline fun ptrToUsize(x: Any): Int {
-    return x.hashCode() and Int.MAX_VALUE
-}
+internal inline fun ptrToUsize(x: Any): Int = x.hashCode() and Int.MAX_VALUE
 
 /** Convert a usize-like integer back to a reference via lookup. */
 @Suppress("UNCHECKED_CAST")
@@ -35,12 +33,8 @@ internal fun <T : Any> usizeToPtr(x: Int, lookup: (Int) -> Any): T {
 
 /** Lifetime re-interpretation (identity in Kotlin — no lifetime system). */
 @Suppress("NOTHING_TO_INLINE", "UNCHECKED_CAST")
-internal inline fun <T> ptrLifetime(x: T): T {
-    return (x as Any) as T
-}
+internal inline fun <T> ptrLifetime(x: T): T = (x as Any) as T
 
 /** Transmute between types (unchecked cast in Kotlin). */
 @Suppress("UNCHECKED_CAST", "NOTHING_TO_INLINE")
-internal inline fun <From, To> transmute(value: From): To {
-    return value as To
-}
+internal inline fun <From, To> transmute(value: From): To = value as To

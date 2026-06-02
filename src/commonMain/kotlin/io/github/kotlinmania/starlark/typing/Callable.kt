@@ -37,7 +37,7 @@ import io.github.kotlinmania.starlark.typing.oracle.TypingOracleCtx
  * limitations under the License.
  */
 
-/// `typing.Callable`.
+// / `typing.Callable`.
 // #[derive(Debug, Dupe, Clone, Eq, PartialEq, Ord, PartialOrd, Hash, Allocative)]
 // pub struct TyCallable {
 //     inner: ArcOrStatic<TyCallableInner>,
@@ -49,11 +49,9 @@ class TyCallable private constructor(
     companion object {
         // impl TyCallable
 
-        /// Create a new callable type.
+        // / Create a new callable type.
         // pub fn new(params: ParamSpec, result: Ty) -> TyCallable
-        fun new(params: ParamSpec, result: Ty): TyCallable {
-            return TyCallable(params, result)
-        }
+        fun new(params: ParamSpec, result: Ty): TyCallable = TyCallable(params, result)
 
         // pub(crate) fn any() -> TyCallable
         private val ANY: TyCallable by lazy {
@@ -69,9 +67,7 @@ class TyCallable private constructor(
         span: Span,
         args: TyCallArgs,
         oracle: TypingOracleCtx,
-    ): Result<Ty> {
-        return oracle.validateFnCall(span, this, args)
-    }
+    ): Result<Ty> = oracle.validateFnCall(span, this, args)
 
     // pub(crate) fn params(&self) -> &ParamSpec
     internal fun params(): ParamSpec = params

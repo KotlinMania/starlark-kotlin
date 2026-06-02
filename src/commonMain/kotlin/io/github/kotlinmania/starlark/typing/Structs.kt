@@ -19,11 +19,11 @@ package io.github.kotlinmania.starlark.typing
  * limitations under the License.
  */
 
-import io.github.kotlinmania.starlark.values.layout.Value
-import io.github.kotlinmania.starlark.values.typing.type_compiled.TypeMatcherAlloc
-import io.github.kotlinmania.starlark.values.typing.type_compiled.TypeMatcher
-import io.github.kotlinmania.starlark.values.types.structs.StructRef
 import io.github.kotlinmania.starlark.typing.oracle.TypingOracleCtx
+import io.github.kotlinmania.starlark.values.layout.Value
+import io.github.kotlinmania.starlark.values.types.structs.StructRef
+import io.github.kotlinmania.starlark.values.typing.typecompiled.TypeMatcher
+import io.github.kotlinmania.starlark.values.typing.typecompiled.TypeMatcherAlloc
 
 // #[derive(Allocative, Eq, PartialEq, Hash, Debug, Clone, Copy, Dupe)]
 // struct StructMatcher;
@@ -31,9 +31,7 @@ import io.github.kotlinmania.starlark.typing.oracle.TypingOracleCtx
 // impl TypeMatcher for StructMatcher
 private object StructMatcher : TypeMatcher {
     // fn matches(&self, value: Value) -> bool
-    override fun matches(value: Value): Boolean {
-        return StructRef.isInstance(value)
-    }
+    override fun matches(value: Value): Boolean = StructRef.isInstance(value)
 }
 
 /** Struct type. */
@@ -47,8 +45,8 @@ data class TyStruct(
      * `false` if this struct has no extra members.
      */
     internal val extra: Boolean,
-) : TyCustomImpl, Comparable<TyCustomImpl> {
-
+) : TyCustomImpl,
+    Comparable<TyCustomImpl> {
     companion object {
         /** Any struct. */
         fun any(): TyStruct = TyStruct(fields = emptyMap(), extra = true)
@@ -97,9 +95,7 @@ data class TyStruct(
     }
 
     // fn matcher<T: TypeMatcherAlloc>(&self, factory: T) -> T::Result
-    override fun <R> matcher(factory: TypeMatcherAlloc<R>): R {
-        return factory.alloc(StructMatcher)
-    }
+    override fun <R> matcher(factory: TypeMatcherAlloc<R>): R = factory.alloc(StructMatcher)
 
     override fun compareTo(other: TyCustomImpl): Int {
         if (other !is TyStruct) {
@@ -120,8 +116,8 @@ data class TyStruct(
         return 0
     }
 
-    override fun toString(): String {
-        return buildString {
+    override fun toString(): String =
+        buildString {
             append("struct(")
             var first = true
             for ((k, v) in fields.entries.sortedBy { it.key }) {
@@ -135,5 +131,4 @@ data class TyStruct(
             }
             append(")")
         }
-    }
 }

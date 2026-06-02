@@ -26,6 +26,9 @@ import io.github.kotlinmania.starlark.eval.runtime.profile.BcProfilerType
 import io.github.kotlinmania.starlark.eval.runtime.profile.CoverageProfileType
 import io.github.kotlinmania.starlark.eval.runtime.profile.StmtProfileData
 import io.github.kotlinmania.starlark.eval.runtime.profile.StmtProfilerType
+import io.github.kotlinmania.starlark.eval.runtime.profile.TimeFlameProfilerType
+import io.github.kotlinmania.starlark.eval.runtime.profile.TypecheckProfileData
+import io.github.kotlinmania.starlark.eval.runtime.profile.TypecheckProfilerType
 import io.github.kotlinmania.starlark.eval.runtime.profile.flamegraph.FlameGraphData
 import io.github.kotlinmania.starlark.eval.runtime.profile.heap.HeapAllocatedProfilerType
 import io.github.kotlinmania.starlark.eval.runtime.profile.heap.HeapFlameAllocatedProfilerType
@@ -35,9 +38,6 @@ import io.github.kotlinmania.starlark.eval.runtime.profile.heap.HeapSummaryAlloc
 import io.github.kotlinmania.starlark.eval.runtime.profile.heap.HeapSummaryRetainedProfilerType
 import io.github.kotlinmania.starlark.eval.runtime.profile.mode.ProfileMode
 import io.github.kotlinmania.starlark.values.layout.heap.profile.AggregateHeapProfileInfo
-import io.github.kotlinmania.starlark.eval.runtime.profile.TypecheckProfilerType
-import io.github.kotlinmania.starlark.eval.runtime.profile.TypecheckProfileData
-import io.github.kotlinmania.starlark.eval.runtime.profile.TimeFlameProfilerType
 
 // #[derive(Debug, thiserror::Error)]
 // enum ProfileDataError
@@ -46,6 +46,7 @@ sealed class ProfileDataError : Exception() {
     data object EmptyProfileList : ProfileDataError() {
         override val message: String get() = "Empty profile list cannot be merged"
     }
+
     // #[error("Different profile modes in profile")]
     data object DifferentProfileModes : ProfileDataError() {
         override val message: String get() = "Different profile modes in profile"
@@ -56,49 +57,86 @@ sealed class ProfileDataError : Exception() {
 // pub(crate) enum ProfileDataImpl
 internal sealed class ProfileDataImpl {
     // Bc(Box<BcProfileData>)
-    data class Bc(val data: BcProfileData) : ProfileDataImpl()
+    data class Bc(
+        val data: BcProfileData,
+    ) : ProfileDataImpl()
+
     // BcPairs(BcPairsProfileData)
-    data class BcPairs(val data: BcPairsProfileData) : ProfileDataImpl()
+    data class BcPairs(
+        val data: BcPairsProfileData,
+    ) : ProfileDataImpl()
+
     // HeapRetained(Box<AggregateHeapProfileInfo>)
-    data class HeapRetained(val data: AggregateHeapProfileInfo) : ProfileDataImpl()
+    data class HeapRetained(
+        val data: AggregateHeapProfileInfo,
+    ) : ProfileDataImpl()
+
     // HeapAllocated(Box<AggregateHeapProfileInfo>)
-    data class HeapAllocated(val data: AggregateHeapProfileInfo) : ProfileDataImpl()
+    data class HeapAllocated(
+        val data: AggregateHeapProfileInfo,
+    ) : ProfileDataImpl()
+
     // HeapFlameRetained(Box<AggregateHeapProfileInfo>)
-    data class HeapFlameRetained(val data: AggregateHeapProfileInfo) : ProfileDataImpl()
+    data class HeapFlameRetained(
+        val data: AggregateHeapProfileInfo,
+    ) : ProfileDataImpl()
+
     // HeapFlameAllocated(Box<AggregateHeapProfileInfo>)
-    data class HeapFlameAllocated(val data: AggregateHeapProfileInfo) : ProfileDataImpl()
+    data class HeapFlameAllocated(
+        val data: AggregateHeapProfileInfo,
+    ) : ProfileDataImpl()
+
     // HeapSummaryRetained(Box<AggregateHeapProfileInfo>)
-    data class HeapSummaryRetained(val data: AggregateHeapProfileInfo) : ProfileDataImpl()
+    data class HeapSummaryRetained(
+        val data: AggregateHeapProfileInfo,
+    ) : ProfileDataImpl()
+
     // HeapSummaryAllocated(Box<AggregateHeapProfileInfo>)
-    data class HeapSummaryAllocated(val data: AggregateHeapProfileInfo) : ProfileDataImpl()
+    data class HeapSummaryAllocated(
+        val data: AggregateHeapProfileInfo,
+    ) : ProfileDataImpl()
+
     /** Flame graph data is in milliseconds. */
     // TimeFlameProfile(FlameGraphData)
-    data class TimeFlameProfile(val data: FlameGraphData) : ProfileDataImpl()
+    data class TimeFlameProfile(
+        val data: FlameGraphData,
+    ) : ProfileDataImpl()
+
     // Statement(StmtProfileData)
-    data class Statement(val data: StmtProfileData) : ProfileDataImpl()
+    data class Statement(
+        val data: StmtProfileData,
+    ) : ProfileDataImpl()
+
     // Coverage(StmtProfileData)
-    data class Coverage(val data: StmtProfileData) : ProfileDataImpl()
+    data class Coverage(
+        val data: StmtProfileData,
+    ) : ProfileDataImpl()
+
     // Typecheck(TypecheckProfileData)
-    data class Typecheck(val data: TypecheckProfileData) : ProfileDataImpl()
+    data class Typecheck(
+        val data: TypecheckProfileData,
+    ) : ProfileDataImpl()
+
     // None
     data object None : ProfileDataImpl()
 
     // pub(crate) fn profile_mode(&self) -> ProfileMode
-    fun profileMode(): ProfileMode = when (this) {
-        is Bc -> ProfileMode.Bytecode
-        is BcPairs -> ProfileMode.BytecodePairs
-        is HeapRetained -> ProfileMode.HeapRetained
-        is HeapAllocated -> ProfileMode.HeapAllocated
-        is HeapFlameRetained -> ProfileMode.HeapFlameRetained
-        is HeapFlameAllocated -> ProfileMode.HeapFlameAllocated
-        is HeapSummaryRetained -> ProfileMode.HeapSummaryRetained
-        is HeapSummaryAllocated -> ProfileMode.HeapSummaryAllocated
-        is TimeFlameProfile -> ProfileMode.TimeFlame
-        is Statement -> ProfileMode.Statement
-        is Coverage -> ProfileMode.Coverage
-        is Typecheck -> ProfileMode.Typecheck
-        is None -> ProfileMode.None
-    }
+    fun profileMode(): ProfileMode =
+        when (this) {
+            is Bc -> ProfileMode.Bytecode
+            is BcPairs -> ProfileMode.BytecodePairs
+            is HeapRetained -> ProfileMode.HeapRetained
+            is HeapAllocated -> ProfileMode.HeapAllocated
+            is HeapFlameRetained -> ProfileMode.HeapFlameRetained
+            is HeapFlameAllocated -> ProfileMode.HeapFlameAllocated
+            is HeapSummaryRetained -> ProfileMode.HeapSummaryRetained
+            is HeapSummaryAllocated -> ProfileMode.HeapSummaryAllocated
+            is TimeFlameProfile -> ProfileMode.TimeFlame
+            is Statement -> ProfileMode.Statement
+            is Coverage -> ProfileMode.Coverage
+            is Typecheck -> ProfileMode.Typecheck
+            is None -> ProfileMode.None
+        }
 }
 
 /** Collected profiling data. */
@@ -114,30 +152,32 @@ data class ProfileData internal constructor(
 
     /** Generate a string with flamegraph profile data, depending on profile type. */
     // pub fn gen_flame_data(&self) -> crate::Result<String>
-    fun genFlameData(): String = when (val p = profile) {
-        is ProfileDataImpl.TimeFlameProfile -> p.data.write()
-        is ProfileDataImpl.HeapRetained -> p.data.genFlameGraphData()
-        is ProfileDataImpl.HeapAllocated -> p.data.genFlameGraphData()
-        is ProfileDataImpl.HeapFlameRetained -> p.data.genFlameGraphData()
-        is ProfileDataImpl.HeapFlameAllocated -> p.data.genFlameGraphData()
-        else -> ""
-    }
+    fun genFlameData(): String =
+        when (val p = profile) {
+            is ProfileDataImpl.TimeFlameProfile -> p.data.write()
+            is ProfileDataImpl.HeapRetained -> p.data.genFlameGraphData()
+            is ProfileDataImpl.HeapAllocated -> p.data.genFlameGraphData()
+            is ProfileDataImpl.HeapFlameRetained -> p.data.genFlameGraphData()
+            is ProfileDataImpl.HeapFlameAllocated -> p.data.genFlameGraphData()
+            else -> ""
+        }
 
     /** Generate a string with csv profile data, depending on profile type. */
     // pub fn gen_csv(&self) -> crate::Result<String>
-    fun genCsv(): String = when (val p = profile) {
-        is ProfileDataImpl.Bc -> p.data.genCsv()
-        is ProfileDataImpl.BcPairs -> p.data.genCsv()
-        is ProfileDataImpl.HeapRetained -> p.data.genSummaryCsv()
-        is ProfileDataImpl.HeapAllocated -> p.data.genSummaryCsv()
-        is ProfileDataImpl.HeapSummaryRetained -> p.data.genSummaryCsv()
-        is ProfileDataImpl.HeapSummaryAllocated -> p.data.genSummaryCsv()
-        is ProfileDataImpl.TimeFlameProfile -> p.data.write()
-        is ProfileDataImpl.Statement -> p.data.writeToString()
-        is ProfileDataImpl.Coverage -> p.data.writeCoverage()
-        is ProfileDataImpl.Typecheck -> p.data.genCsv()
-        else -> ""
-    }
+    fun genCsv(): String =
+        when (val p = profile) {
+            is ProfileDataImpl.Bc -> p.data.genCsv()
+            is ProfileDataImpl.BcPairs -> p.data.genCsv()
+            is ProfileDataImpl.HeapRetained -> p.data.genSummaryCsv()
+            is ProfileDataImpl.HeapAllocated -> p.data.genSummaryCsv()
+            is ProfileDataImpl.HeapSummaryRetained -> p.data.genSummaryCsv()
+            is ProfileDataImpl.HeapSummaryAllocated -> p.data.genSummaryCsv()
+            is ProfileDataImpl.TimeFlameProfile -> p.data.write()
+            is ProfileDataImpl.Statement -> p.data.writeToString()
+            is ProfileDataImpl.Coverage -> p.data.writeCoverage()
+            is ProfileDataImpl.Typecheck -> p.data.genCsv()
+            else -> ""
+        }
 
     companion object {
         /** Merge profiles (aggregate). */
@@ -149,8 +189,9 @@ data class ProfileData internal constructor(
                 return list[0].copy()
             }
 
-            val profileMode = list.firstOrNull()?.profile?.profileMode()
-                ?: throw ProfileDataError.EmptyProfileList
+            val profileMode =
+                list.firstOrNull()?.profile?.profileMode()
+                    ?: throw ProfileDataError.EmptyProfileList
 
             for (p in list) {
                 if (p.profile.profileMode() != profileMode) {
@@ -158,21 +199,22 @@ data class ProfileData internal constructor(
                 }
             }
 
-            val profile = when (profileMode) {
-                ProfileMode.Bytecode -> BcProfilerType.mergeProfiles(list).getOrThrow().profile
-                ProfileMode.BytecodePairs -> BcPairsProfilerType.mergeProfiles(list).getOrThrow().profile
-                ProfileMode.HeapAllocated -> HeapAllocatedProfilerType.mergeProfiles(list).getOrThrow().profile
-                ProfileMode.HeapRetained -> HeapRetainedProfilerType.mergeProfiles(list).getOrThrow().profile
-                ProfileMode.HeapSummaryAllocated -> HeapSummaryAllocatedProfilerType.mergeProfiles(list).getOrThrow().profile
-                ProfileMode.HeapSummaryRetained -> HeapSummaryRetainedProfilerType.mergeProfiles(list).getOrThrow().profile
-                ProfileMode.HeapFlameAllocated -> HeapFlameAllocatedProfilerType.mergeProfiles(list).getOrThrow().profile
-                ProfileMode.HeapFlameRetained -> HeapFlameRetainedProfilerType.mergeProfiles(list).getOrThrow().profile
-                ProfileMode.TimeFlame -> TimeFlameProfilerType.mergeProfiles(list).getOrThrow().profile
-                ProfileMode.Typecheck -> TypecheckProfilerType.mergeProfiles(list).getOrThrow().profile
-                ProfileMode.Statement -> StmtProfilerType.mergeProfiles(list).getOrThrow().profile
-                ProfileMode.Coverage -> CoverageProfileType.mergeProfiles(list).getOrThrow().profile
-                ProfileMode.None -> ProfileDataImpl.None
-            }
+            val profile =
+                when (profileMode) {
+                    ProfileMode.Bytecode -> BcProfilerType.mergeProfiles(list).getOrThrow().profile
+                    ProfileMode.BytecodePairs -> BcPairsProfilerType.mergeProfiles(list).getOrThrow().profile
+                    ProfileMode.HeapAllocated -> HeapAllocatedProfilerType.mergeProfiles(list).getOrThrow().profile
+                    ProfileMode.HeapRetained -> HeapRetainedProfilerType.mergeProfiles(list).getOrThrow().profile
+                    ProfileMode.HeapSummaryAllocated -> HeapSummaryAllocatedProfilerType.mergeProfiles(list).getOrThrow().profile
+                    ProfileMode.HeapSummaryRetained -> HeapSummaryRetainedProfilerType.mergeProfiles(list).getOrThrow().profile
+                    ProfileMode.HeapFlameAllocated -> HeapFlameAllocatedProfilerType.mergeProfiles(list).getOrThrow().profile
+                    ProfileMode.HeapFlameRetained -> HeapFlameRetainedProfilerType.mergeProfiles(list).getOrThrow().profile
+                    ProfileMode.TimeFlame -> TimeFlameProfilerType.mergeProfiles(list).getOrThrow().profile
+                    ProfileMode.Typecheck -> TypecheckProfilerType.mergeProfiles(list).getOrThrow().profile
+                    ProfileMode.Statement -> StmtProfilerType.mergeProfiles(list).getOrThrow().profile
+                    ProfileMode.Coverage -> CoverageProfileType.mergeProfiles(list).getOrThrow().profile
+                    ProfileMode.None -> ProfileDataImpl.None
+                }
             return ProfileData(profile)
         }
     }

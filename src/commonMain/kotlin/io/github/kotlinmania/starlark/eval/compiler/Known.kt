@@ -30,12 +30,12 @@ import io.github.kotlinmania.starlark.syntax.ast.ExprP
  * will go on the FrozenHeap, while a list of constants will be continually
  * reallocated.
  */
-internal fun listToTuple(x: CstExpr): CstExpr {
-    return when (val node = x.node) {
-        is ExprP.ListExpr -> Spanned(
-            node = ExprP.Tuple(node.elements),
-            span = x.span,
-        )
+internal fun listToTuple(x: CstExpr): CstExpr =
+    when (val node = x.node) {
+        is ExprP.ListExpr ->
+            Spanned(
+                node = ExprP.Tuple(node.elements),
+                span = x.span,
+            )
         else -> x
     }
-}

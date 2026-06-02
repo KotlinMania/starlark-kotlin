@@ -26,11 +26,11 @@ import io.github.kotlinmania.starlark.eval.bc.BcSlotIn
 import io.github.kotlinmania.starlark.eval.bc.BcSlotOut
 import io.github.kotlinmania.starlark.eval.bc.BcSlotsN
 import io.github.kotlinmania.starlark.eval.bc.BcWriter
-import io.github.kotlinmania.starlark.eval.compiler.ExprCompiled
 import io.github.kotlinmania.starlark.eval.compiler.AssignModifyLhs
-import io.github.kotlinmania.starlark.syntax.ast.AssignOp
+import io.github.kotlinmania.starlark.eval.compiler.ExprCompiled
 import io.github.kotlinmania.starlark.eval.compiler.IrSpanned
 import io.github.kotlinmania.starlark.eval.runtime.FrameSpan
+import io.github.kotlinmania.starlark.syntax.ast.AssignOp
 
 // trait AssignOnWriteBc
 // impl AssignOnWriteBc for AssignOp
@@ -89,7 +89,8 @@ internal fun AssignModifyLhs.writeBc(
             expr.writeBcCb(bc) { objectSlot, bc ->
                 bc.allocSlotsC(2) { lhsRhs: BcSlotsN, bc ->
                     val field = Symbol.new(name)
-                    bc.writeInstr("InstrObjectField", 
+                    bc.writeInstr(
+                        "InstrObjectField",
                         span,
                         Triple(objectSlot, field, lhsRhs.get(0).toOut()),
                     )
@@ -101,7 +102,8 @@ internal fun AssignModifyLhs.writeBc(
                         span,
                         bc,
                     )
-                    bc.writeInstr("InstrSetObjectField", 
+                    bc.writeInstr(
+                        "InstrSetObjectField",
                         span,
                         Triple(lhsRhs.get(1).toIn(), objectSlot, field),
                     )
@@ -124,53 +126,57 @@ internal fun AssignModifyLhs.writeBc(
                         span,
                         bc,
                     )
-                    bc.writeInstr("InstrArrayIndexSet", 
+                    bc.writeInstr(
+                        "InstrArrayIndexSet",
                         span,
                         Triple(arraySlot, indexSlot, tempSlot.toIn()),
                     )
                 }
             }
         }
-        is AssignModifyLhs.Local -> bc.allocSlotsC(2) { lhsRhs: BcSlotsN, bc ->
-            val slot = this.slot.node
-            bc.writeLoadLocal(span, slot, lhsRhs.get(0).toOut())
-            rhs.writeBc(lhsRhs.get(1).toOut(), bc)
+        is AssignModifyLhs.Local ->
+            bc.allocSlotsC(2) { lhsRhs: BcSlotsN, bc ->
+                val slot = this.slot.node
+                bc.writeLoadLocal(span, slot, lhsRhs.get(0).toOut())
+                rhs.writeBc(lhsRhs.get(1).toOut(), bc)
 
-            op.writeBc(
-                lhsRhs.get(0).toIn(),
-                lhsRhs.get(1).toIn(),
-                lhsRhs.get(1).toOut(),
-                span,
-                bc,
-            )
-            bc.writeMov(span, lhsRhs.get(1).toIn(), slot.toBcSlot().toOut())
-        }
-        is AssignModifyLhs.LocalCaptured -> bc.allocSlotsC(2) { lhsRhs: BcSlotsN, bc ->
-            val slot = this.slot.node
-            bc.writeLoadLocalCaptured(span, slot, lhsRhs.get(0).toOut())
-            rhs.writeBc(lhsRhs.get(1).toOut(), bc)
+                op.writeBc(
+                    lhsRhs.get(0).toIn(),
+                    lhsRhs.get(1).toIn(),
+                    lhsRhs.get(1).toOut(),
+                    span,
+                    bc,
+                )
+                bc.writeMov(span, lhsRhs.get(1).toIn(), slot.toBcSlot().toOut())
+            }
+        is AssignModifyLhs.LocalCaptured ->
+            bc.allocSlotsC(2) { lhsRhs: BcSlotsN, bc ->
+                val slot = this.slot.node
+                bc.writeLoadLocalCaptured(span, slot, lhsRhs.get(0).toOut())
+                rhs.writeBc(lhsRhs.get(1).toOut(), bc)
 
-            op.writeBc(
-                lhsRhs.get(0).toIn(),
-                lhsRhs.get(1).toIn(),
-                lhsRhs.get(1).toOut(),
-                span,
-                bc,
-            )
-            bc.writeStoreLocalCaptured(span, lhsRhs.get(1).toIn(), slot)
-        }
-        is AssignModifyLhs.Module -> bc.allocSlotsC(2) { lhsRhs: BcSlotsN, bc ->
-            val slot = this.slot.node
-            bc.writeInstr("InstrLoadModule", span, Pair(slot, lhsRhs.get(0).toOut()))
-            rhs.writeBc(lhsRhs.get(1).toOut(), bc)
-            op.writeBc(
-                lhsRhs.get(0).toIn(),
-                lhsRhs.get(1).toIn(),
-                lhsRhs.get(1).toOut(),
-                span,
-                bc,
-            )
-            bc.writeInstr("InstrStoreModule", span, Pair(lhsRhs.get(1).toIn(), slot))
-        }
+                op.writeBc(
+                    lhsRhs.get(0).toIn(),
+                    lhsRhs.get(1).toIn(),
+                    lhsRhs.get(1).toOut(),
+                    span,
+                    bc,
+                )
+                bc.writeStoreLocalCaptured(span, lhsRhs.get(1).toIn(), slot)
+            }
+        is AssignModifyLhs.Module ->
+            bc.allocSlotsC(2) { lhsRhs: BcSlotsN, bc ->
+                val slot = this.slot.node
+                bc.writeInstr("InstrLoadModule", span, Pair(slot, lhsRhs.get(0).toOut()))
+                rhs.writeBc(lhsRhs.get(1).toOut(), bc)
+                op.writeBc(
+                    lhsRhs.get(0).toIn(),
+                    lhsRhs.get(1).toIn(),
+                    lhsRhs.get(1).toOut(),
+                    span,
+                    bc,
+                )
+                bc.writeInstr("InstrStoreModule", span, Pair(lhsRhs.get(1).toIn(), slot))
+            }
     }
 }

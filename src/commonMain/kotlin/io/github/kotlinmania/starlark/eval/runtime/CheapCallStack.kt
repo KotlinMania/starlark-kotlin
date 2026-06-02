@@ -19,13 +19,13 @@ package io.github.kotlinmania.starlark.eval.runtime
  * limitations under the License.
  */
 
-import io.github.kotlinmania.starlark.values.FrozenRef
 import io.github.kotlinmania.starlark.CallStack
 import io.github.kotlinmania.starlark.Frame
+import io.github.kotlinmania.starlark.codemap.FileSpan
+import io.github.kotlinmania.starlark.values.FrozenRef
 import io.github.kotlinmania.starlark.values.layout.Value
 import io.github.kotlinmania.starlark.values.layout.heap.Tracer
 import io.github.kotlinmania.starlark.values.layout.heap.ValueHolder
-import io.github.kotlinmania.starlark.codemap.FileSpan
 
 // A value akin to Frame, but can be created cheaply, since it doesn't resolve
 // anything in advance.
@@ -36,9 +36,7 @@ private class CheapFrame(
     var span: FrozenRef<FrameSpan>?,
 ) {
     // fn location(&self) -> Option<FileSpan>
-    fun location(): FileSpan? {
-        return span?.asRef()?.span?.toFileSpan()
-    }
+    fun location(): FileSpan? = span?.asRef()?.span?.toFileSpan()
 
     // fn extend_frames(&self, frames: &mut Vec<Frame>)
     fun extendFrames(frames: MutableList<Frame>) {
@@ -49,26 +47,29 @@ private class CheapFrame(
     }
 
     // fn to_frame(&self) -> Frame
-    fun toFrame(): Frame {
-        return Frame(
+    fun toFrame(): Frame =
+        Frame(
             name = function.nameForCallStack(),
             location = location(),
         )
-    }
 
-    override fun toString(): String {
-        return "Frame(function=$function, span=$span)"
-    }
+    override fun toString(): String = "Frame(function=$function, span=$span)"
 }
 
 // #[derive(Debug, thiserror::Error)]
 // enum CallStackError
-private sealed class CallStackError(override val message: String) : Exception(message) {
+private sealed class CallStackError(
+    override val message: String,
+) : Exception(message) {
     // Requested {0}-th top frame, but stack size is {1} (internal error)
-    class StackIsTooShallowForNthTopFrame(n: Int, count: Int) :
-        CallStackError("Requested $n-th top frame, but stack size is $count (internal error)")
+    class StackIsTooShallowForNthTopFrame(
+        n: Int,
+        count: Int,
+    ) : CallStackError("Requested $n-th top frame, but stack size is $count (internal error)")
+
     // Starlark call stack overflow
     class Overflow : CallStackError("Starlark call stack overflow")
+
     // Starlark call stack is already allocated
     class AlreadyAllocated : CallStackError("Starlark call stack is already allocated")
 }
@@ -105,12 +106,13 @@ internal class CheapCallStack {
             }
         }
 
-        stack = Array(maxSize) {
-            CheapFrame(
-                function = Value.newNone(),
-                span = null,
-            )
-        }
+        stack =
+            Array(maxSize) {
+                CheapFrame(
+                    function = Value.newNone(),
+                    span = null,
+                )
+            }
     }
 
     /**
@@ -166,10 +168,9 @@ internal class CheapCallStack {
 
     /** `n`-th element from the top of the stack. */
     // pub(crate) fn top_nth_function(&self, n: usize) -> anyhow::Result<Value<'v>>
-    fun topNthFunction(n: Int): Value {
-        return topNthFunctionOpt(n)
+    fun topNthFunction(n: Int): Value =
+        topNthFunctionOpt(n)
             ?: throw CallStackError.StackIsTooShallowForNthTopFrame(n, count)
-    }
 
     // pub(crate) fn top_nth_function_opt(&self, n: usize) -> Option<Value<'v>>
     fun topNthFunctionOpt(n: Int): Value? {
@@ -191,11 +192,7 @@ internal class CheapCallStack {
 
     /** List the entries on the stack as values. */
     // pub(crate) fn to_function_values(&self) -> Vec<Value<'v>>
-    fun toFunctionValues(): List<Value> {
-        return (1 until count).map { stack[it].function }
-    }
+    fun toFunctionValues(): List<Value> = (1 until count).map { stack[it].function }
 
-    override fun toString(): String {
-        return "CheapCallStack(count=$count, stack=${stack.take(count)})"
-    }
+    override fun toString(): String = "CheapCallStack(count=$count, stack=${stack.take(count)})"
 }

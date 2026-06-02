@@ -1,5 +1,5 @@
 // port-lint: source src/typing/small_arc_vec_or_static.rs
-package io.github.kotlinmania.starlark.typing.small_arc_vec_or_static
+package io.github.kotlinmania.starlark.typing.smallarcvecorstatic
 import io.github.kotlinmania.starlark.typing.SmallArcVec1
 
 /*
@@ -21,36 +21,39 @@ import io.github.kotlinmania.starlark.typing.SmallArcVec1
  */
 
 private sealed class SmallArcVec1OrStaticImpl<out T> {
-    class Arc<T : Comparable<T>>(val inner: SmallArcVec1<T>) : SmallArcVec1OrStaticImpl<T>()
-    class Static<T>(val inner: List<T>) : SmallArcVec1OrStaticImpl<T>()
+    class Arc<T : Comparable<T>>(
+        val inner: SmallArcVec1<T>,
+    ) : SmallArcVec1OrStaticImpl<T>()
+
+    class Static<T>(
+        val inner: List<T>,
+    ) : SmallArcVec1OrStaticImpl<T>()
 }
 
 internal class SmallArcVec1OrStatic<T> private constructor(
     private val impl: SmallArcVec1OrStaticImpl<T>,
-) : Comparable<SmallArcVec1OrStatic<T>>, Iterable<T> where T : Comparable<T> {
-
+) : Comparable<SmallArcVec1OrStatic<T>>,
+    Iterable<T> where T : Comparable<T> {
     companion object {
-        fun <T : Comparable<T>> newStatic(x: List<T>): SmallArcVec1OrStatic<T> {
-            return SmallArcVec1OrStatic(SmallArcVec1OrStaticImpl.Static(x))
-        }
+        fun <T : Comparable<T>> newStatic(x: List<T>): SmallArcVec1OrStatic<T> = SmallArcVec1OrStatic(SmallArcVec1OrStaticImpl.Static(x))
 
-        fun <T : Comparable<T>> cloneFromSlice(x: List<T>): SmallArcVec1OrStatic<T> {
-            return if (x.isEmpty()) {
+        fun <T : Comparable<T>> cloneFromSlice(x: List<T>): SmallArcVec1OrStatic<T> =
+            if (x.isEmpty()) {
                 newStatic(emptyList())
             } else {
-                SmallArcVec1OrStatic(SmallArcVec1OrStaticImpl.Arc(
-                    SmallArcVec1.cloneFromSlice(x),
-                ))
+                SmallArcVec1OrStatic(
+                    SmallArcVec1OrStaticImpl.Arc(
+                        SmallArcVec1.cloneFromSlice(x),
+                    ),
+                )
             }
-        }
     }
 
-    fun asSlice(): List<T> {
-        return when (val i = impl) {
+    fun asSlice(): List<T> =
+        when (val i = impl) {
             is SmallArcVec1OrStaticImpl.Arc -> i.inner.asSlice()
             is SmallArcVec1OrStaticImpl.Static -> i.inner
         }
-    }
 
     val size: Int get() = asSlice().size
 

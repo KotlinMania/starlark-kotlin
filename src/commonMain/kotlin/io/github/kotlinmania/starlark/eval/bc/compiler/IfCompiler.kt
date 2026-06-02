@@ -20,12 +20,12 @@ package io.github.kotlinmania.starlark.eval.bc.compiler
  */
 
 import io.github.kotlinmania.starlark.eval.bc.BcWriter
+import io.github.kotlinmania.starlark.eval.bc.PatchAddr
 import io.github.kotlinmania.starlark.eval.compiler.Builtin1
 import io.github.kotlinmania.starlark.eval.compiler.ExprCompiled
 import io.github.kotlinmania.starlark.eval.compiler.ExprLogicalBinOp
-import io.github.kotlinmania.starlark.eval.compiler.MaybeNot
 import io.github.kotlinmania.starlark.eval.compiler.IrSpanned
-import io.github.kotlinmania.starlark.eval.bc.PatchAddr
+import io.github.kotlinmania.starlark.eval.compiler.MaybeNot
 
 /** Common code for compiling if statements and if expressions. */
 // pub(crate) fn write_if_else(...)
@@ -159,10 +159,11 @@ private fun writeCond(
             }
             // Fall through to default case
             cond.writeBcCb(bc) { condSlot, bc ->
-                val addr = when (maybeNot) {
-                    MaybeNot.Id -> bc.writeIfNotBr(condSlot, cond.span)
-                    MaybeNot.Not -> bc.writeIfBr(condSlot, cond.span)
-                }
+                val addr =
+                    when (maybeNot) {
+                        MaybeNot.Id -> bc.writeIfNotBr(condSlot, cond.span)
+                        MaybeNot.Not -> bc.writeIfBr(condSlot, cond.span)
+                    }
                 f.add(addr)
             }
         }
@@ -171,10 +172,11 @@ private fun writeCond(
         }
         else -> {
             cond.writeBcCb(bc) { condSlot, bc ->
-                val addr = when (maybeNot) {
-                    MaybeNot.Id -> bc.writeIfNotBr(condSlot, cond.span)
-                    MaybeNot.Not -> bc.writeIfBr(condSlot, cond.span)
-                }
+                val addr =
+                    when (maybeNot) {
+                        MaybeNot.Id -> bc.writeIfNotBr(condSlot, cond.span)
+                        MaybeNot.Not -> bc.writeIfBr(condSlot, cond.span)
+                    }
                 f.add(addr)
             }
         }

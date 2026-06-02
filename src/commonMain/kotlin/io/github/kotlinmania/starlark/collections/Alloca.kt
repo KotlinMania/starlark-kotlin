@@ -51,7 +51,6 @@ private const val INITIAL_SIZE: Int = 1000000
  * affect behavior.
  */
 internal class Alloca {
-
     companion object {
         /** Default initial capacity in bytes (~1MB). Unused in Kotlin but preserved for API parity. */
         private const val DEFAULT_SIZE: Int = INITIAL_SIZE
@@ -69,7 +68,9 @@ internal class Alloca {
      * In Kotlin, the capacity hint is accepted for API compatibility but
      * does not affect behavior since the GC manages memory.
      */
-    constructor(@Suppress("UNUSED_PARAMETER") sizeBytes: Int) {
+    constructor(
+        @Suppress("UNUSED_PARAMETER") sizeBytes: Int,
+    ) {
         // Kotlin: capacity hint is unused; GC manages memory.
     }
 
@@ -136,9 +137,7 @@ internal class Alloca {
      * @param k Callback that receives the filled mutable list and produces a result.
      * @return The result produced by [k].
      */
-    fun <T, R> allocaFill(len: Int, fill: T, k: (MutableList<T>) -> R): R {
-        return allocaInit(len, { fill }, k)
-    }
+    fun <T, R> allocaFill(len: Int, fill: T, k: (MutableList<T>) -> R): R = allocaInit(len, { fill }, k)
 
     /**
      * Concatenate two lists and invoke [k] with the result.
@@ -151,15 +150,14 @@ internal class Alloca {
      * @param k Callback that receives the concatenated list and produces a result.
      * @return The result produced by [k].
      */
-    fun <T, R> allocaConcat(x: List<T>, y: List<T>, k: (List<T>) -> R): R {
-        return if (x.isEmpty()) {
+    fun <T, R> allocaConcat(x: List<T>, y: List<T>, k: (List<T>) -> R): R =
+        if (x.isEmpty()) {
             k(y)
         } else if (y.isEmpty()) {
             k(x)
         } else {
             allocaConcatSlow(x, y, k)
         }
-    }
 
     /**
      * Slow path for [allocaConcat]: both lists are non-empty, so we must

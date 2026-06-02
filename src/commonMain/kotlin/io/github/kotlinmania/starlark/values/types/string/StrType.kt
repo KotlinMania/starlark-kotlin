@@ -19,7 +19,6 @@ package io.github.kotlinmania.starlark.values.types.string
  * limitations under the License.
  */
 
-import kotlin.math.max
 import io.github.kotlinmania.starlark.collections.StarlarkHashValue
 import io.github.kotlinmania.starlark.collections.StarlarkHasher
 import io.github.kotlinmania.starlark.environment.Methods
@@ -29,6 +28,7 @@ import io.github.kotlinmania.starlark.values.ValueError
 import io.github.kotlinmania.starlark.values.layout.Value
 import io.github.kotlinmania.starlark.values.layout.heap.Heap
 import io.github.kotlinmania.starlark.values.layout.typed.StarlarkStr
+import kotlin.math.max
 
 /**
  * The result of calling `type()` on strings.
@@ -42,9 +42,7 @@ internal fun hashStringValue(x: String, state: StarlarkHasher) {
     state.write(x.encodeToByteArray())
 }
 
-internal fun strMethods(): Methods? {
-    return STR_METHODS_STATIC.methods(::stringMethods)
-}
+internal fun strMethods(): Methods? = STR_METHODS_STATIC.methods(::stringMethods)
 
 private val STR_METHODS_STATIC = MethodsStatic()
 
@@ -60,9 +58,7 @@ internal fun starlarkStrCollectRepr(self: StarlarkStr, buffer: StringBuilder) {
     stringRepr(self.asStr(), buffer)
 }
 
-internal fun starlarkStrToBool(self: StarlarkStr): Boolean {
-    return self.asStr().isNotEmpty()
-}
+internal fun starlarkStrToBool(self: StarlarkStr): Boolean = self.asStr().isNotEmpty()
 
 internal fun starlarkStrWriteHash(self: StarlarkStr, hasher: StarlarkHasher): Result<Unit> {
     // Don't defer to str because we cache the Hash in StarlarkStr
@@ -71,9 +67,7 @@ internal fun starlarkStrWriteHash(self: StarlarkStr, hasher: StarlarkHasher): Re
     return Result.success(Unit)
 }
 
-internal fun starlarkStrGetHash(self: StarlarkStr): Result<StarlarkHashValue> {
-    return Result.success(StarlarkHashValue.new(self.asStr()))
-}
+internal fun starlarkStrGetHash(self: StarlarkStr): Result<StarlarkHashValue> = Result.success(StarlarkHashValue.new(self.asStr()))
 
 internal fun starlarkStrEquals(self: StarlarkStr, other: Value): Result<Boolean> {
     val otherStr = other.unpackStarlarkStr()
@@ -96,9 +90,10 @@ internal fun starlarkStrCompare(self: StarlarkStr, other: Value): Result<Int> {
 internal fun starlarkStrAt(self: StarlarkStr, index: Value, heap: Heap): Result<Value> {
     // This method is disturbingly hot. Use the logic from `convert_index`,
     // but modified to be UTF8 string friendly.
-    val i = index.unpackI32() ?: return Result.failure(
-        ValueError.IncorrectParameterType
-    )
+    val i =
+        index.unpackI32() ?: return Result.failure(
+            ValueError.IncorrectParameterType,
+        )
 
     val s = self.asStr()
     val chars = s.toList()
@@ -141,8 +136,9 @@ internal fun starlarkStrSlice(
 
     // Handle stride case
     if (stride != null && stride.unpackI32() != 1) {
-        val strideVal = stride.unpackI32()
-            ?: return Result.failure(ValueError.IncorrectParameterType)
+        val strideVal =
+            stride.unpackI32()
+                ?: return Result.failure(ValueError.IncorrectParameterType)
         val startVal = start?.unpackI32()
         val stopVal = stop?.unpackI32()
 
@@ -155,12 +151,14 @@ internal fun starlarkStrSlice(
     }
 
     // No stride (or stride == 1)
-    val startNone: Int? = start?.let {
-        it.unpackI32() ?: return Result.failure(ValueError.IncorrectParameterType)
-    }
-    val stopNone: Int? = stop?.let {
-        it.unpackI32() ?: return Result.failure(ValueError.IncorrectParameterType)
-    }
+    val startNone: Int? =
+        start?.let {
+            it.unpackI32() ?: return Result.failure(ValueError.IncorrectParameterType)
+        }
+    val stopNone: Int? =
+        stop?.let {
+            it.unpackI32() ?: return Result.failure(ValueError.IncorrectParameterType)
+        }
 
     val startIdx = clampIndex(startNone ?: 0, len)
     val stopIdx = clampIndex(stopNone ?: len, len)
@@ -196,29 +194,17 @@ internal fun starlarkStrMul(self: StarlarkStr, other: Value, heap: Heap): Result
     return Result.success(heap.allocStr(result.toString()))
 }
 
-internal fun starlarkStrRmul(self: StarlarkStr, lhs: Value, heap: Heap): Result<Value>? {
-    return starlarkStrMul(self, lhs, heap)
-}
+internal fun starlarkStrRmul(self: StarlarkStr, lhs: Value, heap: Heap): Result<Value>? = starlarkStrMul(self, lhs, heap)
 
-internal fun starlarkStrPercent(self: StarlarkStr, other: Value, heap: Heap): Result<Value> {
-    return percent(self.asStr(), other).map { heap.allocStr(it) }
-}
+internal fun starlarkStrPercent(self: StarlarkStr, other: Value, heap: Heap): Result<Value> = percent(self.asStr(), other).map { heap.allocStr(it) }
 
-internal fun starlarkStrIsSpecial(): Boolean {
-    return true
-}
+internal fun starlarkStrIsSpecial(): Boolean = true
 
-internal fun starlarkStrGetMethods(): Methods? {
-    return strMethods()
-}
+internal fun starlarkStrGetMethods(): Methods? = strMethods()
 
-internal fun starlarkStrTypecheckerTy(self: StarlarkStr): Ty? {
-    return Ty.string()
-}
+internal fun starlarkStrTypecheckerTy(self: StarlarkStr): Ty? = Ty.string()
 
-internal fun starlarkStrSerialize(self: StarlarkStr): String {
-    return self.asStr()
-}
+internal fun starlarkStrSerialize(self: StarlarkStr): String = self.asStr()
 
 /**
  * Format a string like `repr(s)`.

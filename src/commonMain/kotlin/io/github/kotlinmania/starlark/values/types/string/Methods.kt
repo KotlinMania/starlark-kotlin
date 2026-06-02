@@ -1,17 +1,16 @@
 // port-lint: source src/values/types/string/methods.rs
 package io.github.kotlinmania.starlark.values.types.string
 
-import io.github.kotlinmania.starlark.values.layout.Value
-import io.github.kotlinmania.starlark.values.layout.typed.StringValue
-import io.github.kotlinmania.starlark.values.layout.heap.Heap
-import io.github.kotlinmania.starlark.values.types.none.NoneOr
-import io.github.kotlinmania.starlark.environment.MethodsBuilder
 import io.github.kotlinmania.starlark.collections.StringPool
+import io.github.kotlinmania.starlark.environment.MethodsBuilder
 import io.github.kotlinmania.starlark.eval.runtime.Arguments
 import io.github.kotlinmania.starlark.eval.runtime.Evaluator
-import io.github.kotlinmania.starlark.values.layout.avalues.str_.allocStrConcat
+import io.github.kotlinmania.starlark.values.layout.Value
 import io.github.kotlinmania.starlark.values.layout.avalues.allocListIter
-
+import io.github.kotlinmania.starlark.values.layout.avalues.str.allocStrConcat
+import io.github.kotlinmania.starlark.values.layout.heap.Heap
+import io.github.kotlinmania.starlark.values.layout.typed.StringValue
+import io.github.kotlinmania.starlark.values.types.none.NoneOr
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.
@@ -93,8 +92,13 @@ private fun rsplitnWhitespace(s: String, maxsplit: Int): List<String> {
 }
 
 sealed class StringOrTuple {
-    data class String(val value: kotlin.String) : StringOrTuple()
-    data class Tuple(val items: List<kotlin.String>) : StringOrTuple()
+    data class String(
+        val value: kotlin.String,
+    ) : StringOrTuple()
+
+    data class Tuple(
+        val items: List<kotlin.String>,
+    ) : StringOrTuple()
 }
 
 /**
@@ -128,9 +132,7 @@ internal fun stringMethods(builder: MethodsBuilder) {
 internal fun elems(
     thisStr: StringValue,
     heap: Heap,
-): Result<Value> {
-    return Result.success(iterateChars(thisStr, heap))
-}
+): Result<Value> = Result.success(iterateChars(thisStr, heap))
 
 /**
  * [string.capitalize](
@@ -181,9 +183,7 @@ internal fun capitalize(thisStr: kotlin.String): Result<kotlin.String> {
 internal fun codepoints(
     thisStr: StringValue,
     heap: Heap,
-): Result<Value> {
-    return Result.success(iterateCodepoints(thisStr, heap))
-}
+): Result<Value> = Result.success(iterateCodepoints(thisStr, heap))
 
 /**
  * [string.count](
@@ -241,12 +241,11 @@ internal fun count(
 internal fun endswith(
     thisStr: kotlin.String,
     suffix: StringOrTuple,
-): Result<Boolean> {
-    return when (suffix) {
+): Result<Boolean> =
+    when (suffix) {
         is StringOrTuple.String -> Result.success(thisStr.endsWith(suffix.value))
         is StringOrTuple.Tuple -> Result.success(suffix.items.any { thisStr.endsWith(it) })
     }
-}
 
 /**
  * [string.find](
@@ -391,12 +390,12 @@ internal fun index(
             Result.success((indices.start + charIndex))
         } else {
             Result.failure(
-                IllegalArgumentException("Substring '$needle' not found in '$thisStr'")
+                IllegalArgumentException("Substring '$needle' not found in '$thisStr'"),
             )
         }
     } else {
         Result.failure(
-            IllegalArgumentException("Substring '$needle' not found in '$thisStr'")
+            IllegalArgumentException("Substring '$needle' not found in '$thisStr'"),
         )
     }
 }
@@ -624,9 +623,7 @@ internal fun isupper(thisStr: kotlin.String): Result<Boolean> {
  * # "#);
  * ```
  */
-internal fun lower(thisStr: kotlin.String): Result<kotlin.String> {
-    return Result.success(thisStr.lowercase())
-}
+internal fun lower(thisStr: kotlin.String): Result<kotlin.String> = Result.success(thisStr.lowercase())
 
 /**
  * [string.join](
@@ -703,11 +700,12 @@ internal fun lstrip(
     heap: Heap,
 ): Result<StringValue> {
     val s = thisStr.asStr()
-    val res = if (chars == null) {
-        s.trimStart()
-    } else {
-        s.trimStart { c -> chars.contains(c) }
-    }
+    val res =
+        if (chars == null) {
+            s.trimStart()
+        } else {
+            s.trimStart { c -> chars.contains(c) }
+        }
     return if (res.length == s.length) {
         Result.success(thisStr)
     } else {
@@ -742,7 +740,7 @@ internal fun partition(
     val needleStr = needle.asStr()
     if (needleStr.isEmpty()) {
         return Result.failure(
-            IllegalArgumentException("Empty separator cannot be used for partitioning")
+            IllegalArgumentException("Empty separator cannot be used for partitioning"),
         )
     }
     val s = thisStr.asStr()
@@ -753,8 +751,8 @@ internal fun partition(
             Triple(
                 allocStrValue(heap, s.substring(0, offset)),
                 needle,
-                allocStrValue(heap, s.substring(offset2))
-            )
+                allocStrValue(heap, s.substring(offset2)),
+            ),
         )
     } else {
         val empty = StringValue.default()
@@ -792,14 +790,14 @@ internal fun replace(
     new: kotlin.String,
     count: Int?,
     heap: Heap,
-): Result<StringValue> {
-    return when {
+): Result<StringValue> =
+    when {
         count != null && count >= 0 -> {
             Result.success(allocStrValue(heap, replacen(thisStr.asStr(), old, new, count)))
         }
         count != null -> {
             Result.failure(
-                IllegalArgumentException("Replace final argument was negative '$count'")
+                IllegalArgumentException("Replace final argument was negative '$count'"),
             )
         }
         else -> {
@@ -824,7 +822,6 @@ internal fun replace(
             }
         }
     }
-}
 
 /**
  * [string.rfind](
@@ -896,12 +893,12 @@ internal fun rindex(
             Result.success((indices.start + charIndex))
         } else {
             Result.failure(
-                IllegalArgumentException("Substring '$needle' not found in '$thisStr'")
+                IllegalArgumentException("Substring '$needle' not found in '$thisStr'"),
             )
         }
     } else {
         Result.failure(
-            IllegalArgumentException("Substring '$needle' not found in '$thisStr'")
+            IllegalArgumentException("Substring '$needle' not found in '$thisStr'"),
         )
     }
 }
@@ -929,7 +926,7 @@ internal fun rpartition(
     val needleStr = needle.asStr()
     if (needleStr.isEmpty()) {
         return Result.failure(
-            IllegalArgumentException("Empty separator cannot be used for partitioning")
+            IllegalArgumentException("Empty separator cannot be used for partitioning"),
         )
     }
     val s = thisStr.asStr()
@@ -940,8 +937,8 @@ internal fun rpartition(
             Triple(
                 allocStrValue(heap, s.substring(0, offset)),
                 needle,
-                allocStrValue(heap, s.substring(offset2))
-            )
+                allocStrValue(heap, s.substring(offset2)),
+            ),
         )
     } else {
         val empty = StringValue.default()
@@ -972,20 +969,23 @@ internal fun rsplit(
     maxsplit: NoneOr<Int> = NoneOr.None,
     heap: Heap,
 ): Result<Value> {
-    val maxsplitValue = when (val v = maxsplit.intoOption()) {
-        null -> null
-        else -> if (v < 0) null else (v + 1)
-    }
-    return when (val sepValue = sep.intoOption()) {
-        null -> when (maxsplitValue) {
-            null -> Result.success(allocStringList(thisStr.trim().split(Regex("\\s+")), heap))
-            else -> Result.success(allocStringList(rsplitnWhitespace(thisStr, maxsplitValue), heap))
+    val maxsplitValue =
+        when (val v = maxsplit.intoOption()) {
+            null -> null
+            else -> if (v < 0) null else (v + 1)
         }
-        else -> {
-            val v = when (maxsplitValue) {
-                null -> thisStr.split(sepValue).reversed()
-                else -> thisStr.split(sepValue, limit = maxsplitValue).reversed()
+    return when (val sepValue = sep.intoOption()) {
+        null ->
+            when (maxsplitValue) {
+                null -> Result.success(allocStringList(thisStr.trim().split(Regex("\\s+")), heap))
+                else -> Result.success(allocStringList(rsplitnWhitespace(thisStr, maxsplitValue), heap))
             }
+        else -> {
+            val v =
+                when (maxsplitValue) {
+                    null -> thisStr.split(sepValue).reversed()
+                    else -> thisStr.split(sepValue, limit = maxsplitValue).reversed()
+                }
             Result.success(allocStringList(v, heap))
         }
     }
@@ -1012,11 +1012,12 @@ internal fun rstrip(
     heap: Heap,
 ): Result<StringValue> {
     val s = thisStr.asStr()
-    val res = if (chars == null) {
-        s.trimEnd()
-    } else {
-        s.trimEnd { c -> chars.contains(c) }
-    }
+    val res =
+        if (chars == null) {
+            s.trimEnd()
+        } else {
+            s.trimEnd { c -> chars.contains(c) }
+        }
     return if (res.length == s.length) {
         Result.success(thisStr)
     } else {
@@ -1064,21 +1065,24 @@ internal fun split(
     maxsplit: NoneOr<Int> = NoneOr.None,
     heap: Heap,
 ): Result<Value> {
-    val maxsplitValue = when (val v = maxsplit.intoOption()) {
-        null -> null
-        else -> if (v < 0) null else (v + 1)
-    }
-    return when (val sepValue = sep.intoOption()) {
-        null -> when (maxsplitValue) {
-            null -> Result.success(allocStringList(thisStr.trim().split(Regex("\\s+")), heap))
-            else -> Result.success(allocStringList(splitnWhitespace(thisStr, maxsplitValue), heap))
+    val maxsplitValue =
+        when (val v = maxsplit.intoOption()) {
+            null -> null
+            else -> if (v < 0) null else (v + 1)
         }
+    return when (val sepValue = sep.intoOption()) {
+        null ->
+            when (maxsplitValue) {
+                null -> Result.success(allocStringList(thisStr.trim().split(Regex("\\s+")), heap))
+                else -> Result.success(allocStringList(splitnWhitespace(thisStr, maxsplitValue), heap))
+            }
         else -> {
             when (maxsplitValue) {
                 null -> Result.success(allocStringList(thisStr.split(sepValue), heap))
-                else -> Result.success(
-                    allocStringList(thisStr.split(sepValue, limit = maxsplitValue), heap)
-                )
+                else ->
+                    Result.success(
+                        allocStringList(thisStr.split(sepValue, limit = maxsplitValue), heap),
+                    )
             }
         }
     }
@@ -1116,11 +1120,12 @@ internal fun splitlines(
         val x = s.indexOfAny(charArrayOf('\n', '\r'))
         if (x != -1) {
             val y = x
-            val x2 = if (s.substring(y, minOf(y + 2, s.length)) == "\r\n") {
-                y + 2
-            } else {
-                y + 1
-            }
+            val x2 =
+                if (s.substring(y, minOf(y + 2, s.length)) == "\r\n") {
+                    y + 2
+                } else {
+                    y + 1
+                }
             if (keepends) {
                 lines.add(allocStrValue(heap, s.substring(0, x2)))
             } else {
@@ -1160,12 +1165,11 @@ internal fun splitlines(
 internal fun startswith(
     thisStr: kotlin.String,
     prefix: StringOrTuple,
-): Result<Boolean> {
-    return when (prefix) {
+): Result<Boolean> =
+    when (prefix) {
         is StringOrTuple.String -> Result.success(thisStr.startsWith(prefix.value))
         is StringOrTuple.Tuple -> Result.success(prefix.items.any { thisStr.startsWith(it) })
     }
-}
 
 /**
  * [string.strip](
@@ -1188,11 +1192,12 @@ internal fun strip(
     heap: Heap,
 ): Result<StringValue> {
     val s = thisStr.asStr()
-    val res = if (chars == null) {
-        s.trim()
-    } else {
-        s.trim { c -> chars.contains(c) }
-    }
+    val res =
+        if (chars == null) {
+            s.trim()
+        } else {
+            s.trim { c -> chars.contains(c) }
+        }
     return if (res.length == s.length) {
         Result.success(thisStr)
     } else {
@@ -1250,9 +1255,7 @@ internal fun title(thisStr: kotlin.String): Result<kotlin.String> {
  * # "#);
  * ```
  */
-internal fun upper(thisStr: kotlin.String): Result<kotlin.String> {
-    return Result.success(thisStr.uppercase())
-}
+internal fun upper(thisStr: kotlin.String): Result<kotlin.String> = Result.success(thisStr.uppercase())
 
 /**
  * [string.removeprefix](
@@ -1314,17 +1317,19 @@ internal fun removesuffix(
 
 // Helper functions
 
-private data class StrIndices(val start: Int, val haystack: kotlin.String)
+private data class StrIndices(
+    val start: Int,
+    val haystack: kotlin.String,
+)
 
 // Port of starlark_syntax::convert_indices::convert_indices
 // Clamps val to [0, limit].
-private fun bound(value: Int, limit: Int): Int {
-    return when {
+private fun bound(value: Int, limit: Int): Int =
+    when {
         value <= 0 -> 0
         value >= limit -> limit
         else -> value
     }
-}
 
 // Port of starlark_syntax::convert_indices::convert_indices
 private fun convertIndices(len: Int, start: Int?, end: Int?): Pair<Int, Int> {
@@ -1361,8 +1366,10 @@ private fun convertStrIndices(str: kotlin.String, start: Int?, end: Int?): StrIn
             StrIndices(start, remaining.substring(0, byteEnd))
         }
         // Both same sign and start > end => None
-        start != null && end != null
-            && ((start >= 0) == (end >= 0)) && start > end -> null
+        start != null &&
+            end != null &&
+            ((start >= 0) == (end >= 0)) &&
+            start > end -> null
         // Slow path: need full length for negative indices
         else -> {
             val (s, e) = convertIndices(len, start, end)
@@ -1424,9 +1431,7 @@ private fun codePointOffsetClamped(str: kotlin.String, codePointIndex: Int): Int
 
 // Port of starlark_syntax::fast_string::len
 // Find the length of the string in characters (code points).
-private fun strLen(str: kotlin.String): Int {
-    return str.codePointCount()
-}
+private fun strLen(str: kotlin.String): Int = str.codePointCount()
 
 // Port of starlark_syntax::fast_string::count_matches
 // Find the number of times a needle occurs within a string, non-overlapping.
@@ -1445,9 +1450,7 @@ private fun countMatches(haystack: kotlin.String, needle: kotlin.String): Int {
 
 // Port of starlark_syntax::fast_string::count_matches_byte
 // Find the number of times a needle byte/char occurs within a string.
-private fun countMatchesByte(haystack: kotlin.String, byte: Char): Int {
-    return haystack.count { it == byte }
-}
+private fun countMatchesByte(haystack: kotlin.String, byte: Char): Int = haystack.count { it == byte }
 
 // Delegate to the fully ported DotFormat.format function.
 private fun dotFormat(
@@ -1456,24 +1459,19 @@ private fun dotFormat(
     kwargs: io.github.kotlinmania.starlark.values.types.dict.Dict,
     stringPool: StringPool,
     heap: Heap,
-): Result<StringValue> {
-    return format(format, args, kwargs, stringPool, heap)
-}
+): Result<StringValue> = format(format, args, kwargs, stringPool, heap)
 
 /** Unpack a [Value] as a [StringValue], or throw if it is not a string. */
-private fun asStr(value: Value): StringValue {
-    return StringValue.new(value)
+private fun asStr(value: Value): StringValue =
+    StringValue.new(value)
         ?: throw IllegalArgumentException("Expected a string value in 'to_join'")
-}
 
 /**
  * Allocate a string on the heap, returning a [StringValue].
  * This wraps the [Heap.allocStr] member (which returns [Value]) with
  * [StringValue.newUnchecked] to produce the typed wrapper.
  */
-private fun allocStrValue(heap: Heap, x: kotlin.String): StringValue {
-    return StringValue.newUnchecked(heap.allocStr(x))
-}
+private fun allocStrValue(heap: Heap, x: kotlin.String): StringValue = StringValue.newUnchecked(heap.allocStr(x))
 
 /**
  * Allocate a list of strings on the heap, returning a [Value] representing the list.

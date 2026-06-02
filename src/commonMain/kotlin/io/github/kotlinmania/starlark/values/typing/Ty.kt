@@ -12,10 +12,10 @@ import io.github.kotlinmania.starlark.values.StarlarkValue
 // In Kotlin, represented as a sealed class with no subclasses.
 sealed class AbstractType : StarlarkValue {
     // #[starlark_value(type = "type")]
-    override val TYPE: kotlin.String get() = "type"
+    override val TYPE: String get() = "type"
     override val HAS_eval_type: Boolean get() = true
 
-    override fun getTypeStarlarkRepr(): Ty = Companion.starlarkTypeRepr()
+    override fun getTypeStarlarkRepr(): Ty = starlarkTypeRepr()
 
     // fn eval_type(&self) -> Option<Ty>
     // This is unreachable, but this function is needed
@@ -24,7 +24,7 @@ sealed class AbstractType : StarlarkValue {
         error("AbstractType is uninhabited")
     }
 
-    override fun toString(): kotlin.String = "type"
+    override fun toString(): String = "type"
 
     companion object {
         // fn get_type_starlark_repr() -> Ty

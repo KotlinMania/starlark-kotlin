@@ -23,7 +23,6 @@ import io.github.kotlinmania.starlark.assert.pass
 import kotlin.test.Test
 
 class EllipsisTest {
-
     @Test
     fun testEllipsis() {
         pass("...")

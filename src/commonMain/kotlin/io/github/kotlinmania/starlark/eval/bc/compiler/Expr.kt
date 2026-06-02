@@ -23,25 +23,25 @@ package io.github.kotlinmania.starlark.eval.bc.compiler
 
 import io.github.kotlinmania.starlark.collections.Hashed
 import io.github.kotlinmania.starlark.collections.SmallMap
+import io.github.kotlinmania.starlark.eval.bc.ArrayIndex2Arg
+import io.github.kotlinmania.starlark.eval.bc.BcInstrSlowArg
 import io.github.kotlinmania.starlark.eval.bc.BcSlotIn
 import io.github.kotlinmania.starlark.eval.bc.BcSlotInRange
 import io.github.kotlinmania.starlark.eval.bc.BcSlotOut
 import io.github.kotlinmania.starlark.eval.bc.BcWriter
+import io.github.kotlinmania.starlark.eval.bc.SliceArg
+import io.github.kotlinmania.starlark.eval.bc.SlotRangeTargetArg
 import io.github.kotlinmania.starlark.eval.compiler.Builtin1
 import io.github.kotlinmania.starlark.eval.compiler.Builtin2
 import io.github.kotlinmania.starlark.eval.compiler.CompareOp
 import io.github.kotlinmania.starlark.eval.compiler.ExprCompiled
 import io.github.kotlinmania.starlark.eval.compiler.ExprLogicalBinOp
-import io.github.kotlinmania.starlark.eval.compiler.MaybeNot
-import io.github.kotlinmania.starlark.values.layout.FrozenValue
-import io.github.kotlinmania.starlark.values.layout.typed.FrozenStringValue
-import io.github.kotlinmania.starlark.values.layout.FrozenValueNotSpecial
 import io.github.kotlinmania.starlark.eval.compiler.IrSpanned
+import io.github.kotlinmania.starlark.eval.compiler.MaybeNot
 import io.github.kotlinmania.starlark.eval.runtime.FrameSpan
-import io.github.kotlinmania.starlark.eval.bc.ArrayIndex2Arg
-import io.github.kotlinmania.starlark.eval.bc.BcInstrSlowArg
-import io.github.kotlinmania.starlark.eval.bc.SlotRangeTargetArg
-import io.github.kotlinmania.starlark.eval.bc.SliceArg
+import io.github.kotlinmania.starlark.values.layout.FrozenValue
+import io.github.kotlinmania.starlark.values.layout.FrozenValueNotSpecial
+import io.github.kotlinmania.starlark.values.layout.typed.FrozenStringValue
 import io.github.kotlinmania.starlark.eval.bc.compiler.compr.markDefinitelyAssignedAfter as markDefinitelyAssignedAfterCompr
 import io.github.kotlinmania.starlark.eval.bc.compiler.compr.writeBc as comprWriteBc
 import io.github.kotlinmania.starlark.eval.bc.compiler.def.markDefinitelyAssignedAfter as markDefinitelyAssignedAfterDef
@@ -427,10 +427,11 @@ internal fun IrSpanned<ExprCompiled>.writeBc(target: BcSlotOut, bc: BcWriter) {
         }
         is ExprCompiled.LogicalBinOp -> {
             expr.lhs.writeBcCb(bc) { lSlot, bc2 ->
-                val maybeNot = when (expr.op) {
-                    ExprLogicalBinOp.And -> MaybeNot.Id
-                    ExprLogicalBinOp.Or -> MaybeNot.Not
-                }
+                val maybeNot =
+                    when (expr.op) {
+                        ExprLogicalBinOp.And -> MaybeNot.Id
+                        ExprLogicalBinOp.Or -> MaybeNot.Not
+                    }
                 bc2.writeIfElse(
                     lSlot,
                     maybeNot,
@@ -467,12 +468,13 @@ internal fun IrSpanned<ExprCompiled>.writeBc(target: BcSlotOut, bc: BcWriter) {
                         Builtin2.LeftShift -> bc2.writeInstr("InstrLeftShift", span, arg)
                         Builtin2.RightShift -> bc2.writeInstr("InstrRightShift", span, arg)
                         Builtin2.ArrayIndex -> bc2.writeInstr("InstrArrayIndex", span, arg)
-                        is Builtin2.Compare -> when (expr.op.op) {
-                            CompareOp.Less -> bc2.writeInstr("InstrLess", span, arg)
-                            CompareOp.Greater -> bc2.writeInstr("InstrGreater", span, arg)
-                            CompareOp.LessOrEqual -> bc2.writeInstr("InstrLessOrEqual", span, arg)
-                            CompareOp.GreaterOrEqual -> bc2.writeInstr("InstrGreaterOrEqual", span, arg)
-                        }
+                        is Builtin2.Compare ->
+                            when (expr.op.op) {
+                                CompareOp.Less -> bc2.writeInstr("InstrLess", span, arg)
+                                CompareOp.Greater -> bc2.writeInstr("InstrGreater", span, arg)
+                                CompareOp.LessOrEqual -> bc2.writeInstr("InstrLessOrEqual", span, arg)
+                                CompareOp.GreaterOrEqual -> bc2.writeInstr("InstrGreaterOrEqual", span, arg)
+                            }
                     }
                 }
             }

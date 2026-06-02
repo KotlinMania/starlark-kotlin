@@ -7,4 +7,3 @@ package io.github.kotlinmania.starlark.util.time
  * preserve type shape for blanket impls when transliterating Rust code.
  */
 class Instant
-

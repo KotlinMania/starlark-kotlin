@@ -1,5 +1,5 @@
 // port-lint: source src/values/unpack_and_discard.rs
-package io.github.kotlinmania.starlark.values.unpack_and_discard
+package io.github.kotlinmania.starlark.values.unpackanddiscard
 
 /*
  * Copyright 2018 The Starlark in Rust Authors.
@@ -33,12 +33,9 @@ class UnpackAndDiscard<T : Any> internal constructor(
     // Kotlin: stored Ty replaces Rust's static trait dispatch on PhantomData.
     private val ty: Ty,
 ) : StarlarkTypeRepr {
-
     // impl StarlarkTypeRepr for UnpackAndDiscard
     // fn starlark_type_repr() -> Ty
-    override fun starlarkTypeRepr(): Ty {
-        return ty
-    }
+    override fun starlarkTypeRepr(): Ty = ty
 
     companion object {
         // impl UnpackValue for UnpackAndDiscard

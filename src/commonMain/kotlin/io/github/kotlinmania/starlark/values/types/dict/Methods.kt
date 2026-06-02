@@ -21,28 +21,29 @@ package io.github.kotlinmania.starlark.values.types.dict
 
 /** Methods for the `dict` type. */
 
-import io.github.kotlinmania.starlark.environment.MethodsBuilder
 import io.github.kotlinmania.starlark.deriverefs.NativeCallableComponents
 import io.github.kotlinmania.starlark.deriverefs.NativeCallableParamSpec
+import io.github.kotlinmania.starlark.environment.MethodsBuilder
 import io.github.kotlinmania.starlark.eval.runtime.Arguments
 import io.github.kotlinmania.starlark.eval.runtime.Evaluator
 import io.github.kotlinmania.starlark.eval.runtime.params.spec.ParametersSpec
 import io.github.kotlinmania.starlark.eval.runtime.params.spec.ParametersSpecParam
 import io.github.kotlinmania.starlark.typing.Ty
-import io.github.kotlinmania.starlark.values.types.none.NoneType
-import io.github.kotlinmania.starlark.values.layout.heap.Heap
 import io.github.kotlinmania.starlark.values.layout.FrozenValue
 import io.github.kotlinmania.starlark.values.layout.Value
 import io.github.kotlinmania.starlark.values.layout.avalues.allocListIter
 import io.github.kotlinmania.starlark.values.layout.avalues.allocTuple
+import io.github.kotlinmania.starlark.values.layout.heap.Heap
+import io.github.kotlinmania.starlark.values.types.none.NoneType
 
 internal fun dictMethods(registry: MethodsBuilder) {
-    val components = NativeCallableComponents(
-        speculativeExecSafe = false,
-        rustDocstring = null,
-        paramSpec = NativeCallableParamSpec.forArguments(),
-        returnType = Ty.any(),
-    )
+    val components =
+        NativeCallableComponents(
+            speculativeExecSafe = false,
+            rustDocstring = null,
+            paramSpec = NativeCallableParamSpec.forArguments(),
+            returnType = Ty.any(),
+        )
 
     fun setMethod(
         name: String,
@@ -79,19 +80,21 @@ internal fun dictMethods(registry: MethodsBuilder) {
         "get",
         ParametersSpec.newParts(
             functionName = "get",
-            posOnly = listOf(
-                Pair("key", ParametersSpecParam.Required),
-                Pair("default", ParametersSpecParam.Optional),
-            ),
+            posOnly =
+                listOf(
+                    Pair("key", ParametersSpecParam.Required),
+                    Pair("default", ParametersSpecParam.Optional),
+                ),
             posOrNamed = emptyList(),
             args = false,
             namedOnly = emptyList(),
             kwargs = false,
         ),
     ) { _, thisValue, args ->
-        val thisRef = dictRefFromValue(thisValue) ?: return@setMethod Result.failure(
-            IllegalArgumentException("Value is not a dict")
-        )
+        val thisRef =
+            dictRefFromValue(thisValue) ?: return@setMethod Result.failure(
+                IllegalArgumentException("Value is not a dict"),
+            )
         val key = args.positional<Value>(0)
         val defaultValue = args.optionalPositional<Value>(1)
         val default = if (defaultValue == null || defaultValue.isNone()) null else defaultValue
@@ -110,9 +113,10 @@ internal fun dictMethods(registry: MethodsBuilder) {
             kwargs = false,
         ),
     ) { eval, thisValue, _ ->
-        val thisRef = dictRefFromValue(thisValue) ?: return@setMethod Result.failure(
-            IllegalArgumentException("Value is not a dict")
-        )
+        val thisRef =
+            dictRefFromValue(thisValue) ?: return@setMethod Result.failure(
+                IllegalArgumentException("Value is not a dict"),
+            )
         items(thisRef, eval.heap())
     }
 
@@ -128,9 +132,10 @@ internal fun dictMethods(registry: MethodsBuilder) {
             kwargs = false,
         ),
     ) { eval, thisValue, _ ->
-        val thisRef = dictRefFromValue(thisValue) ?: return@setMethod Result.failure(
-            IllegalArgumentException("Value is not a dict")
-        )
+        val thisRef =
+            dictRefFromValue(thisValue) ?: return@setMethod Result.failure(
+                IllegalArgumentException("Value is not a dict"),
+            )
         keys(thisRef, eval.heap())
     }
 
@@ -139,10 +144,11 @@ internal fun dictMethods(registry: MethodsBuilder) {
         "pop",
         ParametersSpec.newParts(
             functionName = "pop",
-            posOnly = listOf(
-                Pair("key", ParametersSpecParam.Required),
-                Pair("default", ParametersSpecParam.Optional),
-            ),
+            posOnly =
+                listOf(
+                    Pair("key", ParametersSpecParam.Required),
+                    Pair("default", ParametersSpecParam.Optional),
+                ),
             posOrNamed = emptyList(),
             args = false,
             namedOnly = emptyList(),
@@ -177,10 +183,11 @@ internal fun dictMethods(registry: MethodsBuilder) {
         "setdefault",
         ParametersSpec.newParts(
             functionName = "setdefault",
-            posOnly = listOf(
-                Pair("key", ParametersSpecParam.Required),
-                Pair("default", ParametersSpecParam.Optional),
-            ),
+            posOnly =
+                listOf(
+                    Pair("key", ParametersSpecParam.Required),
+                    Pair("default", ParametersSpecParam.Optional),
+                ),
             posOrNamed = emptyList(),
             args = false,
             namedOnly = emptyList(),
@@ -206,10 +213,12 @@ internal fun dictMethods(registry: MethodsBuilder) {
         ),
     ) { eval, thisValue, args ->
         val pairsValue = args.optionalPositional<Value>(0)?.takeIf { !it.isNone() }
-        val kwargsRef = args.unpackKwargs()
-            .getOrElse { return@setMethod Result.failure(it) }
-            ?: dictRefFromValue(FrozenValue.newEmptyDict().toValue())
-            ?: return@setMethod Result.failure(IllegalStateException("Failed to construct empty kwargs dict"))
+        val kwargsRef =
+            args
+                .unpackKwargs()
+                .getOrElse { return@setMethod Result.failure(it) }
+                ?: dictRefFromValue(FrozenValue.newEmptyDict().toValue())
+                ?: return@setMethod Result.failure(IllegalStateException("Failed to construct empty kwargs dict"))
         update(thisValue, pairsValue, kwargsRef, eval.heap()).map { Value.newNone() }
     }
 
@@ -225,9 +234,10 @@ internal fun dictMethods(registry: MethodsBuilder) {
             kwargs = false,
         ),
     ) { eval, thisValue, _ ->
-        val thisRef = dictRefFromValue(thisValue) ?: return@setMethod Result.failure(
-            IllegalArgumentException("Value is not a dict")
-        )
+        val thisRef =
+            dictRefFromValue(thisValue) ?: return@setMethod Result.failure(
+                IllegalArgumentException("Value is not a dict"),
+            )
         values(thisRef, eval.heap())
     }
 }
@@ -272,7 +282,7 @@ internal fun clear(thisValue: Value): Result<NoneType> {
 internal fun get(
     thisRef: DictRef,
     key: Value,
-    default: Value? = null
+    default: Value? = null,
 ): Result<Value> {
     val dict = derefDict(thisRef)
     return when (val result = dict.get(key).getOrElse { return Result.failure(it) }) {
@@ -295,11 +305,14 @@ internal fun get(
  */
 internal fun items(
     thisRef: DictRef,
-    heap: Heap
+    heap: Heap,
 ): Result<Value> {
-    val tuples = derefDict(thisRef).iter().map { (k, v) ->
-        heap.allocTuple(listOf(k, v))
-    }.toList()
+    val tuples =
+        derefDict(thisRef)
+            .iter()
+            .map { (k, v) ->
+                heap.allocTuple(listOf(k, v))
+            }.toList()
     return Result.success(heap.allocListIter(tuples))
 }
 
@@ -317,7 +330,7 @@ internal fun items(
  */
 internal fun keys(
     thisRef: DictRef,
-    heap: Heap
+    heap: Heap,
 ): Result<Value> =
     Result.success(heap.allocListIter(derefDict(thisRef).keys().toList()))
 
@@ -349,17 +362,19 @@ internal fun keys(
 internal fun pop(
     thisValue: Value,
     key: Value,
-    default: Value? = null
+    default: Value? = null,
 ): Result<Value> {
     val me = dictMutFromValue(thisValue).getOrElse { return Result.failure(it) }
     val hashed = key.getHashed().getOrElse { return Result.failure(it) }
     return when (val x = me.aref.value.removeHashed(hashed)) {
-        null -> when (default) {
-            null -> Result.failure(
-                IllegalArgumentException("Key `${key.toRepr()}` not found in dictionary `${thisValue.toRepr()}`")
-            )
-            else -> Result.success(default)
-        }
+        null ->
+            when (default) {
+                null ->
+                    Result.failure(
+                        IllegalArgumentException("Key `${key.toRepr()}` not found in dictionary `${thisValue.toRepr()}`"),
+                    )
+                else -> Result.success(default)
+            }
         else -> Result.success(x)
     }
 }
@@ -420,16 +435,19 @@ internal fun popitem(thisValue: Value): Result<Pair<Value, Value>> {
 internal fun setdefault(
     thisValue: Value,
     key: Value,
-    default: Value? = null
+    default: Value? = null,
 ): Result<Value> {
     val me = dictMutFromValue(thisValue).getOrElse { return Result.failure(it) }
     val keyHashed = key.getHashed().getOrElse { return Result.failure(it) }
-    val existing = me.aref.value.content.getHashedByValue(keyHashed)
+    val existing =
+        me.aref.value.content
+            .getHashedByValue(keyHashed)
     return if (existing != null) {
         Result.success(existing)
     } else {
         val d = default ?: Value.newNone()
-        me.aref.value.content.insertHashed(keyHashed, d)
+        me.aref.value.content
+            .insertHashed(keyHashed, d)
         Result.success(d)
     }
 }
@@ -465,16 +483,17 @@ internal fun update(
     thisValue: Value,
     pairs: Value? = null,
     kwargs: DictRef,
-    heap: Heap
+    heap: Heap,
 ): Result<NoneType> {
-    val pairsValue = if (pairs?.ptrEq(thisValue) == true) {
-        // someone has done `x.update(x)` - that isn't illegal, but we will have issues
-        // with trying to iterate over x while holding x for mutation, and it doesn't do
-        // anything useful, so just change pairs back to null
-        null
-    } else {
-        pairs
-    }
+    val pairsValue =
+        if (pairs?.ptrEq(thisValue) == true) {
+            // someone has done `x.update(x)` - that isn't illegal, but we will have issues
+            // with trying to iterate over x while holding x for mutation, and it doesn't do
+            // anything useful, so just change pairs back to null
+            null
+        } else {
+            pairs
+        }
 
     val me = dictMutFromValue(thisValue).getOrElse { return Result.failure(it) }
     if (pairsValue != null) {
@@ -488,21 +507,27 @@ internal fun update(
                 val iter = v.iterate(heap).getOrElse { return Result.failure(it) }
                 // StarlarkIterator is fused.
                 if (!iter.hasNext()) {
-                    return Result.failure(IllegalArgumentException(
-                        "dict.update expect a list of pairs or a dictionary as first argument, got a list of non-pairs."
-                    ))
+                    return Result.failure(
+                        IllegalArgumentException(
+                            "dict.update expect a list of pairs or a dictionary as first argument, got a list of non-pairs.",
+                        ),
+                    )
                 }
                 val k = iter.next()
                 if (!iter.hasNext()) {
-                    return Result.failure(IllegalArgumentException(
-                        "dict.update expect a list of pairs or a dictionary as first argument, got a list of non-pairs."
-                    ))
+                    return Result.failure(
+                        IllegalArgumentException(
+                            "dict.update expect a list of pairs or a dictionary as first argument, got a list of non-pairs.",
+                        ),
+                    )
                 }
                 val v2 = iter.next()
                 if (iter.hasNext()) {
-                    return Result.failure(IllegalArgumentException(
-                        "dict.update expect a list of pairs or a dictionary as first argument, got a list of non-pairs."
-                    ))
+                    return Result.failure(
+                        IllegalArgumentException(
+                            "dict.update expect a list of pairs or a dictionary as first argument, got a list of non-pairs.",
+                        ),
+                    )
                 }
                 me.aref.value.insertHashed(k.getHashed().getOrElse { return Result.failure(it) }, v2)
             }
@@ -530,11 +555,12 @@ internal fun update(
  */
 internal fun values(
     thisRef: DictRef,
-    heap: Heap
+    heap: Heap,
 ): Result<Value> =
     Result.success(heap.allocListIter(derefDict(thisRef).values().toList()))
 
-private fun derefDict(dictRef: DictRef): Dict = when (val ref = dictRef.aref) {
-    is Either.Left -> ref.value.value
-    is Either.Right -> ref.value
-}
+private fun derefDict(dictRef: DictRef): Dict =
+    when (val ref = dictRef.aref) {
+        is Either.Left -> ref.value.value
+        is Either.Right -> ref.value
+    }

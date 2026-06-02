@@ -41,9 +41,7 @@ class StarlarkHasher {
      *
      * This mirrors Rust `finish_small`.
      */
-    fun finishSmall(): StarlarkHashValue {
-        return StarlarkHashValue.newUnchecked(finish().toUInt())
-    }
+    fun finishSmall(): StarlarkHashValue = StarlarkHashValue.newUnchecked(finish().toUInt())
 
     fun write(bytes: ByteArray) {
         fx.write(bytes)
@@ -112,9 +110,7 @@ private fun rotateLeft64(x: ULong, bits: Int): ULong {
     return (x shl n) or (x shr (64 - n))
 }
 
-private fun hashWord(hash: ULong, word: ULong): ULong {
-    return (rotateLeft64(hash, FX_ROTATE) xor word) * FX_SEED64
-}
+private fun hashWord(hash: ULong, word: ULong): ULong = (rotateLeft64(hash, FX_ROTATE) xor word) * FX_SEED64
 
 private fun write64(initial: ULong, bytes: ByteArray): ULong {
     var hash = initial
@@ -140,15 +136,14 @@ private fun write64(initial: ULong, bytes: ByteArray): ULong {
     return hash
 }
 
-private fun readU32Le(bytes: ByteArray, offset: Int): UInt {
-    return (bytes[offset + 0].toUByte().toUInt()) or
+private fun readU32Le(bytes: ByteArray, offset: Int): UInt =
+    (bytes[offset + 0].toUByte().toUInt()) or
         (bytes[offset + 1].toUByte().toUInt() shl 8) or
         (bytes[offset + 2].toUByte().toUInt() shl 16) or
         (bytes[offset + 3].toUByte().toUInt() shl 24)
-}
 
-private fun readU64Le(bytes: ByteArray, offset: Int): ULong {
-    return (bytes[offset + 0].toUByte().toULong()) or
+private fun readU64Le(bytes: ByteArray, offset: Int): ULong =
+    (bytes[offset + 0].toUByte().toULong()) or
         (bytes[offset + 1].toUByte().toULong() shl 8) or
         (bytes[offset + 2].toUByte().toULong() shl 16) or
         (bytes[offset + 3].toUByte().toULong() shl 24) or
@@ -156,4 +151,3 @@ private fun readU64Le(bytes: ByteArray, offset: Int): ULong {
         (bytes[offset + 5].toUByte().toULong() shl 40) or
         (bytes[offset + 6].toUByte().toULong() shl 48) or
         (bytes[offset + 7].toUByte().toULong() shl 56)
-}

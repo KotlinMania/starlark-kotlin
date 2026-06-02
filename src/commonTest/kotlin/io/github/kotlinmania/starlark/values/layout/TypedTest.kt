@@ -22,7 +22,6 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 
 class TypedTest {
-
     @Test
     fun int() {
         val v = FrozenValueTyped.new<PointerI32>(FrozenValue.testingNewInt(17))!!

@@ -32,32 +32,22 @@ import kotlin.concurrent.atomics.ExperimentalAtomicApi
  */
 class FrozenRef<T> internal constructor(
     internal val value: T,
-) : Trace, Freeze<FrozenRef<T>> {
-
+) : Trace,
+    Freeze<FrozenRef<T>> {
     companion object {
-        internal fun <T> new(value: T): FrozenRef<T> {
-            return FrozenRef(value)
-        }
+        internal fun <T> new(value: T): FrozenRef<T> = FrozenRef(value)
 
-        fun <T> default(): FrozenRef<List<T>> {
-            return FrozenRef(emptyList())
-        }
+        fun <T> default(): FrozenRef<List<T>> = FrozenRef(emptyList())
     }
 
     /** Returns a reference to the underlying value. */
-    fun asRef(): T {
-        return value
-    }
+    fun asRef(): T = value
 
     /** Converts `self` into a new reference that points at something reachable from the previous. */
-    fun <U> map(f: (T) -> U): FrozenRef<U> {
-        return FrozenRef(value = f(value))
-    }
+    fun <U> map(f: (T) -> U): FrozenRef<U> = FrozenRef(value = f(value))
 
     /** Fallible map the reference to another one. */
-    fun <U> tryMapResult(f: (T) -> Result<U>): Result<FrozenRef<U>> {
-        return f(value).map { FrozenRef(value = it) }
-    }
+    fun <U> tryMapResult(f: (T) -> Result<U>): Result<FrozenRef<U>> = f(value).map { FrozenRef(value = it) }
 
     /** Optionally map the reference to another one. */
     fun <U> tryMapOption(f: (T) -> U?): FrozenRef<U>? {
@@ -76,14 +66,10 @@ class FrozenRef<T> internal constructor(
     }
 
     // impl Deref for FrozenRef
-    fun deref(): T {
-        return value
-    }
+    fun deref(): T = value
 
     // impl Borrow<T> for FrozenRef<T>
-    fun borrow(): T {
-        return value
-    }
+    fun borrow(): T = value
 
     // Rust has a second `Borrow` impl for `FrozenRef<Box<T>>` (same method name).
     @Suppress("UNUSED_PARAMETER")
@@ -92,7 +78,9 @@ class FrozenRef<T> internal constructor(
         return value
     }
 
-    override fun trace(@Suppress("UNUSED_PARAMETER") tracer: Tracer) {
+    override fun trace(
+        @Suppress("UNUSED_PARAMETER") tracer: Tracer,
+    ) {
         // Do nothing, because `FrozenRef` can only point to frozen value.
     }
 
@@ -104,14 +92,10 @@ class FrozenRef<T> internal constructor(
     }
 
     // Rust: impl PartialEq for FrozenRef: fn eq(&self, other: &Self) -> bool
-    fun eq(other: FrozenRef<T>): Boolean {
-        return value == other.value
-    }
+    fun eq(other: FrozenRef<T>): Boolean = value == other.value
 
     // impl Hash for FrozenRef
-    override fun hashCode(): Int {
-        return value.hashCode()
-    }
+    override fun hashCode(): Int = value.hashCode()
 
     // Rust: impl Hash for FrozenRef: fn hash<H: Hasher>(&self, state: &mut H)
     fun hash(state: StarlarkHasher) {
@@ -120,37 +104,32 @@ class FrozenRef<T> internal constructor(
     }
 
     // impl Freeze for FrozenRef
-    override fun freeze(@Suppress("UNUSED_PARAMETER") freezer: Freezer): Result<FrozenRef<T>> {
-        return Result.success(this)
-    }
+    override fun freeze(
+        @Suppress("UNUSED_PARAMETER") freezer: Freezer,
+    ): Result<FrozenRef<T>> = Result.success(this)
 }
 
 // impl PartialOrd for FrozenRef
-fun <T : Comparable<T>> FrozenRef<T>.partialCmp(other: FrozenRef<T>): Int? {
-    return value.compareTo(other.value)
-}
+fun <T : Comparable<T>> FrozenRef<T>.partialCmp(other: FrozenRef<T>): Int? = value.compareTo(other.value)
 
 // impl Ord for FrozenRef
-fun <T : Comparable<T>> FrozenRef<T>.cmp(other: FrozenRef<T>): Int {
-    return value.compareTo(other.value)
-}
+fun <T : Comparable<T>> FrozenRef<T>.cmp(other: FrozenRef<T>): Int = value.compareTo(other.value)
 
 /** `Atomic<Option<FrozenRef<T>>>`. */
 @OptIn(ExperimentalAtomicApi::class)
 internal class AtomicFrozenRefOption<T>(
     initial: FrozenRef<T>?,
 ) : Trace {
-
     private val ptr: AtomicReference<T?> = AtomicReference(initial?.asRef())
 
-    override fun trace(@Suppress("UNUSED_PARAMETER") tracer: Tracer) {
+    override fun trace(
+        @Suppress("UNUSED_PARAMETER") tracer: Tracer,
+    ) {
         // Do nothing, because `AtomicFrozenRefOption` holds `FrozenRef`.
     }
 
     companion object {
-        fun <T> new(module: FrozenRef<T>?): AtomicFrozenRefOption<T> {
-            return AtomicFrozenRefOption(module)
-        }
+        fun <T> new(module: FrozenRef<T>?): AtomicFrozenRefOption<T> = AtomicFrozenRefOption(module)
     }
 
     fun loadRelaxed(): FrozenRef<T>? {

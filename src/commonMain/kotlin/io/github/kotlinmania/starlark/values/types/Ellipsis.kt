@@ -22,12 +22,11 @@ package io.github.kotlinmania.starlark.values.types.ellipsis
 import io.github.kotlinmania.starlark.typing.Ty
 import io.github.kotlinmania.starlark.typing.TyStarlarkValue
 import io.github.kotlinmania.starlark.values.AllocFrozenValue
-import io.github.kotlinmania.starlark.values.layout.heap.FrozenHeap
-import io.github.kotlinmania.starlark.values.layout.FrozenValue
 import io.github.kotlinmania.starlark.values.StarlarkValue
+import io.github.kotlinmania.starlark.values.layout.FrozenValue
+import io.github.kotlinmania.starlark.values.layout.heap.FrozenHeap
 
 internal object Ellipsis : StarlarkValue, AllocFrozenValue {
-
     override val TYPE: String get() = "ellipsis"
 
     override fun starlarkTypeRepr(): Ty = Ty.starlarkValue(TyStarlarkValue.new("ellipsis"))
@@ -35,7 +34,9 @@ internal object Ellipsis : StarlarkValue, AllocFrozenValue {
     override fun toString(): String = "Ellipsis"
 
     private val VALUE_ELLIPSIS: FrozenValue =
-        io.github.kotlinmania.starlark.values.layout.avalues.AllocStaticSimple.alloc(Ellipsis).toFrozenValue()
+        io.github.kotlinmania.starlark.values.layout.avalues.AllocStaticSimple
+            .alloc(Ellipsis)
+            .toFrozenValue()
 
     fun newValue(): FrozenValue = VALUE_ELLIPSIS
 

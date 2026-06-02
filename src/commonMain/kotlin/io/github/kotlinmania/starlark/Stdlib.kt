@@ -12,8 +12,8 @@ import io.github.kotlinmania.starlark.stdlib.registerFilter
 import io.github.kotlinmania.starlark.stdlib.registerJson
 import io.github.kotlinmania.starlark.stdlib.registerMap
 import io.github.kotlinmania.starlark.stdlib.registerPprint
-import io.github.kotlinmania.starlark.stdlib.registerPrint
 import io.github.kotlinmania.starlark.stdlib.registerPrepr
+import io.github.kotlinmania.starlark.stdlib.registerPrint
 import io.github.kotlinmania.starlark.stdlib.registerPstr
 import io.github.kotlinmania.starlark.values.types.enumeration.registerEnum
 import io.github.kotlinmania.starlark.values.types.namespace.registerNamespace
@@ -64,9 +64,7 @@ import io.github.kotlinmania.starlark.values.typing.registerTyping
  * child environment of this global environment that have been frozen.
  */
 // pub(crate) fn standard_environment() -> GlobalsBuilder
-internal fun standardEnvironment(): GlobalsBuilder {
-    return GlobalsBuilder.new().with { builder -> registerGlobals(builder) }
-}
+internal fun standardEnvironment(): GlobalsBuilder = GlobalsBuilder.new().with { builder -> registerGlobals(builder) }
 
 /** The extra library definitions available in this Starlark implementation, but not in the standard. */
 // #[derive(PartialEq, Eq, Copy, Clone, Dupe)]
@@ -74,61 +72,80 @@ internal fun standardEnvironment(): GlobalsBuilder {
 enum class LibraryExtension {
     /** Definitions to support the `struct` type, the `struct()` constructor. */
     StructType,
+
     /** Definitions to support the `record` type, the `record()` constructor and `field()` function. */
     RecordType,
+
     /** Definitions to support the `enum` type, the `enum()` constructor. */
     EnumType,
+
     /**
      * Add a function `namespace()` which acts much like `struct()` but is clear about its
      * intended use and stricter
      */
     NamespaceType,
+
     /** A function `map(f, xs)` which applies `f` to each element of `xs` and returns the result. */
     Map,
+
     /**
      * A function `filter(f, xs)` which applies `f` to each element of `xs` and returns those for which `f` returns `True`.
      * As a special case, `filter(None, xs)` removes all `None` values.
      */
     Filter,
+
     /**
      * Partially apply a function, `partial(f, *args, **kwargs)` will create a function where those `args` `kwargs`
      * are already applied to `f`.
      */
     Partial,
+
     /**
      * Add a function `debug(x)` which shows the debug representation of a value.
      * Useful when debugging, but the output should not be considered stable.
      */
     Debug,
+
     /** Add a function `print(x)` which prints to stderr. */
     Print,
+
     /** Add a function `pprint(x)` which pretty-prints to stderr. */
     Pprint,
+
     /** Add a function `pstr` which is a pretty-printed version of `str`. */
     Pstr,
+
     /** Add a function `prepr` which is a pretty-printed version of `repr`. */
     Prepr,
+
     /** Add a function `breakpoint()` which will drop into a console-module evaluation prompt. */
     Breakpoint,
+
     /** Add a function `json()` which will generate JSON for a module. */
     Json,
+
     /**
      * Provides `typing.All`, `typing.Callable` etc.
      * Usually used in conjunction with `Dialect.enableTypes`.
      */
     Typing,
+
     /**
      * Utilities exposing starlark-rust internals.
      * These are not for production use.
      */
     Internal,
+
     /**
      * Add a function `call_stack()` which returns a string representation of
      * the current call stack.
      */
     CallStack,
+
     /** Definitions to support the `set` type, the `set()` constructor. */
-    SetType;
+    SetType,
+
+    ;
 
     companion object {
         // pub(crate) fn all() -> &'static [Self]
@@ -137,6 +154,7 @@ enum class LibraryExtension {
     }
 
     // pub fn add(self, builder: &mut GlobalsBuilder)
+
     /** Add a specific extension to a `GlobalsBuilder`. */
     fun add(builder: GlobalsBuilder) {
         when (this) {

@@ -81,9 +81,7 @@ data class StarlarkHashValue private constructor(
      *
      * The resulting hash should be good enough to be used in hashbrown hashtable.
      */
-    fun promote(): ULong {
-        return mixU32(value)
-    }
+    fun promote(): ULong = mixU32(value)
 }
 
 /**

@@ -22,8 +22,6 @@ import io.github.kotlinmania.starlark.environment.MethodsStatic
 import io.github.kotlinmania.starlark.typing.Ty
 import io.github.kotlinmania.starlark.values.AllocFrozenValue
 import io.github.kotlinmania.starlark.values.AllocValue
-import io.github.kotlinmania.starlark.values.layout.heap.FrozenHeap
-import io.github.kotlinmania.starlark.values.layout.FrozenValue
 import io.github.kotlinmania.starlark.values.StarlarkTypeRepr
 import io.github.kotlinmania.starlark.values.StarlarkValue
 import io.github.kotlinmania.starlark.values.ValueError
@@ -31,20 +29,27 @@ import io.github.kotlinmania.starlark.values.applySlice
 import io.github.kotlinmania.starlark.values.compareSlice
 import io.github.kotlinmania.starlark.values.convertIndex
 import io.github.kotlinmania.starlark.values.equalsSlice
+import io.github.kotlinmania.starlark.values.layout.FrozenValue
 import io.github.kotlinmania.starlark.values.layout.Value
 import io.github.kotlinmania.starlark.values.layout.avalues.AllocStaticSimple
 import io.github.kotlinmania.starlark.values.layout.avalues.allocList
 import io.github.kotlinmania.starlark.values.layout.avalues.allocListIter
+import io.github.kotlinmania.starlark.values.layout.heap.FrozenHeap
 import io.github.kotlinmania.starlark.values.layout.heap.Heap
 import kotlin.math.max
 
 /** Generic list container, parameterized on the data type. */
-class ListGen<T>(val data: T) : StarlarkValue {
+class ListGen<T>(
+    val data: T,
+) : StarlarkValue {
     override val TYPE: String get() = ListData.TYPE
     override val HAS_iterate: Boolean get() = true
     override val HAS_equals: Boolean get() = true
+
     override fun isSpecial(): Boolean = true
+
     override fun getMethods(): Methods? = listMethods()
+
     override fun toString(): String = data.toString()
 
     // StarlarkValue iteration overrides — delegate to ListLike data.
@@ -91,15 +96,17 @@ class ListGen<T>(val data: T) : StarlarkValue {
     }
 
     override fun compare(other: Value): Result<Int> {
-        val otherRef = ListRef.fromValue(other)
-            ?: return ValueError.unsupportedWith(ListData.TYPE, "cmp()", other)
+        val otherRef =
+            ListRef.fromValue(other)
+                ?: return ValueError.unsupportedWith(ListData.TYPE, "cmp()", other)
         return compareSlice<Exception, Value, Value>(listLike().content(), otherRef.content()) { x, y -> x.compare(y) }
     }
 
     override fun at(index: Value, heap: Heap): Result<Value> {
-        val i = convertIndex(index, listLike().content().size).getOrElse {
-            return Result.failure(it)
-        }
+        val i =
+            convertIndex(index, listLike().content().size).getOrElse {
+                return Result.failure(it)
+            }
         return Result.success(listLike().content()[i])
     }
 
@@ -142,9 +149,10 @@ class ListGen<T>(val data: T) : StarlarkValue {
     override fun rmul(lhs: Value, heap: Heap): Result<Value>? = mul(lhs, heap)
 
     override fun setAt(index: Value, newValue: Value): Result<Unit> {
-        val i = convertIndex(index, listLike().content().size).getOrElse {
-            return Result.failure(it)
-        }
+        val i =
+            convertIndex(index, listLike().content().size).getOrElse {
+                return Result.failure(it)
+            }
         return listLike().setAt(i, newValue)
     }
 
@@ -176,8 +184,9 @@ class ListData(
         fun new(content: MutableList<Value>): ListData = ListData(content)
 
         fun fromValueMut(x: Value): Result<ListData> {
-            val gen = x.downcastRef<ListGen<*>>()
-                ?: return Result.failure(NotListError(x.getType()))
+            val gen =
+                x.downcastRef<ListGen<*>>()
+                    ?: return Result.failure(NotListError(x.getType()))
 
             val data = gen.data
             if (data is FrozenListData) {
@@ -269,8 +278,13 @@ class ListData(
         return Result.success(Unit)
     }
 
-    fun incIterCount() { iterCount++ }
-    fun decIterCount() { iterCount-- }
+    fun incIterCount() {
+        iterCount++
+    }
+
+    fun decIterCount() {
+        iterCount--
+    }
 
     /** Obtain the length of the list. */
     fun len(): Int = content.size
@@ -339,6 +353,7 @@ class FrozenListData(
 ) : ListLike {
     companion object {
         fun new(content: List<FrozenValue>): FrozenListData = FrozenListData(content)
+
         fun empty(): FrozenListData = FrozenListData(emptyList())
 
         /** Obtain the [FrozenListData] pointed at by a [FrozenValue]. */
@@ -349,6 +364,7 @@ class FrozenListData(
     }
 
     fun len(): Int = content.size
+
     fun contentFrozen(): List<FrozenValue> = content
 
     // impl ListLike for FrozenListData
@@ -392,21 +408,29 @@ val VALUE_EMPTY_FROZEN_LIST: AllocStaticSimple<FrozenList> =
 fun ListGen<FrozenListData>.offsetOfContent(): Int = 0
 
 // Error: Value is not list, value type: `{0}`
-private class NotListError(type: String) :
-    Exception("Value is not list, value type: `$type`")
+private class NotListError(
+    type: String,
+) : Exception("Value is not list, value type: `$type`")
 
 // pub(crate) trait ListLike<'v>: Debug + Allocative
 interface ListLike {
     fun content(): List<Value>
+
     fun setAt(i: Int, v: Value): Result<Unit>
+
     fun newIter(me: Value): Value
+
     fun iterSizeHint(index: Int): Pair<Int, Int?>
+
     fun iterNext(index: Int): Value?
+
     fun iterStop()
 }
 
 // impl ListLike for ListData
-internal class ListDataListLike(private val data: ListData) : ListLike {
+internal class ListDataListLike(
+    private val data: ListData,
+) : ListLike {
     override fun content(): List<Value> = data.content()
 
     override fun setAt(i: Int, v: Value): Result<Unit> = data.setAt(i, v)
@@ -430,7 +454,9 @@ internal class ListDataListLike(private val data: ListData) : ListLike {
 }
 
 // impl ListLike for FrozenListData
-internal class FrozenListDataListLike(private val data: FrozenListData) : ListLike {
+internal class FrozenListDataListLike(
+    private val data: FrozenListData,
+) : ListLike {
     override fun content(): List<Value> = data.content().map { it.toValue() }
 
     override fun setAt(i: Int, v: Value): Result<Unit> =
@@ -456,14 +482,15 @@ internal class FrozenListDataListLike(private val data: FrozenListData) : ListLi
 fun ListGen<*>.display(): String = data.toString()
 
 // pub(crate) fn display_list
-internal fun displayList(xs: List<Value>): String = buildString {
-    append('[')
-    xs.forEachIndexed { index, value ->
-        if (index > 0) append(", ")
-        append(value)
+internal fun displayList(xs: List<Value>): String =
+    buildString {
+        append('[')
+        xs.forEachIndexed { index, value ->
+            if (index > 0) append(", ")
+            append(value)
+        }
+        append(']')
     }
-    append(']')
-}
 
 // pub(crate) fn list_methods() -> Option<&'static Methods>
 private val LIST_METHODS_STATIC = MethodsStatic()
@@ -475,6 +502,7 @@ fun ListGen<out ListLike>.serialize(): List<Value> = data.content().toList()
 
 // Heap extensions for list allocation
 fun Heap.allocList(content: List<Value>): Value = allocListIter(content)
+
 fun Heap.allocListConcat(a: List<Value>, b: List<Value>): Value = allocListIter(a + b)
 
 // -- isListType check

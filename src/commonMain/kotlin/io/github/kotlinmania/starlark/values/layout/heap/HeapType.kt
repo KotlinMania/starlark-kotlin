@@ -23,15 +23,17 @@ import io.github.kotlinmania.starlark.collections.StarlarkHashValue
 import io.github.kotlinmania.starlark.eval.runtime.profile.ProfilerInstant
 import io.github.kotlinmania.starlark.values.AllocFrozenValue
 import io.github.kotlinmania.starlark.values.AllocValue
-import io.github.kotlinmania.starlark.values.layout.FrozenValue
 import io.github.kotlinmania.starlark.values.FrozenValueOfUnchecked
 import io.github.kotlinmania.starlark.values.StarlarkValue
 import io.github.kotlinmania.starlark.values.ValueOfUnchecked
 import io.github.kotlinmania.starlark.values.layout.AValue
 import io.github.kotlinmania.starlark.values.layout.AValueImpl
+import io.github.kotlinmania.starlark.values.layout.FrozenValue
 import io.github.kotlinmania.starlark.values.layout.FrozenValueTyped
 import io.github.kotlinmania.starlark.values.layout.Value
 import io.github.kotlinmania.starlark.values.layout.ValueTyped
+import io.github.kotlinmania.starlark.values.layout.avalues.allocComplexNoFreeze
+import io.github.kotlinmania.starlark.values.layout.avalues.simple.allocSimple
 import io.github.kotlinmania.starlark.values.layout.heap.arena.Arena
 import io.github.kotlinmania.starlark.values.layout.heap.arena.ArenaVisitor
 import io.github.kotlinmania.starlark.values.layout.heap.arena.Reservation
@@ -42,9 +44,7 @@ import io.github.kotlinmania.starlark.values.owned.OwnedFrozenValue
 import io.github.kotlinmania.starlark.values.owned.OwnedFrozenValueTyped
 import io.github.kotlinmania.starlark.values.types.string.intern.FrozenStringValueInterner
 import io.github.kotlinmania.starlark.values.types.string.intern.StringValueInterner
-import io.github.kotlinmania.starlark.values.value_of.ValueOf
-import io.github.kotlinmania.starlark.values.layout.avalues.allocComplexNoFreeze
-import io.github.kotlinmania.starlark.values.layout.avalues.simple.allocSimple
+import io.github.kotlinmania.starlark.values.valueof.ValueOf
 import kotlin.math.max
 
 enum class HeapKind {
@@ -112,9 +112,7 @@ class Heap internal constructor(
         owned.strInterner.trace(tracer)
     }
 
-    fun referencedHeaps(): List<FrozenHeapRef> {
-        return owned.refs.toList()
-    }
+    fun referencedHeaps(): List<FrozenHeapRef> = owned.refs.toList()
 
     /**
      * Get access to the underlying value within the context of this heap.
@@ -145,22 +143,16 @@ class Heap internal constructor(
      * Number of bytes allocated on this heap, not including any memory
      * allocated outside of the starlark heap.
      */
-    fun allocatedBytes(): Int {
-        return owned.arena.borrow().allocatedBytes()
-    }
+    fun allocatedBytes(): Int = owned.arena.borrow().allocatedBytes()
 
     /**
      * Peak memory allocated to this heap, even if the value is now lower
      * as a result of a subsequent garbage collection.
      */
-    fun peakAllocatedBytes(): Int {
-        return max(allocatedBytes(), owned.peakAllocated)
-    }
+    fun peakAllocatedBytes(): Int = max(allocatedBytes(), owned.peakAllocated)
 
     /** Number of bytes allocated by the heap but not yet filled. */
-    fun availableBytes(): Int {
-        return owned.arena.borrow().availableBytes()
-    }
+    fun availableBytes(): Int = owned.arena.borrow().availableBytes()
 
     internal fun <A : AValue> allocRaw(x: AValueImpl<A>): ValueTyped<StarlarkValue> {
         val arena = owned.arena.borrow()
@@ -199,23 +191,18 @@ class Heap internal constructor(
     }
 
     /** Allocate a new value on a Heap. */
-    fun <T : AllocValue> alloc(x: T): Value {
-        return x.allocValue(this)
-    }
+    fun <T : AllocValue> alloc(x: T): Value = x.allocValue(this)
 
     /**
      * Allocate a value and return ValueTyped of it.
      * Can fail if the AllocValue trait generates a different type on the heap.
      */
-    internal inline fun <reified T> allocTyped(x: T): ValueTyped<T> where T : AllocValue, T : StarlarkValue {
-        return ValueTyped.new<T>(alloc(x))
+    internal inline fun <reified T> allocTyped(x: T): ValueTyped<T> where T : AllocValue, T : StarlarkValue =
+        ValueTyped.new<T>(alloc(x))
             ?: error("just allocated value must have the right type")
-    }
 
     /** Allocate a value and return ValueOfUnchecked of it. */
-    fun <T : AllocValue> allocTypedUnchecked(x: T): ValueOfUnchecked<T> {
-        return ValueOfUnchecked.new(alloc(x))
-    }
+    fun <T : AllocValue> allocTypedUnchecked(x: T): ValueOfUnchecked<T> = ValueOfUnchecked.new(alloc(x))
 
     /** Allocate a value and return ValueOf of it. */
     internal inline fun <reified T> allocValueOf(x: T): ValueOf<T> where T : AllocValue, T : Any {
@@ -261,42 +248,49 @@ class Heap internal constructor(
         @Suppress("UNUSED_VARIABLE")
         val _arena = owned.arena.take()
 
-        val tracer = Tracer(
-            arena = Arena(),
-        )
+        val tracer =
+            Tracer(
+                arena = Arena(),
+            )
         f(tracer)
         owned.arena.set(tracer.arena)
     }
 
     /** Obtain a summary of how much memory is currently allocated by this heap. */
-    fun allocatedSummary(): HeapSummary {
-        return owned.arena.borrow().allocatedSummary()
-    }
+    fun allocatedSummary(): HeapSummary = owned.arena.borrow().allocatedSummary()
 
     internal fun recordCallEnter(function: Value) {
         val time = ProfilerInstant.now()
-        this.allocComplexNoFreeze(CallEnter<NeedsDrop>(
-            function = function,
-            time = time,
-            maybeDrop = NeedsDrop(),
-        ))
-        this.allocComplexNoFreeze(CallEnter<NoDrop>(
-            function = function,
-            time = time,
-            maybeDrop = NoDrop(),
-        ))
+        this.allocComplexNoFreeze(
+            CallEnter<NeedsDrop>(
+                function = function,
+                time = time,
+                maybeDrop = NeedsDrop(),
+            ),
+        )
+        this.allocComplexNoFreeze(
+            CallEnter<NoDrop>(
+                function = function,
+                time = time,
+                maybeDrop = NoDrop(),
+            ),
+        )
     }
 
     internal fun recordCallExit() {
         val time = ProfilerInstant.now()
-        this.allocSimple(CallExit<NeedsDrop>(
-            time = time,
-            maybeDrop = NeedsDrop(),
-        ))
-        this.allocSimple(CallExit<NoDrop>(
-            time = time,
-            maybeDrop = NoDrop(),
-        ))
+        this.allocSimple(
+            CallExit<NeedsDrop>(
+                time = time,
+                maybeDrop = NeedsDrop(),
+            ),
+        )
+        this.allocSimple(
+            CallExit<NoDrop>(
+                time = time,
+                maybeDrop = NoDrop(),
+            ),
+        )
     }
 }
 
@@ -328,29 +322,27 @@ class FrozenHeap internal constructor(
      *
      * See FrozenHeapRef.name for more details.
      */
-    fun nameAndIntoRef(name: Any): FrozenHeapRef {
-        return intoRefImpl(name)
-    }
+    fun nameAndIntoRef(name: Any): FrozenHeapRef = intoRefImpl(name)
 
     /**
      * After all values have been allocated, convert the FrozenHeap into a
      * FrozenHeapRef which can be cloned, shared between threads,
      * and ensures the underlying values allocated on the FrozenHeap remain valid.
      */
-    fun intoRef(): FrozenHeapRef {
-        return intoRefImpl(null)
-    }
+    fun intoRef(): FrozenHeapRef = intoRefImpl(null)
 
     internal fun intoRefImpl(name: Any?): FrozenHeapRef {
         arena.finish()
         if (arena.isEmpty() && refs.isEmpty()) {
             return FrozenHeapRef()
         } else {
-            return FrozenHeapRef(FrozenFrozenHeap(
-                arena = arena,
-                refs = refs.toList(),
-                name = name,
-            ))
+            return FrozenHeapRef(
+                FrozenFrozenHeap(
+                    arena = arena,
+                    refs = refs.toList(),
+                    name = name,
+                ),
+            )
         }
     }
 
@@ -369,9 +361,7 @@ class FrozenHeap internal constructor(
         }
     }
 
-    internal fun stringInterner(): FrozenStringValueInterner {
-        return strInterner
-    }
+    internal fun stringInterner(): FrozenStringValueInterner = strInterner
 
     internal fun <T : AValue> allocRaw(x: AValueImpl<T>): FrozenValueTyped<StarlarkValue> {
         val v = arena.alloc(x)
@@ -399,14 +389,10 @@ class FrozenHeap internal constructor(
     }
 
     /** Allocate a new value on a FrozenHeap. */
-    fun <T : AllocFrozenValue> alloc(v: T): FrozenValue {
-        return v.allocFrozenValue(this)
-    }
+    fun <T : AllocFrozenValue> alloc(v: T): FrozenValue = v.allocFrozenValue(this)
 
     /** Allocate a value and return FrozenValueOfUnchecked of it. */
-    fun <T : AllocFrozenValue> allocTypedUnchecked(v: T): FrozenValueOfUnchecked<T> {
-        return FrozenValueOfUnchecked.new(v.allocFrozenValue(this))
-    }
+    fun <T : AllocFrozenValue> allocTypedUnchecked(v: T): FrozenValueOfUnchecked<T> = FrozenValueOfUnchecked.new(v.allocFrozenValue(this))
 
     /**
      * Allocate an interned string. Returns a FrozenStringValue.
@@ -426,19 +412,13 @@ class FrozenHeap internal constructor(
      * Number of bytes allocated on this heap, not including any memory
      * allocated outside of the starlark heap.
      */
-    fun allocatedBytes(): Int {
-        return arena.allocatedBytes()
-    }
+    fun allocatedBytes(): Int = arena.allocatedBytes()
 
     /** Number of bytes allocated by the heap but not yet filled. */
-    fun availableBytes(): Int {
-        return arena.availableBytes()
-    }
+    fun availableBytes(): Int = arena.availableBytes()
 
     /** Obtain a summary of how much memory is currently allocated by this heap. */
-    fun allocatedSummary(): HeapSummary {
-        return arena.allocatedSummary()
-    }
+    fun allocatedSummary(): HeapSummary = arena.allocatedSummary()
 
     internal fun <T : AValue> reserveWithExtra(
         extraLen: Int,
@@ -481,26 +461,20 @@ class FrozenHeapRef(
      * Number of bytes allocated on this heap, not including any memory
      * allocated outside of the starlark heap.
      */
-    fun allocatedBytes(): Int {
-        return inner?.arena?.allocatedBytes() ?: 0
-    }
+    fun allocatedBytes(): Int = inner?.arena?.allocatedBytes() ?: 0
 
     /**
      * Number of bytes allocated by the heap but not filled.
      * Note that these bytes will never be filled as no further allocations can
      * be made on this heap (it has been sealed).
      */
-    fun availableBytes(): Int {
-        return inner?.arena?.availableBytes() ?: 0
-    }
+    fun availableBytes(): Int = inner?.arena?.availableBytes() ?: 0
 
     /**
      * Obtain a summary of how much memory is currently allocated by this heap.
      * Doesn't include the heaps it keeps alive by reference.
      */
-    fun allocatedSummary(): HeapSummary {
-        return inner?.arena?.allocatedSummary() ?: HeapSummary()
-    }
+    fun allocatedSummary(): HeapSummary = inner?.arena?.allocatedSummary() ?: HeapSummary()
 
     /**
      * Get the name of this heap.
@@ -511,14 +485,10 @@ class FrozenHeapRef(
      * The name is intentionally made available here and not at a higher point like the module
      * level so that it can be inspected even when traversing the dependency graph of frozen heaps.
      */
-    fun name(): Any? {
-        return inner?.name
-    }
+    fun name(): Any? = inner?.name
 
     /** Get the frozen heaps that this frozen heap depends on. */
-    fun refs(): List<FrozenHeapRef> {
-        return inner?.refs ?: emptyList()
-    }
+    fun refs(): List<FrozenHeapRef> = inner?.refs ?: emptyList()
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
@@ -526,9 +496,7 @@ class FrozenHeapRef(
         return inner === other.inner
     }
 
-    override fun hashCode(): Int {
-        return inner?.hashCode() ?: 0
-    }
+    override fun hashCode(): Int = inner?.hashCode() ?: 0
 }
 
 /** Used to perform garbage collection by Trace.trace. */
@@ -545,7 +513,9 @@ class Tracer internal constructor(
      * but is not relevant because it has a static lifetime containing no relevant values.
      * Does nothing.
      */
-    fun <T> traceStatic(@Suppress("UNUSED_PARAMETER") value: T) {
+    fun <T> traceStatic(
+        @Suppress("UNUSED_PARAMETER") value: T,
+    ) {
         // Nothing to do because T can't contain the relevant lifetime
     }
 
@@ -585,4 +555,6 @@ class Tracer internal constructor(
 }
 
 /** Mutable holder for Value, used during tracing. */
-class ValueHolder(var value: Value)
+class ValueHolder(
+    var value: Value,
+)

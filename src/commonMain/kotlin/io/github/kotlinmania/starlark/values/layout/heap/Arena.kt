@@ -29,10 +29,6 @@ import io.github.kotlinmania.starlark.values.layout.BlackHole
 import io.github.kotlinmania.starlark.values.layout.ConstTypeId
 import io.github.kotlinmania.starlark.values.layout.Value
 import io.github.kotlinmania.starlark.values.layout.ValueAllocSize
-import io.github.kotlinmania.starlark.values.layout.heapCopyImpl
-import io.github.kotlinmania.starlark.values.layout.heapFreezeSimpleImpl
-import io.github.kotlinmania.starlark.values.layout.tryFreezeDirectly
-import io.github.kotlinmania.starlark.values.layout.typed.StarlarkStr
 import io.github.kotlinmania.starlark.values.layout.heap.AValueHeader
 import io.github.kotlinmania.starlark.values.layout.heap.AValueOrForward
 import io.github.kotlinmania.starlark.values.layout.heap.AValueOrForwardUnpack
@@ -42,9 +38,13 @@ import io.github.kotlinmania.starlark.values.layout.heap.CallExit
 import io.github.kotlinmania.starlark.values.layout.heap.HeapKind
 import io.github.kotlinmania.starlark.values.layout.heap.profile.HeapSummary
 import io.github.kotlinmania.starlark.values.layout.heap.profile.SmallMap
-import io.github.kotlinmania.starlark.values.layout.heap.profile.alloc_counts.AllocCounts
+import io.github.kotlinmania.starlark.values.layout.heap.profile.alloccounts.AllocCounts
+import io.github.kotlinmania.starlark.values.layout.heapCopyImpl
+import io.github.kotlinmania.starlark.values.layout.heapFreezeSimpleImpl
 import io.github.kotlinmania.starlark.values.layout.totalMemoryForProfile
-import io.github.kotlinmania.starlark.values.starlark_type_id.StarlarkTypeId
+import io.github.kotlinmania.starlark.values.layout.tryFreezeDirectly
+import io.github.kotlinmania.starlark.values.layout.typed.StarlarkStr
+import io.github.kotlinmania.starlark.values.starlarktypeid.StarlarkTypeId
 
 /**
  * Min size of allocated object including header.
@@ -69,8 +69,11 @@ private fun vtableForValue(value: StarlarkValue): AValueVTable {
         heapFreezeFn = { p, freezer ->
             val sv = p.valueRef<StarlarkValue>()
             val direct = tryFreezeDirectly(sv, freezer)
-            if (direct != null) direct
-            else heapFreezeSimpleImpl(sv, freezer)
+            if (direct != null) {
+                direct
+            } else {
+                heapFreezeSimpleImpl(sv, freezer)
+            }
         },
         heapCopyFn = { p, tracer ->
             val sv = p.valueRef<StarlarkValue>()
@@ -107,31 +110,35 @@ class Reservation<T : AValue> internal constructor(
     }
 
     // pub(crate) fn ptr(&self) -> &'v AValueHeader
-    fun ptr(): AValueHeader {
-        return header
-    }
+    fun ptr(): AValueHeader = header
 }
 
 // pub(crate) trait ArenaVisitor<'v>
 internal interface ArenaVisitor {
     // fn enter_bump(&mut self)
     fun enterBump()
+
     // fn regular_value(&mut self, value: &'v AValueOrForward)
     fun regularValue(value: AValueOrForward)
+
     // fn call_enter(&mut self, function: Value<'v>, time: ProfilerInstant)
     fun callEnter(function: Value, time: ProfilerInstant)
+
     // fn call_exit(&mut self, time: ProfilerInstant)
     fun callExit(time: ProfilerInstant)
 }
 
 // enum ArenaVisitEvent<'a>
 private sealed class ArenaVisitEvent {
-    /// Called when entering new bump.
+    // / Called when entering new bump.
     // EnterBump,
     data object EnterBump : ArenaVisitEvent()
-    /// Visiting a value in the bump.
+
+    // / Visiting a value in the bump.
     // Value(&'a AValueOrForward),
-    class Value(val value: AValueOrForward) : ArenaVisitEvent()
+    class Value(
+        val value: AValueOrForward,
+    ) : ArenaVisitEvent()
 }
 
 // #[derive(Default)]
@@ -141,25 +148,20 @@ internal class Arena {
     /** Arena for things which don't need dropping (e.g. strings). */
     // non_drop: A,
     private val nonDrop: MutableList<AValueOrForward> = mutableListOf()
+
     /** Arena for things which might need dropping (e.g. Vec, with memory on heap). */
     // drop: A,
     private val drop: MutableList<AValueOrForward> = mutableListOf()
 
     // pub(crate) fn is_empty(&self) -> bool
-    fun isEmpty(): Boolean {
-        return allocatedBytes() == 0
-    }
+    fun isEmpty(): Boolean = allocatedBytes() == 0
 
     /** Number of allocated bytes plus padding size. */
     // pub(crate) fn allocated_bytes(&self) -> usize
-    fun allocatedBytes(): Int {
-        return drop.size + nonDrop.size
-    }
+    fun allocatedBytes(): Int = drop.size + nonDrop.size
 
     // pub(crate) fn available_bytes(&self) -> usize
-    fun availableBytes(): Int {
-        return Int.MAX_VALUE
-    }
+    fun availableBytes(): Int = Int.MAX_VALUE
 
     /** Don't forget to call this function to release memory. */
     // pub(crate) fn finish(&mut self)
@@ -193,10 +195,11 @@ internal class Arena {
     // pub(crate) fn alloc<'v, 'v2, T: AValue<'v2>>(&'v self, x: AValueImpl<'v2, T>) -> &'v AValueRepr
     fun <T : AValue> alloc(x: AValueImpl<T>): AValueRepr<StarlarkValue> {
         val header = AValueHeader(vtableForValue(x.value))
-        val repr = AValueRepr(
-            header = header,
-            payload = x.value,
-        )
+        val repr =
+            AValueRepr(
+                header = header,
+                payload = x.value,
+            )
         val entry = AValueOrForward.Header(repr.header)
         drop.add(entry)
         return repr
@@ -204,9 +207,7 @@ internal class Arena {
 
     /** Allocate a type `T` plus `extra` bytes. */
     // pub(crate) fn alloc_extra<'v, T: AValue<'v>>(&self, x: AValueImpl) -> (repr, extra)
-    fun <T : AValue> allocExtra(x: AValueImpl<T>): AValueRepr<StarlarkValue> {
-        return alloc(x)
-    }
+    fun <T : AValue> allocExtra(x: AValueImpl<T>): AValueRepr<StarlarkValue> = alloc(x)
 
     // pub(crate) fn alloc_str_init(&self, len: usize, hash: StarlarkHashValue,
     //     init: impl FnOnce(*mut u8)) -> *mut AValueHeader
@@ -228,29 +229,30 @@ internal class Arena {
         // `getRef().downcastRef<StarlarkStr>()`.
         val str = StarlarkStr(x)
         val typeId = ConstTypeId.of<StarlarkStr>()
-        val header = AValueHeader(
-            AValueVTable(
-                staticTypeOfValue = typeId,
-                starlarkTypeId = StarlarkTypeId.fromTypeId(typeId),
-                typeName = "string",
-                isStr = true,
-                memorySizeFn = { _ ->
-                    val byteLen = str.len()
-                    ValueAllocSize.new(
-                        AlignedSize.alignUp(StarlarkStr.offsetOfContent() + byteLen)
-                    )
-                },
-                heapFreezeFn = { _, freezer ->
-                    val fv = freezer.frozenHeap().allocStrIntern(str.asStr())
-                    Result.success(fv.toFrozenValue())
-                },
-                heapCopyFn = { _, tracer ->
-                    tracer.allocStr(str.asStr())
-                },
-                starlarkValue = str,
-                hasEquals = true,
+        val header =
+            AValueHeader(
+                AValueVTable(
+                    staticTypeOfValue = typeId,
+                    starlarkTypeId = StarlarkTypeId.fromTypeId(typeId),
+                    typeName = "string",
+                    isStr = true,
+                    memorySizeFn = { _ ->
+                        val byteLen = str.len()
+                        ValueAllocSize.new(
+                            AlignedSize.alignUp(StarlarkStr.offsetOfContent() + byteLen),
+                        )
+                    },
+                    heapFreezeFn = { _, freezer ->
+                        val fv = freezer.frozenHeap().allocStrIntern(str.asStr())
+                        Result.success(fv.toFrozenValue())
+                    },
+                    heapCopyFn = { _, tracer ->
+                        tracer.allocStr(str.asStr())
+                    },
+                    starlarkValue = str,
+                    hasEquals = true,
+                ),
             )
-        )
         val entry = AValueOrForward.Header(header)
         nonDrop.add(entry)
         return header
@@ -282,7 +284,10 @@ internal class Arena {
         // In Rust, during GC some values may be forward pointers. This function
         // resolves them. In Kotlin, there's no raw pointer forwarding, but we
         // still check for frozen values and handle forwarding via the arena model.
-        fun fixFunction(function: Value, @Suppress("UNUSED_PARAMETER") forwardHeapKind: HeapKind): Value {
+        fun fixFunction(
+            function: Value,
+            @Suppress("UNUSED_PARAMETER") forwardHeapKind: HeapKind,
+        ): Value {
             val frozen = function.unpackFrozen()
             if (frozen != null) {
                 return frozen.toValue()
@@ -361,7 +366,5 @@ internal class Arena {
         return HeapSummary(summary = summary)
     }
 
-    override fun toString(): String {
-        return "Arena(drop=${drop.size}, non_drop=${nonDrop.size})"
-    }
+    override fun toString(): String = "Arena(drop=${drop.size}, non_drop=${nonDrop.size})"
 }

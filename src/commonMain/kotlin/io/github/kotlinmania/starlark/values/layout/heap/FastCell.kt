@@ -24,18 +24,18 @@ package io.github.kotlinmania.starlark.values.layout.heap
 // use std::mem;
 // use std::mem::MaybeUninit;
 
-/// Faster but less safe alternative to `RefCell<T>`:
-/// all operations except `borrow` are `unsafe` and may lead to undefined behavior.
+// / Faster but less safe alternative to `RefCell<T>`:
+// / all operations except `borrow` are `unsafe` and may lead to undefined behavior.
 // #[derive(Debug)]
 // pub(crate) struct FastCell<T> {
 //     value: UnsafeCell<MaybeUninit<T>>,
 //     init: Cell<bool>,
 // }
 internal class FastCell<T>(
-    /// The value.
+    // / The value.
     private var value: T?,
 ) {
-    /// Whether the cell contains a value or zeros.
+    // / Whether the cell contains a value or zeros.
     // init: Cell<bool>,
     private var init: Boolean = value != null
 
@@ -46,17 +46,15 @@ internal class FastCell<T>(
     // impl Default for FastCell<T>
     companion object {
         // fn default() -> Self
-        fun <T> default(defaultValue: T): FastCell<T> {
-            return FastCell(defaultValue)
-        }
+        fun <T> default(defaultValue: T): FastCell<T> = FastCell(defaultValue)
     }
 
     // impl FastCell<T>
 
-    /// Get a reference to the value.
-    ///
-    /// This operation is safe under assumption that other `unsafe` operations
-    /// do not leave self in invalid state.
+    // / Get a reference to the value.
+    // /
+    // / This operation is safe under assumption that other `unsafe` operations
+    // / do not leave self in invalid state.
     // pub(crate) fn borrow(&self) -> &T
     fun borrow(): T {
         // debug_assert!(self.init.get());
@@ -66,20 +64,19 @@ internal class FastCell<T>(
     }
 
     // pub(crate) fn try_borrow(&self) -> Option<&T>
-    fun tryBorrow(): T? {
-        return if (init) {
+    fun tryBorrow(): T? =
+        if (init) {
             // Some(self.borrow())
             borrow()
         } else {
             null
         }
-    }
 
-    /// Get a mutable reference to the value.
-    ///
-    /// This function is unsafe because it's caller responsibility to guarantee
-    /// there are no other references to the value, and nobody is going
-    /// to obtain references to value while mutable reference exists.
+    // / Get a mutable reference to the value.
+    // /
+    // / This function is unsafe because it's caller responsibility to guarantee
+    // / there are no other references to the value, and nobody is going
+    // / to obtain references to value while mutable reference exists.
     // pub(crate) unsafe fn get_mut(&self) -> *mut T
     fun getMut(): T {
         // debug_assert!(self.init.get());
@@ -88,7 +85,7 @@ internal class FastCell<T>(
         return value as T
     }
 
-    /// Take the value out of the cell.
+    // / Take the value out of the cell.
     // pub(crate) unsafe fn take(&self) -> T
     fun take(): T {
         // assert!(self.init.get());
@@ -103,7 +100,7 @@ internal class FastCell<T>(
         return v
     }
 
-    /// Put the value into the cell.
+    // / Put the value into the cell.
     // pub(crate) unsafe fn set(&self, value: T)
     fun set(value: T) {
         // assert!(!self.init.get());
@@ -115,7 +112,5 @@ internal class FastCell<T>(
     }
 
     // #[derive(Debug)]
-    override fun toString(): String {
-        return "FastCell(init=$init, value=$value)"
-    }
+    override fun toString(): String = "FastCell(init=$init, value=$value)"
 }

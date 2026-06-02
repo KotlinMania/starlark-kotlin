@@ -18,4 +18,3 @@ class Mutex<T>(
 ) {
     fun lock(): T = value
 }
-

@@ -142,7 +142,11 @@ internal class BcFrame(
     // pub(crate) fn get_bc_slot_range(&self, slots: BcSlotInRange) -> &[Value<'v>]
     fun getBcSlotRange(range: BcSlotInRange): List<Value> {
         check(range.end.get().index <= (localCount + maxStackSize).toUInt())
-        val start = range.start.get().index.toInt()
+        val start =
+            range.start
+                .get()
+                .index
+                .toInt()
         val end = start + range.len().toInt()
         return (start until end).map { slots[it] ?: error("BcFrame slot $it is uninitialized in range $start..$end") }
     }
@@ -173,6 +177,7 @@ internal class BcFrame(
 //         // GC can be performed only when the stack is empty.
 //     }
 // }
+
 /**
  * Trace implementation for [BcFrame].
  *
@@ -236,9 +241,7 @@ class BcFramePtr internal constructor(
     }
 
     // pub(crate) fn get_slot(self, slot: LocalSlotIdCapturedOrNot) -> Option<Value<'v>>
-    fun getSlot(slot: LocalSlotIdCapturedOrNot): Value? {
-        return frame!!.getSlot(slot)
-    }
+    fun getSlot(slot: LocalSlotIdCapturedOrNot): Value? = frame!!.getSlot(slot)
 
     // pub(crate) fn set_slot_slow(self, slot: LocalSlotIdCapturedOrNot, value: Value<'v>)
     fun setSlotSlow(slot: LocalSlotIdCapturedOrNot, value: Value) {
@@ -253,9 +256,7 @@ class BcFramePtr internal constructor(
     }
 
     // pub(crate) fn get_bc_slot(self, slot: BcSlotIn) -> Value<'v>
-    fun getBcSlot(slot: BcSlotIn): Value {
-        return frame!!.getBcSlot(slot)
-    }
+    fun getBcSlot(slot: BcSlotIn): Value = frame!!.getBcSlot(slot)
 
     // pub(crate) fn set_bc_slot(self, slot: BcSlotOut, value: Value<'v>)
     fun setBcSlot(slot: BcSlotOut, value: Value) {
@@ -263,14 +264,10 @@ class BcFramePtr internal constructor(
     }
 
     // pub(crate) fn get_bc_slot_range<'a>(self, slots: BcSlotInRange) -> &'a [Value<'v>]
-    fun getBcSlotRange(slots: BcSlotInRange): List<Value> {
-        return frame!!.getBcSlotRange(slots)
-    }
+    fun getBcSlotRange(slots: BcSlotInRange): List<Value> = frame!!.getBcSlotRange(slots)
 
     // pub(crate) fn get_iter_index(self, loop_depth: LoopDepth) -> usize
-    fun getIterIndex(loopDepth: LoopDepth): Int {
-        return frame!!.getIterIndex(loopDepth)
-    }
+    fun getIterIndex(loopDepth: LoopDepth): Int = frame!!.getIterIndex(loopDepth)
 
     // pub(crate) fn set_iter_index(self, loop_depth: LoopDepth, index: usize)
     fun setIterIndex(loopDepth: LoopDepth, index: Int) {
@@ -278,14 +275,10 @@ class BcFramePtr internal constructor(
     }
 
     // pub(crate) fn max_stack_size(self) -> u32
-    fun maxStackSize(): Int {
-        return frame!!.maxStackSize
-    }
+    fun maxStackSize(): Int = frame!!.maxStackSize
 
     // pub(crate) unsafe fn locals_mut<'a>(self) -> &'a mut [Option<Value<'v>>]
-    fun localsMut(): Array<Value?> {
-        return frame!!.localsMut()
-    }
+    fun localsMut(): Array<Value?> = frame!!.localsMut()
 
     /** Set the underlying frame reference. */
     internal fun setFrame(newFrame: BcFrame?) {
@@ -301,6 +294,7 @@ class BcFramePtr internal constructor(
 //         self.frame_mut().trace(tracer);
 //     }
 // }
+
 /**
  * Trace implementation for [BcFramePtr].
  * Delegates to the underlying [BcFrame]'s trace.
@@ -317,6 +311,7 @@ internal fun BcFramePtr.trace(tracer: Tracer) {
 //     max_loop_depth: LoopDepth,
 //     k: impl FnOnce(&mut Evaluator<'v, 'a, 'e>, BcFramePtr<'v>) -> R,
 // ) -> R
+
 /**
  * Allocate raw frame memory.
  *
@@ -352,8 +347,8 @@ internal fun <R> allocaFrame(
     maxStackSize: Int,
     loopDepth: LoopDepth,
     k: (Evaluator) -> R,
-): R {
-    return allocaRaw(eval, localCount, maxStackSize, loopDepth) { ev, framePtr ->
+): R =
+    allocaRaw(eval, localCount, maxStackSize, loopDepth) { ev, framePtr ->
         framePtr.getFrame()!!.init()
         val oldFrame = ev.currentFrame
         ev.currentFrame = framePtr
@@ -363,4 +358,3 @@ internal fun <R> allocaFrame(
             ev.currentFrame = oldFrame
         }
     }
-}

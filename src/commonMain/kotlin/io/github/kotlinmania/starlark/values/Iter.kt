@@ -27,7 +27,7 @@ package io.github.kotlinmania.starlark.values
 import io.github.kotlinmania.starlark.values.layout.Value
 import io.github.kotlinmania.starlark.values.layout.heap.Heap
 
-/// Iterator of starlark values.
+// / Iterator of starlark values.
 // #[derive(Debug)]
 // pub struct StarlarkIterator<'v> {
 //     /// Iterator implementation. Typically an iterable itself.
@@ -38,14 +38,13 @@ import io.github.kotlinmania.starlark.values.layout.heap.Heap
 //     heap: Heap<'v>,
 // }
 class StarlarkIterator private constructor(
-    /// Iterator implementation. Typically an iterable itself.
+    // / Iterator implementation. Typically an iterable itself.
     private var value: Value,
-    /// Current index.
+    // / Current index.
     private var index: Int,
-    /// Heap to allocate values on.
+    // / Heap to allocate values on.
     private val heap: Heap,
 ) : Iterator<Value> {
-
     private var stopped: Boolean = false
     private var nextValue: Value? = null
 
@@ -83,9 +82,7 @@ class StarlarkIterator private constructor(
 
     // #[inline]
     // fn size_hint(&self) -> (usize, Option<usize>)
-    fun sizeHint(): Pair<Int, Int?> {
-        return value.getRef().iterSizeHint(index)
-    }
+    fun sizeHint(): Pair<Int, Int?> = value.getRef().iterSizeHint(index)
 
     // impl<'v> Drop for StarlarkIterator<'v>
     //     fn drop(&mut self)
@@ -99,22 +96,19 @@ class StarlarkIterator private constructor(
 
     // impl<'v> StarlarkIterator<'v>
     companion object {
-        /// Construct iterator from the given value.
+        // / Construct iterator from the given value.
         // #[inline]
         // pub(crate) fn new(value: Value<'v>, heap: Heap<'v>) -> StarlarkIterator<'v>
-        internal fun new(value: Value, heap: Heap): StarlarkIterator {
-            return StarlarkIterator(
+        internal fun new(value: Value, heap: Heap): StarlarkIterator =
+            StarlarkIterator(
                 value = value,
                 index = 0,
                 heap = heap,
             )
-        }
 
-        /// Iterator yielding no values.
+        // / Iterator yielding no values.
         // #[inline]
         // pub fn empty(heap: Heap<'v>) -> StarlarkIterator<'v>
-        fun empty(heap: Heap): StarlarkIterator {
-            return new(Value.newEmptyTuple(), heap)
-        }
+        fun empty(heap: Heap): StarlarkIterator = new(Value.newEmptyTuple(), heap)
     }
 }

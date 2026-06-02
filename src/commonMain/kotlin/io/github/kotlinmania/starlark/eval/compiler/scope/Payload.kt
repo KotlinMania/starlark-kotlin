@@ -26,16 +26,16 @@ package io.github.kotlinmania.starlark.eval.compiler.scope
 import io.github.kotlinmania.starlark.eval.compiler.BindingId
 import io.github.kotlinmania.starlark.eval.compiler.ResolvedIdent
 import io.github.kotlinmania.starlark.eval.compiler.ScopeId
-import io.github.kotlinmania.starlark.typing.Ty
-import io.github.kotlinmania.starlark.typing.Interface
-import io.github.kotlinmania.starlark.syntax.ast.AstTypeExprP
-import io.github.kotlinmania.starlark.syntax.ast.AstStmtP
-import io.github.kotlinmania.starlark.syntax.ast.AstPayload
-import io.github.kotlinmania.starlark.syntax.ast.AstParameterP
-import io.github.kotlinmania.starlark.syntax.ast.AstIdentP
-import io.github.kotlinmania.starlark.syntax.ast.AstExprP
-import io.github.kotlinmania.starlark.syntax.ast.AstAssignTargetP
 import io.github.kotlinmania.starlark.syntax.ast.AstAssignIdentP
+import io.github.kotlinmania.starlark.syntax.ast.AstAssignTargetP
+import io.github.kotlinmania.starlark.syntax.ast.AstExprP
+import io.github.kotlinmania.starlark.syntax.ast.AstIdentP
+import io.github.kotlinmania.starlark.syntax.ast.AstParameterP
+import io.github.kotlinmania.starlark.syntax.ast.AstPayload
+import io.github.kotlinmania.starlark.syntax.ast.AstStmtP
+import io.github.kotlinmania.starlark.syntax.ast.AstTypeExprP
+import io.github.kotlinmania.starlark.typing.Interface
+import io.github.kotlinmania.starlark.typing.Ty
 
 /** Compiler-specific AST payload. */
 // #[derive(Debug, Clone)]
@@ -58,19 +58,23 @@ internal data class CstTypeExprPayload(
     var typecheckerTy: Ty? = null,
 )
 
-
-
 // pub(crate) type CstExpr = AstExprP<CstPayload>
 internal typealias CstExpr = AstExprP<CstPayload>
+
 // pub(crate) type CstTypeExpr = AstTypeExprP<CstPayload>
 internal typealias CstTypeExpr = AstTypeExprP<CstPayload>
+
 // pub(crate) type CstAssignTarget = AstAssignTargetP<CstPayload>
 internal typealias CstAssignTarget = AstAssignTargetP<CstPayload>
+
 // pub(crate) type CstAssignIdent = AstAssignIdentP<CstPayload>
 internal typealias CstAssignIdent = AstAssignIdentP<CstPayload, CstIdentAssignPayload>
+
 // pub(crate) type CstIdent = AstIdentP<CstPayload>
 internal typealias CstIdent = AstIdentP<CstPayload, CstIdentPayload>
+
 // pub(crate) type CstParameter = AstParameterP<CstPayload>
 internal typealias CstParameter = AstParameterP<CstPayload>
+
 // pub(crate) type CstStmt = AstStmtP<CstPayload>
 internal typealias CstStmt = AstStmtP<CstPayload>

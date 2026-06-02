@@ -32,22 +32,18 @@ import io.github.kotlinmania.starlark.values.UnpackValue
 import io.github.kotlinmania.starlark.values.layout.Value
 import io.github.kotlinmania.starlark.values.types.num.NumRef
 
-/// Unpack `int` or `float` into `f64`.
+// / Unpack `int` or `float` into `f64`.
 // pub struct UnpackFloat(pub f64);
-class UnpackFloat(val value: Double) : StarlarkTypeRepr {
-
+class UnpackFloat(
+    val value: Double,
+) : StarlarkTypeRepr {
     // impl StarlarkTypeRepr for UnpackFloat
     //     type Canonical = <Num as StarlarkTypeRepr>::Canonical;
     //     fn starlark_type_repr() -> Ty
-    override fun starlarkTypeRepr(): Ty {
-        return Ty.union2(Ty.int(), Ty.float())
-    }
+    override fun starlarkTypeRepr(): Ty = Ty.union2(Ty.int(), Ty.float())
 
     companion object : UnpackValue<UnpackFloat> {
-
-        override fun starlarkTypeRepr(): Ty {
-            return Ty.union2(Ty.int(), Ty.float())
-        }
+        override fun starlarkTypeRepr(): Ty = Ty.union2(Ty.int(), Ty.float())
 
         // impl<'v> UnpackValue<'v> for UnpackFloat {
         //     type Error = <NumRef<'v> as UnpackValue<'v>>::Error;

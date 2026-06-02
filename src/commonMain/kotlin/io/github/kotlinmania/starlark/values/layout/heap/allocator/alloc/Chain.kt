@@ -20,7 +20,7 @@ package io.github.kotlinmania.starlark.values.layout.heap.allocator.alloc
  */
 
 import io.github.kotlinmania.starlark.values.layout.AlignedSize
-import io.github.kotlinmania.starlark.values.layout.heap.allocator.alloc.chunk_part.ChunkPart
+import io.github.kotlinmania.starlark.values.layout.heap.allocator.alloc.chunkpart.ChunkPart
 
 /**
  * What is stored inside each node of the ChunkChain linked list.
@@ -72,9 +72,7 @@ internal class ChunkChain private constructor(
     }
 
     /** Get the previous chain node, or null if this is the last/empty node. */
-    fun prev(): ChunkChain? {
-        return header?.prev
-    }
+    fun prev(): ChunkChain? = header?.prev
 
     /**
      * Size of memory available for allocation in the current chunk part,
@@ -98,9 +96,7 @@ internal class ChunkChain private constructor(
     }
 
     /** Get the data bytes as a [ByteArray]. */
-    fun dataBytes(): ByteArray {
-        return ByteArray(currentChunkAvailableLen().bytes().toInt())
-    }
+    fun dataBytes(): ByteArray = ByteArray(currentChunkAvailableLen().bytes().toInt())
 
     /** Split current chunk in the chain at the given offset. */
     fun splitAt(offset: AlignedSize): Pair<ChunkChain, ChunkPart> {
@@ -158,14 +154,10 @@ internal class ChunkChain private constructor(
     }
 
     /** Iterator over chain elements. */
-    fun iter(): ChunkChainIterator {
-        return ChunkChainIterator(next = this)
-    }
+    fun iter(): ChunkChainIterator = ChunkChainIterator(next = this)
 
     /** Number of chain links (depth), not counting the empty tail. */
-    fun depth(): Int {
-        return iter().asSequence().count().let { (it - 1).coerceAtLeast(0) }
-    }
+    fun depth(): Int = iter().asSequence().count().let { (it - 1).coerceAtLeast(0) }
 
     /** Total allocated bytes across all chunks (data area only). */
     fun allocatedBytes(): Int {
@@ -206,7 +198,6 @@ internal class ChunkChain private constructor(
 internal class ChunkChainIterator(
     private var next: ChunkChain?,
 ) : Iterator<ChunkChain> {
-
     override fun hasNext(): Boolean = next != null
 
     override fun next(): ChunkChain {

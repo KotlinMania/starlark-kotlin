@@ -25,20 +25,28 @@ import io.github.kotlinmania.starlark.values.layout.FrozenValue
 
 // pub enum NativeSigArg
 sealed class NativeSigArg {
-    data class Required(val name: String) : NativeSigArg()
-    data class Optional(val name: String) : NativeSigArg()
-    data class Defaulted(val name: String, val value: FrozenValue) : NativeSigArg()
+    data class Required(
+        val name: String,
+    ) : NativeSigArg()
+
+    data class Optional(
+        val name: String,
+    ) : NativeSigArg()
+
+    data class Defaulted(
+        val name: String,
+        val value: FrozenValue,
+    ) : NativeSigArg()
 
     // impl NativeSigArg
 
     // fn param(&self) -> (&str, ParametersSpecParam<FrozenValue>)
-    internal fun param(): Pair<String, ParametersSpecParam<FrozenValue>> {
-        return when (this) {
+    internal fun param(): Pair<String, ParametersSpecParam<FrozenValue>> =
+        when (this) {
             is Required -> Pair(name, ParametersSpecParam.Required)
             is Optional -> Pair(name, ParametersSpecParam.Optional)
             is Defaulted -> Pair(name, ParametersSpecParam.Defaulted(value))
         }
-    }
 }
 
 // pub fn parameter_spec(...)
@@ -49,8 +57,8 @@ fun parameterSpec(
     args: Boolean,
     namedOnly: List<NativeSigArg>,
     kwargs: Boolean,
-): ParametersSpec<FrozenValue> {
-    return ParametersSpec.newParts(
+): ParametersSpec<FrozenValue> =
+    ParametersSpec.newParts(
         name,
         posOnly.map { it.param() },
         posOrNamed.map { it.param() },
@@ -58,10 +66,7 @@ fun parameterSpec(
         namedOnly.map { it.param() },
         kwargs,
     )
-}
 
 /** [ParametersSpec] for a function which accepts `&Arguments`. */
 // pub fn parameter_spec_for_arguments(name: &'static str) -> ParametersSpec<FrozenValue>
-fun parameterSpecForArguments(name: String): ParametersSpec<FrozenValue> {
-    return parameterSpec(name, emptyList(), emptyList(), true, emptyList(), true)
-}
+fun parameterSpecForArguments(name: String): ParametersSpec<FrozenValue> = parameterSpec(name, emptyList(), emptyList(), true, emptyList(), true)

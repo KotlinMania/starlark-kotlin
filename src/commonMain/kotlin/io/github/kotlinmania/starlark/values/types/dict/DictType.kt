@@ -31,19 +31,18 @@ package io.github.kotlinmania.starlark.values.types.dict
 // use crate::values::type_repr::StarlarkTypeRepr;
 
 import io.github.kotlinmania.starlark.typing.Ty
-import io.github.kotlinmania.starlark.values.layout.Value
 import io.github.kotlinmania.starlark.values.StarlarkTypeRepr
+import io.github.kotlinmania.starlark.values.layout.Value
 
-/// A dict type marker.
-///
-/// [`StarlarkTypeRepr`] provides `dict[K, V]`.
-/// [`UnpackValue`] implementation verifies the types of entries and discards them.
+// / A dict type marker.
+// /
+// / [`StarlarkTypeRepr`] provides `dict[K, V]`.
+// / [`UnpackValue`] implementation verifies the types of entries and discards them.
 // pub struct DictType<K: StarlarkTypeRepr, V: StarlarkTypeRepr> {
 //     k: PhantomData<K>,
 //     v: PhantomData<V>,
 // }
 class DictType<K : StarlarkTypeRepr, V : StarlarkTypeRepr> private constructor() {
-
     companion object {
         fun <K : StarlarkTypeRepr, V : StarlarkTypeRepr> instance(): DictType<K, V> = DictType()
 
@@ -51,9 +50,7 @@ class DictType<K : StarlarkTypeRepr, V : StarlarkTypeRepr> private constructor()
         //     fn starlark_type_repr() -> Ty {
         //         Ty::dict(K::starlark_type_repr(), V::starlark_type_repr())
         //     }
-        inline fun <reified K : StarlarkTypeRepr, reified V : StarlarkTypeRepr> starlarkTypeRepr(): Ty {
-            return Ty.dict(K::class.starlarkTypeRepr(), V::class.starlarkTypeRepr())
-        }
+        inline fun <reified K : StarlarkTypeRepr, reified V : StarlarkTypeRepr> starlarkTypeRepr(): Ty = Ty.dict(K::class.starlarkTypeRepr(), V::class.starlarkTypeRepr())
     }
 }
 
@@ -61,16 +58,14 @@ class DictType<K : StarlarkTypeRepr, V : StarlarkTypeRepr> private constructor()
 //     type Error = Either<K::Error, V::Error>;
 //     fn unpack_value_impl(value: Value<'v>) -> Result<Option<Self>, Self::Error>
 fun <K : StarlarkTypeRepr, V : StarlarkTypeRepr> unpackDictType(
-    value: Value
-): Result<DictType<K, V>?> {
-    return when (val result = UnpackDictEntries.unpackValue<K, V>(value)) {
+    value: Value,
+): Result<DictType<K, V>?> =
+    when (val result = UnpackDictEntries.unpackValue<K, V>(value)) {
         null -> Result.success(null)
-        else -> result.map { entries ->
-            if (entries != null) DictType.instance<K, V>() else null
-        }
+        else ->
+            result.map { entries ->
+                if (entries != null) DictType.instance<K, V>() else null
+            }
     }
-}
 
-fun <T : StarlarkTypeRepr> kotlin.reflect.KClass<T>.starlarkTypeRepr(): Ty {
-    return Ty.any()
-}
+fun <T : StarlarkTypeRepr> kotlin.reflect.KClass<T>.starlarkTypeRepr(): Ty = Ty.any()

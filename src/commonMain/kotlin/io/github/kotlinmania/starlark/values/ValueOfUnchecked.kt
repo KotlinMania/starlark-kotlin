@@ -21,8 +21,8 @@ package io.github.kotlinmania.starlark.values
 
 import io.github.kotlinmania.starlark.typing.Ty
 import io.github.kotlinmania.starlark.values.layout.Freezer
-import io.github.kotlinmania.starlark.values.layout.Value
 import io.github.kotlinmania.starlark.values.layout.FrozenValue
+import io.github.kotlinmania.starlark.values.layout.Value
 import io.github.kotlinmania.starlark.values.layout.ValueLike
 import io.github.kotlinmania.starlark.values.layout.heap.FrozenHeap
 import io.github.kotlinmania.starlark.values.layout.heap.Heap
@@ -40,19 +40,14 @@ import io.github.kotlinmania.starlark.values.layout.heap.Tracer
 class ValueOfUncheckedGeneric<V, T : StarlarkTypeRepr> private constructor(
     private val value: V,
 ) {
-
     /**
      * Cast to a different Rust type for the same Starlark type.
      */
     @Suppress("UNCHECKED_CAST")
-    fun <U : StarlarkTypeRepr> cast(): ValueOfUncheckedGeneric<V, U> {
-        return new(this.value)
-    }
+    fun <U : StarlarkTypeRepr> cast(): ValueOfUncheckedGeneric<V, U> = new(this.value)
 
     /** Get the value. */
-    fun get(): V {
-        return value
-    }
+    fun get(): V = value
 
     /**
      * Unpack the value.
@@ -62,22 +57,19 @@ class ValueOfUncheckedGeneric<V, T : StarlarkTypeRepr> private constructor(
      */
     fun <R> unpack(unpacker: UnpackValue<R>): R {
         val v = value
-        val asValue: Value = when (v) {
-            is Value -> v
-            is ValueLike -> v.toValue()
-            else -> throw IllegalStateException("Cannot convert to Value")
-        }
+        val asValue: Value =
+            when (v) {
+                is Value -> v
+                is ValueLike -> v.toValue()
+                else -> throw IllegalStateException("Cannot convert to Value")
+            }
         return unpacker.unpackValueErr(asValue)
     }
 
     /** Debug representation, formatted as `ValueOfUnchecked(value)`. */
-    fun toDebugString(): String {
-        return "ValueOfUnchecked(${get()})"
-    }
+    fun toDebugString(): String = "ValueOfUnchecked(${get()})"
 
-    override fun toString(): String {
-        return value.toString()
-    }
+    override fun toString(): String = value.toString()
 
     /**
      * The representation of the starlark type.
@@ -86,9 +78,7 @@ class ValueOfUncheckedGeneric<V, T : StarlarkTypeRepr> private constructor(
      * In Kotlin, due to type erasure, the concrete [StarlarkTypeRepr] for `T`
      * must be provided externally.
      */
-    fun starlarkTypeRepr(typeRepr: StarlarkTypeRepr): Ty {
-        return typeRepr.starlarkTypeRepr()
-    }
+    fun starlarkTypeRepr(typeRepr: StarlarkTypeRepr): Ty = typeRepr.starlarkTypeRepr()
 
     /**
      * Allocate the wrapped value on the heap. Returns the underlying value.
@@ -96,13 +86,14 @@ class ValueOfUncheckedGeneric<V, T : StarlarkTypeRepr> private constructor(
      * The heap parameter is unused because the value is already allocated;
      * this simply extracts the [Value] from the wrapper.
      */
-    fun allocValue(@Suppress("UNUSED_PARAMETER") heap: Heap): Value {
-        return when (val v = value) {
+    fun allocValue(
+        @Suppress("UNUSED_PARAMETER") heap: Heap,
+    ): Value =
+        when (val v = value) {
             is Value -> v
             is ValueLike -> v.toValue()
             else -> throw IllegalStateException("ValueOfUncheckedGeneric: cannot alloc non-Value type")
         }
-    }
 
     /**
      * Allocate frozen value. Returns the underlying frozen value.
@@ -110,7 +101,9 @@ class ValueOfUncheckedGeneric<V, T : StarlarkTypeRepr> private constructor(
      * The heap parameter is unused because the value is already frozen;
      * this simply extracts the [FrozenValue] from the wrapper.
      */
-    fun allocFrozenValue(@Suppress("UNUSED_PARAMETER") heap: FrozenHeap): FrozenValue {
+    fun allocFrozenValue(
+        @Suppress("UNUSED_PARAMETER") heap: FrozenHeap,
+    ): FrozenValue {
         @Suppress("UNCHECKED_CAST")
         return value as FrozenValue
     }
@@ -126,30 +119,30 @@ class ValueOfUncheckedGeneric<V, T : StarlarkTypeRepr> private constructor(
     /** Freeze this value, producing a frozen equivalent. */
     fun freeze(freezer: Freezer): Result<ValueOfUncheckedGeneric<FrozenValue, T>> {
         val v = value
-        val frozen: FrozenValue = when (v) {
-            is Value -> v.freeze(freezer).getOrThrow()
-            is FrozenValue -> v
-            else -> throw IllegalStateException("Cannot freeze non-Value type")
-        }
+        val frozen: FrozenValue =
+            when (v) {
+                is Value -> v.freeze(freezer).getOrThrow()
+                is FrozenValue -> v
+                else -> throw IllegalStateException("Cannot freeze non-Value type")
+            }
         return Result.success(new(frozen))
     }
 
     /** Convert to a [ValueOfUnchecked] wrapping a [Value]. */
     fun toValue(): ValueOfUncheckedGeneric<Value, T> {
         val v = value
-        val asValue: Value = when (v) {
-            is Value -> v
-            is ValueLike -> v.toValue()
-            else -> throw IllegalStateException("Cannot convert to Value")
-        }
+        val asValue: Value =
+            when (v) {
+                is Value -> v
+                is ValueLike -> v.toValue()
+                else -> throw IllegalStateException("Cannot convert to Value")
+            }
         return new(asValue)
     }
 
     companion object {
         /** Wrap a value with a phantom type annotation. */
-        fun <V, T : StarlarkTypeRepr> new(value: V): ValueOfUncheckedGeneric<V, T> {
-            return ValueOfUncheckedGeneric(value)
-        }
+        fun <V, T : StarlarkTypeRepr> new(value: V): ValueOfUncheckedGeneric<V, T> = ValueOfUncheckedGeneric(value)
     }
 }
 
@@ -184,9 +177,7 @@ fun <T : StarlarkTypeRepr, R> ValueOfUncheckedGeneric.Companion.newChecked(
 /** Construct after checking the type (convenience overload that skips type checking). */
 fun <T : StarlarkTypeRepr> ValueOfUncheckedGeneric.Companion.newChecked(
     value: Value,
-): ValueOfUnchecked<T> {
-    return ValueOfUncheckedGeneric.new(value)
-}
+): ValueOfUnchecked<T> = ValueOfUncheckedGeneric.new(value)
 
 /**
  * [UnpackValue] implementation for [ValueOfUnchecked].
@@ -208,13 +199,9 @@ fun <T : StarlarkTypeRepr> ValueOfUncheckedGeneric.Companion.newChecked(
 class ValueOfUncheckedUnpackValue<T : StarlarkTypeRepr>(
     private val typeRepr: StarlarkTypeRepr,
 ) : UnpackValue<ValueOfUnchecked<T>> {
-    override fun starlarkTypeRepr(): Ty {
-        return typeRepr.starlarkTypeRepr()
-    }
+    override fun starlarkTypeRepr(): Ty = typeRepr.starlarkTypeRepr()
 
-    override fun unpackValueImpl(value: Value): Result<ValueOfUnchecked<T>?> {
-        return Result.success(ValueOfUncheckedGeneric.new(value))
-    }
+    override fun unpackValueImpl(value: Value): Result<ValueOfUnchecked<T>?> = Result.success(ValueOfUncheckedGeneric.new(value))
 }
 
 /**
@@ -222,6 +209,4 @@ class ValueOfUncheckedUnpackValue<T : StarlarkTypeRepr>(
  *
  * This always succeeds since [ValueOfUnchecked] wraps any value without checking the type.
  */
-fun <T : StarlarkTypeRepr> unpackValueOfUnchecked(value: Value): ValueOfUnchecked<T> {
-    return ValueOfUncheckedGeneric.new(value)
-}
+fun <T : StarlarkTypeRepr> unpackValueOfUnchecked(value: Value): ValueOfUnchecked<T> = ValueOfUncheckedGeneric.new(value)

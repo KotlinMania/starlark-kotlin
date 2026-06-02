@@ -23,13 +23,13 @@ package io.github.kotlinmania.starlark.eval.compiler
 
 import io.github.kotlinmania.starlark.Error
 import io.github.kotlinmania.starlark.codemap.Spanned
-import io.github.kotlinmania.starlark.eval.bc.compiler.asBc
 import io.github.kotlinmania.starlark.eval.bc.allocaFrame
+import io.github.kotlinmania.starlark.eval.bc.compiler.asBc
 import io.github.kotlinmania.starlark.eval.compiler.scope.CstAssignIdent
 import io.github.kotlinmania.starlark.eval.compiler.scope.CstPayload
 import io.github.kotlinmania.starlark.eval.compiler.scope.CstStmt
 import io.github.kotlinmania.starlark.eval.runtime.FrameSpan
-import io.github.kotlinmania.starlark.eval.runtime.frozen_file_span.FrozenFileSpan
+import io.github.kotlinmania.starlark.eval.runtime.frozenfilespan.FrozenFileSpan
 import io.github.kotlinmania.starlark.syntax.ast.LoadP
 import io.github.kotlinmania.starlark.syntax.ast.StmtP
 import io.github.kotlinmania.starlark.typing.BindingsCollect
@@ -47,10 +47,13 @@ import io.github.kotlinmania.starlark.values.layout.typed.FrozenStringValue
 
 // #[derive(Debug, thiserror::Error)]
 // enum ModuleError
-internal sealed class ModuleError(override val message: String) : Exception(message) {
+internal sealed class ModuleError(
+    override val message: String,
+) : Exception(message) {
     // #[error("No imports are available, you tried `{0}` (no call to `Evaluator.set_loader`)")]
-    data class NoImportsAvailable(val name: String) :
-        ModuleError("No imports are available, you tried `$name` (no call to `Evaluator.set_loader`)")
+    data class NoImportsAvailable(
+        val name: String,
+    ) : ModuleError("No imports are available, you tried `$name` (no call to `Evaluator.set_loader`)")
 
     // #[error("Unexpected statement (internal error)")]
     data object UnexpectedStatement :
@@ -71,41 +74,44 @@ internal fun Compiler.evalLoad(load: Spanned<LoadP<CstPayload, *>>): Result<Unit
     val span = FrameSpan.new(FrozenFileSpan.new(codemap, load.span))
 
     val loader = eval.loader
-    val loadenv = if (loader == null) {
-        return Result.failure(
-            addSpanToExprError(
-                Error.newOther(
-                    ModuleError.NoImportsAvailable(name)
+    val loadenv =
+        if (loader == null) {
+            return Result.failure(
+                addSpanToExprError(
+                    Error.newOther(
+                        ModuleError.NoImportsAvailable(name),
+                    ),
+                    span,
+                    eval,
                 ),
-                span,
-                eval,
             )
-        )
-    } else {
-        try {
-            exprThrow(runCatching { loader.load(name) }, span, eval)
-        } catch (e: EvalException) {
-            return Result.failure(e)
+        } else {
+            try {
+                exprThrow(runCatching { loader.load(name) }, span, eval)
+            } catch (e: EvalException) {
+                return Result.failure(e)
+            }
         }
-    }
 
     for (loadArg in load.node.args) {
         @Suppress("UNCHECKED_CAST")
         val local = loadArg.local as CstAssignIdent
         val (slot, _captured) = scopeData.getAssignIdentSlot(local, codemap.deref())
-        val moduleSlot = when (slot) {
-            is Slot.Local -> error("symbol need to be resolved to module")
-            is Slot.Module -> slot.id
-        }
-        val value = try {
-            exprThrow(
-                eval.moduleEnv.loadSymbol(loadenv, loadArg.their.node),
-                FrameSpan.new(FrozenFileSpan.new(codemap, loadArg.span())),
-                eval,
-            )
-        } catch (e: EvalException) {
-            return Result.failure(e)
-        }
+        val moduleSlot =
+            when (slot) {
+                is Slot.Local -> error("symbol need to be resolved to module")
+                is Slot.Module -> slot.id
+            }
+        val value =
+            try {
+                exprThrow(
+                    eval.moduleEnv.loadSymbol(loadenv, loadArg.their.node),
+                    FrameSpan.new(FrozenFileSpan.new(codemap, loadArg.span())),
+                    eval,
+                )
+            } catch (e: EvalException) {
+                return Result.failure(e)
+            }
         eval.setSlotModule(moduleSlot, value)
     }
 
@@ -127,18 +133,20 @@ internal fun Compiler.evalRegularTopLevelStmt(
                 ModuleError.UnexpectedStatement,
                 stmt.span,
                 codemap.deref(),
-            )
+            ),
         )
     }
 
-    val compiledStmt = moduleTopLevelStmt(stmt)
-        .getOrElse { e -> return Result.failure(e) }
-    val bc = compiledStmt.asBc(
-        compileContext(false),
-        localNames,
-        0,
-        eval.moduleEnv.frozenHeap(),
-    )
+    val compiledStmt =
+        moduleTopLevelStmt(stmt)
+            .getOrElse { e -> return Result.failure(e) }
+    val bc =
+        compiledStmt.asBc(
+            compileContext(false),
+            localNames,
+            0,
+            eval.moduleEnv.frozenHeap(),
+        )
     // We don't preserve locals between top level statements.
     // That is OK for now: the only locals used in module evaluation
     // are comprehension bindings.
@@ -164,7 +172,7 @@ internal fun Compiler.evalTopLevelStmt(
                 ModuleError.TopLevelStmtCountMismatch,
                 stmt.span,
                 codemap.deref(),
-            )
+            ),
         )
     }
 
@@ -176,15 +184,18 @@ internal fun Compiler.evalTopLevelStmt(
             is StmtP.Load<*, *> -> {
                 @Suppress("UNCHECKED_CAST")
                 val loadNode = s.node as StmtP.Load<CstPayload, *>
-                evalLoad(Spanned(
-                    node = loadNode.loadStmt,
-                    span = s.span,
-                )).getOrElse { return Result.failure(it) }
+                evalLoad(
+                    Spanned(
+                        node = loadNode.loadStmt,
+                        span = s.span,
+                    ),
+                ).getOrElse { return Result.failure(it) }
                 last = Value.newNone()
             }
             else -> {
-                last = evalRegularTopLevelStmt(s, localNames)
-                    .getOrElse { return Result.failure(it) }
+                last =
+                    evalRegularTopLevelStmt(s, localNames)
+                        .getOrElse { return Result.failure(it) }
             }
         }
     }
@@ -201,32 +212,35 @@ internal fun Compiler.typecheck(stmts: List<CstStmt>): Result<Unit> {
         return Result.success(Unit)
     }
 
-    val oracle = TypingOracleCtx(
-        codemap = codemap.deref(),
-    )
+    val oracle =
+        TypingOracleCtx(
+            codemap = codemap.deref(),
+        )
     val moduleVarTypes = mkModuleVarTypes()
     for (top in stmts) {
         if (top.node is StmtP.Def<*, *>) {
-            val bindingsCollect = runCatching {
-                BindingsCollect.collectOne(
-                    top,
-                    TypecheckMode.Compiler,
-                    codemap.deref(),
-                    mutableListOf(),
-                )
-            }.getOrElse { e ->
-                return Result.failure(
-                    if (e is InternalError) e.intoEvalException() else e
-                )
-            }
+            val bindingsCollect =
+                runCatching {
+                    BindingsCollect.collectOne(
+                        top,
+                        TypecheckMode.Compiler,
+                        codemap.deref(),
+                        mutableListOf(),
+                    )
+                }.getOrElse { e ->
+                    return Result.failure(
+                        if (e is InternalError) e.intoEvalException() else e,
+                    )
+                }
 
-            val (errors) = runCatching {
-                solveBindings(bindingsCollect.bindings, oracle, moduleVarTypes)
-            }.getOrElse { e ->
-                return Result.failure(
-                    if (e is InternalError) e.intoEvalException() else e
-                )
-            }
+            val (errors) =
+                runCatching {
+                    solveBindings(bindingsCollect.bindings, oracle, moduleVarTypes)
+                }.getOrElse { e ->
+                    return Result.failure(
+                        if (e is InternalError) e.intoEvalException() else e,
+                    )
+                }
 
             val firstError = errors.firstOrNull()
             if (firstError != null) {
@@ -240,11 +254,12 @@ internal fun Compiler.typecheck(stmts: List<CstStmt>): Result<Unit> {
 
 // fn mk_module_var_types(&self) -> ModuleVarTypes
 internal fun Compiler.mkModuleVarTypes(): ModuleVarTypes {
-    val types = eval.moduleEnv.valuesBySlotId()
-        .associate { (moduleSlotId, value) ->
-            moduleSlotId to Ty.ofValue(value)
-        }
-        .toMutableMap()
+    val types =
+        eval.moduleEnv
+            .valuesBySlotId()
+            .associate { (moduleSlotId, value) ->
+                moduleSlotId to Ty.ofValue(value)
+            }.toMutableMap()
     return ModuleVarTypes(types = types)
 }
 
@@ -254,11 +269,12 @@ internal fun Compiler.evalModule(
     localNames: FrozenRef<List<FrozenStringValue>>,
 ): Result<Value> {
     enterScope(ScopeId.module())
-    val value = evalTopLevelStmt(stmt, localNames)
-        .getOrElse { e ->
-            exitScope()
-            return Result.failure(e)
-        }
+    val value =
+        evalTopLevelStmt(stmt, localNames)
+            .getOrElse { e ->
+                exitScope()
+                return Result.failure(e)
+            }
     exitScope()
     check(locals.isEmpty())
     return Result.success(value)

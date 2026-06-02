@@ -1,5 +1,5 @@
 // port-lint: source src/values/types/any_complex.rs
-package io.github.kotlinmania.starlark.values.types.any_complex
+package io.github.kotlinmania.starlark.values.types.anycomplex
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.
@@ -19,7 +19,7 @@ package io.github.kotlinmania.starlark.values.types.any_complex
  * limitations under the License.
  */
 
-//! A type [`StarlarkAnyComplex`] which can wrap any Rust value into a [`Value`].
+// ! A type [`StarlarkAnyComplex`] which can wrap any Rust value into a [`Value`].
 
 // use std::any;
 // use std::fmt;
@@ -48,26 +48,27 @@ import io.github.kotlinmania.starlark.values.layout.Value
 import io.github.kotlinmania.starlark.values.layout.avalues.allocComplex
 import io.github.kotlinmania.starlark.values.layout.heap.Heap
 import io.github.kotlinmania.starlark.values.layout.heap.Tracer
-/// Allocate arbitrary value on the starlark heap without implementing full [`StarlarkValue`].
-///
-/// This is useful for data not directly visible to starlark code.
-///
-/// This type is for "complex" values (with tracing during GC). For no GC version check
-/// [`StarlarkAny`](crate::values::types::any::StarlarkAny).
+
+// / Allocate arbitrary value on the starlark heap without implementing full [`StarlarkValue`].
+// /
+// / This is useful for data not directly visible to starlark code.
+// /
+// / This type is for "complex" values (with tracing during GC). For no GC version check
+// / [`StarlarkAny`](crate::values::types::any::StarlarkAny).
 // #[derive(Trace, Freeze, Allocative, ProvidesStaticType, NoSerialize)]
 // pub struct StarlarkAnyComplex<T> { pub value: T }
 class StarlarkAnyComplex<T : Any>(
     /** The value. */
     val value: T,
-) : ComplexValue, Trace {
+) : ComplexValue,
+    Trace {
     companion object {
         // pub fn new(value: T) -> StarlarkAnyComplex<T>
         /** Construct a new `StarlarkAnyComplex` value, which can be allocated on the heap. */
-        fun <T : Any> new(value: T): StarlarkAnyComplex<T> {
-            return StarlarkAnyComplex(value)
-        }
+        fun <T : Any> new(value: T): StarlarkAnyComplex<T> = StarlarkAnyComplex(value)
 
         // pub fn get(value: Value<'v>) -> Option<&'v T>
+
         /** Obtain the value from a `Value`, if it is a `StarlarkAnyComplex<T>`. */
         @Suppress("UNCHECKED_CAST")
         inline fun <reified T : Any> get(value: Any): T? {
@@ -76,14 +77,16 @@ class StarlarkAnyComplex<T : Any>(
         }
 
         // pub fn get_err(value: Value<'v>) -> crate::Result<&'v T>
+
         /** Obtain the value from a `Value`, if it is a `StarlarkAnyComplex<T>`. */
         @Suppress("UNCHECKED_CAST")
         inline fun <reified T : Any> getErr(value: Any): T {
-            val complex = value as? StarlarkAnyComplex<*>
-                ?: throw IllegalArgumentException("Value is not StarlarkAnyComplex")
+            val complex =
+                value as? StarlarkAnyComplex<*>
+                    ?: throw IllegalArgumentException("Value is not StarlarkAnyComplex")
             return complex.value as? T
                 ?: throw IllegalArgumentException(
-                    "StarlarkAnyComplex value is not of expected type ${T::class}"
+                    "StarlarkAnyComplex value is not of expected type ${T::class}",
                 )
         }
     }
@@ -91,9 +94,7 @@ class StarlarkAnyComplex<T : Any>(
     // Proper `Debug` is hard to require from users because of `Freeze` and `ProvidesStaticType`.
     // impl Debug for StarlarkAnyComplex<T>
     // fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result
-    override fun toString(): String {
-        return "${value::class.simpleName ?: "StarlarkAnyComplex"} { .. }"
-    }
+    override fun toString(): String = "${value::class.simpleName ?: "StarlarkAnyComplex"} { .. }"
 
     // #[starlark_value(type = "any_complex")]
     // impl StarlarkValue for StarlarkAnyComplex<T>
@@ -109,9 +110,7 @@ class StarlarkAnyComplex<T : Any>(
 
     // impl AllocValue for StarlarkAnyComplex<T>
     // fn alloc_value(self, heap: Heap<'v>) -> Value<'v>
-    fun allocValue(heap: Heap): Value {
-        return heap.allocComplex(this)
-    }
+    fun allocValue(heap: Heap): Value = heap.allocComplex(this)
 }
 
 // #[cfg(test)] mod tests

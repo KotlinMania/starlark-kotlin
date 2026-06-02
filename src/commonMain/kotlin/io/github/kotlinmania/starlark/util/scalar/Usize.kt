@@ -9,4 +9,3 @@ package io.github.kotlinmania.starlark.util.scalar
 data class Usize(
     val value: Int,
 )
-

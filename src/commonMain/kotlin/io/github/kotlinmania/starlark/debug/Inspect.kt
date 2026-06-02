@@ -22,10 +22,10 @@ package io.github.kotlinmania.starlark.debug
 import io.github.kotlinmania.starlark.collections.SmallMap
 import io.github.kotlinmania.starlark.eval.compiler.Def
 import io.github.kotlinmania.starlark.eval.compiler.FrozenDef
-import io.github.kotlinmania.starlark.values.layout.typed.FrozenStringValue
 import io.github.kotlinmania.starlark.eval.runtime.Evaluator
 import io.github.kotlinmania.starlark.eval.runtime.LocalSlotIdCapturedOrNot
 import io.github.kotlinmania.starlark.values.layout.Value
+import io.github.kotlinmania.starlark.values.layout.typed.FrozenStringValue
 
 internal fun toScopeNamesByLocalSlotId(x: Value): List<FrozenStringValue>? {
     if (x.unpackFrozen() != null) {
@@ -41,15 +41,14 @@ internal fun toScopeNamesByLocalSlotId(x: Value): List<FrozenStringValue>? {
  * definitions. The precise number of variables may change over time due to optimisation. The only
  * legitimate use of this function is for debugging.
  */
-fun Evaluator.localVariables(): SmallMap<String, Value> {
-    return inspectLocalVariables(this) ?: inspectModuleVariables(this)
-}
+fun Evaluator.localVariables(): SmallMap<String, Value> = inspectLocalVariables(this) ?: inspectModuleVariables(this)
 
 private fun inspectLocalVariables(eval: Evaluator): SmallMap<String, Value>? {
     // First we find the first entry on the call_stack which contains a Def (and thus has locals)
     val xs = eval.callStack.toFunctionValues()
-    val names = xs.reversed().firstNotNullOfOrNull { toScopeNamesByLocalSlotId(it) }
-        ?: return null
+    val names =
+        xs.reversed().firstNotNullOfOrNull { toScopeNamesByLocalSlotId(it) }
+            ?: return null
     val res = SmallMap.new<String, Value>()
     for ((slot, name) in names.withIndex()) {
         // correctly handle captured.

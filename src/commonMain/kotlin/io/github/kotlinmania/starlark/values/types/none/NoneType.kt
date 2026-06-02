@@ -42,26 +42,26 @@ package io.github.kotlinmania.starlark.values.types.none
 // use crate::values::UnpackValue;
 // use crate::values::Value;
 
-import io.github.kotlinmania.starlark.typing.Ty
 import io.github.kotlinmania.starlark.collections.StarlarkHashValue
 import io.github.kotlinmania.starlark.collections.StarlarkHasher
+import io.github.kotlinmania.starlark.typing.Ty
 import io.github.kotlinmania.starlark.values.AllocFrozenValue
 import io.github.kotlinmania.starlark.values.AllocValue
-import io.github.kotlinmania.starlark.values.layout.heap.FrozenHeap
-import io.github.kotlinmania.starlark.values.layout.FrozenValue
 import io.github.kotlinmania.starlark.values.StarlarkValue
 import io.github.kotlinmania.starlark.values.UnpackValue
-import io.github.kotlinmania.starlark.values.layout.avalues.AllocStaticSimple
-import io.github.kotlinmania.starlark.values.layout.heap.Heap
+import io.github.kotlinmania.starlark.values.layout.FrozenValue
 import io.github.kotlinmania.starlark.values.layout.Value
+import io.github.kotlinmania.starlark.values.layout.avalues.AllocStaticSimple
+import io.github.kotlinmania.starlark.values.layout.heap.FrozenHeap
+import io.github.kotlinmania.starlark.values.layout.heap.Heap
 
-/// Define the None type, use [`NoneType`] in Rust.
+// / Define the None type, use [`NoneType`] in Rust.
 // #[derive(Debug, Clone, Dupe, ProvidesStaticType, Display, Allocative)]
 // #[display("None")]
 // pub struct NoneType;
 object NoneType : StarlarkValue, AllocValue, AllocFrozenValue, UnpackValue<NoneType> {
     // impl NoneType
-    /// The result of `type(None)`.
+    // / The result of `type(None)`.
     // pub const TYPE: &'static str = "NoneType";
     override val TYPE: String = "NoneType"
     override val HAS_eval_type: Boolean get() = true
@@ -91,30 +91,20 @@ object NoneType : StarlarkValue, AllocValue, AllocFrozenValue, UnpackValue<NoneT
         return Result.success(StarlarkHashValue.newUnchecked(0xf9c2263dU))
     }
 
-    override fun starlarkTypeRepr(): Ty {
-        return Ty.none()
-    }
+    override fun starlarkTypeRepr(): Ty = Ty.none()
 
     // fn get_type_starlark_repr() -> Ty
-    override fun getTypeStarlarkRepr(): Ty {
-        return Ty.none()
-    }
+    override fun getTypeStarlarkRepr(): Ty = Ty.none()
 
     // fn typechecker_ty(&self) -> Option<Ty>
-    override fun typecheckerTy(): Ty? {
-        return Ty.none()
-    }
+    override fun typecheckerTy(): Ty? = Ty.none()
 
     // fn eval_type(&self) -> Option<Ty>
-    override fun evalType(): Ty? {
-        return Ty.none()
-    }
+    override fun evalType(): Ty? = Ty.none()
 
     // impl<'v> AllocValue<'v> for NoneType
     // fn alloc_value(self, _heap: Heap<'v>) -> Value<'v> { Value::new_none() }
-    override fun allocValue(heap: Heap): Value {
-        return Value.newNone()
-    }
+    override fun allocValue(heap: Heap): Value = Value.newNone()
 
     // impl Serialize for NoneType {
     //     fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error> {
@@ -129,29 +119,22 @@ object NoneType : StarlarkValue, AllocValue, AllocFrozenValue, UnpackValue<NoneT
 
     // impl AllocFrozenValue for NoneType
     // fn alloc_frozen_value(self, _heap: &FrozenHeap) -> FrozenValue { FrozenValue::new_none() }
-    override fun allocFrozenValue(heap: FrozenHeap): FrozenValue {
-        return FrozenValue.newNone()
-    }
+    override fun allocFrozenValue(heap: FrozenHeap): FrozenValue = FrozenValue.newNone()
 
     // impl<'v> UnpackValue<'v> for NoneType {
     //     type Error = Infallible;
     //     fn unpack_value_impl(value: Value<'v>) -> Result<Option<Self>, Self::Error>
-    override fun unpackValueImpl(value: Value): Result<NoneType?> {
-        return if (value.isNone()) {
+    override fun unpackValueImpl(value: Value): Result<NoneType?> =
+        if (value.isNone()) {
             Result.success(NoneType)
         } else {
             Result.success(null)
         }
-    }
 }
 
 // pub(crate) static VALUE_NONE: AllocStaticSimple<NoneType> = AllocStaticSimple::alloc(NoneType);
 internal val VALUE_NONE: AllocStaticSimple<NoneType> = AllocStaticSimple.alloc(NoneType)
 
-fun getTypeStarlarkRepr(): Ty {
-    return NoneType.getTypeStarlarkRepr()
-}
+fun getTypeStarlarkRepr(): Ty = NoneType.getTypeStarlarkRepr()
 
-fun unpackValueImpl(value: Value): Result<NoneType?> {
-    return NoneType.unpackValueImpl(value)
-}
+fun unpackValueImpl(value: Value): Result<NoneType?> = NoneType.unpackValueImpl(value)

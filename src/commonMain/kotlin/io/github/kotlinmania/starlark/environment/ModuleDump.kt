@@ -20,14 +20,14 @@ package io.github.kotlinmania.starlark.environment
  */
 
 import io.github.kotlinmania.starlark.eval.compiler.FrozenDef
-import io.github.kotlinmania.starlark.values.layout.heap.FrozenHeapRef
 import io.github.kotlinmania.starlark.values.layout.FrozenValueTyped
+import io.github.kotlinmania.starlark.values.layout.heap.FrozenHeapRef
 
 // impl FrozenModule
 
 /** Print a lot of module internals for debugging. */
-fun FrozenModule.dumpDebug(): String {
-    return buildString {
+fun FrozenModule.dumpDebug(): String =
+    buildString {
         val secs = evalDuration.inWholeMilliseconds / 1000.0
         appendLine("Eval duration: ${((secs * 1000).toLong() / 1000.0)}s")
         appendLine("Heap stats:")
@@ -38,19 +38,19 @@ fun FrozenModule.dumpDebug(): String {
             appendLine("$name = $value")
             val def = FrozenValueTyped.new<FrozenDef>(value)
             if (def != null) {
-                def.asRef().dumpDebug()
+                def
+                    .asRef()
+                    .dumpDebug()
                     .lines()
                     .forEach { line -> appendLine("  $line") }
             }
         }
     }
-}
 
 // impl FrozenHeapRef
 
-private fun FrozenHeapRef.dumpDebug(): String {
-    return buildString {
+private fun FrozenHeapRef.dumpDebug(): String =
+    buildString {
         appendLine("Allocated bytes: ${allocatedBytes()}")
         appendLine("Available bytes: ${availableBytes()}")
     }
-}

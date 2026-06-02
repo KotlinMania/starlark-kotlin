@@ -27,8 +27,6 @@ import kotlinx.serialization.Serializable
  *
  * [Linter JSON format](https://www.internalfb.com/intern/wiki/Linting/adding-linters/).
  */
-// #[derive(Debug, Clone, Serialize)]
-// pub struct LintMessage
 @Serializable
 data class LintMessage(
     val path: String,
@@ -46,17 +44,26 @@ data class LintMessage(
          * Construct from an [EvalMessage].
          */
         // pub fn new(x: EvalMessage) -> Self
-        fun new(x: EvalMessage): LintMessage {
-            return LintMessage(
+        fun new(x: EvalMessage): LintMessage =
+            LintMessage(
                 path = x.path,
-                line = x.span?.span?.begin?.line?.plus(1),
-                char = x.span?.span?.begin?.column?.plus(1),
+                line =
+                    x.span
+                        ?.span
+                        ?.begin
+                        ?.line
+                        ?.plus(1),
+                char =
+                    x.span
+                        ?.span
+                        ?.begin
+                        ?.column
+                        ?.plus(1),
                 code = "STARLARK",
                 severity = x.severity,
                 name = x.name,
                 description = x.description,
                 original = x.original,
             )
-        }
     }
 }

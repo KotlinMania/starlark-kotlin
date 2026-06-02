@@ -24,7 +24,9 @@ import io.github.kotlinmania.starlark.ErrorKind
 import io.github.kotlinmania.starlark.values.layout.Value
 
 /** Common errors returned by Starlark evaluation. */
-sealed class ValueError(override val message: String) : Exception(message) {
+sealed class ValueError(
+    override val message: String,
+) : Exception(message) {
     data class OperationNotSupported(
         val op: String,
         val typ: String,
@@ -87,39 +89,34 @@ sealed class ValueError(override val message: String) : Exception(message) {
             left: String,
             op: String,
             right: String?,
-        ): Result<T> {
-            return when (right) {
-                null -> Result.failure(
-                    OperationNotSupported(op = op, typ = left)
-                )
-                else -> Result.failure(
-                    OperationNotSupportedBinary(op = op, left = left, right = right)
-                )
+        ): Result<T> =
+            when (right) {
+                null ->
+                    Result.failure(
+                        OperationNotSupported(op = op, typ = left),
+                    )
+                else ->
+                    Result.failure(
+                        OperationNotSupportedBinary(op = op, left = left, right = right),
+                    )
             }
-        }
 
         /** Helper to create an [OperationNotSupported] error. */
-        fun <T> unsupported(leftType: String, op: String): Result<T> {
-            return unsupportedOwned(leftType, op, null)
-        }
+        fun <T> unsupported(leftType: String, op: String): Result<T> = unsupportedOwned(leftType, op, null)
 
-        internal fun <T> unsupportedType(left: Value, op: String): Result<T> {
-            return unsupportedOwned(left.getType(), op, null)
-        }
+        internal fun <T> unsupportedType(left: Value, op: String): Result<T> = unsupportedOwned(left.getType(), op, null)
 
         /** Helper to create an [OperationNotSupportedBinary] error. */
-        fun <T> unsupportedWith(leftType: String, op: String, right: Value): Result<T> {
-            return unsupportedOwned(leftType, op, right.getType())
-        }
+        fun <T> unsupportedWith(leftType: String, op: String, right: Value): Result<T> = unsupportedOwned(leftType, op, right.getType())
     }
 }
 
 /** Convert a [ValueError] to a starlark [io.github.kotlinmania.starlark.Error]. */
-fun ValueError.toStarlarkError(): Error {
-    return Error.newKind(ErrorKind.Value(this))
-}
+fun ValueError.toStarlarkError(): Error = Error.newKind(ErrorKind.Value(this))
 
-internal sealed class ControlError(override val message: String) : Exception(message) {
+internal sealed class ControlError(
+    override val message: String,
+) : Exception(message) {
     data class NotHashableValue(
         val typeName: String,
     ) : ControlError("Value of type `$typeName` is not hashable")

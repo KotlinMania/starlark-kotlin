@@ -32,11 +32,11 @@ package io.github.kotlinmania.starlark.collections.symbol
 // use io.github.kotlinmania.starlark.collections::StarlarkHashValue;
 
 import io.github.kotlinmania.starlark.Coerce
-import io.github.kotlinmania.starlark.collections.aligned_padded_str.AlignedPaddedStr
-import io.github.kotlinmania.starlark.eval.runtime.ArgSymbol
-import io.github.kotlinmania.starlark.eval.runtime.params.spec.ParametersSpec
 import io.github.kotlinmania.starlark.collections.Hashed
 import io.github.kotlinmania.starlark.collections.StarlarkHashValue
+import io.github.kotlinmania.starlark.collections.alignedpaddedstr.AlignedPaddedStr
+import io.github.kotlinmania.starlark.eval.runtime.ArgSymbol
+import io.github.kotlinmania.starlark.eval.runtime.params.spec.ParametersSpec
 
 // use crate as starlark;
 // use crate::coerce::Coerce;
@@ -57,8 +57,8 @@ class Symbol private constructor(
     private val len: UInt,
     private val payload: LongArray,
     private val smallHash: StarlarkHashValue,
-) : Coerce<Symbol>, ArgSymbol {
-
+) : Coerce<Symbol>,
+    ArgSymbol {
     // unsafe impl Coerce<Symbol> for Symbol {}
 
     // impl Debug for Symbol {
@@ -148,9 +148,7 @@ class Symbol private constructor(
 
     // impl ArgSymbol for Symbol (from arguments.rs)
     // fn get_index_from_param_spec<'v, V: ValueLike<'v>>(&self, ps: &ParametersSpec<V>) -> Option<usize>
-    override fun <V> getIndexFromParamSpec(ps: ParametersSpec<V>): Int? {
-        return ps.names.get(this)?.toInt()
-    }
+    override fun <V> getIndexFromParamSpec(ps: ParametersSpec<V>): Int? = ps.names.get(this)?.toInt()
 
     companion object {
         // pub(crate) fn new(x: &str) -> Self {

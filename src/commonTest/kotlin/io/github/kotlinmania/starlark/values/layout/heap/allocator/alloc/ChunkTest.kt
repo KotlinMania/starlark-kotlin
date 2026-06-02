@@ -20,7 +20,6 @@ import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
 class ChunkTest {
-
     @Test
     fun testNewIsEmpty() {
         val chunk = Chunk()

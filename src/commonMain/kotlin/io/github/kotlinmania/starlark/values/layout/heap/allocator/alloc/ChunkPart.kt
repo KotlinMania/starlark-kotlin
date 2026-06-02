@@ -1,5 +1,5 @@
 // port-lint: source src/values/layout/heap/allocator/alloc/chunk_part.rs
-package io.github.kotlinmania.starlark.values.layout.heap.allocator.alloc.chunk_part
+package io.github.kotlinmania.starlark.values.layout.heap.allocator.alloc.chunkpart
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.
@@ -38,11 +38,12 @@ internal class ChunkPart(
 ) {
     companion object {
         // impl Default for ChunkPart
-        fun default(): ChunkPart = ChunkPart(
-            allocation = Chunk.default(),
-            begin = AlignedSize.ZERO,
-            end = AlignedSize.ZERO,
-        )
+        fun default(): ChunkPart =
+            ChunkPart(
+                allocation = Chunk.default(),
+                begin = AlignedSize.ZERO,
+                end = AlignedSize.ZERO,
+            )
 
         /** Create a chunk part from a whole chunk. */
         // pub(crate) fn new(allocation: Chunk) -> ChunkPart
@@ -64,50 +65,37 @@ internal class ChunkPart(
 
         /** Allocate a chunk part to store at least `len`. */
         // pub(crate) fn alloc_at_least(len: AlignedSize) -> ChunkPart
-        fun allocAtLeast(len: AlignedSize): ChunkPart {
-            return new(Chunk.allocAtLeast(len))
-        }
+        fun allocAtLeast(len: AlignedSize): ChunkPart = new(Chunk.allocAtLeast(len))
     }
 
     // pub(crate) fn len(&self) -> AlignedSize
-    fun len(): AlignedSize {
-        return end.uncheckedSub(begin)
-    }
+    fun len(): AlignedSize = end.uncheckedSub(begin)
 
     // pub(crate) fn begin(&self) -> NonNull<usize>
-    fun begin(): Int {
-        return allocation.ptrAtOffset(begin)
-    }
+    fun begin(): Int = allocation.ptrAtOffset(begin)
 
     // pub(crate) fn ptr_at_offset(&self, offset: AlignedSize) -> NonNull<usize>
-    fun ptrAtOffset(offset: AlignedSize): Int {
-        return allocation.ptrAtOffset(begin + offset)
-    }
+    fun ptrAtOffset(offset: AlignedSize): Int = allocation.ptrAtOffset(begin + offset)
 
     // pub(crate) fn end(&self) -> NonNull<usize>
-    fun end(): Int {
-        return allocation.ptrAtOffset(end)
-    }
+    fun end(): Int = allocation.ptrAtOffset(end)
 
     // pub(crate) fn allocated_bytes_with_metadata(&self) -> usize
-    fun allocatedBytesWithMetadata(): Int {
-        return if (chunkRefCount() == 1) {
+    fun allocatedBytesWithMetadata(): Int =
+        if (chunkRefCount() == 1) {
             allocation.allocatedBytesWithMetadata()
         } else {
             // We cannot know for sure, so try the best to estimate.
             (len().bytes() + Chunk.HEADER_SIZE.bytes() / chunkRefCount().toUInt()).toInt()
         }
-    }
 
     /** Does this chunk part occupy the whole chunk? */
     // pub(crate) fn is_full(&self) -> bool
-    fun isFull(): Boolean {
-        return len() == allocation.len()
-    }
+    fun isFull(): Boolean = len() == allocation.len()
 
     // pub(crate) fn split_at_offset(self, offset: AlignedSize) -> (ChunkPart, ChunkPart)
-    fun splitAtOffset(offset: AlignedSize): Pair<ChunkPart, ChunkPart> {
-        return if (offset == AlignedSize.ZERO) {
+    fun splitAtOffset(offset: AlignedSize): Pair<ChunkPart, ChunkPart> =
+        if (offset == AlignedSize.ZERO) {
             Pair(default(), this)
         } else if (offset == len()) {
             Pair(this, default())
@@ -119,18 +107,13 @@ internal class ChunkPart(
                 newSubslice(allocation, offsetRelativeToChunk, end),
             )
         }
-    }
 
     // pub(crate) fn chunk_ref_count(&self) -> u32
-    fun chunkRefCount(): Int {
-        return allocation.refCount()
-    }
+    fun chunkRefCount(): Int = allocation.refCount()
 
     // #[cfg(test)]
     // pub(crate) fn chunk_ptr_eq(&self, other: &ChunkPart) -> bool
-    fun chunkPtrEq(other: ChunkPart): Boolean {
-        return allocation.ptrEq(other.allocation)
-    }
+    fun chunkPtrEq(other: ChunkPart): Boolean = allocation.ptrEq(other.allocation)
 
     // impl PartialEq for ChunkPart
     override fun equals(other: Any?): Boolean {
@@ -147,9 +130,7 @@ internal class ChunkPart(
     }
 
     // impl Debug for ChunkPart
-    override fun toString(): String {
-        return "ChunkPart(begin=$begin, end=$end)"
-    }
+    override fun toString(): String = "ChunkPart(begin=$begin, end=$end)"
 }
 
 // #[cfg(test)] mod tests

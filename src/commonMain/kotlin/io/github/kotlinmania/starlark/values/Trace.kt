@@ -23,7 +23,7 @@ import io.github.kotlinmania.starlark.Either
 import io.github.kotlinmania.starlark.collections.HashTable
 import io.github.kotlinmania.starlark.collections.Hashed
 import io.github.kotlinmania.starlark.collections.SmallMap
-import io.github.kotlinmania.starlark.collections.small_set.SmallSet
+import io.github.kotlinmania.starlark.collections.smallset.SmallSet
 import io.github.kotlinmania.starlark.util.atomics.AtomicBool
 import io.github.kotlinmania.starlark.util.atomics.AtomicI16
 import io.github.kotlinmania.starlark.util.atomics.AtomicI32
@@ -39,14 +39,14 @@ import io.github.kotlinmania.starlark.util.boxed.Box
 import io.github.kotlinmania.starlark.util.cell.Cell
 import io.github.kotlinmania.starlark.util.cell.OnceCell
 import io.github.kotlinmania.starlark.util.cell.UnsafeCell
+import io.github.kotlinmania.starlark.util.refcell.RefCell
 import io.github.kotlinmania.starlark.util.scalar.Usize
+import io.github.kotlinmania.starlark.util.sync.Arc
+import io.github.kotlinmania.starlark.util.sync.Mutex
+import io.github.kotlinmania.starlark.util.time.Instant
 import io.github.kotlinmania.starlark.values.layout.FrozenValue
 import io.github.kotlinmania.starlark.values.layout.heap.Tracer
 import io.github.kotlinmania.starlark.values.layout.heap.ValueHolder as Value
-import io.github.kotlinmania.starlark.util.sync.Arc
-import io.github.kotlinmania.starlark.util.refcell.RefCell
-import io.github.kotlinmania.starlark.util.sync.Mutex
-import io.github.kotlinmania.starlark.util.time.Instant
 
 /**
  * Called by the garbage collection, and must walk over every contained [Value] in the type.

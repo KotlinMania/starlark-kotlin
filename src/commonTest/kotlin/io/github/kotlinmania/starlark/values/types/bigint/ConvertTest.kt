@@ -21,7 +21,7 @@ package io.github.kotlinmania.starlark.values.types.bigint
 
 import io.github.kotlinmania.starlark.assert.Assert
 import io.github.kotlinmania.starlark.environment.GlobalsBuilder
-import io.github.kotlinmania.starlark.values.none.NoneType
+import io.github.kotlinmania.starlark.values.types.none.NoneType
 import kotlin.test.Test
 
 class ConvertTest {

@@ -1,5 +1,6 @@
 // port-lint: source src/pagable.rs
 @file:Suppress("unused")
+
 package io.github.kotlinmania.starlark.pagable
 
 /*
@@ -20,19 +21,19 @@ package io.github.kotlinmania.starlark.pagable
  * limitations under the License.
  */
 
-/// Support for serialization and deserialization of Starlark values (pagable).
-///
-/// This module provides the infrastructure needed to serialize and deserialize
-/// Starlark heaps and values.
-///
-/// ## Challenge: Type Inventory Registration
-///
-/// During deserialization, we need to know which deserialization function to use
-/// for each Starlark value type. This is solved by using the `inventory` crate
-/// to register a mapping from type identifiers to vtables at compile time.
-///
-/// The type identifier is `std::any::type_name<T>()` for the Rust type that
-/// defines the Starlark value.
+// / Support for serialization and deserialization of Starlark values (pagable).
+// /
+// / This module provides the infrastructure needed to serialize and deserialize
+// / Starlark heaps and values.
+// /
+// / ## Challenge: Type Inventory Registration
+// /
+// / During deserialization, we need to know which deserialization function to use
+// / for each Starlark value type. This is solved by using the `inventory` crate
+// / to register a mapping from type identifiers to vtables at compile time.
+// /
+// / The type identifier is `std::any::type_name<T>()` for the Rust type that
+// / defines the Starlark value.
 
 // #[cfg(feature = "pagable")]
 // pub(crate) mod error;

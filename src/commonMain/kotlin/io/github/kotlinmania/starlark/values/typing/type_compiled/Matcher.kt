@@ -1,5 +1,5 @@
 // port-lint: source src/values/typing/type_compiled/matcher.rs
-package io.github.kotlinmania.starlark.values.typing.type_compiled
+package io.github.kotlinmania.starlark.values.typing.typecompiled
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.
@@ -19,8 +19,8 @@ package io.github.kotlinmania.starlark.values.typing.type_compiled
  * limitations under the License.
  */
 
-import io.github.kotlinmania.starlark.values.layout.Value
 import io.github.kotlinmania.starlark.typing.TyCustom
+import io.github.kotlinmania.starlark.values.layout.Value
 
 /**
  * Marker interface for type matchers which are registered.
@@ -49,6 +49,7 @@ interface TypeMatcherBase
 interface TypeMatcherT : TypeMatcherBase {
     /** Check if the value matches the type. */
     fun matches(value: Value): Boolean
+
     /** True if this matcher matches any value. */
     fun isWildcard(): Boolean = false
 }
@@ -56,26 +57,32 @@ interface TypeMatcherT : TypeMatcherBase {
 // pub(crate) trait TypeMatcherDyn: Debug + Allocative + Send + Sync + 'static
 internal interface TypeMatcherDyn {
     fun matchesDyn(value: Value): Boolean
+
     fun isWildcardDyn(): Boolean
+
     fun toBox(): TypeMatcherBox
 }
 
 // impl<T: TypeMatcher> TypeMatcherDyn for T — blanket impl
 // In Kotlin we provide a wrapper adapter instead.
-internal class TypeMatcherDynAdapter<T : TypeMatcherT>(private val inner: T) : TypeMatcherDyn {
+internal class TypeMatcherDynAdapter<T : TypeMatcherT>(
+    private val inner: T,
+) : TypeMatcherDyn {
     override fun matchesDyn(value: Value): Boolean = inner.matches(value)
+
     override fun isWildcardDyn(): Boolean = inner.isWildcard()
+
     override fun toBox(): TypeMatcherBox = TypeMatcherBox(TypeMatcherDynAdapter(inner))
 }
 
 // #[derive(Debug, Allocative)]
 // pub(crate) struct TypeMatcherBox(pub(crate) Box<dyn TypeMatcherDyn>)
-internal class TypeMatcherBox(internal val inner: TypeMatcherDyn) : TypeMatcherT {
+internal class TypeMatcherBox(
+    internal val inner: TypeMatcherDyn,
+) : TypeMatcherT {
     companion object {
         // pub(crate) fn new<T: TypeMatcher>(matcher: T) -> TypeMatcherBox
-        fun <T : TypeMatcherT> new(matcher: T): TypeMatcherBox {
-            return TypeMatcherBox(TypeMatcherDynAdapter(matcher))
-        }
+        fun <T : TypeMatcherT> new(matcher: T): TypeMatcherBox = TypeMatcherBox(TypeMatcherDynAdapter(matcher))
     }
 
     // impl Clone for TypeMatcherBox
@@ -91,18 +98,16 @@ internal class TypeMatcherBox(internal val inner: TypeMatcherDyn) : TypeMatcherT
 /** Type allocator which allocates `TypeMatcher` into `TypeMatcherBox`. */
 // pub(crate) struct TypeMatcherBoxAlloc
 internal class TypeMatcherBoxAllocImpl : TypeMatcherAlloc<TypeMatcherBox> {
-    override fun alloc(matcher: TypeMatcher): TypeMatcherBox {
-        return TypeMatcherBox.new(object : TypeMatcherT {
-            override fun matches(value: Value): Boolean = matcher.matches(value)
-            override fun isWildcard(): Boolean = matcher.isWildcard()
-        })
-    }
+    override fun alloc(matcher: TypeMatcher): TypeMatcherBox =
+        TypeMatcherBox.new(
+            object : TypeMatcherT {
+                override fun matches(value: Value): Boolean = matcher.matches(value)
 
-    override fun custom(custom: TyCustom): TypeMatcherBox {
-        return custom.matcherWithBox()
-    }
+                override fun isWildcard(): Boolean = matcher.isWildcard()
+            },
+        )
 
-    override fun fromTypeMatcherFactory(factory: TypeMatcherFactory): TypeMatcherBox {
-        return factory.factory.matcherBox()
-    }
+    override fun custom(custom: TyCustom): TypeMatcherBox = custom.matcherWithBox()
+
+    override fun fromTypeMatcherFactory(factory: TypeMatcherFactory): TypeMatcherBox = factory.factory.matcherBox()
 }

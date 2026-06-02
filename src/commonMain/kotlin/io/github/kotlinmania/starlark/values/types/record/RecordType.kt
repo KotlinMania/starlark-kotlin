@@ -1,5 +1,5 @@
 // port-lint: source src/values/types/record/record_type.rs
-package io.github.kotlinmania.starlark.values.types.record.record_type
+package io.github.kotlinmania.starlark.values.types.record.recordtype
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.
@@ -38,10 +38,10 @@ import io.github.kotlinmania.starlark.typing.TyUserFields
 import io.github.kotlinmania.starlark.typing.TyUserParams
 import io.github.kotlinmania.starlark.values.ComplexValue
 import io.github.kotlinmania.starlark.values.Freeze
-import io.github.kotlinmania.starlark.values.layout.Freezer
-import io.github.kotlinmania.starlark.values.layout.FrozenValue
 import io.github.kotlinmania.starlark.values.ValueUnpackValue
 import io.github.kotlinmania.starlark.values.freezeSmallMap
+import io.github.kotlinmania.starlark.values.layout.Freezer
+import io.github.kotlinmania.starlark.values.layout.FrozenValue
 import io.github.kotlinmania.starlark.values.layout.Value
 import io.github.kotlinmania.starlark.values.layout.avalues.allocComplex
 import io.github.kotlinmania.starlark.values.types.FUNCTION_TYPE
@@ -50,7 +50,7 @@ import io.github.kotlinmania.starlark.values.types.record.Field
 import io.github.kotlinmania.starlark.values.types.record.RecordGen
 import io.github.kotlinmania.starlark.values.types.record.RecordTypeMatcher
 import io.github.kotlinmania.starlark.values.types.record.TyRecordData
-import io.github.kotlinmania.starlark.values.typing.type_compiled.TypeMatcherFactory
+import io.github.kotlinmania.starlark.values.typing.typecompiled.TypeMatcherFactory
 
 // #[doc(hidden)]
 // pub trait RecordCell: ValueLifetimeless {
@@ -65,7 +65,9 @@ import io.github.kotlinmania.starlark.values.typing.type_compiled.TypeMatcherFac
 //     #[error("Record instance cannot be created if record type is not assigned to a global variable")]
 //     RecordTypeNotAssigned,
 // }
-private class RecordTypeError private constructor(message: String) : Exception(message) {
+private class RecordTypeError private constructor(
+    message: String,
+) : Exception(message) {
     companion object {
         fun recordTypeNotAssigned(): RecordTypeError =
             RecordTypeError("Record instance cannot be created if record type is not assigned to a global variable")
@@ -86,32 +88,31 @@ class RecordTypeGen internal constructor(
     /** The V is the type the field must satisfy (e.g. `"string"`) */
     internal val fields: SmallMap<String, Field>,
     private val frozen: Boolean,
-) : ComplexValue, Freeze<RecordTypeGen> {
-
+) : ComplexValue,
+    Freeze<RecordTypeGen> {
     // Track whether tyRecordData has been initialized (for unfrozen).
     private var tyRecordDataInitialized: Boolean = tyRecordData != null
 
     // impl Display for RecordTypeGen
-    override fun toString(): String {
-        return "record(${fields.iter().joinToString(", ") { (k, v) -> "$k=$v" }})"
-    }
+    override fun toString(): String = "record(${fields.iter().joinToString(", ") { (k, v) -> "$k=$v" }})"
 
     // impl Freeze for RecordType
     // fn freeze(self, freezer: &Freezer) -> Result<Self::Frozen>
     override fun freeze(freezer: Freezer): Result<RecordTypeGen> {
-        val frozenFields = freezeSmallMap(
-            fields,
-            freezer,
-            freezeKey = { k, _ -> Result.success(k) },
-            freezeValue = { field, _ -> Result.success(field) },
-        ).getOrElse { return Result.failure(it) }
+        val frozenFields =
+            freezeSmallMap(
+                fields,
+                freezer,
+                freezeKey = { k, _ -> Result.success(k) },
+                freezeValue = { field, _ -> Result.success(field) },
+            ).getOrElse { return Result.failure(it) }
         return Result.success(
             RecordTypeGen(
                 id = id,
                 tyRecordData = tyRecordData,
                 fields = frozenFields,
                 frozen = true,
-            )
+            ),
         )
     }
 
@@ -133,27 +134,30 @@ class RecordTypeGen internal constructor(
     fun tyRecordData(): TyRecordData? = getTy()
 
     // pub(crate) fn instance_ty(&self) -> Ty
-    fun instanceTy(): Ty {
-        return tyRecordData()?.tyRecord
+    fun instanceTy(): Ty =
+        tyRecordData()?.tyRecord
             ?: error("Instances can only be created if named are assigned")
-    }
 
     // fn make_parameter_spec(name: &str, fields: &SmallMap<String, FieldGen<V>>) -> ParametersSpec<FrozenValue>
     private fun makeParameterSpec(
         name: String,
         fields: SmallMap<String, Field>,
-    ): ParametersSpec<FrozenValue> {
-        return ParametersSpec.newNamedOnly(
+    ): ParametersSpec<FrozenValue> =
+        ParametersSpec.newNamedOnly(
             name,
-            fields.iter().map { (fieldName, field) ->
-                Pair(
-                    fieldName,
-                    if (field.default != null) ParametersSpecParam.Optional
-                    else ParametersSpecParam.Required,
-                )
-            }.toList(),
+            fields
+                .iter()
+                .map { (fieldName, field) ->
+                    Pair(
+                        fieldName,
+                        if (field.default != null) {
+                            ParametersSpecParam.Optional
+                        } else {
+                            ParametersSpecParam.Required
+                        },
+                    )
+                }.toList(),
         )
-    }
 
     // #[starlark_value(type = FUNCTION_TYPE)]
     // impl StarlarkValue for RecordTypeGen
@@ -172,100 +176,108 @@ class RecordTypeGen internal constructor(
 
     // fn invoke(...)
     override fun invoke(me: Value, args: Arguments, eval: Evaluator): Result<Value> {
-        val tyRecordDataVal = tyRecordData()
-            ?: return Result.failure(RecordTypeError.recordTypeNotAssigned())
+        val tyRecordDataVal =
+            tyRecordData()
+                ?: return Result.failure(RecordTypeError.recordTypeNotAssigned())
 
         val thisValue = me
 
-        return Result.success(tyRecordDataVal.parameterSpec.parser(args, eval) { paramParser, ev ->
-            val recordFields = this.fields
-            val values = mutableListOf<Value>()
-            for ((name, field) in recordFields) {
-                val value = if (field.default == null) {
-                    val v: Value = paramParser.next(ValueUnpackValue)
-                    field.typ.checkType(v, name).getOrThrow()
-                    v
-                } else {
-                    val v: Value? = paramParser.nextOpt(ValueUnpackValue)
-                    when (v) {
-                        null -> field.default
-                        else -> {
+        return Result.success(
+            tyRecordDataVal.parameterSpec.parser(args, eval) { paramParser, ev ->
+                val recordFields = this.fields
+                val values = mutableListOf<Value>()
+                for ((name, field) in recordFields) {
+                    val value =
+                        if (field.default == null) {
+                            val v: Value = paramParser.next(ValueUnpackValue)
                             field.typ.checkType(v, name).getOrThrow()
                             v
+                        } else {
+                            val v: Value? = paramParser.nextOpt(ValueUnpackValue)
+                            when (v) {
+                                null -> field.default
+                                else -> {
+                                    field.typ.checkType(v, name).getOrThrow()
+                                    v
+                                }
+                            }
                         }
-                    }
+                    values.add(value)
                 }
-                values.add(value)
-            }
-            ev.heap().allocComplex(
-                RecordGen(
-                    typ = thisValue,
-                    values = values,
+                ev.heap().allocComplex(
+                    RecordGen(
+                        typ = thisValue,
+                        values = values,
+                    ),
                 )
-            )
-        })
+            },
+        )
     }
 
     // fn get_methods() -> Option<&'static Methods>
-    override fun getMethods(): Methods? {
-        return recordTypeMethodsStatic.methods(::recordTypeMethods)
-    }
+    override fun getMethods(): Methods? = recordTypeMethodsStatic.methods(::recordTypeMethods)
 
     // fn eval_type(&self) -> Option<Ty>
-    override fun evalType(): Ty? {
-        return tyRecordData()?.tyRecord
-    }
+    override fun evalType(): Ty? = tyRecordData()?.tyRecord
 
     // fn typechecker_ty(&self) -> Option<Ty>
-    override fun typecheckerTy(): Ty? {
-        return tyRecordData()?.tyRecordType
-    }
+    override fun typecheckerTy(): Ty? = tyRecordData()?.tyRecordType
 
     // fn export_as(...)
     override fun exportAs(variableName: String, eval: Evaluator): Result<Unit> {
         getOrInitTy {
-            val fieldsTy = linkedMapOf<String, Ty>().apply {
-                for ((name, field) in fields) {
-                    put(name, field.ty())
+            val fieldsTy =
+                linkedMapOf<String, Ty>().apply {
+                    for ((name, field) in fields) {
+                        put(name, field.ty())
+                    }
                 }
-            }
 
-            val tyRecord = Ty.custom(
-                TyUser.new(
-                    variableName,
-                    TyStarlarkValue.new("record"),
-                    id,
-                    TyUserParams(
-                        matcher = TypeMatcherFactory.new(RecordTypeMatcher(id = id)),
-                        fields = TyUserFields(
-                            known = fieldsTy,
-                            unknown = false,
-                        ),
-                    ),
-                ).getOrThrow()
-            )
-
-            val tyRecordType = Ty.custom(
-                TyUser.new(
-                    "record[$variableName]",
-                    TyStarlarkValue.new("function"),
-                    TypeInstanceId.gen(),
-                    TyUserParams(
-                        callable = TyCallable.new(
-                            ParamSpec.newParts(
-                                namedOnly = fields.iter().map { (name, field) ->
-                                    Triple(
-                                        name,
-                                        if (field.default != null) ParamIsRequired.No else ParamIsRequired.Yes,
-                                        field.ty(),
-                                    )
-                                }.toList(),
+            val tyRecord =
+                Ty.custom(
+                    TyUser
+                        .new(
+                            variableName,
+                            TyStarlarkValue.new("record"),
+                            id,
+                            TyUserParams(
+                                matcher = TypeMatcherFactory.new(RecordTypeMatcher(id = id)),
+                                fields =
+                                    TyUserFields(
+                                        known = fieldsTy,
+                                        unknown = false,
+                                    ),
                             ),
-                            tyRecord,
-                        ),
-                    ),
-                ).getOrThrow()
-            )
+                        ).getOrThrow(),
+                )
+
+            val tyRecordType =
+                Ty.custom(
+                    TyUser
+                        .new(
+                            "record[$variableName]",
+                            TyStarlarkValue.new("function"),
+                            TypeInstanceId.gen(),
+                            TyUserParams(
+                                callable =
+                                    TyCallable.new(
+                                        ParamSpec.newParts(
+                                            namedOnly =
+                                                fields
+                                                    .iter()
+                                                    .map { (name, field) ->
+                                                        Triple(
+                                                            name,
+                                                            if (field.default != null) ParamIsRequired.No else ParamIsRequired.Yes,
+                                                            field.ty(),
+                                                        )
+                                                    }.toList(),
+                                        ),
+                                        tyRecord,
+                                    ),
+                            ),
+                        ).getOrThrow(),
+                )
 
             TyRecordData(
                 name = variableName,
@@ -285,14 +297,13 @@ class RecordTypeGen internal constructor(
 
         // impl RecordType::new(...)
         // pub(crate) fn new(fields: SmallMap<String, FieldGen<Value<'v>>>) -> Self
-        fun new(fields: SmallMap<String, Field>): RecordTypeGen {
-            return RecordTypeGen(
+        fun new(fields: SmallMap<String, Field>): RecordTypeGen =
+            RecordTypeGen(
                 id = TypeInstanceId.gen(),
                 tyRecordData = null,
                 fields = fields,
                 frozen = false,
             )
-        }
     }
 }
 
@@ -316,13 +327,15 @@ private fun recordTypeMethods(methods: MethodsBuilder) {
         docstring = null,
         typ = Ty.string(),
     ) { _, thisValue, heap ->
-        val recordType = thisValue.downcastRef<RecordTypeGen>()
-            ?: return@setAttributeFn Result.failure(IllegalStateException("Expected RecordTypeGen"))
+        val recordType =
+            thisValue.downcastRef<RecordTypeGen>()
+                ?: return@setAttributeFn Result.failure(IllegalStateException("Expected RecordTypeGen"))
         val tyRecordType = recordType.tyRecordData()
-        val name = when {
-            tyRecordType != null -> tyRecordType.name
-            else -> RecordGen.TYPE
-        }
+        val name =
+            when {
+                tyRecordType != null -> tyRecordType.name
+                else -> RecordGen.TYPE
+            }
         Result.success(heap.allocStr(name))
     }
 }

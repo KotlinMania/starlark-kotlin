@@ -19,30 +19,27 @@ package io.github.kotlinmania.starlark.values.types.bool
  * limitations under the License.
  */
 
-import io.github.kotlinmania.starlark.typing.Ty
 import io.github.kotlinmania.starlark.collections.StarlarkHashValue
 import io.github.kotlinmania.starlark.collections.StarlarkHasher
+import io.github.kotlinmania.starlark.typing.Ty
 import io.github.kotlinmania.starlark.values.StarlarkValue
 import io.github.kotlinmania.starlark.values.ValueError
-import io.github.kotlinmania.starlark.values.layout.avalues.AllocStaticSimple
 import io.github.kotlinmania.starlark.values.layout.Value
+import io.github.kotlinmania.starlark.values.layout.avalues.AllocStaticSimple
 
 /** The result of calling type() on booleans. */
 const val BOOL_TYPE: String = "bool"
 
 /** bool value. */
 @ConsistentCopyVisibility
-data class StarlarkBool internal constructor(internal val _0: Boolean) : StarlarkValue {
-
+data class StarlarkBool internal constructor(
+    internal val _0: Boolean,
+) : StarlarkValue {
     override val TYPE: String get() = BOOL_TYPE
 
-    override fun toString(): String {
-        return if (_0) "True" else "False"
-    }
+    override fun toString(): String = if (_0) "True" else "False"
 
-    override fun isSpecial(): Boolean {
-        return true
-    }
+    override fun isSpecial(): Boolean = true
 
     override fun collectRepr(collector: StringBuilder) {
         // repr() for bool is quite hot, so optimise it
@@ -53,9 +50,7 @@ data class StarlarkBool internal constructor(internal val _0: Boolean) : Starlar
         }
     }
 
-    override fun toBool(): Boolean {
-        return _0
-    }
+    override fun toBool(): Boolean = _0
 
     override fun writeHash(hasher: StarlarkHasher): Result<Unit> {
         hasher.writeU8(if (_0) 1u else 0u)
@@ -70,8 +65,8 @@ data class StarlarkBool internal constructor(internal val _0: Boolean) : Starlar
                     0xa4acba08u
                 } else {
                     0x71e8ba71u
-                }
-            )
+                },
+            ),
         )
     }
 
@@ -84,16 +79,13 @@ data class StarlarkBool internal constructor(internal val _0: Boolean) : Starlar
         }
     }
 
-    override fun typecheckerTy(): Ty? {
-        return Ty.bool()
-    }
+    override fun typecheckerTy(): Ty? = Ty.bool()
 
-    override fun getTypeStarlarkRepr(): Ty {
-        return Ty.bool()
-    }
+    override fun getTypeStarlarkRepr(): Ty = Ty.bool()
 }
 
-internal val VALUE_FALSE_TRUE: Array<AllocStaticSimple<StarlarkBool>> = arrayOf(
-    AllocStaticSimple.alloc(StarlarkBool(false)),
-    AllocStaticSimple.alloc(StarlarkBool(true))
-)
+internal val VALUE_FALSE_TRUE: Array<AllocStaticSimple<StarlarkBool>> =
+    arrayOf(
+        AllocStaticSimple.alloc(StarlarkBool(false)),
+        AllocStaticSimple.alloc(StarlarkBool(true)),
+    )

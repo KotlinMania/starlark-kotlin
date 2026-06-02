@@ -1,25 +1,24 @@
 // port-lint: source src/values/layout/heap/profile/aggregated.rs
 package io.github.kotlinmania.starlark.values.layout.heap.profile
 
-import io.github.kotlinmania.starlark.values.layout.heap.profile.alloc_counts.AllocCounts
+import io.github.kotlinmania.starlark.eval.runtime.SmallDuration
+import io.github.kotlinmania.starlark.eval.runtime.profile.ProfilerInstant
 import io.github.kotlinmania.starlark.eval.runtime.profile.data.ProfileData
 import io.github.kotlinmania.starlark.eval.runtime.profile.data.ProfileDataImpl
-import io.github.kotlinmania.starlark.values.layout.heap.Heap
-import io.github.kotlinmania.starlark.eval.runtime.profile.ProfilerInstant
-import io.github.kotlinmania.starlark.values.layout.heap.profile.string_index.StringId
-import io.github.kotlinmania.starlark.values.layout.heap.profile.string_index.StringIndex
-import io.github.kotlinmania.starlark.eval.runtime.SmallDuration
-import io.github.kotlinmania.starlark.values.layout.heap.HeapKind
-import io.github.kotlinmania.starlark.eval.runtime.profile.heap.RetainedHeapProfileMode
-import io.github.kotlinmania.starlark.values.layout.heap.AValueOrForwardUnpack
-import io.github.kotlinmania.starlark.values.layout.heap.AValueOrForward
-import io.github.kotlinmania.starlark.values.layout.heap.arena.ArenaVisitor
 import io.github.kotlinmania.starlark.eval.runtime.profile.flamegraph.FlameGraphData
 import io.github.kotlinmania.starlark.eval.runtime.profile.flamegraph.FlameGraphNode
+import io.github.kotlinmania.starlark.eval.runtime.profile.heap.RetainedHeapProfileMode
 import io.github.kotlinmania.starlark.util.ArcStr
-import io.github.kotlinmania.starlark.values.layout.Value
 import io.github.kotlinmania.starlark.values.layout.RawPointer
-
+import io.github.kotlinmania.starlark.values.layout.Value
+import io.github.kotlinmania.starlark.values.layout.heap.AValueOrForward
+import io.github.kotlinmania.starlark.values.layout.heap.AValueOrForwardUnpack
+import io.github.kotlinmania.starlark.values.layout.heap.Heap
+import io.github.kotlinmania.starlark.values.layout.heap.HeapKind
+import io.github.kotlinmania.starlark.values.layout.heap.arena.ArenaVisitor
+import io.github.kotlinmania.starlark.values.layout.heap.profile.alloccounts.AllocCounts
+import io.github.kotlinmania.starlark.values.layout.heap.profile.stringindex.StringId
+import io.github.kotlinmania.starlark.values.layout.heap.profile.stringindex.StringIndex
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.
@@ -49,23 +48,31 @@ import io.github.kotlinmania.starlark.values.layout.RawPointer
 // StringId, StringIndex → values.layout.heap.profile.string_index
 class SmallMap<K, V> {
     private val map: MutableMap<K, V> = mutableMapOf()
+
     fun entry(key: K): SmallMapEntry<K, V> = SmallMapEntry(map, key)
+
     fun iter(): Iterator<Pair<K, V>> = map.entries.map { Pair(it.key, it.value) }.iterator()
+
     operator fun iterator(): Iterator<Pair<K, V>> = iter()
+
     fun len(): Int = map.size
+
     fun values(): Collection<V> = map.values
+
     fun isEmpty(): Boolean = map.isEmpty()
+
     companion object {
         fun <K, V> new(): SmallMap<K, V> = SmallMap()
     }
 }
-class SmallMapEntry<K, V>(private val map: MutableMap<K, V>, private val key: K) {
-    fun orInsertWith(factory: () -> V): V {
-        return map.getOrPut(key, factory)
-    }
-    fun orDefault(default: () -> V): V {
-        return map.getOrPut(key, default)
-    }
+
+class SmallMapEntry<K, V>(
+    private val map: MutableMap<K, V>,
+    private val key: K,
+) {
+    fun orInsertWith(factory: () -> V): V = map.getOrPut(key, factory)
+
+    fun orDefault(default: () -> V): V = map.getOrPut(key, default)
 }
 
 /** A mapping from function Value to FunctionId, which must be continuous */
@@ -103,9 +110,7 @@ private class StackFrameBuilder(
     val data: StackFrameData = StackFrameData(),
 ) {
     /** Enter a new stack frame. */
-    fun push(function: StringId): StackFrameBuilder {
-        return data.callees.entry(function).orInsertWith { StackFrameBuilder() }
-    }
+    fun push(function: StringId): StackFrameBuilder = data.callees.entry(function).orInsertWith { StackFrameBuilder() }
 
     fun build(): StackFrame {
         val callees = SmallMap<StringId, StackFrame>()
@@ -141,15 +146,16 @@ internal class StackCollector(
 
     override fun regularValue(value: AValueOrForward) {
         val unpacked = value.unpack()
-        val v = when {
-            unpacked is AValueOrForwardUnpack.Header && retained == null -> {
-                Value.newPtrQueryIsStr(unpacked.header)
+        val v =
+            when {
+                unpacked is AValueOrForwardUnpack.Header && retained == null -> {
+                    Value.newPtrQueryIsStr(unpacked.header)
+                }
+                unpacked is AValueOrForwardUnpack.Forward && retained != null -> {
+                    unpacked.forward.forwardPtr().unpackValue(retained)
+                }
+                else -> return
             }
-            unpacked is AValueOrForwardUnpack.Forward && retained != null -> {
-                unpacked.forward.forwardPtr().unpackValue(retained)
-            }
-            else -> return
-        }
 
         val frame = current.lastOrNull() ?: return
 
@@ -159,7 +165,12 @@ internal class StackCollector(
             typ,
             AllocCounts(
                 count = 1,
-                bytes = v.getRef().memorySize().bytes().toLong(),
+                bytes =
+                    v
+                        .getRef()
+                        .memorySize()
+                        .bytes()
+                        .toLong(),
             ),
         )
     }
@@ -305,12 +316,11 @@ internal class AggregateHeapProfileInfo(
     val strings: StringIndex = StringIndex(),
     val root: StackFrame = StackFrame.default(),
 ) {
-    fun root(): StackFrameWithContext {
-        return StackFrameWithContext(
+    fun root(): StackFrameWithContext =
+        StackFrameWithContext(
             frame = root,
             strings = strings,
         )
-    }
 
     /** Generate the flame graph data and return it as a string. */
     fun genFlameGraphData(): String {
@@ -320,13 +330,9 @@ internal class AggregateHeapProfileInfo(
     }
 
     /** Generate per-function summary in CSV format. */
-    fun genSummaryCsv(): String {
-        return HeapSummaryByFunction.init(this).genCsv()
-    }
+    fun genSummaryCsv(): String = HeapSummaryByFunction.init(this).genCsv()
 
-    fun clone(): AggregateHeapProfileInfo {
-        return AggregateHeapProfileInfo(strings, root)
-    }
+    fun clone(): AggregateHeapProfileInfo = AggregateHeapProfileInfo(strings, root)
 
     // #[cfg(test)]
     // pub(crate) fn normalize_for_golden_tests(&mut self)
@@ -362,19 +368,19 @@ internal class RetainedHeapProfile(
     val info: AggregateHeapProfileInfo,
     val mode: RetainedHeapProfileMode,
 ) {
-    fun toProfile(): ProfileData {
-        return ProfileData(
-            profile = when (mode) {
-                RetainedHeapProfileMode.FlameAndSummary ->
-                    ProfileDataImpl.HeapRetained(info.clone())
-                RetainedHeapProfileMode.Flame ->
-                    ProfileDataImpl.HeapFlameRetained(info.clone())
-                RetainedHeapProfileMode.Summary ->
-                    ProfileDataImpl.HeapSummaryRetained(info.clone())
-                else -> throw IllegalStateException("Unexpected mode: $mode")
-            },
+    fun toProfile(): ProfileData =
+        ProfileData(
+            profile =
+                when (mode) {
+                    RetainedHeapProfileMode.FlameAndSummary ->
+                        ProfileDataImpl.HeapRetained(info.clone())
+                    RetainedHeapProfileMode.Flame ->
+                        ProfileDataImpl.HeapFlameRetained(info.clone())
+                    RetainedHeapProfileMode.Summary ->
+                        ProfileDataImpl.HeapSummaryRetained(info.clone())
+                    else -> throw IllegalStateException("Unexpected mode: $mode")
+                },
         )
-    }
 
     override fun toString(): String = "RetainedHeapProfile(mode=$mode)"
 }

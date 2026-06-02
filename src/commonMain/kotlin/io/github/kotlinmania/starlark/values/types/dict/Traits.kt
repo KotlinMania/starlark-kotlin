@@ -23,11 +23,11 @@ import io.github.kotlinmania.starlark.collections.SmallMap
 import io.github.kotlinmania.starlark.typing.Ty
 import io.github.kotlinmania.starlark.values.AllocFrozenValue
 import io.github.kotlinmania.starlark.values.AllocValue
-import io.github.kotlinmania.starlark.values.layout.heap.FrozenHeap
-import io.github.kotlinmania.starlark.values.layout.FrozenValue
-import io.github.kotlinmania.starlark.values.layout.heap.Heap
-import io.github.kotlinmania.starlark.values.layout.Value
 import io.github.kotlinmania.starlark.values.StarlarkTypeRepr
+import io.github.kotlinmania.starlark.values.layout.FrozenValue
+import io.github.kotlinmania.starlark.values.layout.Value
+import io.github.kotlinmania.starlark.values.layout.heap.FrozenHeap
+import io.github.kotlinmania.starlark.values.layout.heap.Heap
 
 // SmallMap
 
@@ -70,6 +70,7 @@ object SmallMapUnpackValue {
         for ((k, v) in it) {
             @Suppress("UNCHECKED_CAST")
             val unpackedK = (k as? K) ?: return Result.success(null)
+
             @Suppress("UNCHECKED_CAST")
             val unpackedV = (v as? T) ?: return Result.success(null)
             r.insert(unpackedK, unpackedV)
@@ -122,6 +123,7 @@ object BTreeMapUnpackValue {
         for ((k, v) in dict.deref().iter()) {
             @Suppress("UNCHECKED_CAST")
             val unpackedK = (k as? K) ?: return Result.success(null)
+
             @Suppress("UNCHECKED_CAST")
             val unpackedV = (v as? T) ?: return Result.success(null)
             r[unpackedK] = unpackedV
@@ -130,7 +132,8 @@ object BTreeMapUnpackValue {
     }
 }
 
-private fun DictRef.deref(): Dict = when (val ref = aref) {
-    is Either.Left -> ref.value.value
-    is Either.Right -> ref.value
-}
+private fun DictRef.deref(): Dict =
+    when (val ref = aref) {
+        is Either.Left -> ref.value.value
+        is Either.Right -> ref.value
+    }

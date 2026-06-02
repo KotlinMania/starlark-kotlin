@@ -1,5 +1,5 @@
 // port-lint: source src/values/layout/avalues/str_.rs
-package io.github.kotlinmania.starlark.values.layout.avalues.str_
+package io.github.kotlinmania.starlark.values.layout.avalues.str
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.
@@ -21,25 +21,25 @@ package io.github.kotlinmania.starlark.values.layout.avalues.str_
 
 import io.github.kotlinmania.starlark.collections.Hashed
 import io.github.kotlinmania.starlark.collections.StarlarkHashValue
-import io.github.kotlinmania.starlark.values.layout.heap.FrozenHeap
-import io.github.kotlinmania.starlark.values.layout.FrozenValue
-import io.github.kotlinmania.starlark.values.layout.Freezer
 import io.github.kotlinmania.starlark.values.StarlarkValue
-import io.github.kotlinmania.starlark.values.layout.heap.Tracer
 import io.github.kotlinmania.starlark.values.layout.AValue
 import io.github.kotlinmania.starlark.values.layout.AValueImpl
-import io.github.kotlinmania.starlark.values.layout.ConstTypeId
 import io.github.kotlinmania.starlark.values.layout.AValueVTable
-import io.github.kotlinmania.starlark.values.layout.ValueAllocSize
 import io.github.kotlinmania.starlark.values.layout.AlignedSize
-import io.github.kotlinmania.starlark.values.layout.typed.FrozenStringValue
-import io.github.kotlinmania.starlark.values.layout.typed.StringValue
-import io.github.kotlinmania.starlark.values.layout.typed.StarlarkStr
-import io.github.kotlinmania.starlark.values.layout.heap.AValueHeader
-import io.github.kotlinmania.starlark.values.layout.heap.Heap
+import io.github.kotlinmania.starlark.values.layout.ConstTypeId
+import io.github.kotlinmania.starlark.values.layout.Freezer
+import io.github.kotlinmania.starlark.values.layout.FrozenValue
 import io.github.kotlinmania.starlark.values.layout.Value
+import io.github.kotlinmania.starlark.values.layout.ValueAllocSize
 import io.github.kotlinmania.starlark.values.layout.constantString
-import io.github.kotlinmania.starlark.values.starlark_type_id.StarlarkTypeId
+import io.github.kotlinmania.starlark.values.layout.heap.AValueHeader
+import io.github.kotlinmania.starlark.values.layout.heap.FrozenHeap
+import io.github.kotlinmania.starlark.values.layout.heap.Heap
+import io.github.kotlinmania.starlark.values.layout.heap.Tracer
+import io.github.kotlinmania.starlark.values.layout.typed.FrozenStringValue
+import io.github.kotlinmania.starlark.values.layout.typed.StarlarkStr
+import io.github.kotlinmania.starlark.values.layout.typed.StringValue
+import io.github.kotlinmania.starlark.values.starlarktypeid.StarlarkTypeId
 
 // pub(crate) const VALUE_STR_A_VALUE_PTR: AValueHeader = AValueHeader::new_const::<StarlarkStrAValue>()
 internal val VALUE_STR_A_VALUE_PTR: AValueHeader by lazy {
@@ -53,7 +53,7 @@ internal val VALUE_STR_A_VALUE_PTR: AValueHeader by lazy {
                 val str = ptr.valueRef<StarlarkStr>()
                 val byteLen = str.len()
                 ValueAllocSize.new(
-                    AlignedSize.alignUp(StarlarkStr.offsetOfContent() + byteLen)
+                    AlignedSize.alignUp(StarlarkStr.offsetOfContent() + byteLen),
                 )
             },
             heapFreezeFn = { ptr, freezer ->
@@ -65,10 +65,11 @@ internal val VALUE_STR_A_VALUE_PTR: AValueHeader by lazy {
                 val str = ptr.valueRef<StarlarkStr>()
                 tracer.allocStr(str.asStr())
             },
-            starlarkValue = object : StarlarkValue {
-                override val TYPE: String get() = "string"
-            },
-        )
+            starlarkValue =
+                object : StarlarkValue {
+                    override val TYPE: String get() = "string"
+                },
+        ),
     )
 }
 
@@ -91,21 +92,19 @@ internal fun starlarkStr(len: Int, hash: StarlarkHashValue): AValueImpl<Starlark
 }
 
 // pub(crate) struct StarlarkStrAValue;
-internal class StarlarkStrAValue(private val str: StarlarkStr) : AValue {
+internal class StarlarkStrAValue(
+    private val str: StarlarkStr,
+) : AValue {
     // impl AValue for StarlarkStrAValue
 
     // const IS_STR: bool = true;
     override val isStr: Boolean get() = true
 
     // fn extra_len(value: &StarlarkStr) -> usize
-    override fun extraLen(value: StarlarkValue): Int {
-        return StarlarkStr.payloadLenForLen((value as? StarlarkStr)?.len() ?: str.len())
-    }
+    override fun extraLen(value: StarlarkValue): Int = StarlarkStr.payloadLenForLen((value as? StarlarkStr)?.len() ?: str.len())
 
     // fn offset_of_extra() -> usize
-    override fun offsetOfExtra(): Int {
-        return StarlarkStr.offsetOfContent()
-    }
+    override fun offsetOfExtra(): Int = StarlarkStr.offsetOfContent()
 
     // unsafe fn heap_freeze(me: ..., freezer: &Freezer) -> Result<FrozenValue>
     override fun heapFreeze(freezer: Freezer): Result<FrozenValue> {
@@ -128,15 +127,11 @@ internal class StarlarkStrAValue(private val str: StarlarkStr) : AValue {
 
 /** Allocate a string on this heap. */
 // pub fn alloc_str(&self, x: &str) -> FrozenStringValue
-fun FrozenHeap.allocStr(x: String): FrozenStringValue {
-    return allocStrIntern(x)
-}
+fun FrozenHeap.allocStr(x: String): FrozenStringValue = allocStrIntern(x)
 
 /** Intern string. */
 // pub(crate) fn alloc_str_intern(&self, s: &str) -> FrozenStringValue
-internal fun FrozenHeap.allocStrIntern(s: String): FrozenStringValue {
-    return allocStrHashed(Hashed.new(s))
-}
+internal fun FrozenHeap.allocStrIntern(s: String): FrozenStringValue = allocStrHashed(Hashed.new(s))
 
 /** Allocate prehashed string. */
 // pub fn alloc_str_hashed(&self, s: Hashed<&str>) -> FrozenStringValue
@@ -183,11 +178,12 @@ fun Heap.allocStrIntern(x: String): StringValue {
 /** Allocate a string on the heap, based on two concatenated strings. */
 // pub fn alloc_str_concat(self, x: &str, y: &str) -> StringValue<'v>
 fun Heap.allocStrConcat(x: String, y: String): StringValue {
-    val s = when {
-        x.isEmpty() -> y
-        y.isEmpty() -> x
-        else -> x + y
-    }
+    val s =
+        when {
+            x.isEmpty() -> y
+            y.isEmpty() -> x
+            else -> x + y
+        }
     val constant = constantString(s)
     if (constant != null) {
         return constant.toStringValue()
@@ -200,8 +196,8 @@ fun Heap.allocStrConcat(x: String, y: String): StringValue {
 
 /** Allocate a string on the heap, based on three concatenated strings. */
 // pub fn alloc_str_concat3(x: &str, y: &str, z: &str) -> StringValue<'v>
-fun Heap.allocStrConcat3(x: String, y: String, z: String): StringValue {
-    return when {
+fun Heap.allocStrConcat3(x: String, y: String, z: String): StringValue =
+    when {
         x.isEmpty() -> allocStrConcat(y, z)
         y.isEmpty() -> allocStrConcat(x, z)
         z.isEmpty() -> allocStrConcat(x, y)
@@ -213,7 +209,6 @@ fun Heap.allocStrConcat3(x: String, y: String, z: String): StringValue {
             }
         }
     }
-}
 
 // pub(crate) fn alloc_char(self, x: char) -> StringValue<'v>
 internal fun Heap.allocChar(x: Char): StringValue {

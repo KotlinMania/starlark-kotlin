@@ -1,5 +1,5 @@
 // port-lint: source src/values/typing/type_compiled/alloc.rs
-package io.github.kotlinmania.starlark.values.typing.type_compiled
+package io.github.kotlinmania.starlark.values.typing.typecompiled
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.
@@ -21,8 +21,8 @@ package io.github.kotlinmania.starlark.values.typing.type_compiled
 
 import io.github.kotlinmania.starlark.typing.Ty
 import io.github.kotlinmania.starlark.typing.TyBasic
-import io.github.kotlinmania.starlark.typing.TyStarlarkValue
 import io.github.kotlinmania.starlark.typing.TyCustom
+import io.github.kotlinmania.starlark.typing.TyStarlarkValue
 import io.github.kotlinmania.starlark.values.layout.Value
 
 /**
@@ -32,21 +32,28 @@ import io.github.kotlinmania.starlark.values.layout.Value
  */
 interface TypeMatcher {
     fun matches(value: Value): Boolean
+
     fun isWildcard(): Boolean = false
 }
 
 class TypeMatcherBoxAlloc : TypeMatcherAlloc<TypeMatcher> {
     override fun alloc(matcher: TypeMatcher): TypeMatcher = matcher
-    override fun custom(custom: TyCustom): TypeMatcher = object : TypeMatcher {
-        override fun matches(value: Value) = false
-    }
-    override fun fromTypeMatcherFactory(factory: TypeMatcherFactory): TypeMatcher = object : TypeMatcher {
-        override fun matches(value: Value) = false
-    }
+
+    override fun custom(custom: TyCustom): TypeMatcher =
+        object : TypeMatcher {
+            override fun matches(value: Value) = false
+        }
+
+    override fun fromTypeMatcherFactory(factory: TypeMatcherFactory): TypeMatcher =
+        object : TypeMatcher {
+            override fun matches(value: Value) = false
+        }
 
     companion object : TypeMatcherAlloc<TypeMatcher> {
         override fun alloc(matcher: TypeMatcher): TypeMatcher = matcher
+
         override fun custom(custom: TyCustom): TypeMatcher = TypeMatcherBoxAlloc().custom(custom)
+
         override fun fromTypeMatcherFactory(factory: TypeMatcherFactory): TypeMatcher =
             TypeMatcherBoxAlloc().fromTypeMatcherFactory(factory)
     }
@@ -54,16 +61,13 @@ class TypeMatcherBoxAlloc : TypeMatcherAlloc<TypeMatcher> {
 
 /** Allocate runtime type matcher, either in starlark heap or in malloc. */
 interface TypeMatcherAlloc<R> {
-
     fun alloc(matcher: TypeMatcher): R
 
     fun custom(custom: TyCustom): R
 
     fun fromTypeMatcherFactory(factory: TypeMatcherFactory): R
 
-    fun unreachableCannotAppearInTypeExpr(): Nothing {
-        throw IllegalStateException("type cannot appear in type expressions")
-    }
+    fun unreachableCannotAppearInTypeExpr(): Nothing = throw IllegalStateException("type cannot appear in type expressions")
 
     /** `typing.Any`. */
     fun any(): R = alloc(IsAny)
@@ -101,19 +105,18 @@ interface TypeMatcherAlloc<R> {
     }
 
     /** `A | B`. */
-    fun anyOfTwoMatcher(m0: TypeMatcher, m1: TypeMatcher): R {
-        return if (m0.isWildcard()) {
+    fun anyOfTwoMatcher(m0: TypeMatcher, m1: TypeMatcher): R =
+        if (m0.isWildcard()) {
             alloc(m1)
         } else if (m1.isWildcard()) {
             alloc(m0)
         } else {
             alloc(IsAnyOfTwo(m0, m1))
         }
-    }
 
     /** `A | B`. */
-    fun anyOfTwoBasic(ty0: TyBasic, ty1: TyBasic): R {
-        return when {
+    fun anyOfTwoBasic(ty0: TyBasic, ty1: TyBasic): R =
+        when {
             ty0 is TyBasic.Any -> tyBasic(ty1)
             ty1 is TyBasic.Any -> tyBasic(ty0)
             ty0 == TyBasic.none() -> noneOrBasic(ty1)
@@ -124,10 +127,9 @@ interface TypeMatcherAlloc<R> {
                 anyOfTwoMatcher(m0, m1)
             }
         }
-    }
 
-    fun tyBasic(ty: TyBasic): R {
-        return when (ty) {
+    fun tyBasic(ty: TyBasic): R =
+        when (ty) {
             is TyBasic.Any -> any()
             is TyBasic.StarlarkValue -> ty.value.matcher(this)
             is TyBasic.List -> listOf(ty.item.toTy())
@@ -139,62 +141,56 @@ interface TypeMatcherAlloc<R> {
             is TyBasic.Custom -> custom(ty.custom)
             is TyBasic.Set -> setOf(ty.item.toTy())
         }
-    }
 
     fun callable(): R = alloc(IsCallable)
 
     /** `A | None`. */
-    fun noneOrStarlarkValue(ty: TyStarlarkValue): R {
-        return when {
+    fun noneOrStarlarkValue(ty: TyStarlarkValue): R =
+        when {
             ty.isStr() -> alloc(IsAnyOfTwo(IsNone, IsStr))
             ty.isInt() -> alloc(IsAnyOfTwo(IsNone, IsInt))
             else -> alloc(IsAnyOfTwo(IsNone, StarlarkTypeIdMatcher.new(ty)))
         }
-    }
 
     /** `A | None`. */
-    fun noneOrBasic(ty: TyBasic): R {
-        return when {
+    fun noneOrBasic(ty: TyBasic): R =
+        when {
             ty is TyBasic.Any -> alloc(IsNone)
             ty == TyBasic.anyList() -> alloc(IsAnyOfTwo(IsNone, IsList))
             ty is TyBasic.StarlarkValue -> noneOrStarlarkValue(ty.value)
             else -> alloc(IsAnyOfTwo(IsNone, TypeMatcherBoxAlloc.tyBasic(ty)))
         }
-    }
 
     /** `list`. */
     fun list(): R = alloc(IsList)
 
     /** `list[Item]`. */
-    fun listOfMatcher(item: TypeMatcher): R {
-        return if (item.isWildcard()) {
+    fun listOfMatcher(item: TypeMatcher): R =
+        if (item.isWildcard()) {
             list()
         } else {
             alloc(IsListOf(item))
         }
-    }
 
     /** `list[Item]`. */
-    fun listOfStarlarkValue(item: TyStarlarkValue): R {
-        return if (item.isStr()) {
+    fun listOfStarlarkValue(item: TyStarlarkValue): R =
+        if (item.isStr()) {
             listOfMatcher(IsStr)
         } else {
             listOfMatcher(StarlarkTypeIdMatcher.new(item))
         }
-    }
 
     /** `list[Item]`. */
-    fun listOfBasic(item: TyBasic): R {
-        return when (item) {
+    fun listOfBasic(item: TyBasic): R =
+        when (item) {
             is TyBasic.Any -> list()
             is TyBasic.StarlarkValue -> listOfStarlarkValue(item.value)
             else -> listOfMatcher(TypeMatcherBoxAlloc.tyBasic(item))
         }
-    }
 
     /** `list[Item]`. */
-    fun listOf(item: Ty): R {
-        return when {
+    fun listOf(item: Ty): R =
+        when {
             item.isAny() -> list()
             item.iterUnion().size == 1 -> listOfBasic(item.iterUnion()[0])
             else -> {
@@ -202,34 +198,31 @@ interface TypeMatcherAlloc<R> {
                 listOfMatcher(matcher)
             }
         }
-    }
 
     /** `dict`. */
     fun dict(): R = alloc(IsDict)
 
     /** `dict[Key, Value]`. */
-    fun dictOfMatcher(k: TypeMatcher, v: TypeMatcher): R {
-        return when {
+    fun dictOfMatcher(k: TypeMatcher, v: TypeMatcher): R =
+        when {
             k.isWildcard() && v.isWildcard() -> dict()
             k.isWildcard() -> alloc(IsDictOf(IsAny, v))
             v.isWildcard() -> alloc(IsDictOf(k, IsAny))
             else -> alloc(IsDictOf(k, v))
         }
-    }
 
     /** `dict[Key, Value]`. */
-    fun dictOfStarlarkValueToSomething(k: TyStarlarkValue, v: Ty): R {
-        return if (k.isStr()) {
+    fun dictOfStarlarkValueToSomething(k: TyStarlarkValue, v: Ty): R =
+        if (k.isStr()) {
             // Optimize matchers for common types like `dict[str, something]`.
             dictOfMatcher(IsStr, TypeMatcherBoxAlloc.ty(v))
         } else {
             dictOfMatcher(StarlarkTypeIdMatcher.new(k), TypeMatcherBoxAlloc.ty(v))
         }
-    }
 
     /** `dict[Key, Value]`. */
-    fun dictOf(k: Ty, v: Ty): R {
-        return when {
+    fun dictOf(k: Ty, v: Ty): R =
+        when {
             k.isAny() && v.isAny() -> dict()
             k.isStarlarkValue() != null -> dictOfStarlarkValueToSomething(k.isStarlarkValue()!!, v)
             else -> {
@@ -238,41 +231,37 @@ interface TypeMatcherAlloc<R> {
                 dictOfMatcher(km, vm)
             }
         }
-    }
 
     /** `set`. */
     fun set(): R = alloc(IsSet)
 
     /** `set[Item]`. */
-    fun setOfMatcher(item: TypeMatcher): R {
-        return if (item.isWildcard()) {
+    fun setOfMatcher(item: TypeMatcher): R =
+        if (item.isWildcard()) {
             set()
         } else {
             alloc(IsSetOf(item))
         }
-    }
 
     /** `set[Item]`. */
-    fun setOfStarlarkValue(item: TyStarlarkValue): R {
-        return if (item.isStr()) {
+    fun setOfStarlarkValue(item: TyStarlarkValue): R =
+        if (item.isStr()) {
             setOfMatcher(IsStr)
         } else {
             setOfMatcher(StarlarkTypeIdMatcher.new(item))
         }
-    }
 
     /** `set[Item]`. */
-    fun setOfBasic(item: TyBasic): R {
-        return when (item) {
+    fun setOfBasic(item: TyBasic): R =
+        when (item) {
             is TyBasic.Any -> set()
             is TyBasic.StarlarkValue -> setOfStarlarkValue(item.value)
             else -> setOfMatcher(TypeMatcherBoxAlloc.tyBasic(item))
         }
-    }
 
     /** `set[Item]`. */
-    fun setOf(item: Ty): R {
-        return when {
+    fun setOf(item: Ty): R =
+        when {
             item.isAny() -> set()
             item.iterUnion().size == 1 -> setOfBasic(item.iterUnion()[0])
             else -> {
@@ -280,5 +269,4 @@ interface TypeMatcherAlloc<R> {
                 setOfMatcher(matcher)
             }
         }
-    }
 }

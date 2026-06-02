@@ -32,7 +32,9 @@ import io.github.kotlinmania.starlark.values.types.int.InlineInt
 import kotlin.ConsistentCopyVisibility
 
 @ConsistentCopyVisibility
-data class NonZeroI32 private constructor(val value: Int) {
+data class NonZeroI32 private constructor(
+    val value: Int,
+) {
     companion object {
         fun new(value: Int): NonZeroI32? =
             if (value != 0) NonZeroI32(value) else null
@@ -45,19 +47,18 @@ data class NonZeroI32 private constructor(val value: Int) {
 data class Range(
     val start: Int,
     val stop: Int,
-    val step: NonZeroI32
+    val step: NonZeroI32,
 ) : io.github.kotlinmania.starlark.values.StarlarkValue {
     override val TYPE: String get() = Companion.TYPE
     override val HAS_iterate: Boolean get() = true
     override val HAS_equals: Boolean get() = true
+
     companion object {
         /** The result of calling `type()` on a range. */
         const val TYPE: String = "range"
 
         /** Create a new [Range]. */
-        fun new(start: Int, stop: Int, step: NonZeroI32): Range {
-            return Range(start, stop, step)
-        }
+        fun new(start: Int, stop: Int, step: NonZeroI32): Range = Range(start, stop, step)
     }
 
     override fun toString(): String {
@@ -112,14 +113,13 @@ data class Range(
         return Range(
             start = start.toInt(),
             stop = this.stop,
-            step = this.step
+            step = this.step,
         )
     }
 
-    override fun toBool(): Boolean {
-        return (start < stop && step.get() > 0)
-            || (start > stop && step.get() < 0)
-    }
+    override fun toBool(): Boolean =
+        (start < stop && step.get() > 0) ||
+            (start > stop && step.get() < 0)
 
     override fun length(): Result<Int> {
         if (start == stop) {
@@ -132,17 +132,18 @@ data class Range(
         }
 
         // Convert range and step to unsigned
-        val (dist, step) = if (step.get() >= 0) {
-            Pair(
-                (stop - start).toULong(),
-                step.get().toULong()
-            )
-        } else {
-            Pair(
-                (start - stop).toULong(),
-                (-step.get()).toULong()
-            )
-        }
+        val (dist, step) =
+            if (step.get() >= 0) {
+                Pair(
+                    (stop - start).toULong(),
+                    step.get().toULong(),
+                )
+            } else {
+                Pair(
+                    (start - stop).toULong(),
+                    (-step.get()).toULong(),
+                )
+            }
         val i = ((dist - 1u) / step + 1u).toInt()
         if (i >= 0) {
             return Result.success(i)
@@ -171,33 +172,39 @@ data class Range(
         start: Value?,
         stop: Value?,
         stride: Value?,
-        heap: Heap
+        heap: Heap,
     ): Result<Value> {
         val len = length().getOrElse { return Result.failure(it) }
-        val (sliceStart, sliceStop, sliceStep) = convertSliceIndices(len, start, stop, stride)
-            .getOrElse { return Result.failure(it) }
+        val (sliceStart, sliceStop, sliceStep) =
+            convertSliceIndices(len, start, stop, stride)
+                .getOrElse { return Result.failure(it) }
 
         val newStepValue = sliceStep.checkedMul(this.step.get())
-        val newStep = NonZeroI32.new(newStepValue)
-            ?: return Result.failure(ValueError.IntegerOverflow)
+        val newStep =
+            NonZeroI32.new(newStepValue)
+                ?: return Result.failure(ValueError.IntegerOverflow)
 
-        return Result.success(heap.allocSimple(Range(
-            start = this.start
-                .checkedAdd(
-                    sliceStart
-                        .checkedMul(this.step.get())
+        return Result.success(
+            heap.allocSimple(
+                Range(
+                    start =
+                        this.start
+                            .checkedAdd(
+                                sliceStart
+                                    .checkedMul(this.step.get()),
+                            ),
+                    stop =
+                        this.start
+                            .checkedAdd(
+                                sliceStop.checkedMul(this.step.get()),
+                            ),
+                    step = newStep,
                 ),
-            stop = this.start
-                .checkedAdd(
-                    sliceStop.checkedMul(this.step.get())
-                ),
-            step = newStep
-        )))
+            ),
+        )
     }
 
-    override fun iterate(me: Value, heap: Heap): Result<Value> {
-        return Result.success(me)
-    }
+    override fun iterate(me: Value, heap: Heap): Result<Value> = Result.success(me)
 
     override fun iterNext(index: Int, heap: Heap): Value? {
         val remRange = remRangeAtIter(index) ?: return null
@@ -223,14 +230,15 @@ data class Range(
     override fun iterStop() {}
 
     override fun isIn(other: Value): Result<Boolean> {
-        val otherInt = other.unpackNum()?.asInt() ?: run {
-            // Consider `"a" in range(3)`
-            //
-            // Should we error or return false?
-            // Go Starlark errors. Python returns false.
-            // Discussion at https://github.com/bazelbuild/starlark/issues/175
-            return Result.success(false)
-        }
+        val otherInt =
+            other.unpackNum()?.asInt() ?: run {
+                // Consider `"a" in range(3)`
+                //
+                // Should we error or return false?
+                // Go Starlark errors. Python returns false.
+                // Discussion at https://github.com/bazelbuild/starlark/issues/175
+                return Result.success(false)
+            }
         if (!toBool()) {
             return Result.success(false)
         }
@@ -250,9 +258,7 @@ data class Range(
         }
     }
 
-    override fun getTypeStarlarkRepr(): Ty {
-        return Ty.starlarkValue(TyStarlarkValue.new("range"))
-    }
+    override fun getTypeStarlarkRepr(): Ty = Ty.starlarkValue(TyStarlarkValue.new("range"))
 
     /** For tests. */
     override fun equals(other: Any?): Boolean {
@@ -269,16 +275,20 @@ data class Range(
 }
 
 private fun Int.checkedMul(other: Int): Int =
-    InlineInt.tryFrom(this).getOrNull()
+    InlineInt
+        .tryFrom(this)
+        .getOrNull()
         ?.checkedMulI32(other)
         ?.toI32()
         ?: throw ValueError.Runtime("Integer overflow in InlineInt multiplication: Int($this) * Int($other)")
 
 private fun Int.checkedAdd(other: Int): Int {
-    val lhs = InlineInt.tryFrom(this).getOrNull()
-        ?: throw ValueError.Runtime("Integer overflow converting left Int to InlineInt for addition: $this")
-    val rhs = InlineInt.tryFrom(other).getOrNull()
-        ?: throw ValueError.Runtime("Integer overflow converting right Int to InlineInt for addition: $other")
+    val lhs =
+        InlineInt.tryFrom(this).getOrNull()
+            ?: throw ValueError.Runtime("Integer overflow converting left Int to InlineInt for addition: $this")
+    val rhs =
+        InlineInt.tryFrom(other).getOrNull()
+            ?: throw ValueError.Runtime("Integer overflow converting right Int to InlineInt for addition: $other")
     return lhs.checkedAdd(rhs)?.toI32()
         ?: throw ValueError.Runtime("Integer overflow in addition: $this + $other")
 }

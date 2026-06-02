@@ -21,8 +21,8 @@ package io.github.kotlinmania.starlark.eval.bc
 
 /** Unsorted/core interpreter stuff. */
 
-import io.github.kotlinmania.starlark.eval.runtime.Evaluator
 import io.github.kotlinmania.starlark.eval.runtime.EvaluationCallbacks
+import io.github.kotlinmania.starlark.eval.runtime.Evaluator
 import io.github.kotlinmania.starlark.typing.EvalException
 import io.github.kotlinmania.starlark.typing.StarlarkError
 import io.github.kotlinmania.starlark.values.layout.Value
@@ -81,20 +81,17 @@ class Bc(
      * Frame must be allocated properly, otherwise it will likely result in memory corruption.
      */
     // pub(crate) fn run<'v, EC: EvaluationCallbacks>(&self, eval: &mut Evaluator, ec: &mut EC) -> Result<Value, EvalException>
-    fun run(eval: Evaluator, ec: EvaluationCallbacks): Result<Value> {
-        return runBlock(eval, ec, instrs.startPtr(), instrs)
-    }
+    fun run(eval: Evaluator, ec: EvaluationCallbacks): Result<Value> = runBlock(eval, ec, instrs.startPtr(), instrs)
 
     // pub(crate) fn dump_debug(&self) -> String
-    fun dumpDebug(): String {
-        return buildString {
+    fun dumpDebug(): String =
+        buildString {
             appendLine("Max stack size: $maxStackSize")
             appendLine("Instructions:")
             instrs.dumpDebug().lines().forEach { line ->
                 appendLine("  $line")
             }
         }
-    }
 }
 
 /**
@@ -143,10 +140,11 @@ private fun dispatchInstruction(
             InstrControl.Next(ip.add(opcode.sizeOfRepr()))
         } else {
             InstrControl.Err(
-                if (result.exceptionOrNull() is StarlarkError)
+                if (result.exceptionOrNull() is StarlarkError) {
                     result.exceptionOrNull() as StarlarkError
-                else
+                } else {
                     StarlarkError(result.exceptionOrNull()?.message ?: "", result.exceptionOrNull())
+                },
             )
         }
     }

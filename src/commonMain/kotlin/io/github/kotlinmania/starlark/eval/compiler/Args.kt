@@ -21,11 +21,11 @@ package io.github.kotlinmania.starlark.eval.compiler.args
 
 import io.github.kotlinmania.starlark.collections.symbol.Symbol
 import io.github.kotlinmania.starlark.eval.compiler.Compiler
-import io.github.kotlinmania.starlark.eval.compiler.IrSpanned
 import io.github.kotlinmania.starlark.eval.compiler.ExprCompiled
+import io.github.kotlinmania.starlark.eval.compiler.IrSpanned
 import io.github.kotlinmania.starlark.eval.compiler.expr
+import io.github.kotlinmania.starlark.eval.compiler.optctx.OptCtx
 import io.github.kotlinmania.starlark.eval.compiler.optimize
-import io.github.kotlinmania.starlark.eval.compiler.opt_ctx.OptCtx
 import io.github.kotlinmania.starlark.eval.compiler.scope.CstPayload
 import io.github.kotlinmania.starlark.eval.runtime.ArgNames
 import io.github.kotlinmania.starlark.eval.runtime.Arguments
@@ -64,7 +64,6 @@ internal class ArgsCompiledValue(
     /** Star-star-kwargs (`**kwargs`) expression, if present. */
     var kwargs: IrSpanned<ExprCompiled>? = null,
 ) {
-
     /**
      * Check if arguments is one positional argument.
      *
@@ -72,13 +71,12 @@ internal class ArgsCompiledValue(
      * or star-star-kwargs arguments, or `null` otherwise.
      */
     // pub(crate) fn one_pos(&self) -> Option<&IrSpanned<ExprCompiled>>
-    fun onePos(): IrSpanned<ExprCompiled>? {
-        return if (posNamed.size == 1 && names.isEmpty() && args == null && kwargs == null) {
+    fun onePos(): IrSpanned<ExprCompiled>? =
+        if (posNamed.size == 1 && names.isEmpty() && args == null && kwargs == null) {
             posNamed[0]
         } else {
             null
         }
-    }
 
     /**
      * Check if arguments is two positional arguments.
@@ -87,25 +85,23 @@ internal class ArgsCompiledValue(
      * or star-star-kwargs arguments, or `null` otherwise.
      */
     // pub(crate) fn two_pos(&self) -> Option<(&IrSpanned<ExprCompiled>, &IrSpanned<ExprCompiled>)>
-    fun twoPos(): Pair<IrSpanned<ExprCompiled>, IrSpanned<ExprCompiled>>? {
-        return if (posNamed.size == 2 && names.isEmpty() && args == null && kwargs == null) {
+    fun twoPos(): Pair<IrSpanned<ExprCompiled>, IrSpanned<ExprCompiled>>? =
+        if (posNamed.size == 2 && names.isEmpty() && args == null && kwargs == null) {
             Pair(posNamed[0], posNamed[1])
         } else {
             null
         }
-    }
 
     /**
      * Return all arguments if they are positional-only (no named, star-args, or star-star-kwargs).
      */
     // pub(crate) fn pos_only(&self) -> Option<&[IrSpanned<ExprCompiled>]>
-    fun posOnly(): List<IrSpanned<ExprCompiled>>? {
-        return if (names.isEmpty() && args == null && kwargs == null) {
+    fun posOnly(): List<IrSpanned<ExprCompiled>>? =
+        if (names.isEmpty() && args == null && kwargs == null) {
             posNamed
         } else {
             null
         }
-    }
 
     /**
      * Split [posNamed] into positional-only and named argument expressions.
@@ -132,9 +128,7 @@ internal class ArgsCompiledValue(
     //     &self,
     //     handler: impl FnOnce(&Arguments<'v, '_>) -> R,
     // ) -> Option<R>
-    fun <R> allValues(handler: (Arguments) -> R): R? {
-        return allValuesGeneric({ e -> e.asValue()?.toValue() }, handler)
-    }
+    fun <R> allValues(handler: (Arguments) -> R): R? = allValuesGeneric({ e -> e.asValue()?.toValue() }, handler)
 
     /**
      * Invoke a callback if all arguments can be converted to values.
@@ -164,8 +158,8 @@ internal class ArgsCompiledValue(
                     names = ArgNames.newUnique(names.map { (s, fsv) -> Pair(s, fsv.toStringValue()) }),
                     args = argsValue,
                     kwargs = kwargsValue,
-                )
-            )
+                ),
+            ),
         )
     }
 
@@ -173,13 +167,12 @@ internal class ArgsCompiledValue(
      * Iterate over expressions of all arguments: positional, named, star-args, star-star-args.
      */
     // pub(crate) fn arg_exprs(&self) -> impl Iterator<Item = &IrSpanned<ExprCompiled>>
-    fun argExprs(): Sequence<IrSpanned<ExprCompiled>> {
-        return sequence {
+    fun argExprs(): Sequence<IrSpanned<ExprCompiled>> =
+        sequence {
             yieldAll(posNamed)
             args?.let { yield(it) }
             kwargs?.let { yield(it) }
         }
-    }
 
     /**
      * Map a transformation function over all argument expressions.
@@ -193,22 +186,19 @@ internal class ArgsCompiledValue(
     // ) -> Result<ArgsCompiledValue, E>
     fun <E : Exception> mapExprs(
         f: (IrSpanned<ExprCompiled>) -> IrSpanned<ExprCompiled>,
-    ): ArgsCompiledValue {
-        return ArgsCompiledValue(
+    ): ArgsCompiledValue =
+        ArgsCompiledValue(
             posNamed = posNamed.map { f(it) }.toMutableList(),
             names = names.toMutableList(),
             args = args?.let { f(it) },
             kwargs = kwargs?.let { f(it) },
         )
-    }
 
     /**
      * Optimize all argument expressions using the given optimization context.
      */
     // pub(crate) fn optimize(&self, ctx: &mut OptCtx) -> ArgsCompiledValue
-    fun optimize(ctx: OptCtx): ArgsCompiledValue {
-        return mapExprs<Nothing> { e -> e.optimize(ctx) }
-    }
+    fun optimize(ctx: OptCtx): ArgsCompiledValue = mapExprs<Nothing> { e -> e.optimize(ctx) }
 
     /**
      * Append a positional argument expression.

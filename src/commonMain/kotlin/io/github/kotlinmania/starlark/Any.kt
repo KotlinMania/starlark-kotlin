@@ -143,9 +143,7 @@ interface ProvidesStaticTypeSealed
 // pub fn is<T: AnyLifetime<'a>>(&self) -> bool {
 //     self.static_type_of() == T::static_type_id()
 // }
-inline fun <reified T> AnyLifetime.isType(): Boolean {
-    return this.staticTypeOf() == T::class
-}
+inline fun <reified T> AnyLifetime.isType(): Boolean = this.staticTypeOf() == T::class
 
 /**
  * Downcast a reference to type [T], or return `null` if it is not the
@@ -294,84 +292,108 @@ class StrStaticType : ProvidesStaticType {
 // unsafe impl<'a, T: ProvidesStaticType<'a> + ?Sized> ProvidesStaticType<'a> for &'a T {
 //     type StaticType = &'static T::StaticType;
 // }
-class RefStaticType<T : ProvidesStaticType>(val inner: T) : ProvidesStaticType {
+class RefStaticType<T : ProvidesStaticType>(
+    val inner: T,
+) : ProvidesStaticType {
     override val staticType: KClass<*> get() = inner.staticType
 }
 
 // unsafe impl<'a, T: ProvidesStaticType<'a> + ?Sized> ProvidesStaticType<'a> for &'a mut T {
 //     type StaticType = &'static mut T::StaticType;
 // }
-class MutRefStaticType<T : ProvidesStaticType>(val inner: T) : ProvidesStaticType {
+class MutRefStaticType<T : ProvidesStaticType>(
+    val inner: T,
+) : ProvidesStaticType {
     override val staticType: KClass<*> get() = inner.staticType
 }
 
 // unsafe impl<'a, T: ProvidesStaticType<'a> + ?Sized> ProvidesStaticType<'a> for *const T {
 //     type StaticType = *const T::StaticType;
 // }
-class ConstPtrStaticType<T : ProvidesStaticType>(val inner: T) : ProvidesStaticType {
+class ConstPtrStaticType<T : ProvidesStaticType>(
+    val inner: T,
+) : ProvidesStaticType {
     override val staticType: KClass<*> get() = inner.staticType
 }
 
 // unsafe impl<'a, T: ProvidesStaticType<'a> + ?Sized> ProvidesStaticType<'a> for *mut T {
 //     type StaticType = *mut T::StaticType;
 // }
-class MutPtrStaticType<T : ProvidesStaticType>(val inner: T) : ProvidesStaticType {
+class MutPtrStaticType<T : ProvidesStaticType>(
+    val inner: T,
+) : ProvidesStaticType {
     override val staticType: KClass<*> get() = inner.staticType
 }
 
 // unsafe impl<'a, T> ProvidesStaticType<'a> for [T]
 // where T: ProvidesStaticType<'a>, T::StaticType: Sized,
 // { type StaticType = [T::StaticType]; }
-class SliceStaticType<T : ProvidesStaticType>(val inner: T) : ProvidesStaticType {
+class SliceStaticType<T : ProvidesStaticType>(
+    val inner: T,
+) : ProvidesStaticType {
     override val staticType: KClass<*> get() = List::class
 }
 
 // unsafe impl<'a, T: ProvidesStaticType<'a> + ?Sized> ProvidesStaticType<'a> for Box<T> {
 //     type StaticType = Box<T::StaticType>;
 // }
-class BoxStaticType<T : ProvidesStaticType>(val inner: T) : ProvidesStaticType {
+class BoxStaticType<T : ProvidesStaticType>(
+    val inner: T,
+) : ProvidesStaticType {
     override val staticType: KClass<*> get() = inner.staticType
 }
 
 // unsafe impl<'a, T: ProvidesStaticType<'a> + ?Sized> ProvidesStaticType<'a> for Rc<T> {
 //     type StaticType = Rc<T::StaticType>;
 // }
-class RcStaticType<T : ProvidesStaticType>(val inner: T) : ProvidesStaticType {
+class RcStaticType<T : ProvidesStaticType>(
+    val inner: T,
+) : ProvidesStaticType {
     override val staticType: KClass<*> get() = inner.staticType
 }
 
 // unsafe impl<'a, T: ProvidesStaticType<'a> + ?Sized> ProvidesStaticType<'a> for Arc<T> {
 //     type StaticType = Arc<T::StaticType>;
 // }
-class ArcStaticType<T : ProvidesStaticType>(val inner: T) : ProvidesStaticType {
+class ArcStaticType<T : ProvidesStaticType>(
+    val inner: T,
+) : ProvidesStaticType {
     override val staticType: KClass<*> get() = inner.staticType
 }
 
 // unsafe impl<'a, T: ProvidesStaticType<'a>> ProvidesStaticType<'a> for Cell<T> {
 //     type StaticType = Cell<T::StaticType>;
 // }
-class CellStaticType<T : ProvidesStaticType>(val inner: T) : ProvidesStaticType {
+class CellStaticType<T : ProvidesStaticType>(
+    val inner: T,
+) : ProvidesStaticType {
     override val staticType: KClass<*> get() = inner.staticType
 }
 
 // unsafe impl<'a, T: ProvidesStaticType<'a>> ProvidesStaticType<'a> for UnsafeCell<T> {
 //     type StaticType = UnsafeCell<T::StaticType>;
 // }
-class UnsafeCellStaticType<T : ProvidesStaticType>(val inner: T) : ProvidesStaticType {
+class UnsafeCellStaticType<T : ProvidesStaticType>(
+    val inner: T,
+) : ProvidesStaticType {
     override val staticType: KClass<*> get() = inner.staticType
 }
 
 // unsafe impl<'a, T: ProvidesStaticType<'a>> ProvidesStaticType<'a> for RefCell<T> {
 //     type StaticType = RefCell<T::StaticType>;
 // }
-class RefCellStaticType<T : ProvidesStaticType>(val inner: T) : ProvidesStaticType {
+class RefCellStaticType<T : ProvidesStaticType>(
+    val inner: T,
+) : ProvidesStaticType {
     override val staticType: KClass<*> get() = inner.staticType
 }
 
 // unsafe impl<'a, T> ProvidesStaticType<'a> for Option<T>
 // where T: ProvidesStaticType<'a>, T::StaticType: Sized,
 // { type StaticType = Option<T::StaticType>; }
-class OptionStaticType<T : ProvidesStaticType>(val inner: T) : ProvidesStaticType {
+class OptionStaticType<T : ProvidesStaticType>(
+    val inner: T,
+) : ProvidesStaticType {
     override val staticType: KClass<*> get() = inner.staticType
 }
 
@@ -389,7 +411,9 @@ class ResultStaticType<T : ProvidesStaticType, E : ProvidesStaticType>(
 // unsafe impl<'a, T> ProvidesStaticType<'a> for Vec<T>
 // where T: ProvidesStaticType<'a>, T::StaticType: Sized,
 // { type StaticType = Vec<T::StaticType>; }
-class VecStaticType<T : ProvidesStaticType>(val inner: T) : ProvidesStaticType {
+class VecStaticType<T : ProvidesStaticType>(
+    val inner: T,
+) : ProvidesStaticType {
     override val staticType: KClass<*> get() = MutableList::class
 }
 

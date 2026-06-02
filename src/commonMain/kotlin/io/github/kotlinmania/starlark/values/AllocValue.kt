@@ -93,18 +93,14 @@ interface AllocStringValue : AllocValue {
 }
 
 // impl AllocValue for FrozenValue
-fun FrozenValue.allocValue(_heap: Heap): Value {
-    return this.toValue()
-}
+fun FrozenValue.allocValue(_heap: Heap): Value = this.toValue()
 
 // impl AllocValue for Value
-fun Value.allocValue(_heap: Heap): Value {
-    return this
-}
+fun Value.allocValue(_heap: Heap): Value = this
 
 // impl<A: AllocValue, B: AllocValue> AllocValue for Either<A, B>
-inline fun <A : AllocValue, B : AllocValue> Either<A, B>.allocValue(heap: Heap): Value {
-    return when (this) {
+inline fun <A : AllocValue, B : AllocValue> Either<A, B>.allocValue(heap: Heap): Value =
+    when (this) {
         is Either.Left -> {
             val a = value
             a.allocValue(heap)
@@ -115,11 +111,10 @@ inline fun <A : AllocValue, B : AllocValue> Either<A, B>.allocValue(heap: Heap):
             b.allocValue(heap)
         }
     }
-}
 
 // impl<A: AllocFrozenValue, B: AllocFrozenValue> AllocFrozenValue for Either<A, B>
-inline fun <A : AllocFrozenValue, B : AllocFrozenValue> Either<A, B>.allocFrozenValue(heap: FrozenHeap): FrozenValue {
-    return when (this) {
+inline fun <A : AllocFrozenValue, B : AllocFrozenValue> Either<A, B>.allocFrozenValue(heap: FrozenHeap): FrozenValue =
+    when (this) {
         is Either.Left -> {
             val a = value
             a.allocFrozenValue(heap)
@@ -130,7 +125,6 @@ inline fun <A : AllocFrozenValue, B : AllocFrozenValue> Either<A, B>.allocFrozen
             b.allocFrozenValue(heap)
         }
     }
-}
 
 /**
  * Trait for things that can be allocated on a [FrozenHeap] producing a [FrozenValue].
@@ -162,6 +156,4 @@ interface AllocFrozenStringValue : AllocFrozenValue {
 }
 
 // impl AllocFrozenValue for FrozenValue
-fun FrozenValue.allocFrozenValue(_heap: FrozenHeap): FrozenValue {
-    return this
-}
+fun FrozenValue.allocFrozenValue(_heap: FrozenHeap): FrozenValue = this

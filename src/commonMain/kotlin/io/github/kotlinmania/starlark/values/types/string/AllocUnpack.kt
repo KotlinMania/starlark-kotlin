@@ -52,18 +52,14 @@ import io.github.kotlinmania.starlark.values.layout.typed.StringValue
 //         self.alloc_frozen_string_value(heap).to_frozen_value()
 //     }
 // }
-fun String.allocFrozenValue(heap: FrozenHeap): FrozenValue {
-    return this.allocFrozenStringValue(heap).toFrozenValue()
-}
+fun String.allocFrozenValue(heap: FrozenHeap): FrozenValue = this.allocFrozenStringValue(heap).toFrozenValue()
 
 // impl AllocFrozenStringValue for String {
 //     fn alloc_frozen_string_value(self, heap: &FrozenHeap) -> FrozenStringValue {
 //         heap.alloc_str(self.as_str())
 //     }
 // }
-fun String.allocFrozenStringValue(heap: FrozenHeap): FrozenStringValue {
-    return heap.allocStrIntern(this)
-}
+fun String.allocFrozenStringValue(heap: FrozenHeap): FrozenStringValue = heap.allocStrIntern(this)
 
 // impl<'a> AllocFrozenValue for &'a str {
 //     fn alloc_frozen_value(self, heap: &FrozenHeap) -> FrozenValue {
@@ -83,18 +79,14 @@ fun String.allocFrozenStringValue(heap: FrozenHeap): FrozenStringValue {
 //         self.alloc_string_value(heap).to_value()
 //     }
 // }
-fun String.allocValue(heap: Heap): Value {
-    return this.allocStringValue(heap).toValue()
-}
+fun String.allocValue(heap: Heap): Value = this.allocStringValue(heap).toValue()
 
 // impl<'v> AllocStringValue<'v> for String {
 //     fn alloc_string_value(self, heap: Heap<'v>) -> StringValue<'v> {
 //         heap.alloc_str(self.as_str())
 //     }
 // }
-fun String.allocStringValue(heap: Heap): StringValue {
-    return StringValue.newUnchecked(heap.allocStr(this))
-}
+fun String.allocStringValue(heap: Heap): StringValue = StringValue.newUnchecked(heap.allocStr(this))
 
 // impl StarlarkTypeRepr for char {
 //     type Canonical = <String as StarlarkTypeRepr>::Canonical;
@@ -115,9 +107,7 @@ object CharTypeRepr : StarlarkTypeRepr {
 //         self.alloc_string_value(heap).to_value()
 //     }
 // }
-fun Char.allocValue(heap: Heap): Value {
-    return this.allocStringValue(heap).toValue()
-}
+fun Char.allocValue(heap: Heap): Value = this.allocStringValue(heap).toValue()
 
 // impl<'v> AllocStringValue<'v> for char {
 //     fn alloc_string_value(self, heap: Heap<'v>) -> StringValue<'v> {
@@ -167,9 +157,7 @@ fun Char.allocStringValue(heap: Heap): StringValue {
 //         Ok(value.unpack_str())
 //     }
 // }
-fun unpackValueImplBorrowedString(value: Value): Result<String?> {
-    return Result.success(value.unpackStr())
-}
+fun unpackValueImplBorrowedString(value: Value): Result<String?> = Result.success(value.unpackStr())
 
 // impl<'v> UnpackValue<'v> for String {
 //     type Error = Infallible;

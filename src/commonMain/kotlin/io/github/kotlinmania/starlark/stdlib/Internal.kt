@@ -35,8 +35,14 @@ import kotlin.toString
 private fun starlarkRustInternalMembers(globals: io.github.kotlinmania.starlark.environment.GlobalsBuilder) {
     // fn ty_of_value_debug(#[starlark(require = pos)] value: Value) -> anyhow::Result<String>
     globals.setFunction("ty_of_value_debug") { args, eval ->
-        val value: io.github.kotlinmania.starlark.values.layout.Value = args.full.pos.firstOrNull() ?: _root_ide_package_.io.github.kotlinmania.starlark.values.layout.Value.Companion.newNone()
-        eval.heap().allocStr(_root_ide_package_.io.github.kotlinmania.starlark.typing.Ty.Companion.ofValue(value).toString())
+        val value: io.github.kotlinmania.starlark.values.layout.Value =
+            args.full.pos.firstOrNull() ?: io.github.kotlinmania.starlark.values.layout.Value.Companion
+                .newNone()
+        eval.heap().allocStr(
+            io.github.kotlinmania.starlark.typing.Ty.Companion
+                .ofValue(value)
+                .toString(),
+        )
     }
 }
 

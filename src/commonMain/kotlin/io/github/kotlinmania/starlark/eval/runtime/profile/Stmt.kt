@@ -23,9 +23,9 @@ import io.github.kotlinmania.starlark.codemap.CodeMap
 import io.github.kotlinmania.starlark.codemap.CodeMapId
 import io.github.kotlinmania.starlark.codemap.CodeMaps
 import io.github.kotlinmania.starlark.codemap.FileSpan
+import io.github.kotlinmania.starlark.codemap.FileSpanRef
 import io.github.kotlinmania.starlark.codemap.ResolvedFileSpan
 import io.github.kotlinmania.starlark.codemap.Span
-import io.github.kotlinmania.starlark.codemap.FileSpanRef
 import io.github.kotlinmania.starlark.eval.runtime.SmallDuration
 import io.github.kotlinmania.starlark.eval.runtime.profile.csv.CsvWriter
 import io.github.kotlinmania.starlark.eval.runtime.profile.data.ProfileData
@@ -127,28 +127,31 @@ private class StmtProfileState {
                 }
             }
         }
-        this.last = Last(
-            file = codemap.id(),
-            span = span,
-            start = now,
-        )
+        this.last =
+            Last(
+                file = codemap.id(),
+                span = span,
+                start = now,
+            )
     }
 
     // fn finish(&self) -> crate::Result<StmtProfileData>
     fun finish(): StmtProfileData {
         val now = ProfilerInstant.now()
-        val data = StmtProfileState().also {
-            it.files = this.files
-            it.stmts = this.stmts.toMutableMap()
-            it.last = this.last
-        }
+        val data =
+            StmtProfileState().also {
+                it.files = this.files
+                it.stmts = this.stmts.toMutableMap()
+                it.last = this.last
+            }
         data.addLast(now)
 
         val resultStmts = mutableMapOf<FileSpan, Pair<Int, SmallDuration>>()
         for ((key, v) in data.stmts) {
             val (fileId, span) = key
-            val file = data.files.get(fileId)
-                ?: error("no file corresponding to file id")
+            val file =
+                data.files.get(fileId)
+                    ?: error("no file corresponding to file id")
             resultStmts[FileSpan(file = file, span = span)] = v
         }
         return StmtProfileData(stmts = resultStmts)
@@ -185,7 +188,7 @@ internal data class StmtProfileData(
         items.sortWith(
             compareByDescending<Item> { it.time }
                 .thenByDescending { it.count }
-                .thenBy { it.span }
+                .thenBy { it.span },
         )
 
         val csv = CsvWriter(listOf("File", "Span", "Duration(s)", "Count"))
@@ -209,10 +212,11 @@ internal data class StmtProfileData(
     // pub(crate) fn write_coverage(&self) -> String
     fun writeCoverage(): String {
         val sb = StringBuilder()
-        val keys = stmts.keys
-            .filter { it.file.id() != CodeMapId.EMPTY }
-            .map { it.resolve() }
-            .sorted()
+        val keys =
+            stmts.keys
+                .filter { it.file.id() != CodeMapId.EMPTY }
+                .map { it.resolve() }
+                .sorted()
         for (key in keys) {
             sb.appendLine(key.toString())
         }

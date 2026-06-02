@@ -1,5 +1,5 @@
 // port-lint: source src/collections/aligned_padded_str.rs
-package io.github.kotlinmania.starlark.collections.aligned_padded_str
+package io.github.kotlinmania.starlark.collections.alignedpaddedstr
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.
@@ -20,13 +20,6 @@ package io.github.kotlinmania.starlark.collections.aligned_padded_str
  */
 
 /** String which is `Long`-aligned with zeros padding in the end. */
-// #[derive(Copy, Clone, Dupe)]
-// pub(crate) struct AlignedPaddedStr<'a> {
-//     len: usize,
-//     data: *const usize,
-//     _marker: PhantomData<&'a str>,
-// }
-// Kotlin: uses LongArray as word-aligned storage. Index simulates pointer offset.
 internal class AlignedPaddedStr(
     /** In bytes. */
     private val len: Int,
@@ -35,25 +28,15 @@ internal class AlignedPaddedStr(
     /** Offset into data array (simulates pointer). */
     private val offset: Int = 0,
 ) {
-
     companion object {
-        // sizeof<usize> equivalent for Long = 8 bytes
         private const val WORD_SIZE: Int = Long.SIZE_BYTES
 
-        // unsafe fn new(len: usize, data: *const usize) -> AlignedPaddedStr
-        fun new(len: Int, data: LongArray, offset: Int = 0): AlignedPaddedStr {
-            return AlignedPaddedStr(len = len, data = data, offset = offset)
-        }
+        fun new(len: Int, data: LongArray, offset: Int = 0): AlignedPaddedStr = AlignedPaddedStr(len = len, data = data, offset = offset)
     }
 
     /** Len of string in words. */
-    // fn len_words(self) -> usize
-    private fun lenWords(): Int {
-        return (len + WORD_SIZE - 1) / WORD_SIZE
-    }
+    private fun lenWords(): Int = (len + WORD_SIZE - 1) / WORD_SIZE
 
-    // impl PartialEq for AlignedPaddedStr
-    // fn eq(&self, other: &Self) -> bool
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other !is AlignedPaddedStr) return false

@@ -17,7 +17,6 @@ import io.github.kotlinmania.starlark.assert.Assert
 import kotlin.test.Test
 
 class GlobalsTest {
-
     @Test
     fun testTypechecking() {
         Assert.fail(

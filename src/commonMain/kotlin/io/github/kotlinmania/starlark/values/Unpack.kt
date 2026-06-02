@@ -36,9 +36,10 @@ interface UnpackValueError {
 
 /** [UnpackValueError] impl for [Error]. */
 // impl UnpackValueError for crate::Error
-fun Error.asUnpackValueError(): UnpackValueError = object : UnpackValueError {
-    override fun intoError(): Error = this@asUnpackValueError
-}
+fun Error.asUnpackValueError(): UnpackValueError =
+    object : UnpackValueError {
+        override fun intoError(): Error = this@asUnpackValueError
+    }
 
 /** Never error. */
 // pub trait UnpackValueErrorInfallible: UnpackValueError
@@ -53,10 +54,11 @@ interface UnpackValueErrorInfallible : UnpackValueError {
 class EitherUnpackValueError<A : UnpackValueError, B : UnpackValueError>(
     private val either: Either<A, B>,
 ) : UnpackValueError {
-    override fun intoError(): Error = when (either) {
-        is Either.Left -> either.value.intoError()
-        is Either.Right -> either.value.intoError()
-    }
+    override fun intoError(): Error =
+        when (either) {
+            is Either.Left -> either.value.intoError()
+            is Either.Right -> either.value.intoError()
+        }
 }
 
 /** [UnpackValueErrorInfallible] impl for [Either]. */
@@ -64,15 +66,17 @@ class EitherUnpackValueError<A : UnpackValueError, B : UnpackValueError>(
 class EitherUnpackValueErrorInfallible<A : UnpackValueErrorInfallible, B : UnpackValueErrorInfallible>(
     private val either: Either<A, B>,
 ) : UnpackValueErrorInfallible {
-    override fun intoError(): Error = when (either) {
-        is Either.Left -> either.value.intoError()
-        is Either.Right -> either.value.intoError()
-    }
+    override fun intoError(): Error =
+        when (either) {
+            is Either.Left -> either.value.intoError()
+            is Either.Right -> either.value.intoError()
+        }
 
-    override fun intoInfallible(): Nothing = when (either) {
-        is Either.Left -> either.value.intoInfallible()
-        is Either.Right -> either.value.intoInfallible()
-    }
+    override fun intoInfallible(): Nothing =
+        when (either) {
+            is Either.Left -> either.value.intoInfallible()
+            is Either.Right -> either.value.intoInfallible()
+        }
 }
 
 /**
@@ -115,8 +119,8 @@ interface UnpackValue<T> : StarlarkTypeRepr {
         if (result != null) return result
         throw Error.newValue(
             IllegalArgumentException(
-                "Expected `${starlarkTypeRepr()}`, but got `${value.toStringForTypeError()}`"
-            )
+                "Expected `${starlarkTypeRepr()}`, but got `${value.toStringForTypeError()}`",
+            ),
         )
     }
 
@@ -127,29 +131,30 @@ interface UnpackValue<T> : StarlarkTypeRepr {
         if (result != null) return result
         throw Error.newValue(
             IllegalArgumentException(
-                "Type of parameters mismatch, expected `${starlarkTypeRepr()}`, actual `${value.toStringForTypeError()}`"
-            )
+                "Type of parameters mismatch, expected `${starlarkTypeRepr()}`, actual `${value.toStringForTypeError()}`",
+            ),
         )
     }
 
     /** Unpack value, but instead of `null` return error about incorrect named argument type. */
     // fn unpack_named_param(value: Value<'v>, param_name: &str) -> crate::Result<Self>
     fun unpackNamedParam(value: Value, paramName: String): T {
-        val unpacked = try {
-            unpackValue(value).getOrThrow()
-        } catch (e: Exception) {
-            throw Error.newValue(
-                IllegalArgumentException(
-                    "Error unpacking value for parameter `$paramName` of type `${starlarkTypeRepr()}`",
-                    e,
+        val unpacked =
+            try {
+                unpackValue(value).getOrThrow()
+            } catch (e: Exception) {
+                throw Error.newValue(
+                    IllegalArgumentException(
+                        "Error unpacking value for parameter `$paramName` of type `${starlarkTypeRepr()}`",
+                        e,
+                    ),
                 )
-            )
-        }
+            }
         if (unpacked != null) return unpacked
         throw Error.newValue(
             IllegalArgumentException(
-                "Type of parameter `$paramName` doesn't match, expected `${starlarkTypeRepr()}`, actual `${value.toStringForTypeError()}`"
-            )
+                "Type of parameter `$paramName` doesn't match, expected `${starlarkTypeRepr()}`, actual `${value.toStringForTypeError()}`",
+            ),
         )
     }
 }
@@ -169,15 +174,17 @@ class EitherUnpackValue<TLeft, TRight>(
     private val right: UnpackValue<TRight>,
 ) : UnpackValue<Either<TLeft, TRight>> {
     override fun unpackValueImpl(value: Value): Result<Either<TLeft, TRight>?> {
-        val leftResult = left.unpackValueImpl(value).getOrElse { e ->
-            return Result.failure(e)
-        }
+        val leftResult =
+            left.unpackValueImpl(value).getOrElse { e ->
+                return Result.failure(e)
+            }
         if (leftResult != null) {
             return Result.success(Either.Left(leftResult))
         }
-        val rightResult = right.unpackValueImpl(value).getOrElse { e ->
-            return Result.failure(e)
-        }
+        val rightResult =
+            right.unpackValueImpl(value).getOrElse { e ->
+                return Result.failure(e)
+            }
         return Result.success(rightResult?.let { Either.Right(it) })
     }
 

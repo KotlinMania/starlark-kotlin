@@ -21,13 +21,15 @@ package io.github.kotlinmania.starlark.typing
 
 import io.github.kotlinmania.starlark.codemap.Span
 import io.github.kotlinmania.starlark.typing.oracle.TypingOracleCtx
-import io.github.kotlinmania.starlark.values.typing.type_compiled.TypeMatcherAlloc
-import io.github.kotlinmania.starlark.values.typing.type_compiled.TypeMatcherBox
-import io.github.kotlinmania.starlark.values.typing.type_compiled.TypeMatcherBoxAllocImpl
-import io.github.kotlinmania.starlark.values.typing.type_compiled.TypeCompiled
-import io.github.kotlinmania.starlark.values.typing.type_compiled.TypeCompiledFactory
+import io.github.kotlinmania.starlark.values.typing.typecompiled.TypeCompiled
+import io.github.kotlinmania.starlark.values.typing.typecompiled.TypeCompiledFactory
+import io.github.kotlinmania.starlark.values.typing.typecompiled.TypeMatcherAlloc
+import io.github.kotlinmania.starlark.values.typing.typecompiled.TypeMatcherBox
+import io.github.kotlinmania.starlark.values.typing.typecompiled.TypeMatcherBoxAllocImpl
 
-enum class TypingBinOp(private val symbol: String) {
+enum class TypingBinOp(
+    private val symbol: String,
+) {
     Less("<"),
     BitOr("|"),
     In("in"),
@@ -40,16 +42,15 @@ enum class TypingBinOp(private val symbol: String) {
     BitAnd("&"),
     BitXor("^"),
     LeftShift("<<"),
-    RightShift(">>");
+    RightShift(">>"),
+    ;
 
     override fun toString(): String = symbol
 
     /**
      * Result type is always `bool`.
      */
-    fun alwaysBool(): Boolean {
-        return this == In || this == Less
-    }
+    fun alwaysBool(): Boolean = this == In || this == Less
 }
 
 /** Custom type implementation. [`Display`] must implement the representation of the type. */
@@ -99,25 +100,39 @@ interface TyCustomImpl : Comparable<TyCustomImpl> {
  */
 internal interface TyCustomDyn {
     fun eqToken(): Any
+
     fun hashCodeDyn(): Int
+
     fun cmpToken(): Pair<Comparable<*>, String>
+
     fun intoAny(): Any
+
     fun asAny(): Any
 
     fun asNameDyn(): String?
+
     fun validateCallDyn(span: Span, args: TyCallArgs, oracle: TypingOracleCtx): Result<Ty>
+
     fun asCallableDyn(): TyCallable?
+
     fun isIntersectsWithDyn(other: TyBasic): Boolean
+
     fun asFunctionDyn(): TyFunction?
+
     fun attributeDyn(attr: String): Result<Ty>
+
     fun iterItemDyn(): Result<Ty>
+
     fun indexDyn(index: TyBasic, ctx: TypingOracleCtx): Result<Ty>
+
     fun binOpDyn(binOp: TypingBinOp, rhs: TyBasic, ctx: TypingOracleCtx): Result<Ty>
 
     fun union2Dyn(other: TyCustomDyn): Result<TyCustomDyn>
+
     fun intersectsDyn(other: TyCustomDyn): Boolean
 
     fun matcherWithTypeCompiledFactoryDyn(factory: TypeCompiledFactory): TypeCompiled
+
     fun matcherBoxDyn(): TypeMatcherBox
 }
 
@@ -126,7 +141,9 @@ internal interface TyCustomDyn {
  *
  * Bridges a concrete [TyCustomImpl] to the [TyCustomDyn] dynamic dispatch interface.
  */
-internal class TyCustomDynBridge<T : TyCustomImpl>(val inner: T) : TyCustomDyn {
+internal class TyCustomDynBridge<T : TyCustomImpl>(
+    val inner: T,
+) : TyCustomDyn {
     override fun eqToken(): Any = inner
 
     override fun hashCodeDyn(): Int = inner.hashCode()
@@ -204,19 +221,17 @@ internal class TyCustomDynBridge<T : TyCustomImpl>(val inner: T) : TyCustomDyn {
  *
  * In Rust: `pub struct TyCustom(pub(crate) Arc<dyn TyCustomDyn>)`
  */
-class TyCustom internal constructor(internal val inner: TyCustomDyn) {
+class TyCustom internal constructor(
+    internal val inner: TyCustomDyn,
+) {
     companion object {
         fun <T : TyCustomImpl> new(ty: T): TyCustom = TyCustom(TyCustomDynBridge(ty))
 
         /** Rust: `pub(crate) fn union2(x: TyCustom, y: TyCustom) -> Result<TyCustom, (TyCustom, TyCustom)>` */
-        internal fun union2(x: TyCustom, y: TyCustom): Result<TyCustom> {
-            return x.inner.union2Dyn(y.inner).map { TyCustom(it) }
-        }
+        internal fun union2(x: TyCustom, y: TyCustom): Result<TyCustom> = x.inner.union2Dyn(y.inner).map { TyCustom(it) }
 
         /** Rust: `pub(crate) fn intersects(x: &TyCustom, y: &TyCustom) -> bool` */
-        internal fun intersects(x: TyCustom, y: TyCustom): Boolean {
-            return x.inner.intersectsDyn(y.inner)
-        }
+        internal fun intersects(x: TyCustom, y: TyCustom): Boolean = x.inner.intersectsDyn(y.inner)
     }
 
     fun asName(): String? = inner.asNameDyn()
@@ -249,8 +264,11 @@ class TyCustom internal constructor(internal val inner: TyCustomDyn) {
             is TyBasic.Custom -> Result.success(intersects(this, other.custom))
             is TyBasic.Callable -> {
                 val thisCallable = inner.asCallableDyn()
-                if (thisCallable != null) ctx.callablesIntersect(thisCallable, other.callable)
-                else Result.success(false)
+                if (thisCallable != null) {
+                    ctx.callablesIntersect(thisCallable, other.callable)
+                } else {
+                    Result.success(false)
+                }
             }
             else -> Result.success(false)
         }

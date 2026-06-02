@@ -4,7 +4,6 @@ import io.github.kotlinmania.starlark.environment.GlobalsBuilder
 import io.github.kotlinmania.starlark.eval.runtime.Arguments
 import io.github.kotlinmania.starlark.eval.runtime.Evaluator
 
-
 /*
  * Copyright 2019 The Starlark in Rust Authors.
  * Copyright (c) Facebook, Inc. and its affiliates.
@@ -78,7 +77,7 @@ internal fun registerRange(globals: GlobalsBuilder) {
 
         if (actualStep == 0) {
             Result.failure<Range>(
-                IllegalArgumentException("Third argument of range (step) cannot be zero")
+                IllegalArgumentException("Third argument of range (step) cannot be zero"),
             )
         } else {
             Result.success(Range.new(start, stop, NonZeroI32.new(actualStep)!!))

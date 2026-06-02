@@ -30,8 +30,6 @@ data class ValueIdentity internal constructor(
     // impl ValueIdentity
 
     companion object {
-        internal fun new(value: Value): ValueIdentity {
-            return ValueIdentity(value.ptrValue())
-        }
+        internal fun new(value: Value): ValueIdentity = ValueIdentity(value.ptrValue())
     }
 }

@@ -25,7 +25,6 @@ import kotlin.test.assertEquals
 import kotlin.test.assertNull
 
 class InterpolationTest {
-
     @Test
     fun testIncompleteFormat() {
         Assert.fail("'%' % ()", "Incomplete format")

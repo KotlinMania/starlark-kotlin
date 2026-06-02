@@ -31,7 +31,7 @@ package io.github.kotlinmania.starlark.values.layout
 
 import kotlin.reflect.KClass
 
-/// `TypeId` wrapper/provider until `const_type_id` feature is stabilized.
+// / `TypeId` wrapper/provider until `const_type_id` feature is stabilized.
 // #[derive(Copy, Clone, Dupe, Allocative)]
 // #[allocative(skip)]
 // pub(crate) struct ConstTypeId {
@@ -44,13 +44,10 @@ data class ConstTypeId(
     // Kotlin: Uses KClass for type identification instead of Rust's TypeId.
     private val klass: KClass<*>,
 ) {
-
     // impl Debug for ConstTypeId
     // fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result
     //     f.debug_struct("ConstTypeId").field("type_id", &self.get()).finish()
-    override fun toString(): String {
-        return "ConstTypeId(type_id=${get()})"
-    }
+    override fun toString(): String = "ConstTypeId(type_id=${get()})"
 
     // impl PartialEq for ConstTypeId
     // #[inline]

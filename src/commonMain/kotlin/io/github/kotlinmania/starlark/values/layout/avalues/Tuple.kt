@@ -19,41 +19,34 @@ package io.github.kotlinmania.starlark.values.layout.avalues
  * limitations under the License.
  */
 
-import io.github.kotlinmania.starlark.values.layout.heap.FrozenHeap
-import io.github.kotlinmania.starlark.values.layout.FrozenValue
 import io.github.kotlinmania.starlark.values.StarlarkValue
-import io.github.kotlinmania.starlark.values.layout.heap.Tracer
-import io.github.kotlinmania.starlark.values.layout.Freezer
 import io.github.kotlinmania.starlark.values.layout.AValue
 import io.github.kotlinmania.starlark.values.layout.AValueImpl
+import io.github.kotlinmania.starlark.values.layout.Freezer
+import io.github.kotlinmania.starlark.values.layout.FrozenValue
 import io.github.kotlinmania.starlark.values.layout.Value
+import io.github.kotlinmania.starlark.values.layout.heap.FrozenHeap
 import io.github.kotlinmania.starlark.values.layout.heap.Heap
+import io.github.kotlinmania.starlark.values.layout.heap.Tracer
 import io.github.kotlinmania.starlark.values.types.tuple.FrozenTuple
 import io.github.kotlinmania.starlark.values.types.tuple.Tuple
 import io.github.kotlinmania.starlark.values.types.tuple.TupleGen
 
 // fn tuple_avalue<'v>(len: usize) -> AValueImpl<'v, AValueTuple>
-internal fun tupleAvalue(len: Int): AValueImpl<AValueTuple> {
-    return AValueImpl.new(TupleGen<Value>(MutableList(len) { Value.newNone() }))
-}
+internal fun tupleAvalue(len: Int): AValueImpl<AValueTuple> = AValueImpl.new(TupleGen<Value>(MutableList(len) { Value.newNone() }))
 
 // fn frozen_tuple_avalue<'fv>(len: usize) -> AValueImpl<'fv, AValueFrozenTuple>
-internal fun frozenTupleAvalue(len: Int): AValueImpl<AValueFrozenTuple> {
-    return AValueImpl.new(TupleGen<FrozenValue>(MutableList(len) { FrozenValue.newNone() }))
-}
+internal fun frozenTupleAvalue(len: Int): AValueImpl<AValueFrozenTuple> = AValueImpl.new(TupleGen<FrozenValue>(MutableList(len) { FrozenValue.newNone() }))
 
 /** AValue implementation for mutable tuples. */
 // struct AValueTuple;
 // impl<'v> AValue<'v> for AValueTuple
 internal object AValueTuple : AValue {
-
     // type StarlarkValue = Tuple<'v>;
     // type ExtraElem = Value<'v>;
 
     // fn extra_len(value: &Tuple<'v>) -> usize
-    override fun extraLen(value: StarlarkValue): Int {
-        return (value as Tuple).len()
-    }
+    override fun extraLen(value: StarlarkValue): Int = (value as Tuple).len()
 
     // fn offset_of_extra() -> usize
     override fun offsetOfExtra(): Int = 0
@@ -75,14 +68,11 @@ internal object AValueTuple : AValue {
 // struct AValueFrozenTuple;
 // impl<'v> AValue<'v> for AValueFrozenTuple
 internal object AValueFrozenTuple : AValue {
-
     // type StarlarkValue = FrozenTuple;
     // type ExtraElem = FrozenValue;
 
     // fn extra_len(value: &FrozenTuple) -> usize
-    override fun extraLen(value: StarlarkValue): Int {
-        return (value as FrozenTuple).len()
-    }
+    override fun extraLen(value: StarlarkValue): Int = (value as FrozenTuple).len()
 
     // fn offset_of_extra() -> usize
     override fun offsetOfExtra(): Int = 0

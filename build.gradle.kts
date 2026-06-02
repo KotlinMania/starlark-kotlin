@@ -573,7 +573,7 @@ val codeqlCompileJvm =
     tasks.register<JavaExec>("codeqlCompileJvm") {
         description =
             "Compile ${codeqlKotlinSourceSetNames.joinToString(",")} Kotlin sources " +
-                "with kotlinc $codeqlLanguageVersion for CodeQL Java/Kotlin extraction."
+            "with kotlinc $codeqlLanguageVersion for CodeQL Java/Kotlin extraction."
         group = "verification"
         classpath(codeqlKotlincFiles)
         mainClass.set("org.jetbrains.kotlin.cli.jvm.K2JVMCompiler")

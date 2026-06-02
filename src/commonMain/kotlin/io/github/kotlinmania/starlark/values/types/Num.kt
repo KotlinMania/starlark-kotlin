@@ -19,7 +19,7 @@ package io.github.kotlinmania.starlark.values.types
  * limitations under the License.
  */
 
-//! Helpers for numerical values.
+// ! Helpers for numerical values.
 
 // pub(crate) mod globals;
 // pub(crate) mod typecheck;

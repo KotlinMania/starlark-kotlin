@@ -19,7 +19,6 @@ import io.github.kotlinmania.starlark.values.types.none.NoneType
 import kotlin.test.Test
 
 class TypeTypeTest {
-
     @Test
     fun test() {
         fun module(globals: GlobalsBuilder) {

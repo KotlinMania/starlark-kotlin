@@ -24,7 +24,7 @@ package io.github.kotlinmania.starlark.values.types.string
 
 // use dupe::Dupe;
 
-/// Output the capture as `str` or `repr`.
+// / Output the capture as `str` or `repr`.
 // #[derive(Debug, PartialEq, Copy, Clone, Dupe)]
 // pub enum FormatConv {
 enum class FormatConv {
@@ -32,66 +32,73 @@ enum class FormatConv {
     Repr,
 }
 
-/// Token in the format string.
+// / Token in the format string.
 // #[derive(Debug, PartialEq)]
 // pub enum FormatToken<'a> {
 sealed class FormatToken {
-    /// Text to copy verbatim to the output.
+    // / Text to copy verbatim to the output.
     // Text(&'a str),
-    data class Text(val text: String) : FormatToken()
+    data class Text(
+        val text: String,
+    ) : FormatToken()
+
     // Capture {
     data class Capture(
-        /// Format part inside curly braces before the conversion.
+        // / Format part inside curly braces before the conversion.
         // capture: &'a str,
         val capture: String,
-        /// The position of this capture. This does not include the curly braces.
+        // / The position of this capture. This does not include the curly braces.
         // pos: usize,
         val pos: Int,
-        /// The conversion to apply to this capture.
+        // / The conversion to apply to this capture.
         // conv: FormatConv,
-        val conv: FormatConv
+        val conv: FormatConv,
     ) : FormatToken()
+
     // Escape(EscapeCurlyBrace),
-    data class Escape(val escape: EscapeCurlyBrace) : FormatToken()
+    data class Escape(
+        val escape: EscapeCurlyBrace,
+    ) : FormatToken()
 }
 
-/// Emitted when processing an escape (`{{` or `}}`).
+// / Emitted when processing an escape (`{{` or `}}`).
 // #[derive(Debug, PartialEq)]
 // pub enum EscapeCurlyBrace {
 enum class EscapeCurlyBrace {
     Open,
-    Close;
+    Close,
+    ;
 
     // impl EscapeCurlyBrace
-    /// Get what this represents.
+    // / Get what this represents.
     // pub fn as_str(&self) -> &'static str
-    fun asStr(): String {
-        return when (this) {
+    fun asStr(): String =
+        when (this) {
             Open -> "{"
             Close -> "}"
         }
-    }
 
-    /// Get back the escaped form for this.
+    // / Get back the escaped form for this.
     // pub fn back_to_escape(&self) -> &'static str
-    fun backToEscape(): String {
-        return when (this) {
+    fun backToEscape(): String =
+        when (this) {
             Open -> "{{"
             Close -> "}}"
         }
-    }
 }
 
-/// Parser for `.format()` arguments.
+// / Parser for `.format()` arguments.
 // pub struct FormatParser<'a> {
 //     view: StringView<'a>,
 // }
-class FormatParser(private val view: String) {
+class FormatParser(
+    private val view: String,
+) {
     private var i: Int = 0
 
     // impl<'a> FormatParser<'a>
 
-    /// Parse the next token from the format string.
+    // / Parse the next token from the format string.
     // pub fn next(&mut self) -> anyhow::Result<Option<FormatToken<'a>>>
     fun next(): Result<FormatToken?> {
         var start = i
@@ -118,19 +125,24 @@ class FormatParser(private val view: String) {
                             '!' -> {
                                 val capture = view.substring(pos, i)
                                 val rem = view.substring(i + 1)
-                                val conv = if (rem.startsWith("r")) {
-                                    FormatConv.Repr
-                                } else if (rem.startsWith("s")) {
-                                    FormatConv.Str
-                                } else if (rem.startsWith("}")) {
-                                    return Result.failure(IllegalArgumentException(
-                                        "Missing conversion character in format string `$view`"
-                                    ))
-                                } else {
-                                    return Result.failure(IllegalArgumentException(
-                                        "Invalid conversion in format string `$view`"
-                                    ))
-                                }
+                                val conv =
+                                    if (rem.startsWith("r")) {
+                                        FormatConv.Repr
+                                    } else if (rem.startsWith("s")) {
+                                        FormatConv.Str
+                                    } else if (rem.startsWith("}")) {
+                                        return Result.failure(
+                                            IllegalArgumentException(
+                                                "Missing conversion character in format string `$view`",
+                                            ),
+                                        )
+                                    } else {
+                                        return Result.failure(
+                                            IllegalArgumentException(
+                                                "Invalid conversion in format string `$view`",
+                                            ),
+                                        )
+                                    }
                                 i += 2 // `!` and `r` or `s`
                                 if (i >= view.length || view[i] != '}') {
                                     break
@@ -148,9 +160,11 @@ class FormatParser(private val view: String) {
                             else -> i += 1
                         }
                     }
-                    return Result.failure(IllegalArgumentException(
-                        "Unmatched '{{' in format string `$view`"
-                    ))
+                    return Result.failure(
+                        IllegalArgumentException(
+                            "Unmatched '{{' in format string `$view`",
+                        ),
+                    )
                 }
                 '}' -> {
                     check(i == start)
@@ -158,9 +172,11 @@ class FormatParser(private val view: String) {
                         i += 2
                         return Result.success(FormatToken.Escape(EscapeCurlyBrace.Close))
                     }
-                    return Result.failure(IllegalArgumentException(
-                        "Standalone '}}' in format string `$view`"
-                    ))
+                    return Result.failure(
+                        IllegalArgumentException(
+                            "Standalone '}}' in format string `$view`",
+                        ),
+                    )
                 }
                 else -> i += 1
             }

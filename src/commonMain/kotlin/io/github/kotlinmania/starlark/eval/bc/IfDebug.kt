@@ -47,7 +47,6 @@ package io.github.kotlinmania.starlark.eval.bc
 class IfDebug<T> private constructor(
     private val value: T?,
 ) : Comparable<IfDebug<T>> {
-
     companion object {
         // Kotlin: DEBUG flag simulates #[cfg(debug_assertions)].
         // Always true in Kotlin (no zero-cost release stripping).
@@ -55,9 +54,7 @@ class IfDebug<T> private constructor(
 
         /** Store a value if debug assertions enabled, drop otherwise. */
         // pub(crate) fn new(value: T) -> IfDebug<T>
-        fun <T> new(value: T): IfDebug<T> {
-            return newIfDebug { value }
-        }
+        fun <T> new(value: T): IfDebug<T> = newIfDebug { value }
 
         /** Store a value if debug assertions enabled, drop otherwise. */
         // pub(crate) fn new_if_debug(init: impl FnOnce() -> T) -> IfDebug<T>
@@ -82,9 +79,7 @@ class IfDebug<T> private constructor(
 
     /** Get a reference to stored value if assertions enabled, panic otherwise. */
     // pub(crate) fn get_ref_if_debug(&self) -> &T
-    fun getRefIfDebug(): T {
-        return getRef() ?: error("assertions disabled")
-    }
+    fun getRefIfDebug(): T = getRef() ?: error("assertions disabled")
 
     /** Invoke a function if debug enabled. */
     // pub(crate) fn if_debug(&self, f: impl FnOnce(&T))

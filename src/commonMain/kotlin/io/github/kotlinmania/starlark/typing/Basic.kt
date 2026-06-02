@@ -24,27 +24,53 @@ import io.github.kotlinmania.starlark.values.typing.TypingAny
 sealed class TyBasic : Comparable<TyBasic> {
     /** Type that contain anything */
     data object Any : TyBasic()
+
     /** Type is handled by `StarlarkValue` trait implementation. */
-    data class StarlarkValue(val value: TyStarlarkValue) : TyBasic()
+    data class StarlarkValue(
+        val value: TyStarlarkValue,
+    ) : TyBasic()
+
     /**
      * Iter is a type that supports iteration, only used as arguments to primitive functions.
      * The inner type is applicable for each iteration element.
      */
-    data class Iter(val item: ArcTy) : TyBasic()
+    data class Iter(
+        val item: ArcTy,
+    ) : TyBasic()
+
     /** `typing.Callable`. */
-    data class Callable(val callable: TyCallable) : TyBasic()
+    data class Callable(
+        val callable: TyCallable,
+    ) : TyBasic()
+
     /** `type`. */
     data object Type : TyBasic()
+
     /** A list. */
-    data class List(val item: ArcTy) : TyBasic()
+    data class List(
+        val item: ArcTy,
+    ) : TyBasic()
+
     /** A tuple. May be empty, to indicate the empty tuple. */
-    data class Tuple(val tuple: TyTuple) : TyBasic()
+    data class Tuple(
+        val tuple: TyTuple,
+    ) : TyBasic()
+
     /** A dictionary, with key and value types */
-    data class Dict(val key: ArcTy, val value: ArcTy) : TyBasic()
+    data class Dict(
+        val key: ArcTy,
+        val value: ArcTy,
+    ) : TyBasic()
+
     /** Custom type. */
-    data class Custom(val custom: TyCustom) : TyBasic()
+    data class Custom(
+        val custom: TyCustom,
+    ) : TyBasic()
+
     /** A set. */
-    data class Set(val item: ArcTy) : TyBasic()
+    data class Set(
+        val item: ArcTy,
+    ) : TyBasic()
 
     companion object {
         fun none(): TyBasic = starlarkValue("NoneType")
@@ -85,8 +111,8 @@ sealed class TyBasic : Comparable<TyBasic> {
      * E.g. the type `[bool]` would return `list`.
      * Types like [`Ty::any`] will return `None`.
      */
-    fun asName(): String? {
-        return when (this) {
+    fun asName(): String? =
+        when (this) {
             is StarlarkValue -> value.asName()
             is List -> "list"
             is Tuple -> "tuple"
@@ -96,15 +122,13 @@ sealed class TyBasic : Comparable<TyBasic> {
             is Any, is Iter, is Callable -> null
             is Set -> "set"
         }
-    }
 
     /** If this type is function, return the function type. */
-    internal fun asFunction(): TyFunction? {
-        return when (this) {
+    internal fun asFunction(): TyFunction? =
+        when (this) {
             is Custom -> custom.asFunctionDyn()
             else -> null
         }
-    }
 
     /** Type is a tuple, with specified or unspecified member types. */
     internal fun isTuple(): Boolean = this is Tuple
@@ -151,7 +175,5 @@ sealed class TyBasic : Comparable<TyBasic> {
         return sb.toString()
     }
 
-    override fun compareTo(other: TyBasic): Int {
-        return toString().compareTo(other.toString())
-    }
+    override fun compareTo(other: TyBasic): Int = toString().compareTo(other.toString())
 }

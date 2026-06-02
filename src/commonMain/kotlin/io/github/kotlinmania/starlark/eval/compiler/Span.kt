@@ -30,14 +30,11 @@ data class IrSpanned<T>(
     val span: FrameSpan,
     val node: T,
 ) {
-    fun <U> map(f: (T) -> U): IrSpanned<U> {
-        return IrSpanned(
+    fun <U> map(f: (T) -> U): IrSpanned<U> =
+        IrSpanned(
             node = f(node),
             span = span,
         )
-    }
 
-    fun deref(): T {
-        return node
-    }
+    fun deref(): T = node
 }

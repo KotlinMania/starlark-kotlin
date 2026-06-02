@@ -20,17 +20,17 @@ package io.github.kotlinmania.starlark.eval.runtime.profile
  */
 
 import io.github.kotlinmania.starlark.Error
+import io.github.kotlinmania.starlark.eval.runtime.SmallDuration
 import io.github.kotlinmania.starlark.eval.runtime.profile.data.ProfileData
 import io.github.kotlinmania.starlark.eval.runtime.profile.data.ProfileDataImpl
 import io.github.kotlinmania.starlark.eval.runtime.profile.flamegraph.FlameGraphData
 import io.github.kotlinmania.starlark.eval.runtime.profile.flamegraph.FlameGraphNode
-import io.github.kotlinmania.starlark.eval.runtime.SmallDuration
+import io.github.kotlinmania.starlark.eval.runtime.profile.mode.ProfileMode
+import io.github.kotlinmania.starlark.util.ArcStr
 import io.github.kotlinmania.starlark.values.layout.FrozenValue
 import io.github.kotlinmania.starlark.values.layout.RawPointer
-import io.github.kotlinmania.starlark.util.ArcStr
-import io.github.kotlinmania.starlark.eval.runtime.profile.mode.ProfileMode
-import io.github.kotlinmania.starlark.values.layout.heap.Tracer
 import io.github.kotlinmania.starlark.values.layout.Value
+import io.github.kotlinmania.starlark.values.layout.heap.Tracer
 import io.github.kotlinmania.starlark.values.layout.heap.ValueHolder
 
 // pub(crate) struct TimeFlameProfilerType
@@ -53,7 +53,9 @@ internal object TimeFlameProfilerType : ProfilerType<FlameGraphData> {
 
 // #[derive(Debug, thiserror::Error)]
 // enum FlameProfileError
-private sealed class FlameProfileError(message: String) : Exception(message) {
+private sealed class FlameProfileError(
+    message: String,
+) : Exception(message) {
     // #[error("Flame profile not enabled")]
     // NotEnabled
     class NotEnabled : FlameProfileError("Flame profile not enabled")
@@ -61,25 +63,35 @@ private sealed class FlameProfileError(message: String) : Exception(message) {
 
 // #[derive(Hash, PartialEq, Eq, Clone, Copy, Dupe)]
 // struct MutableValueId(usize)
-internal data class MutableValueId(val value: Int)
+internal data class MutableValueId(
+    val value: Int,
+)
 
 // #[derive(Hash, PartialEq, Eq, Clone, Copy, Dupe)]
 // struct FrozenValueId(usize)
-internal data class FrozenValueId(val value: Int)
+internal data class FrozenValueId(
+    val value: Int,
+)
 
 /** Index into FlameData.values */
 // enum ValueId
 internal sealed class ValueId {
     // Mutable(MutableValueId)
-    data class Mutable(val id: MutableValueId) : ValueId()
+    data class Mutable(
+        val id: MutableValueId,
+    ) : ValueId()
+
     // Frozen(FrozenValueId)
-    data class Frozen(val id: FrozenValueId) : ValueId()
+    data class Frozen(
+        val id: FrozenValueId,
+    ) : ValueId()
 
     // fn lookup<'a, T>(self, mutable: &'a [T], frozen: &'a [T]) -> &'a T
-    fun <T> lookup(mutable: List<T>, frozen: List<T>): T = when (this) {
-        is Mutable -> mutable[id.value]
-        is Frozen -> frozen[id.value]
-    }
+    fun <T> lookup(mutable: List<T>, frozen: List<T>): T =
+        when (this) {
+            is Mutable -> mutable[id.value]
+            is Frozen -> frozen[id.value]
+        }
 }
 
 /**
@@ -94,12 +106,15 @@ private class ValueIndex {
     /** Map from MutableValueId to Value. */
     // mutable_values: Vec<Value<'v>>
     val mutableValues: MutableList<Value> = mutableListOf()
+
     /** Map from FrozenValueId to Value. */
     // frozen_values: Vec<FrozenValue>
     val frozenValues: MutableList<FrozenValue> = mutableListOf()
+
     /** Map from Value to MutableValueId. */
     // mutable_map: HashMap<RawPointer, MutableValueId, StarlarkHasherBuilder>
     val mutableMap: MutableMap<RawPointer, MutableValueId> = mutableMapOf()
+
     /** Map from Value to FrozenValueId. */
     // frozen_map: HashMap<RawPointer, FrozenValueId, StarlarkHasherBuilder>
     val frozenMap: MutableMap<RawPointer, FrozenValueId> = mutableMapOf()
@@ -147,7 +162,10 @@ private class ValueIndex {
 internal sealed class Frame {
     /** Entry recorded when we enter a function. */
     // Push(ValueId)
-    data class Push(val id: ValueId) : Frame()
+    data class Push(
+        val id: ValueId,
+    ) : Frame()
+
     /** Entry recorded when we exit a function. */
     // Pop
     data object Pop : Frame()
@@ -167,9 +185,10 @@ internal class TimeFlameProfile {
             val mutableNames = x.index.mutableValues.map { it.toRepr() }
             val frozenNames = x.index.frozenValues.map { it.toValue().toRepr() }
             return ProfileData(
-                profile = ProfileDataImpl.TimeFlameProfile(
-                    Stacks.new(mutableNames, frozenNames, x.frames).render()
-                )
+                profile =
+                    ProfileDataImpl.TimeFlameProfile(
+                        Stacks.new(mutableNames, frozenNames, x.frames).render(),
+                    ),
             )
         }
     }
@@ -213,6 +232,7 @@ private class FlameData {
     /** All events in the profile, i.e. function entry or exit with timestamp. */
     // frames: Vec<(Frame, ProfilerInstant)>
     val frames: MutableList<Pair<Frame, ProfilerInstant>> = mutableListOf()
+
     // index: ValueIndex<'v>
     val index: ValueIndex = ValueIndex()
 }
@@ -259,9 +279,10 @@ private class Stacks(
             when (frame) {
                 is Frame.Pop -> return
                 is Frame.Push -> {
-                    val child = children.getOrPut(frame.id) {
-                        blank(frame.id.lookup(mutableNames, frozenNames))
-                    }
+                    val child =
+                        children.getOrPut(frame.id) {
+                            blank(frame.id.lookup(mutableNames, frozenNames))
+                        }
                     child.add(mutableNames, frozenNames, frames, lastTime)
                 }
             }

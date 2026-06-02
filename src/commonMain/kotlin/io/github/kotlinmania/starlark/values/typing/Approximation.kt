@@ -31,12 +31,11 @@ data class Approximation(
 ) : Comparable<Approximation> {
     companion object {
         /** Create a new [Approximation]. */
-        fun new(category: String, message: Any): Approximation {
-            return Approximation(
+        fun new(category: String, message: Any): Approximation =
+            Approximation(
                 category = category,
                 message = "$message",
             )
-        }
     }
 
     override fun compareTo(other: Approximation): Int {
@@ -45,7 +44,5 @@ data class Approximation(
         return message.compareTo(other.message)
     }
 
-    override fun toString(): String {
-        return "Approximation: $category = \"$message\""
-    }
+    override fun toString(): String = "Approximation: $category = \"$message\""
 }

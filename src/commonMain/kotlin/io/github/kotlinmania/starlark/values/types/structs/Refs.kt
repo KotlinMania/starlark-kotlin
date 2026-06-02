@@ -20,11 +20,11 @@ package io.github.kotlinmania.starlark.values.types.structs
  */
 
 import io.github.kotlinmania.starlark.typing.Ty
-import io.github.kotlinmania.starlark.values.layout.FrozenValue
-import io.github.kotlinmania.starlark.values.UnpackValue
-import io.github.kotlinmania.starlark.values.starlark_type_id.StarlarkTypeId
 import io.github.kotlinmania.starlark.values.StarlarkTypeRepr
+import io.github.kotlinmania.starlark.values.UnpackValue
+import io.github.kotlinmania.starlark.values.layout.FrozenValue
 import io.github.kotlinmania.starlark.values.layout.Value
+import io.github.kotlinmania.starlark.values.starlarktypeid.StarlarkTypeId
 
 /**
  * Reference to a struct allocated on the heap.
@@ -34,15 +34,13 @@ import io.github.kotlinmania.starlark.values.layout.Value
  */
 @ConsistentCopyVisibility
 data class StructRef internal constructor(
-    private val struct: Struct
+    private val struct: Struct,
 ) {
     companion object {
         /**
          * Downcast a value to a struct reference.
          */
-        fun fromValue(value: Value): StructRef? {
-            return StructGen.fromValue(value)?.let { StructRef(it) }
-        }
+        fun fromValue(value: Value): StructRef? = StructGen.fromValue(value)?.let { StructRef(it) }
 
         internal fun isInstance(value: Value): Boolean {
             // debug_assert in Rust: StarlarkTypeId::of::<Struct>() == StarlarkTypeId::of::<FrozenStruct>()
@@ -53,9 +51,7 @@ data class StructRef internal constructor(
     /**
      * Iterate over struct fields.
      */
-    fun iter(): Sequence<Pair<String, Value>> {
-        return struct.iter()
-    }
+    fun iter(): Sequence<Pair<String, Value>> = struct.iter()
 }
 
 /**
@@ -63,41 +59,32 @@ data class StructRef internal constructor(
  */
 @ConsistentCopyVisibility
 data class FrozenStructRef internal constructor(
-    internal val struct: FrozenStruct
+    internal val struct: FrozenStruct,
 ) {
     /**
      * Iterate over struct fields.
      */
-    fun iter(): Sequence<Pair<String, FrozenValue>> {
-        return struct.iter()
-    }
+    fun iter(): Sequence<Pair<String, FrozenValue>> = struct.iter()
 
     companion object {
         /**
          * Downcast a value to a struct reference.
          */
-        fun fromValue(value: FrozenValue): FrozenStructRef? {
-            return value.downcastRef<FrozenStruct>()
+        fun fromValue(value: FrozenValue): FrozenStructRef? =
+            value
+                .downcastRef<FrozenStruct>()
                 ?.let { FrozenStructRef(it) }
-        }
     }
 }
 
 // impl StarlarkTypeRepr for StructRef
 object StructRefStarlarkTypeRepr : StarlarkTypeRepr {
-    override fun starlarkTypeRepr(): Ty {
-        return Ty.anyStruct()
-    }
+    override fun starlarkTypeRepr(): Ty = Ty.anyStruct()
 }
 
 // impl UnpackValue for StructRef
 object StructRefUnpackValue : UnpackValue<StructRef> {
-    override fun starlarkTypeRepr(): Ty {
-        return StructRefStarlarkTypeRepr.starlarkTypeRepr()
-    }
+    override fun starlarkTypeRepr(): Ty = StructRefStarlarkTypeRepr.starlarkTypeRepr()
 
-    override fun unpackValueImpl(value: Value): Result<StructRef?> {
-        return Result.success(StructRef.fromValue(value))
-    }
+    override fun unpackValueImpl(value: Value): Result<StructRef?> = Result.success(StructRef.fromValue(value))
 }
-

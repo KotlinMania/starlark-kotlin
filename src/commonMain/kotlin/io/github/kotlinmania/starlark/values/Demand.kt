@@ -19,48 +19,48 @@ package io.github.kotlinmania.starlark.values.demand
  * limitations under the License.
  */
 
-import kotlin.reflect.KClass
 import io.github.kotlinmania.starlark.values.layout.Value
+import kotlin.reflect.KClass
 
 /**
  * Taken by [StarlarkValue.provide]
  * to provide different data depending on the type.
  */
-class Demand @PublishedApi internal constructor(
-    @PublishedApi internal val typeIdOfT: KClass<*>,
-    @PublishedApi internal var option: Any? = null,
-    @PublishedApi internal var filled: Boolean = false,
-) {
-    /**
-     * Provide a value of given type.
-     *
-     * If type matches the type requested from [Value.requestValue], the value is stored
-     * inside the [Demand] and later returned, otherwise the value is discarded.
-     */
-    fun provideValue(value: Any) {
-        if (this.typeIdOfT.isInstance(value)) {
-            this.option = value
-            this.filled = true
+class Demand
+    @PublishedApi
+    internal constructor(
+        @PublishedApi internal val typeIdOfT: KClass<*>,
+        @PublishedApi internal var option: Any? = null,
+        @PublishedApi internal var filled: Boolean = false,
+    ) {
+        /**
+         * Provide a value of given type.
+         *
+         * If type matches the type requested from [Value.requestValue], the value is stored
+         * inside the [Demand] and later returned, otherwise the value is discarded.
+         */
+        fun provideValue(value: Any) {
+            if (this.typeIdOfT.isInstance(value)) {
+                this.option = value
+                this.filled = true
+            }
         }
-    }
 
-    /**
-     * Similar to [provideValue], but does not require implementing `ProvidesStaticType`.
-     */
-    internal fun provideRefStatic(value: Any) {
-        if (this.typeIdOfT.isInstance(value)) {
-            this.option = value
-            this.filled = true
+        /**
+         * Similar to [provideValue], but does not require implementing `ProvidesStaticType`.
+         */
+        internal fun provideRefStatic(value: Any) {
+            if (this.typeIdOfT.isInstance(value)) {
+                this.option = value
+                this.filled = true
+            }
         }
-    }
 
-    companion object {
-        @PublishedApi
-        internal inline fun <reified T : Any> new(): Demand {
-            return Demand(typeIdOfT = T::class, option = null, filled = false)
+        companion object {
+            @PublishedApi
+            internal inline fun <reified T : Any> new(): Demand = Demand(typeIdOfT = T::class, option = null, filled = false)
         }
     }
-}
 
 /**
  * Non-inline helper that invokes provide on a Value.

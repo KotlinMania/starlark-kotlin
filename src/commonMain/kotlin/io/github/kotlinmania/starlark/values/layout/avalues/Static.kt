@@ -19,21 +19,21 @@ package io.github.kotlinmania.starlark.values.layout.avalues
  * limitations under the License.
  */
 
-import io.github.kotlinmania.starlark.values.layout.FrozenValue
 import io.github.kotlinmania.starlark.values.StarlarkValue
-import io.github.kotlinmania.starlark.values.layout.Freezer
 import io.github.kotlinmania.starlark.values.layout.AValue
 import io.github.kotlinmania.starlark.values.layout.AValueImpl
-import io.github.kotlinmania.starlark.values.layout.heap.AValueHeader
-import io.github.kotlinmania.starlark.values.layout.heap.AValueRepr
-import io.github.kotlinmania.starlark.values.layout.Value
-import io.github.kotlinmania.starlark.values.layout.heap.Tracer
+import io.github.kotlinmania.starlark.values.layout.AValueVTable
 import io.github.kotlinmania.starlark.values.layout.AlignedSize
 import io.github.kotlinmania.starlark.values.layout.ConstTypeId
+import io.github.kotlinmania.starlark.values.layout.Freezer
+import io.github.kotlinmania.starlark.values.layout.FrozenValue
 import io.github.kotlinmania.starlark.values.layout.FrozenValueTyped
-import io.github.kotlinmania.starlark.values.layout.AValueVTable
+import io.github.kotlinmania.starlark.values.layout.Value
 import io.github.kotlinmania.starlark.values.layout.ValueAllocSize
-import io.github.kotlinmania.starlark.values.starlark_type_id.StarlarkTypeId
+import io.github.kotlinmania.starlark.values.layout.heap.AValueHeader
+import io.github.kotlinmania.starlark.values.layout.heap.AValueRepr
+import io.github.kotlinmania.starlark.values.layout.heap.Tracer
+import io.github.kotlinmania.starlark.values.starlarktypeid.StarlarkTypeId
 
 /**
  * For types which are only allocated statically (never in heap).
@@ -41,7 +41,6 @@ import io.github.kotlinmania.starlark.values.starlark_type_id.StarlarkTypeId
  */
 // pub(crate) struct AValueBasic<T>(PhantomData<T>);
 internal class AValueBasic<T : StarlarkValue> : AValue {
-
     // fn extra_len(_value: &T) -> usize
     override fun extraLen(value: StarlarkValue): Int {
         error("Basic types don't appear in the heap")
@@ -93,38 +92,35 @@ class AllocStaticSimple<T : StarlarkValue> internal constructor(
         // pub const fn alloc(value: T) -> Self
         fun <T : StarlarkValue> alloc(value: T): AllocStaticSimple<T> {
             val typeId = ConstTypeId.of(value::class)
-            val vtable = AValueVTable(
-                staticTypeOfValue = typeId,
-                starlarkTypeId = StarlarkTypeId.fromTypeId(typeId),
-                typeName = value.TYPE,
-                isStr = false,
-                memorySizeFn = { _ -> ValueAllocSize.new(AlignedSize.newBytes(16)) },
-                heapFreezeFn = { _, _ -> error("AllocStaticSimple: heapFreeze not supported") },
-                heapCopyFn = { _, _ -> error("AllocStaticSimple: heapCopy not supported") },
-                starlarkValue = value,
-                hasInvoke = value.HAS_invoke,
-                hasEvalType = value.HAS_eval_type,
-                hasIterate = value.HAS_iterate,
-                hasEquals = value.HAS_equals,
-            )
+            val vtable =
+                AValueVTable(
+                    staticTypeOfValue = typeId,
+                    starlarkTypeId = StarlarkTypeId.fromTypeId(typeId),
+                    typeName = value.TYPE,
+                    isStr = false,
+                    memorySizeFn = { _ -> ValueAllocSize.new(AlignedSize.newBytes(16)) },
+                    heapFreezeFn = { _, _ -> error("AllocStaticSimple: heapFreeze not supported") },
+                    heapCopyFn = { _, _ -> error("AllocStaticSimple: heapCopy not supported") },
+                    starlarkValue = value,
+                    hasInvoke = value.HAS_invoke,
+                    hasEvalType = value.HAS_eval_type,
+                    hasIterate = value.HAS_iterate,
+                    hasEquals = value.HAS_equals,
+                )
             return AllocStaticSimple(
                 AValueRepr(
                     AValueHeader(vtable),
                     AValueImpl.new<AValueBasic<T>>(value),
-                )
+                ),
             )
         }
     }
 
     /** Get the value. */
     // pub fn unpack(&'static self) -> FrozenValueTyped<'static, T>
-    fun unpack(): FrozenValueTyped<T> {
-        return FrozenValueTyped.newRepr(repr)
-    }
+    fun unpack(): FrozenValueTyped<T> = FrozenValueTyped.newRepr(repr)
 
     /** Get the value. */
     // pub fn to_frozen_value(&'static self) -> FrozenValue
-    fun toFrozenValue(): FrozenValue {
-        return unpack().toFrozenValue()
-    }
+    fun toFrozenValue(): FrozenValue = unpack().toFrozenValue()
 }

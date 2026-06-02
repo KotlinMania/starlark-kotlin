@@ -19,7 +19,4 @@ package io.github.kotlinmania.starlark.collections
  * limitations under the License.
  */
 
-internal fun mixU32(n: UInt): ULong {
-    return n.toULong() * 0x9e3779b97f4a7c15UL
-}
-
+internal fun mixU32(n: UInt): ULong = n.toULong() * 0x9e3779b97f4a7c15UL

@@ -32,15 +32,14 @@ import io.github.kotlinmania.starlark.values.types.namespace.FrozenNamespace
  */
 // #[derive(Copy, Clone, Dupe, Debug)]
 // pub(crate) struct BuiltinFn(pub(crate) FrozenValue);
-internal class BuiltinFn(val value: FrozenValue) {
-
+internal class BuiltinFn(
+    val value: FrozenValue,
+) {
     // impl PartialEq<FrozenValue> for BuiltinFn
     // Pointer equality works because #[starlark_module] proc macro
     // generates a singleton which allocates the function only once
     // even if builder function is called multiple times.
-    fun ptrEq(other: FrozenValue): Boolean {
-        return value.toValue().ptrEq(other.toValue())
-    }
+    fun ptrEq(other: FrozenValue): Boolean = value.toValue().ptrEq(other.toValue())
 
     // impl PartialEq<FrozenValue> for BuiltinFn
     // impl PartialEq<BuiltinFn> for FrozenValue (symmetric)
@@ -85,11 +84,14 @@ internal class Constants(
                 fnTuple = g.getFrozen("tuple")?.let { BuiltinFn(it) },
                 fnIsinstance = g.getFrozen("isinstance")?.let { BuiltinFn(it) },
                 fnSet = g.getFrozen("set")?.let { BuiltinFn(it) },
-                typingCallable = run {
-                    val typing = g.getFrozen("typing")
-                        ?.downcastFrozenRef<FrozenNamespace>()
-                    typing?.value?.get("Callable")?.let { BuiltinFn(it) }
-                },
+                typingCallable =
+                    run {
+                        val typing =
+                            g
+                                .getFrozen("typing")
+                                ?.downcastFrozenRef<FrozenNamespace>()
+                        typing?.value?.get("Callable")?.let { BuiltinFn(it) }
+                    },
             )
         }
 

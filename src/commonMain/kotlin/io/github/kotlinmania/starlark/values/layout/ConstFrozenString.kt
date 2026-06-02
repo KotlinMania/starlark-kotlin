@@ -22,7 +22,7 @@ package io.github.kotlinmania.starlark.values.layout
 import io.github.kotlinmania.starlark.values.layout.typed.FrozenStringValue
 import io.github.kotlinmania.starlark.values.layout.typed.StarlarkStr
 
-/// Create a [`FrozenStringValue`](crate::values::FrozenStringValue).
+// / Create a [`FrozenStringValue`](crate::values::FrozenStringValue).
 // #[macro_export]
 // macro_rules! const_frozen_string {
 //     ($s:expr) => {{
@@ -37,12 +37,13 @@ fun constFrozenString(s: String): FrozenStringValue {
         // const UNREACHABLE: bool = $s.len() <= 1;
         val unreachable: Boolean = s.length <= 1
         // const N: usize = if UNREACHABLE {
-        val n: Int = if (unreachable) {
-            1
-        } else {
-            // $crate::values::string::StarlarkStr::payload_len_for_len($s.len())
-            StarlarkStr.payloadLenForLen(s.length)
-        }
+        val n: Int =
+            if (unreachable) {
+                1
+            } else {
+                // $crate::values::string::StarlarkStr::payload_len_for_len($s.len())
+                StarlarkStr.payloadLenForLen(s.length)
+            }
         // static X: $crate::values::StarlarkStrNRepr<N> =
         //     $crate::values::StarlarkStrNRepr::new(if UNREACHABLE { "xx" } else { $s });
         val x: StarlarkStrNRepr =
@@ -54,6 +55,6 @@ fun constFrozenString(s: String): FrozenStringValue {
             // X.erase()
             x.erase()
         }
-    // }};
+        // }};
     }
 }

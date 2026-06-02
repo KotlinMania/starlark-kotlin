@@ -36,42 +36,44 @@ package io.github.kotlinmania.starlark.values.types.dict
 // use crate::values::type_repr::StarlarkTypeRepr;
 // use crate::values::types::dict::dict_type::DictType;
 
-import io.github.kotlinmania.starlark.collections.SmallMap
 import io.github.kotlinmania.starlark.collections.Hashed
+import io.github.kotlinmania.starlark.collections.SmallMap
 import io.github.kotlinmania.starlark.typing.Ty
 import io.github.kotlinmania.starlark.values.AllocFrozenValue
 import io.github.kotlinmania.starlark.values.AllocValue
-import io.github.kotlinmania.starlark.values.layout.heap.FrozenHeap
-import io.github.kotlinmania.starlark.values.layout.FrozenValue
-import io.github.kotlinmania.starlark.values.layout.heap.Heap
-import io.github.kotlinmania.starlark.values.layout.Value
 import io.github.kotlinmania.starlark.values.StarlarkTypeRepr
+import io.github.kotlinmania.starlark.values.layout.FrozenValue
+import io.github.kotlinmania.starlark.values.layout.Value
+import io.github.kotlinmania.starlark.values.layout.heap.FrozenHeap
+import io.github.kotlinmania.starlark.values.layout.heap.Heap
 
-/// Utility to allocate a dict from iterator.
-///
-/// Iterator must be a list of pairs (key, value).
-/// Duplicate keys are allowed, last key wins.
-///
-/// # Panics
-///
-/// Panics if a key is not hashable.
-///
-/// # Example
-///
-/// ```
-/// use starlark::values::dict::AllocDict;
-///
-/// # use starlark::values::{FrozenHeap, Heap};
-/// # fn alloc(heap: Heap<'_>, frozen_heap: &FrozenHeap) {
-/// let l = heap.alloc(AllocDict([("a", 1), ("b", 2), ("c", 3)]));
-/// let ls = frozen_heap.alloc(AllocDict([("a", 1), ("b", 2), ("c", 3)]));
-/// # }
-/// ```
+// / Utility to allocate a dict from iterator.
+// /
+// / Iterator must be a list of pairs (key, value).
+// / Duplicate keys are allowed, last key wins.
+// /
+// / # Panics
+// /
+// / Panics if a key is not hashable.
+// /
+// / # Example
+// /
+// / ```
+// / use starlark::values::dict::AllocDict;
+// /
+// / # use starlark::values::{FrozenHeap, Heap};
+// / # fn alloc(heap: Heap<'_>, frozen_heap: &FrozenHeap) {
+// / let l = heap.alloc(AllocDict([("a", 1), ("b", 2), ("c", 3)]));
+// / let ls = frozen_heap.alloc(AllocDict([("a", 1), ("b", 2), ("c", 3)]));
+// / # }
+// / ```
 // pub struct AllocDict<D>(pub D);
-data class AllocDict<D>(val d: D) {
+data class AllocDict<D>(
+    val d: D,
+) {
     // impl AllocDict<iter::Empty<(FrozenValue, FrozenValue)>>
     companion object {
-        /// Allocate an empty dict.
+        // / Allocate an empty dict.
         // pub const EMPTY: AllocDict<iter::Empty<(FrozenValue, FrozenValue)>> = AllocDict(iter::empty());
         val EMPTY: AllocDict<Sequence<Pair<FrozenValue, FrozenValue>>> = AllocDict(emptySequence())
     }
@@ -97,7 +99,7 @@ fun <D, K, V> AllocDict<D>.allocValue(heap: Heap): Value
         // map.insert_hashed(k.alloc_value(heap).get_hashed().unwrap(), v.alloc_value(heap));
         map.insertHashed(
             k.allocValue(heap).getHashed().getOrThrow(),
-            v.allocValue(heap)
+            v.allocValue(heap),
         )
     }
     // heap.alloc(Dict::new(map))
@@ -120,7 +122,7 @@ fun <D, K, V> AllocDict<D>.allocFrozenValue(heap: FrozenHeap): FrozenValue
         val hashedValue = frozenKey.toValue().getHashed().getOrThrow()
         map.insertHashed(
             Hashed.newUnchecked(hashedValue.hash(), frozenKey),
-            v.allocFrozenValue(heap)
+            v.allocFrozenValue(heap),
         )
     }
     // heap.alloc(FrozenDictData { content: map })

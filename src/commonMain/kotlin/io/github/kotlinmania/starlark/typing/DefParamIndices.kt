@@ -52,7 +52,6 @@ data class DefParamIndices(
     // pub kwargs: Option<u32>,
     val kwargs: UInt? = null,
 ) : Comparable<DefParamIndices> {
-
     // pub fn pos_only(&self) -> Range<usize>
     fun posOnly(): IntRange = 0 until numPositionalOnly.toInt()
 

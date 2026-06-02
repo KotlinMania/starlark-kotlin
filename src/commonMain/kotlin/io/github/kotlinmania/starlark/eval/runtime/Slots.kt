@@ -24,7 +24,9 @@ import io.github.kotlinmania.starlark.eval.bc.BcSlot
 /** Not captured. */
 // #[derive(Clone, Copy, Dupe, Debug, PartialEq, Eq, Trace, Freeze, VisitSpanMut, Allocative)]
 // pub(crate) struct LocalSlotId(pub(crate) u32)
-internal data class LocalSlotId(val index: UInt) {
+internal data class LocalSlotId(
+    val index: UInt,
+) {
     /**
      * Each local slot is a valid BC slot.
      * When it is:
@@ -54,7 +56,9 @@ internal data class LocalSlotId(val index: UInt) {
  */
 // #[derive(Clone, Copy, Dupe, Debug, PartialEq, Eq, Trace, VisitSpanMut)]
 // pub(crate) struct LocalCapturedSlotId(pub(crate) u32)
-internal data class LocalCapturedSlotId(val index: UInt) {
+internal data class LocalCapturedSlotId(
+    val index: UInt,
+) {
     // pub(crate) fn to_bc_slot(self) -> BcSlot
     fun toBcSlot(): BcSlot = BcSlot(index)
 }
@@ -66,4 +70,6 @@ internal data class LocalCapturedSlotId(val index: UInt) {
  */
 // #[derive(Clone, Copy, Dupe, Debug, PartialEq, Eq, Trace)]
 // pub(crate) struct LocalSlotIdCapturedOrNot(pub(crate) u32)
-data class LocalSlotIdCapturedOrNot(val index: UInt)
+data class LocalSlotIdCapturedOrNot(
+    val index: UInt,
+)

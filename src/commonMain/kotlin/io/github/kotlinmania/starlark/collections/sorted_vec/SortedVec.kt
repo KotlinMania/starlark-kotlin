@@ -1,5 +1,5 @@
 // port-lint: source src/sorted_vec.rs
-package io.github.kotlinmania.starlark.collections.sorted_vec
+package io.github.kotlinmania.starlark.collections.sortedvec
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.
@@ -26,8 +26,8 @@ package io.github.kotlinmania.starlark.collections.sorted_vec
  */
 class SortedVec<T> private constructor(
     private val vec: MutableList<T>,
-) : Iterable<T>, Comparable<SortedVec<T>> {
-
+) : Iterable<T>,
+    Comparable<SortedVec<T>> {
     companion object {
         /** Construct an empty [SortedVec]. */
         fun <T> new(): SortedVec<T> = SortedVec(mutableListOf())
@@ -101,6 +101,7 @@ class SortedVec<T> private constructor(
         while (thisIter.hasNext() && otherIter.hasNext()) {
             val t = thisIter.next()
             val o = otherIter.next()
+
             @Suppress("UNCHECKED_CAST")
             val cmp = (t as Comparable<T>).compareTo(o)
             if (cmp != 0) return cmp

@@ -18,16 +18,16 @@ import io.github.kotlinmania.starlark.values.StarlarkValue
 import kotlin.test.Test
 
 class MethodsTest {
-
     private class Magic : StarlarkValue {
         override val TYPE: String get() = "magic"
+
         override fun toString(): String = "Magic"
-        override fun getMethods(): Methods? {
-            return MethodsStatic.new().methods { x ->
+
+        override fun getMethods(): Methods? =
+            MethodsStatic.new().methods { x ->
                 x.setAttribute("my_type", "magic", null)
                 x.setAttribute("my_value", 42, null)
             }
-        }
     }
 
     @Test

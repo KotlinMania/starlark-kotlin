@@ -21,8 +21,8 @@ package io.github.kotlinmania.starlark.values
 
 import io.github.kotlinmania.starlark.collections.Hashed
 import io.github.kotlinmania.starlark.collections.SmallMap
-import io.github.kotlinmania.starlark.collections.small_set.SmallSet
-import io.github.kotlinmania.starlark.syntax.slice_vec_ext.intoTryMap
+import io.github.kotlinmania.starlark.collections.smallset.SmallSet
+import io.github.kotlinmania.starlark.syntax.slicevecext.intoTryMap
 import io.github.kotlinmania.starlark.util.boxed.Box
 import io.github.kotlinmania.starlark.util.cell.OnceCell
 import io.github.kotlinmania.starlark.util.cell.UnsafeCell
@@ -42,52 +42,59 @@ fun <T, TFrozen> freezeList(
     list: List<T>,
     freezer: Freezer,
     freeze: (T, Freezer) -> FreezeResult<TFrozen>,
-): FreezeResult<List<TFrozen>> {
-    return list.freeze(freezer, freeze)
-}
+): FreezeResult<List<TFrozen>> = list.freeze(freezer, freeze)
 
 fun <T, TFrozen> freezeNullable(
     value: T?,
     freezer: Freezer,
     freeze: (T, Freezer) -> FreezeResult<TFrozen>,
-): FreezeResult<TFrozen?> {
-    return value.freeze(freezer, freeze)
-}
+): FreezeResult<TFrozen?> = value.freeze(freezer, freeze)
 
 fun <K, V, KFrozen, VFrozen> freezeSmallMap(
     map: SmallMap<K, V>,
     freezer: Freezer,
     freezeKey: (K, Freezer) -> FreezeResult<KFrozen>,
     freezeValue: (V, Freezer) -> FreezeResult<VFrozen>,
-): FreezeResult<SmallMap<KFrozen, VFrozen>> {
-    return map.freeze(freezer, freezeKey, freezeValue)
-}
+): FreezeResult<SmallMap<KFrozen, VFrozen>> = map.freeze(freezer, freezeKey, freezeValue)
 
 fun <T, TFrozen> freezeSmallSet(
     set: SmallSet<T>,
     freezer: Freezer,
     freeze: (T, Freezer) -> FreezeResult<TFrozen>,
-): FreezeResult<SmallSet<TFrozen>> {
-    return set.freeze(freezer, freeze)
-}
+): FreezeResult<SmallSet<TFrozen>> = set.freeze(freezer, freeze)
 
 /**
  * Minimal stand-in for Rust's `marker::PhantomData<T>`.
  */
-data class PhantomData<T>(val unit: Unit = Unit) {
+data class PhantomData<T>(
+    val unit: Unit = Unit,
+) {
     companion object {
         fun <T> new(): PhantomData<T> = PhantomData()
     }
 }
 
 /** Kotlin equivalent of Rust's 1-tuple `(A,)`. */
-data class Tuple1<T>(val value0: T)
+data class Tuple1<T>(
+    val value0: T,
+)
 
 /** Kotlin equivalent of Rust's 4-tuple `(A, B, C, D)`. */
-data class Tuple4<A, B, C, D>(val first: A, val second: B, val third: C, val fourth: D)
+data class Tuple4<A, B, C, D>(
+    val first: A,
+    val second: B,
+    val third: C,
+    val fourth: D,
+)
 
 /** Kotlin equivalent of Rust's 5-tuple `(A, B, C, D, E)`. */
-data class Tuple5<A, B, C, D, E>(val first: A, val second: B, val third: C, val fourth: D, val fifth: E)
+data class Tuple5<A, B, C, D, E>(
+    val first: A,
+    val second: B,
+    val third: C,
+    val fourth: D,
+    val fifth: E,
+)
 
 /**
  * Need to be implemented for non-simple `StarlarkValue`.
@@ -123,70 +130,46 @@ interface Freeze<Frozen> {
 // --- small Rust-shape helpers (line-by-line ports) ---
 
 // impl Freeze for String
-fun String.freeze(_freezer: Freezer): FreezeResult<String> {
-    return Result.success(this)
-}
+fun String.freeze(_freezer: Freezer): FreezeResult<String> = Result.success(this)
 
 // Used by some derived-freeze tests (mirrors Rust `Freeze` for String).
-fun freezeString(value: String, freezer: Freezer): FreezeResult<String> {
-    return value.freeze(freezer)
-}
+fun freezeString(value: String, freezer: Freezer): FreezeResult<String> = value.freeze(freezer)
 
 // impl Freeze for i32
-fun Int.freeze(_freezer: Freezer): FreezeResult<Int> {
-    return Result.success(this)
-}
+fun Int.freeze(_freezer: Freezer): FreezeResult<Int> = Result.success(this)
 
 // impl Freeze for u32
-fun UInt.freeze(_freezer: Freezer): FreezeResult<UInt> {
-    return Result.success(this)
-}
+fun UInt.freeze(_freezer: Freezer): FreezeResult<UInt> = Result.success(this)
 
 // impl Freeze for i64
-fun Long.freeze(_freezer: Freezer): FreezeResult<Long> {
-    return Result.success(this)
-}
+fun Long.freeze(_freezer: Freezer): FreezeResult<Long> = Result.success(this)
 
 // impl Freeze for u64
-fun ULong.freeze(_freezer: Freezer): FreezeResult<ULong> {
-    return Result.success(this)
-}
+fun ULong.freeze(_freezer: Freezer): FreezeResult<ULong> = Result.success(this)
 
 // impl Freeze for usize
-fun Usize.freeze(_freezer: Freezer): FreezeResult<Usize> {
-    return Result.success(this)
-}
+fun Usize.freeze(_freezer: Freezer): FreezeResult<Usize> = Result.success(this)
 
 // impl Freeze for bool
-fun Boolean.freeze(_freezer: Freezer): FreezeResult<Boolean> {
-    return Result.success(this)
-}
+fun Boolean.freeze(_freezer: Freezer): FreezeResult<Boolean> = Result.success(this)
 
 // Used by some derived-freeze tests (mirrors Rust `Freeze` for bool).
-fun freezeBoolean(value: Boolean, freezer: Freezer): FreezeResult<Boolean> {
-    return value.freeze(freezer)
-}
+fun freezeBoolean(value: Boolean, freezer: Freezer): FreezeResult<Boolean> = value.freeze(freezer)
 
 // impl Freeze for marker::PhantomData<&'v T>
-fun <T> PhantomData<T>.freeze(_freezer: Freezer): FreezeResult<PhantomData<T>> {
-    return Result.success(PhantomData())
-}
+fun <T> PhantomData<T>.freeze(_freezer: Freezer): FreezeResult<PhantomData<T>> = Result.success(PhantomData())
 
 // impl<T> Freeze for Vec<T>
 fun <T, TFrozen> List<T>.freeze(
     freezer: Freezer,
     freeze: (T, Freezer) -> FreezeResult<TFrozen>,
-): FreezeResult<List<TFrozen>> {
-    return this.intoTryMap { v -> freeze(v, freezer) }
-}
+): FreezeResult<List<TFrozen>> = this.intoTryMap { v -> freeze(v, freezer) }
 
 // impl<T> Freeze for RefCell<T>
 internal fun <T, TFrozen> RefCell<T>.freeze(
     freezer: Freezer,
     freeze: (T, Freezer) -> FreezeResult<TFrozen>,
-): FreezeResult<TFrozen> {
-    return freeze(this.getMut(), freezer)
-}
+): FreezeResult<TFrozen> = freeze(this.getMut(), freezer)
 
 // impl<T> Freeze for UnsafeCell<T>
 fun <T, TFrozen> UnsafeCell<T>.freeze(
@@ -227,23 +210,22 @@ fun <T, TFrozen> Box<T>.freeze(freezer: Freezer, freeze: (T, Freezer) -> FreezeR
 fun <T, TFrozen> Box<List<T>>.freezeListBox(
     freezer: Freezer,
     freeze: (T, Freezer) -> FreezeResult<TFrozen>,
-): FreezeResult<Box<List<TFrozen>>> {
-    return this.asMut()
+): FreezeResult<Box<List<TFrozen>>> =
+    this
+        .asMut()
         .intoTryMap { v -> freeze(v, freezer) }
         .map { v -> Box(v) }
-}
 
 // impl<T> Freeze for Option<T>
 fun <T, TFrozen> T?.freeze(
     freezer: Freezer,
     freeze: (T, Freezer) -> FreezeResult<TFrozen>,
-): FreezeResult<TFrozen?> {
-    return if (this == null) {
+): FreezeResult<TFrozen?> =
+    if (this == null) {
         Result.success(null)
     } else {
         freeze(this, freezer).map { it }
     }
-}
 
 // impl<K: Freeze> Freeze for Hashed<K>
 fun <K, KFrozen> Hashed<K>.freeze(
@@ -290,19 +272,13 @@ fun <T, TFrozen> SmallSet<T>.freeze(
 }
 
 /** Freeze implementation for [Value]. Delegates to [Freezer.freeze]. */
-fun Value.freeze(freezer: Freezer): FreezeResult<FrozenValue> {
-    return freezer.freeze(this)
-}
+fun Value.freeze(freezer: Freezer): FreezeResult<FrozenValue> = freezer.freeze(this)
 
 /** Freeze implementation for [FrozenValue]. Identity freeze — already frozen. */
-fun FrozenValue.freeze(_freezer: Freezer): FreezeResult<FrozenValue> {
-    return Result.success(this)
-}
+fun FrozenValue.freeze(_freezer: Freezer): FreezeResult<FrozenValue> = Result.success(this)
 
 /** Freeze implementation for [Unit] (Rust `()`). Identity freeze. */
-fun Unit.freeze(_freezer: Freezer): FreezeResult<Unit> {
-    return Result.success(Unit)
-}
+fun Unit.freeze(_freezer: Freezer): FreezeResult<Unit> = Result.success(Unit)
 
 /** Freeze implementation for [Tuple1] (Rust 1-tuple `(A,)`). */
 fun <A, AFrozen> Tuple1<A>.freeze(

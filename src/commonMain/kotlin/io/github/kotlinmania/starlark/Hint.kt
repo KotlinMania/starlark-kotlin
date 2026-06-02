@@ -28,14 +28,10 @@ package io.github.kotlinmania.starlark
 // #[inline]
 // pub(crate) fn likely(b: bool) -> bool
 @Suppress("NOTHING_TO_INLINE")
-internal inline fun likely(b: Boolean): Boolean {
-    return b
-}
+internal inline fun likely(b: Boolean): Boolean = b
 
 // #[cfg(not(rust_nightly))]
 // #[inline]
 // pub(crate) fn unlikely(b: bool) -> bool
 @Suppress("NOTHING_TO_INLINE")
-internal inline fun unlikely(b: Boolean): Boolean {
-    return b
-}
+internal inline fun unlikely(b: Boolean): Boolean = b

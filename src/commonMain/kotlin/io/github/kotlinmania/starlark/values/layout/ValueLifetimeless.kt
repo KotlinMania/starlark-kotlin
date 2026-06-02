@@ -32,7 +32,7 @@ package io.github.kotlinmania.starlark.values.layout
 
 import io.github.kotlinmania.starlark.values.Freeze
 
-/// Implemented by [`Value`](crate::values::Value) and [`FrozenValue`](crate::values::FrozenValue).
+// / Implemented by [`Value`](crate::values::Value) and [`FrozenValue`](crate::values::FrozenValue).
 // pub trait ValueLifetimeless:
 //     Sealed
 //     + Eq

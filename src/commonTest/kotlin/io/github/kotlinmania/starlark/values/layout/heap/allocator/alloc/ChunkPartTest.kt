@@ -19,7 +19,6 @@ import kotlin.test.Test
 import kotlin.test.assertTrue
 
 class ChunkPartTest {
-
     @Test
     fun testIsFull() {
         val chunkPart = ChunkPart.new(Chunk.allocAtLeast(AlignedSize.newBytes(100 * AValueHeader.ALIGN)))

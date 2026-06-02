@@ -23,13 +23,13 @@ package io.github.kotlinmania.starlark.eval.bc
 
 import io.github.kotlinmania.starlark.collections.symbol.Symbol
 import io.github.kotlinmania.starlark.eval.compiler.FrozenDef
-import io.github.kotlinmania.starlark.values.layout.typed.FrozenStringValue
-import io.github.kotlinmania.starlark.eval.runtime.ArgumentsFull
 import io.github.kotlinmania.starlark.eval.runtime.ArgNames
-import io.github.kotlinmania.starlark.eval.runtime.ArgumentsPos
-import io.github.kotlinmania.starlark.eval.runtime.ArgumentsImpl
 import io.github.kotlinmania.starlark.eval.runtime.ArgSymbol
+import io.github.kotlinmania.starlark.eval.runtime.ArgumentsFull
+import io.github.kotlinmania.starlark.eval.runtime.ArgumentsImpl
+import io.github.kotlinmania.starlark.eval.runtime.ArgumentsPos
 import io.github.kotlinmania.starlark.eval.runtime.ResolvedArgName
+import io.github.kotlinmania.starlark.values.layout.typed.FrozenStringValue
 
 /** Call arguments. */
 // pub(crate) trait BcCallArgs<S: ArgSymbol>: BcInstrArg
@@ -66,8 +66,8 @@ class BcCallArgsFull<S : ArgSymbol>(
 
     /** Display for BcCallArgsFull. */
     // impl<S: ArgSymbol> Display for BcCallArgsFull<S>
-    override fun toString(): String {
-        return buildString {
+    override fun toString(): String =
+        buildString {
             append(posNamed)
             // Number of positional arguments.
             if (pos() != 0u) {
@@ -86,7 +86,6 @@ class BcCallArgsFull<S : ArgSymbol>(
                 append(" **$kwargs")
             }
         }
-    }
 }
 
 /** Positional-only call arguments, from stack. */
@@ -98,20 +97,22 @@ class BcCallArgsPos(
 )
 
 // impl BcCallArgsFull<Symbol>
+
 /** Resolve symbol-based call args to resolved arg names for a specific def. */
 // pub(crate) fn resolve(self, def: &FrozenDef) -> BcCallArgsFull<ResolvedArgName>
-internal fun BcCallArgsFull<Symbol>.resolve(def: FrozenDef): BcCallArgsFull<ResolvedArgName> {
-    return BcCallArgsFull(
+internal fun BcCallArgsFull<Symbol>.resolve(def: FrozenDef): BcCallArgsFull<ResolvedArgName> =
+    BcCallArgsFull(
         posNamed = posNamed,
-        names = names.map { (name, value) ->
-            Pair(def.resolveArgName(name.asStrHashed()), value)
-        },
+        names =
+            names.map { (name, value) ->
+                Pair(def.resolveArgName(name.asStrHashed()), value)
+            },
         args = args,
         kwargs = kwargs,
     )
-}
 
 // impl<S: ArgSymbol> BcCallArgs<S> for BcCallArgsFull<S>
+
 /** Pop full call arguments from the stack frame. */
 class BcCallArgsFullCallArgs<S : ArgSymbol>(
     private val full: BcCallArgsFull<S>,
@@ -134,16 +135,24 @@ class BcCallArgsFullCallArgs<S : ArgSymbol>(
     }
 
     // impl<S: ArgSymbol> BcInstrArg for BcCallArgsFull<S>
-    override fun fmtAppend(@Suppress("UNUSED_PARAMETER") ip: BcAddr, @Suppress("UNUSED_PARAMETER") endArg: BcInstrEndArg?, f: StringBuilder) {
+    override fun fmtAppend(
+        @Suppress("UNUSED_PARAMETER") ip: BcAddr,
+        @Suppress("UNUSED_PARAMETER") endArg: BcInstrEndArg?,
+        f: StringBuilder,
+    ) {
         f.append(" {$full}")
     }
 
-    override fun visitJumpAddr(@Suppress("UNUSED_PARAMETER") ip: BcAddr, @Suppress("UNUSED_PARAMETER") consumer: (BcAddr) -> Unit) {
+    override fun visitJumpAddr(
+        @Suppress("UNUSED_PARAMETER") ip: BcAddr,
+        @Suppress("UNUSED_PARAMETER") consumer: (BcAddr) -> Unit,
+    ) {
         // No jump addresses in call args.
     }
 }
 
 // impl<S: ArgSymbol> BcCallArgs<S> for BcCallArgsPos
+
 /** Pop positional-only call arguments from the stack frame. */
 class BcCallArgsPosCallArgs<S : ArgSymbol>(
     private val posArgs: BcCallArgsPos,
@@ -161,16 +170,24 @@ class BcCallArgsPosCallArgs<S : ArgSymbol>(
     }
 
     // impl BcInstrArg for BcCallArgsPos
-    override fun fmtAppend(@Suppress("UNUSED_PARAMETER") ip: BcAddr, @Suppress("UNUSED_PARAMETER") endArg: BcInstrEndArg?, f: StringBuilder) {
+    override fun fmtAppend(
+        @Suppress("UNUSED_PARAMETER") ip: BcAddr,
+        @Suppress("UNUSED_PARAMETER") endArg: BcInstrEndArg?,
+        f: StringBuilder,
+    ) {
         f.append(" ${posArgs.pos}")
     }
 
-    override fun visitJumpAddr(@Suppress("UNUSED_PARAMETER") ip: BcAddr, @Suppress("UNUSED_PARAMETER") consumer: (BcAddr) -> Unit) {
+    override fun visitJumpAddr(
+        @Suppress("UNUSED_PARAMETER") ip: BcAddr,
+        @Suppress("UNUSED_PARAMETER") consumer: (BcAddr) -> Unit,
+    ) {
         // No jump addresses in call args.
     }
 }
 
 // impl BcCallArgsForDef for BcCallArgsFull<ResolvedArgName>
+
 /** Full call arguments for def calls, popping from the stack frame. */
 class BcCallArgsFullForDef(
     private val full: BcCallArgsFull<ResolvedArgName>,
@@ -193,16 +210,24 @@ class BcCallArgsFullForDef(
     }
 
     // impl<S: ArgSymbol> BcInstrArg for BcCallArgsFull<S>
-    override fun fmtAppend(@Suppress("UNUSED_PARAMETER") ip: BcAddr, @Suppress("UNUSED_PARAMETER") endArg: BcInstrEndArg?, f: StringBuilder) {
+    override fun fmtAppend(
+        @Suppress("UNUSED_PARAMETER") ip: BcAddr,
+        @Suppress("UNUSED_PARAMETER") endArg: BcInstrEndArg?,
+        f: StringBuilder,
+    ) {
         f.append(" {$full}")
     }
 
-    override fun visitJumpAddr(@Suppress("UNUSED_PARAMETER") ip: BcAddr, @Suppress("UNUSED_PARAMETER") consumer: (BcAddr) -> Unit) {
+    override fun visitJumpAddr(
+        @Suppress("UNUSED_PARAMETER") ip: BcAddr,
+        @Suppress("UNUSED_PARAMETER") consumer: (BcAddr) -> Unit,
+    ) {
         // No jump addresses in call args.
     }
 }
 
 // impl BcCallArgsForDef for BcCallArgsPos
+
 /** Positional-only call arguments for def calls, popping from the stack frame. */
 class BcCallArgsPosForDef(
     private val posArgs: BcCallArgsPos,
@@ -214,11 +239,18 @@ class BcCallArgsPosForDef(
     }
 
     // impl BcInstrArg for BcCallArgsPos
-    override fun fmtAppend(@Suppress("UNUSED_PARAMETER") ip: BcAddr, @Suppress("UNUSED_PARAMETER") endArg: BcInstrEndArg?, f: StringBuilder) {
+    override fun fmtAppend(
+        @Suppress("UNUSED_PARAMETER") ip: BcAddr,
+        @Suppress("UNUSED_PARAMETER") endArg: BcInstrEndArg?,
+        f: StringBuilder,
+    ) {
         f.append(" ${posArgs.pos}")
     }
 
-    override fun visitJumpAddr(@Suppress("UNUSED_PARAMETER") ip: BcAddr, @Suppress("UNUSED_PARAMETER") consumer: (BcAddr) -> Unit) {
+    override fun visitJumpAddr(
+        @Suppress("UNUSED_PARAMETER") ip: BcAddr,
+        @Suppress("UNUSED_PARAMETER") consumer: (BcAddr) -> Unit,
+    ) {
         // No jump addresses in call args.
     }
 }

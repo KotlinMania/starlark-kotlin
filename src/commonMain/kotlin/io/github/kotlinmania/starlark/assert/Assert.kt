@@ -22,25 +22,25 @@ package io.github.kotlinmania.starlark.assert
 /** Utilities to test Starlark code execution. */
 
 import io.github.kotlinmania.starlark.Error
+import io.github.kotlinmania.starlark.codemap.FileSpanRef
 import io.github.kotlinmania.starlark.environment.FrozenModule
 import io.github.kotlinmania.starlark.environment.Globals
 import io.github.kotlinmania.starlark.environment.GlobalsBuilder
 import io.github.kotlinmania.starlark.environment.Module
-import io.github.kotlinmania.starlark.stdlib.PrintHandler
-import io.github.kotlinmania.starlark.values.typing.type_compiled.TypeCompiled
-import io.github.kotlinmania.starlark.values.types.structs.AllocStruct
-import io.github.kotlinmania.starlark.eval.runtime.Evaluator
-import io.github.kotlinmania.starlark.values.types.none.NoneType
-import io.github.kotlinmania.starlark.values.owned.OwnedFrozenValue
-import io.github.kotlinmania.starlark.eval.runtime.file_loader.ReturnFileLoader
-import io.github.kotlinmania.starlark.codemap.FileSpanRef
-import io.github.kotlinmania.starlark.values.layout.heap.Heap
-import io.github.kotlinmania.starlark.values.layout.Value
-import io.github.kotlinmania.starlark.syntax.dialect.Dialect
 import io.github.kotlinmania.starlark.eval.evalModule
+import io.github.kotlinmania.starlark.eval.runtime.Evaluator
+import io.github.kotlinmania.starlark.eval.runtime.fileloader.ReturnFileLoader
+import io.github.kotlinmania.starlark.stdlib.PrintHandler
 import io.github.kotlinmania.starlark.syntax.AstModule
+import io.github.kotlinmania.starlark.syntax.dialect.Dialect
+import io.github.kotlinmania.starlark.values.layout.Value
 import io.github.kotlinmania.starlark.values.layout.avalues.allocList
+import io.github.kotlinmania.starlark.values.layout.heap.Heap
+import io.github.kotlinmania.starlark.values.owned.OwnedFrozenValue
 import io.github.kotlinmania.starlark.values.types.bigint.allocFrozenValue
+import io.github.kotlinmania.starlark.values.types.none.NoneType
+import io.github.kotlinmania.starlark.values.types.structs.AllocStruct
+import io.github.kotlinmania.starlark.values.typing.typecompiled.TypeCompiled
 
 /**
  * Print error diagnostic to stderr (or stdout as multiplatform fallback).
@@ -55,16 +55,16 @@ private fun Error.eprint() {
     }
 }
 
-private fun mkEnvironment(): GlobalsBuilder {
-    return GlobalsBuilder.extended().with(::testFunctions)
-}
+private fun mkEnvironment(): GlobalsBuilder = GlobalsBuilder.extended().with(::testFunctions)
 
 private val GLOBALS: Globals by lazy { mkEnvironment().build() }
 
 private val ASSERTS_STAR: FrozenModule by lazy {
-    val g = GlobalsBuilder.new()
-        .withNamespace("asserts", ::assertsStar)
-        .build()
+    val g =
+        GlobalsBuilder
+            .new()
+            .withNamespace("asserts", ::assertsStar)
+            .build()
     Module.withTempHeap { m ->
         val asserts = g.getOwned("asserts")!!
         val assertsValue = m.heap().accessOwnedFrozenValue(asserts)
@@ -109,8 +109,10 @@ private fun assertLessThan(a: Value, b: Value): Result<NoneType> {
 enum class GcStrategy {
     /** Disable GC */
     Never,
+
     /** Use the automatic heuristics (in practice, this does almost no GC) */
     Auto,
+
     /** GC as aggressively as we can */
     Always,
 }
@@ -138,15 +140,19 @@ private fun assertsStar(builder: GlobalsBuilder) {
     // We don't allow this at runtime - just to be compatible with the Go Starlark test suite
     fun freeze(x: Value): Result<Value> = Result.success(x)
 
-    fun fails(f: Value, @Suppress("UNUSED_PARAMETER") msg: String, eval: Evaluator): Result<NoneType> {
-        return when (val result = f.invokePos(emptyList(), eval)) {
-            else -> if (result.isFailure) {
-                Result.success(NoneType) // We don't actually check the message
-            } else {
-                Result.failure(Exception("assert.fails: didn't fail"))
-            }
+    fun fails(
+        f: Value,
+        @Suppress("UNUSED_PARAMETER") msg: String,
+        eval: Evaluator,
+    ): Result<NoneType> =
+        when (val result = f.invokePos(emptyList(), eval)) {
+            else ->
+                if (result.isFailure) {
+                    Result.success(NoneType) // We don't actually check the message
+                } else {
+                    Result.failure(Exception("assert.fails: didn't fail"))
+                }
         }
-    }
 
     builder.setFunction("eq") { args, _ -> eq(args.positionalAll()[0], args.positionalAll()[1]) }
     builder.setFunction("ne") { args, _ -> ne(args.positionalAll()[0], args.positionalAll()[1]) }
@@ -175,21 +181,19 @@ internal fun testFunctions(builder: GlobalsBuilder) {
 
     fun assertLt(a: Value, b: Value): Result<NoneType> = assertLessThan(a, b)
 
-    fun assertTrue(a: Value): Result<NoneType> {
-        return if (!a.toBool()) {
+    fun assertTrue(a: Value): Result<NoneType> =
+        if (!a.toBool()) {
             Result.failure(Exception("assertion failed"))
         } else {
             Result.success(NoneType)
         }
-    }
 
-    fun assertFalse(a: Value): Result<NoneType> {
-        return if (a.toBool()) {
+    fun assertFalse(a: Value): Result<NoneType> =
+        if (a.toBool()) {
             Result.failure(Exception("assertion failed"))
         } else {
             Result.success(NoneType)
         }
-    }
 
     // This is only safe to call at the top-level of a Starlark module
     fun garbageCollect(eval: Evaluator): Result<NoneType> {
@@ -198,11 +202,12 @@ internal fun testFunctions(builder: GlobalsBuilder) {
     }
 
     fun assertType(v: Value, ty: Value, heap: Heap): Result<NoneType> {
-        val compiled = try {
-            TypeCompiled.new(ty, heap)
-        } catch (e: Exception) {
-            return Result.failure(e)
-        }
+        val compiled =
+            try {
+                TypeCompiled.new(ty, heap)
+            } catch (e: Exception) {
+                return Result.failure(e)
+            }
         val check = compiled.checkType(v, "v")
         if (check.isFailure) return Result.failure(check.exceptionOrNull()!!)
         return Result.success(NoneType)
@@ -213,9 +218,10 @@ internal fun testFunctions(builder: GlobalsBuilder) {
      *
      * This function is unknown to optimizer, so it can be used in optimizer tests.
      */
-    fun noop(args: List<Value>, @Suppress("UNUSED_PARAMETER") kwargs: Value): Result<Value> {
-        return Result.success(args.firstOrNull() ?: Value.newNone())
-    }
+    fun noop(
+        args: List<Value>,
+        @Suppress("UNUSED_PARAMETER") kwargs: Value,
+    ): Result<Value> = Result.success(args.firstOrNull() ?: Value.newNone())
 
     builder.setFunction("hasfields") { _, _ -> hasfields() }
     builder.setFunction("assert_eq") { args, _ -> assertEq(args.positionalAll()[0], args.positionalAll()[1]) }
@@ -231,9 +237,10 @@ internal fun testFunctions(builder: GlobalsBuilder) {
 /** Environment in which to run assertion tests. */
 class Assert(
     private var dialect: Dialect = Dialect.AllOptionsInternal.copy(),
-    private val modules: MutableMap<String, FrozenModule> = mutableMapOf(
-        "asserts.star" to ASSERTS_STAR,
-    ),
+    private val modules: MutableMap<String, FrozenModule> =
+        mutableMapOf(
+            "asserts.star" to ASSERTS_STAR,
+        ),
     private var globals: Globals = GLOBALS,
     private var gcStrategy: GcStrategy? = null,
     private var setupEval: (Evaluator) -> Unit = {},
@@ -282,8 +289,8 @@ class Assert(
         staticTypechecking = false
     }
 
-    private fun <A> withGc(f: (GcStrategy) -> A): A {
-        return when (val gc = gcStrategy) {
+    private fun <A> withGc(f: (GcStrategy) -> A): A =
+        when (val gc = gcStrategy) {
             null -> {
                 // We want to run with Auto first, and use that as the result, because that's the default
                 val res = f(GcStrategy.Auto)
@@ -293,7 +300,6 @@ class Assert(
             }
             else -> f(gc)
         }
-    }
 
     private fun execute(
         path: String,
@@ -328,21 +334,21 @@ class Assert(
         program: String,
         module: Module,
         gc: GcStrategy,
-    ): Error {
-        return when (val result = execute("assert.bzl", program, module, gc)) {
-            else -> if (result.isSuccess) {
-                val v = result.getOrThrow()
-                error("starlark::assert::$func, didn't fail!\nCode:\n$program\nResult:\n$v\n")
-            } else {
-                val e = result.exceptionOrNull()!!
-                if (e is Error) {
-                    e
+    ): Error =
+        when (val result = execute("assert.bzl", program, module, gc)) {
+            else ->
+                if (result.isSuccess) {
+                    val v = result.getOrThrow()
+                    error("starlark::assert::$func, didn't fail!\nCode:\n$program\nResult:\n$v\n")
                 } else {
-                    Error.newOther(e)
+                    val e = result.exceptionOrNull()!!
+                    if (e is Error) {
+                        e
+                    } else {
+                        Error.newOther(e)
+                    }
                 }
-            }
         }
-    }
 
     private fun executeUnwrap(
         func: String,
@@ -350,19 +356,19 @@ class Assert(
         program: String,
         module: Module,
         gc: GcStrategy,
-    ): Value {
-        return when (val result = execute(path, program, module, gc)) {
-            else -> if (result.isSuccess) {
-                result.getOrThrow()
-            } else {
-                val err = result.exceptionOrNull()!!
-                if (err is Error) {
-                    err.eprint()
+    ): Value =
+        when (val result = execute(path, program, module, gc)) {
+            else ->
+                if (result.isSuccess) {
+                    result.getOrThrow()
+                } else {
+                    val err = result.exceptionOrNull()!!
+                    if (err is Error) {
+                        err.eprint()
+                    }
+                    error("starlark::assert::$func, failed to execute!\nCode:\n$program\nGot error: $err\nStack trace:\n${err.stackTraceToString()}")
                 }
-                error("starlark::assert::$func, failed to execute!\nCode:\n$program\nGot error: $err\nStack trace:\n${err.stackTraceToString()}")
-            }
         }
-    }
 
     private fun executeUnwrapTrue(
         func: String,
@@ -420,12 +426,13 @@ class Assert(
      * ```
      */
     fun module(name: String, program: String): FrozenModule {
-        val module = withGc { gc ->
-            Module.withTempHeap { module ->
-                executeUnwrap("module", "$name.bzl", program, module, gc)
-                module.freeze()
-            }
-        }.getOrThrow()
+        val module =
+            withGc { gc ->
+                Module.withTempHeap { module ->
+                    executeUnwrap("module", "$name.bzl", program, module, gc)
+                    module.freeze()
+                }
+            }.getOrThrow()
         moduleAdd(name, module)
         return module
     }
@@ -444,8 +451,8 @@ class Assert(
         globals(mkEnvironment().with(f).build())
     }
 
-    private fun failsWithName(func: String, program: String, msgs: List<String>): Error {
-        return withGc { gc ->
+    private fun failsWithName(func: String, program: String, msgs: List<String>): Error =
+        withGc { gc ->
             Module.withTempHeap { moduleEnv ->
                 val original = executeFail(func, program, moduleEnv, gc)
                 // We really want to check the error message, but if in our doc tests we do:
@@ -462,14 +469,13 @@ class Assert(
                                 "Code:\n$program\n" +
                                 "Error:\n$inner\n" +
                                 "Missing:\n$msg\n" +
-                                "Expected:\n$msgs"
+                                "Expected:\n$msgs",
                         )
                     }
                 }
                 original
             }
         }
-    }
 
     /**
      * A program that must fail with an error message that contains a specific
@@ -481,9 +487,7 @@ class Assert(
      * Assert().fail("fail('hello')", "ello")
      * ```
      */
-    fun fail(program: String, msg: String): Error {
-        return failsWithName("fail", program, listOf(msg))
-    }
+    fun fail(program: String, msg: String): Error = failsWithName("fail", program, listOf(msg))
 
     /**
      * A program that must fail with an error message that contains a specific
@@ -496,9 +500,7 @@ class Assert(
      * Assert().fails("fail('hello')", listOf("fail", "ello"))
      * ```
      */
-    fun fails(program: String, msgs: List<String>): Error {
-        return failsWithName("fails", program, msgs)
-    }
+    fun fails(program: String, msgs: List<String>): Error = failsWithName("fails", program, msgs)
 
     /**
      * A program that must execute successfully without an exception. Often uses
@@ -508,30 +510,30 @@ class Assert(
      * Assert().pass("assert_eq(1, 1)")
      * ```
      */
-    fun pass(program: String): OwnedFrozenValue {
-        return withGc { gc ->
+    fun pass(program: String): OwnedFrozenValue =
+        withGc { gc ->
             Module.withTempHeap { env ->
                 val res = executeUnwrap("pass", "assert.bzl", program, env, gc)
                 env.set("_", res)
-                env.freeze()
+                env
+                    .freeze()
                     .getOrThrow()
-                    .get("_").getOrThrow()
+                    .get("_")
+                    .getOrThrow()
             }
         }
-    }
 
     /**
      * A program that must execute successfully without an exception. Returns the frozen module
      * that `program` was evaluated in.
      */
-    fun passModule(program: String): FrozenModule {
-        return withGc { gc ->
+    fun passModule(program: String): FrozenModule =
+        withGc { gc ->
             Module.withTempHeap { env ->
                 executeUnwrap("pass", "assert.bzl", program, env, gc)
                 env.freeze().getOrThrow()
             }
         }
-    }
 
     /**
      * A program that must evaluate to `True`.
@@ -598,7 +600,7 @@ class Assert(
                             "Code 1:\n$lhs\n" +
                             "Code 2:\n$rhs\n" +
                             "Value 1:\n$lhsV\n" +
-                            "Value 2\n$rhsV"
+                            "Value 2\n$rhsV",
                     )
                 }
             }
@@ -612,30 +614,44 @@ class Assert(
      */
     companion object {
         /** See [Assert.eq]. */
-        fun eq(lhs: String, rhs: String) = io.github.kotlinmania.starlark.assert.eq(lhs, rhs)
+        fun eq(lhs: String, rhs: String) =
+            io.github.kotlinmania.starlark.assert
+                .eq(lhs, rhs)
 
         /** See [Assert.fail]. */
         fun fail(program: String, msg: String): Error =
-            io.github.kotlinmania.starlark.assert.fail(program, msg)
+            io.github.kotlinmania.starlark.assert
+                .fail(program, msg)
 
         /** See [Assert.fails]. */
         fun fails(program: String, msgs: List<String>): Error =
-            io.github.kotlinmania.starlark.assert.fails(program, msgs)
+            io.github.kotlinmania.starlark.assert
+                .fails(program, msgs)
 
         /** See [Assert.isTrue]. */
-        fun isTrue(program: String) = io.github.kotlinmania.starlark.assert.isTrue(program)
+        fun isTrue(program: String) =
+            io.github.kotlinmania.starlark.assert
+                .isTrue(program)
 
         /** See [Assert.isFalse]. */
-        fun isFalse(program: String) = io.github.kotlinmania.starlark.assert.isFalse(program)
+        fun isFalse(program: String) =
+            io.github.kotlinmania.starlark.assert
+                .isFalse(program)
 
         /** See [Assert.allTrue]. */
-        fun allTrue(expressions: String) = io.github.kotlinmania.starlark.assert.allTrue(expressions)
+        fun allTrue(expressions: String) =
+            io.github.kotlinmania.starlark.assert
+                .allTrue(expressions)
 
         /** See [Assert.pass]. */
-        fun pass(program: String): OwnedFrozenValue = io.github.kotlinmania.starlark.assert.pass(program)
+        fun pass(program: String): OwnedFrozenValue =
+            io.github.kotlinmania.starlark.assert
+                .pass(program)
 
         /** See [Assert.passModule]. */
-        fun passModule(program: String): FrozenModule = io.github.kotlinmania.starlark.assert.passModule(program)
+        fun passModule(program: String): FrozenModule =
+            io.github.kotlinmania.starlark.assert
+                .passModule(program)
     }
 }
 
@@ -647,14 +663,10 @@ fun eq(lhs: String, rhs: String) {
 }
 
 /** See [Assert.fail]. */
-fun fail(program: String, msg: String): Error {
-    return Assert().fail(program, msg)
-}
+fun fail(program: String, msg: String): Error = Assert().fail(program, msg)
 
 /** See [Assert.fails]. */
-fun fails(program: String, msgs: List<String>): Error {
-    return Assert().fails(program, msgs)
-}
+fun fails(program: String, msgs: List<String>): Error = Assert().fails(program, msgs)
 
 /** See [Assert.isTrue]. */
 fun isTrue(program: String) {
@@ -675,11 +687,7 @@ fun allTrue(expressions: String) {
 }
 
 /** See [Assert.pass]. */
-fun pass(program: String): OwnedFrozenValue {
-    return Assert().pass(program)
-}
+fun pass(program: String): OwnedFrozenValue = Assert().pass(program)
 
 /** See [Assert.passModule]. */
-fun passModule(program: String): FrozenModule {
-    return Assert().passModule(program)
-}
+fun passModule(program: String): FrozenModule = Assert().passModule(program)

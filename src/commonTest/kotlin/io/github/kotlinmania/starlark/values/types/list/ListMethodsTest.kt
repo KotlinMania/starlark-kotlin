@@ -23,7 +23,6 @@ import io.github.kotlinmania.starlark.assert.Assert
 import kotlin.test.Test
 
 class ListMethodsTest {
-
     @Test
     fun testErrorCodes() {
         Assert.fail(

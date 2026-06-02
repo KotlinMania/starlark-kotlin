@@ -19,21 +19,21 @@ package io.github.kotlinmania.starlark.values.layout.avalues
  * limitations under the License.
  */
 
-import io.github.kotlinmania.starlark.values.layout.heap.FrozenHeap
-import io.github.kotlinmania.starlark.values.layout.FrozenValue
 import io.github.kotlinmania.starlark.values.StarlarkValue
-import io.github.kotlinmania.starlark.values.layout.heap.Tracer
-import io.github.kotlinmania.starlark.values.layout.Freezer
 import io.github.kotlinmania.starlark.values.layout.AValue
 import io.github.kotlinmania.starlark.values.layout.AValueImpl
-import io.github.kotlinmania.starlark.values.layout.ValueTyped
+import io.github.kotlinmania.starlark.values.layout.Freezer
+import io.github.kotlinmania.starlark.values.layout.FrozenValue
 import io.github.kotlinmania.starlark.values.layout.Value
+import io.github.kotlinmania.starlark.values.layout.ValueTyped
+import io.github.kotlinmania.starlark.values.layout.heap.FrozenHeap
 import io.github.kotlinmania.starlark.values.layout.heap.Heap
+import io.github.kotlinmania.starlark.values.layout.heap.Tracer
+import io.github.kotlinmania.starlark.values.types.array.Array
 import io.github.kotlinmania.starlark.values.types.list.FrozenListData
 import io.github.kotlinmania.starlark.values.types.list.ListData
 import io.github.kotlinmania.starlark.values.types.list.ListGen
 import io.github.kotlinmania.starlark.values.types.list.VALUE_EMPTY_FROZEN_LIST
-import io.github.kotlinmania.starlark.values.types.array.Array
 
 // fn list_avalue<'v>(content: ValueTyped<'v, Array<'v>>) -> AValueImpl<'v, impl AValue<'v, ...>>
 internal fun listAvalue(
@@ -44,15 +44,12 @@ internal fun listAvalue(
 }
 
 // fn frozen_list_avalue<'fv>(len: usize) -> AValueImpl<'fv, AValueFrozenList>
-internal fun frozenListAvalue(content: List<FrozenValue>): AValueImpl<AValueFrozenList> {
-    return AValueImpl.new(ListGen(FrozenListData.new(content)))
-}
+internal fun frozenListAvalue(content: List<FrozenValue>): AValueImpl<AValueFrozenList> = AValueImpl.new(ListGen(FrozenListData.new(content)))
 
 /** AValue implementation for mutable lists. */
 // struct AValueList;
 // impl<'v> AValue<'v> for AValueList
 internal object AValueList : AValue {
-
     // fn extra_len(_value: &ListGen<ListData<'v>>) -> usize
     override fun extraLen(value: StarlarkValue): Int = 0
 
@@ -78,7 +75,6 @@ internal object AValueList : AValue {
 // pub(crate) struct AValueFrozenList;
 // impl<'v> AValue<'v> for AValueFrozenList
 internal object AValueFrozenList : AValue {
-
     // fn extra_len(value: &ListGen<FrozenListData>) -> usize
     override fun extraLen(value: StarlarkValue): Int {
         @Suppress("UNCHECKED_CAST")

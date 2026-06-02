@@ -23,8 +23,8 @@ import io.github.kotlinmania.starlark.codemap.Span
 import io.github.kotlinmania.starlark.environment.GlobalsBuilder
 import io.github.kotlinmania.starlark.typing.ParamSpec
 import io.github.kotlinmania.starlark.typing.Ty
-import io.github.kotlinmania.starlark.typing.TyCallable
 import io.github.kotlinmania.starlark.typing.TyCallArgs
+import io.github.kotlinmania.starlark.typing.TyCallable
 import io.github.kotlinmania.starlark.typing.TyCustomFunctionImpl
 import io.github.kotlinmania.starlark.typing.oracle.TypingOracleCtx
 import io.github.kotlinmania.starlark.values.layout.Value
@@ -33,9 +33,7 @@ import io.github.kotlinmania.starlark.values.layout.heap.Heap
 import io.github.kotlinmania.starlark.values.types.list.allocList
 
 class ZipType : TyCustomFunctionImpl {
-    override fun asCallable(): TyCallable {
-        return TyCallable.new(ParamSpec.args(Ty.iter(Ty.any())), Ty.list(Ty.any()))
-    }
+    override fun asCallable(): TyCallable = TyCallable.new(ParamSpec.args(Ty.iter(Ty.any())), Ty.list(Ty.any()))
 
     override fun validateCall(
         _span: Span,
@@ -55,7 +53,9 @@ class ZipType : TyCustomFunctionImpl {
     }
 
     override fun equals(other: Any?): Boolean = other is ZipType
+
     override fun hashCode(): Int = this::class.hashCode()
+
     override fun toString(): String = "ZipType"
 }
 

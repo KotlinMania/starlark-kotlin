@@ -40,16 +40,12 @@ class Freezer internal constructor(
 
     companion object {
         // pub(crate) fn new(heap: &'fv FrozenHeap) -> Self
-        internal fun new(heap: FrozenHeap): Freezer {
-            return Freezer(heap = heap)
-        }
+        internal fun new(heap: FrozenHeap): Freezer = Freezer(heap = heap)
     }
 
     /** Allocate a new value while freezing. Usually not a great idea. */
     // pub fn alloc<'v, T: AllocFrozenValue>(&'v self, val: T) -> FrozenValue
-    fun <T : AllocFrozenValue> alloc(`val`: T): FrozenValue {
-        return `val`.allocFrozenValue(heap)
-    }
+    fun <T : AllocFrozenValue> alloc(`val`: T): FrozenValue = `val`.allocFrozenValue(heap)
 
     // pub(crate) fn reserve<'v, 'v2, T>(&'v self) -> (FrozenValue, Reservation<'v2, T>)
     // where
@@ -93,7 +89,5 @@ class Freezer internal constructor(
      * Can be used to allocate additional values while freezing.
      */
     // pub fn frozen_heap(&self) -> &'fv FrozenHeap
-    fun frozenHeap(): FrozenHeap {
-        return heap
-    }
+    fun frozenHeap(): FrozenHeap = heap
 }

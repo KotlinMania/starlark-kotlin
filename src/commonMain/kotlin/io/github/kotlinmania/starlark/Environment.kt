@@ -51,24 +51,32 @@ package io.github.kotlinmania.starlark
 
 // #[derive(Debug, Error)]
 // enum EnvironmentError { ... }
+
 /**
  * Errors arising from module / environment operations.
  */
-internal sealed class EnvironmentError(message: String) : Exception(message) {
+internal sealed class EnvironmentError(
+    message: String,
+) : Exception(message) {
     /** Cannot import private symbol, i.e. underscore prefixed. */
     // CannotImportPrivateSymbol(String)
-    class CannotImportPrivateSymbol(symbol: String) :
-        EnvironmentError("Cannot import private symbol `$symbol`")
+    class CannotImportPrivateSymbol(
+        symbol: String,
+    ) : EnvironmentError("Cannot import private symbol `$symbol`")
 
     // ModuleHasNoSymbol(String)
-    class ModuleHasNoSymbol(symbol: String) :
-        EnvironmentError("Module has no symbol `$symbol`")
+    class ModuleHasNoSymbol(
+        symbol: String,
+    ) : EnvironmentError("Module has no symbol `$symbol`")
 
     // ModuleHasNoSymbolDidYouMean(String, String)
-    class ModuleHasNoSymbolDidYouMean(symbol: String, suggestion: String) :
-        EnvironmentError("Module has no symbol `$symbol`, did you mean `$suggestion`?")
+    class ModuleHasNoSymbolDidYouMean(
+        symbol: String,
+        suggestion: String,
+    ) : EnvironmentError("Module has no symbol `$symbol`, did you mean `$suggestion`?")
 
     // ModuleSymbolIsNotExported(String)
-    class ModuleSymbolIsNotExported(symbol: String) :
-        EnvironmentError("Module symbol `$symbol` is not exported")
+    class ModuleSymbolIsNotExported(
+        symbol: String,
+    ) : EnvironmentError("Module symbol `$symbol` is not exported")
 }

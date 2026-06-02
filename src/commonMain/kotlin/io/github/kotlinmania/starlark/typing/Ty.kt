@@ -20,10 +20,10 @@ package io.github.kotlinmania.starlark.typing
  */
 
 import io.github.kotlinmania.starlark.Either
-import io.github.kotlinmania.starlark.deriverefs.NativeCallableComponents
 import io.github.kotlinmania.starlark.codemap.CodeMap
 import io.github.kotlinmania.starlark.codemap.Span
 import io.github.kotlinmania.starlark.codemap.Spanned
+import io.github.kotlinmania.starlark.deriverefs.NativeCallableComponents
 import io.github.kotlinmania.starlark.eval.compiler.SmallVec1
 import io.github.kotlinmania.starlark.typing.oracle.TypingOracleCtx
 import io.github.kotlinmania.starlark.values.layout.Value
@@ -31,26 +31,26 @@ import io.github.kotlinmania.starlark.values.typing.TypingNever
 
 // Rust: format!("{val:?}") / write!(f, "{val:?}") style debug formatting.
 // We only implement what this file needs: stable-ish escaping for strings.
-private fun format(value: Any?): String {
-    return when (value) {
+private fun format(value: Any?): String =
+    when (value) {
         null -> "null"
-        is String -> buildString {
-            append('"')
-            for (ch in value) {
-                when (ch) {
-                    '\\' -> append("\\\\")
-                    '"' -> append("\\\"")
-                    '\n' -> append("\\n")
-                    '\r' -> append("\\r")
-                    '\t' -> append("\\t")
-                    else -> append(ch)
+        is String ->
+            buildString {
+                append('"')
+                for (ch in value) {
+                    when (ch) {
+                        '\\' -> append("\\\\")
+                        '"' -> append("\\\"")
+                        '\n' -> append("\\n")
+                        '\r' -> append("\\r")
+                        '\t' -> append("\\t")
+                        else -> append(ch)
+                    }
                 }
+                append('"')
             }
-            append('"')
-        }
         else -> value.toString()
     }
-}
 
 /**
  * A typing operation wasn't able to produce a precise result,
@@ -67,18 +67,15 @@ data class Approximation(
     companion object {
         /** Create a new [Approximation]. */
         // pub fn new(category: &'static str, message: impl Debug) -> Self
-        fun new(category: String, message: Any): Approximation {
-            return Approximation(
+        fun new(category: String, message: Any): Approximation =
+            Approximation(
                 category = category,
                 message = format(message),
             )
-        }
     }
 
     // impl Display for Approximation
-    override fun toString(): String {
-        return "Approximation: $category = ${format(message)}"
-    }
+    override fun toString(): String = "Approximation: $category = ${format(message)}"
 }
 
 /**
@@ -99,9 +96,8 @@ data class Ty private constructor(
      * When typechecking, we try all alternatives, and if at least one of them
      * succeeds, then the whole expression is considered to be a success.
      */
-    private val alternatives: SmallArcVec1<TyBasic>
+    private val alternatives: SmallArcVec1<TyBasic>,
 ) : Comparable<Ty> {
-
     companion object {
         /** Create a [Ty.any], but tagged in such a way it can easily be found. */
         fun todo(): Ty = any()
@@ -199,9 +195,7 @@ data class Ty private constructor(
 
         /** Typechecker type of value. */
         // pub fn of_value(value: Value) -> Ty
-        fun ofValue(value: Value): Ty {
-            return value.getRef().typecheckerTy() ?: value.getTypeStarlarkRepr()
-        }
+        fun ofValue(value: Value): Ty = value.getRef().typecheckerTy() ?: value.getTypeStarlarkRepr()
 
         /**
          * Create a type from native callable components.
@@ -278,30 +272,31 @@ data class Ty private constructor(
             }
 
             // Try merging adjacent elements
-            val merged = mergeAdjacent(deduped) { x, y ->
-                when {
-                    x is TyBasic.List && y is TyBasic.List -> {
-                        Either.Left(TyBasic.List(ArcTy.union2(x.item, y.item)))
-                    }
-                    x is TyBasic.Dict && y is TyBasic.Dict -> {
-                        Either.Left(
-                            TyBasic.Dict(
-                                ArcTy.union2(x.key, y.key),
-                                ArcTy.union2(x.value, y.value)
-                            )
-                        )
-                    }
-                    x is TyBasic.Custom && y is TyBasic.Custom -> {
-                        val result = TyCustom.union2(x.custom, y.custom)
-                        if (result.isSuccess) {
-                            Either.Left(TyBasic.Custom(result.getOrThrow()))
-                        } else {
-                            Either.Right(Pair(x, y))
+            val merged =
+                mergeAdjacent(deduped) { x, y ->
+                    when {
+                        x is TyBasic.List && y is TyBasic.List -> {
+                            Either.Left(TyBasic.List(ArcTy.union2(x.item, y.item)))
                         }
+                        x is TyBasic.Dict && y is TyBasic.Dict -> {
+                            Either.Left(
+                                TyBasic.Dict(
+                                    ArcTy.union2(x.key, y.key),
+                                    ArcTy.union2(x.value, y.value),
+                                ),
+                            )
+                        }
+                        x is TyBasic.Custom && y is TyBasic.Custom -> {
+                            val result = TyCustom.union2(x.custom, y.custom)
+                            if (result.isSuccess) {
+                                Either.Left(TyBasic.Custom(result.getOrThrow()))
+                            } else {
+                                Either.Right(Pair(x, y))
+                            }
+                        }
+                        else -> Either.Right(Pair(x, y))
                     }
-                    else -> Either.Right(Pair(x, y))
                 }
-            }
 
             return Ty(SmallArcVec1.fromIterator(merged.iterator()))
         }
@@ -426,19 +421,21 @@ data class Ty private constructor(
         kwargs: Ty?,
         expectedReturnType: Ty,
     ): Boolean {
-        val oracle = TypingOracleCtx(
-            codemap = CodeMap.emptyStatic(),
-        )
-        val ret = oracle.validateCall(
-            Span.DEFAULT,
-            this,
-            TyCallArgs(
-                pos = pos.map { p -> Spanned(span = Span.DEFAULT, node = p) },
-                named = named.map { p -> Spanned(span = Span.DEFAULT, node = p) },
-                args = args?.let { t -> Spanned(span = Span.DEFAULT, node = t) },
-                kwargs = kwargs?.let { t -> Spanned(span = Span.DEFAULT, node = t) },
-            ),
-        )
+        val oracle =
+            TypingOracleCtx(
+                codemap = CodeMap.emptyStatic(),
+            )
+        val ret =
+            oracle.validateCall(
+                Span.DEFAULT,
+                this,
+                TyCallArgs(
+                    pos = pos.map { p -> Spanned(span = Span.DEFAULT, node = p) },
+                    named = named.map { p -> Spanned(span = Span.DEFAULT, node = p) },
+                    args = args?.let { t -> Spanned(span = Span.DEFAULT, node = t) },
+                    kwargs = kwargs?.let { t -> Spanned(span = Span.DEFAULT, node = t) },
+                ),
+            )
         if (ret.isFailure) return false
         val ok = oracle.intersects(ret.getOrThrow(), expectedReturnType)
         if (ok.isFailure) return false
@@ -451,9 +448,10 @@ data class Ty private constructor(
      * Two types intersect if there is at least one value that belongs to both types.
      */
     internal fun checkIntersects(other: Ty): Result<Boolean> {
-        val oracle = TypingOracleCtx(
-            codemap = CodeMap.emptyStatic(),
-        )
+        val oracle =
+            TypingOracleCtx(
+                codemap = CodeMap.emptyStatic(),
+            )
         val result = oracle.intersects(this, other)
         return if (result.isSuccess) {
             Result.success(result.getOrThrow())

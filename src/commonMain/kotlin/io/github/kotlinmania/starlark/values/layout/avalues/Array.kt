@@ -19,34 +19,30 @@ package io.github.kotlinmania.starlark.values.layout.avalues
  * limitations under the License.
  */
 
-import io.github.kotlinmania.starlark.values.layout.heap.FrozenHeap
 import io.github.kotlinmania.starlark.values.FrozenRef
-import io.github.kotlinmania.starlark.values.layout.FrozenValue
 import io.github.kotlinmania.starlark.values.StarlarkValue
 import io.github.kotlinmania.starlark.values.Trace
-import io.github.kotlinmania.starlark.values.layout.Freezer
 import io.github.kotlinmania.starlark.values.layout.AValue
 import io.github.kotlinmania.starlark.values.layout.AValueImpl
+import io.github.kotlinmania.starlark.values.layout.AlignedSize
+import io.github.kotlinmania.starlark.values.layout.Freezer
+import io.github.kotlinmania.starlark.values.layout.FrozenValue
+import io.github.kotlinmania.starlark.values.layout.Value
 import io.github.kotlinmania.starlark.values.layout.ValueAllocSize
-import io.github.kotlinmania.starlark.values.types.any_array.AnyArray
+import io.github.kotlinmania.starlark.values.layout.ValueTyped
+import io.github.kotlinmania.starlark.values.layout.heap.FrozenHeap
+import io.github.kotlinmania.starlark.values.layout.heap.Heap
+import io.github.kotlinmania.starlark.values.layout.heap.Tracer
+import io.github.kotlinmania.starlark.values.types.allocAny
+import io.github.kotlinmania.starlark.values.types.anyarray.AnyArray
 import io.github.kotlinmania.starlark.values.types.array.Array
 import io.github.kotlinmania.starlark.values.types.array.ValueEmptyArray
-import io.github.kotlinmania.starlark.values.layout.ValueTyped
-import io.github.kotlinmania.starlark.values.layout.heap.Heap
-import io.github.kotlinmania.starlark.values.layout.Value
-import io.github.kotlinmania.starlark.values.layout.heap.Tracer
-import io.github.kotlinmania.starlark.values.layout.AlignedSize
-import io.github.kotlinmania.starlark.values.types.allocAny
 
 // fn array_avalue<'v>(cap: u32) -> AValueImpl<...>
-private fun arrayAvalue(cap: UInt): AValueImpl<AValueArray> {
-    return AValueImpl.new(Array.new(0, cap.toInt()))
-}
+private fun arrayAvalue(cap: UInt): AValueImpl<AValueArray> = AValueImpl.new(Array.new(0, cap.toInt()))
 
 // fn any_array_avalue<T: Debug + 'static>(cap: usize) -> AValueImpl<...>
-private fun <T> anyArrayAvalue(cap: Int): AValueImpl<AValueAnyArray<T>> {
-    return AValueImpl.new(AnyArray.new<T>(cap))
-}
+private fun <T> anyArrayAvalue(cap: Int): AValueImpl<AValueAnyArray<T>> = AValueImpl.new(AnyArray.new<T>(cap))
 
 /** AValue implementation for Array (mutable, variable-length content backed by capacity). */
 // struct AValueArray;
@@ -109,9 +105,7 @@ internal class AValueAnyArray<T> : AValue {
     // type ExtraElem = T;
 
     // fn extra_len(value: &AnyArray<T>) -> usize
-    override fun extraLen(value: StarlarkValue): Int {
-        return (value as AnyArray<*>).len
-    }
+    override fun extraLen(value: StarlarkValue): Int = (value as AnyArray<*>).len
 
     // fn offset_of_extra() -> usize
     // Kotlin: no C repr layout, not applicable.

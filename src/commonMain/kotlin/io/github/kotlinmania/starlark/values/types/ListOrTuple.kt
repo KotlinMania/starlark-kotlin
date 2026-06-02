@@ -1,5 +1,5 @@
 // port-lint: source src/values/types/list_or_tuple.rs
-package io.github.kotlinmania.starlark.values.types.list_or_tuple
+package io.github.kotlinmania.starlark.values.types.listortuple
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.
@@ -28,7 +28,6 @@ class UnpackListOrTuple<T>(
     /** Unpacked items of the list or tuple. */
     val items: MutableList<T>,
 ) : Iterable<T> {
-
     // impl Default for UnpackListOrTuple<T>
     constructor() : this(mutableListOf())
 

@@ -1,21 +1,20 @@
 // port-lint: source src/values/types/string/interpolation.rs
 package io.github.kotlinmania.starlark.values.types.string
 
+import io.github.kotlinmania.starlark.values.ValueError
 import io.github.kotlinmania.starlark.values.layout.Value
-import io.github.kotlinmania.starlark.values.layout.typed.StringValue
+import io.github.kotlinmania.starlark.values.layout.avalues.str.allocStrConcat3
 import io.github.kotlinmania.starlark.values.layout.heap.Heap
-import io.github.kotlinmania.starlark.values.layout.avalues.str_.allocStrConcat3
+import io.github.kotlinmania.starlark.values.layout.typed.StringValue
 import io.github.kotlinmania.starlark.values.types.float.StarlarkFloat
+import io.github.kotlinmania.starlark.values.types.float.writeCompact
 import io.github.kotlinmania.starlark.values.types.float.writeDecimal
 import io.github.kotlinmania.starlark.values.types.float.writeScientific
-import io.github.kotlinmania.starlark.values.types.float.writeCompact
 import io.github.kotlinmania.starlark.values.types.int.StarlarkIntRef
 import io.github.kotlinmania.starlark.values.types.num.NumRef
-import io.github.kotlinmania.starlark.values.ValueError
 import io.github.kotlinmania.starlark.values.types.tuple.Tuple
 import io.github.kotlinmania.starlark.values.types.tuple.fromValue
 import kotlin.math.truncate
-
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.
@@ -49,51 +48,66 @@ private const val I32_MIN_HEX: String = "-80000000"
 /**
  * Operator `%` format or evaluation errors
  */
-sealed class StringInterpolationError(message: String) : Exception(message) {
+sealed class StringInterpolationError(
+    message: String,
+) : Exception(message) {
     class TooManyParameters : StringInterpolationError("Too many arguments for format string")
+
     class NotEnoughParameters : StringInterpolationError("Not enough arguments for format string")
+
     class IncompleteFormat : StringInterpolationError("Incomplete format")
-    class UnsupportedFormatCharacter(char: Char) : StringInterpolationError("Unsupported format character: '$char'")
+
+    class UnsupportedFormatCharacter(
+        char: Char,
+    ) : StringInterpolationError("Unsupported format character: '$char'")
+
     class ExpectingFormatCharacter : StringInterpolationError("Expecting format character (internal error)")
 }
 
 sealed class PercentSFormat {
     /** `%s`. */
     object Str : PercentSFormat()
+
     /** `%r`. */
     object Repr : PercentSFormat()
+
     /** `%d`. */
     object Dec : PercentSFormat()
+
     /** `%o`. */
     object Oct : PercentSFormat()
+
     /** `%x`. */
     object Hex : PercentSFormat()
+
     /** `%X`. */
     object HexUpper : PercentSFormat()
+
     /** `%e`. */
     object Exp : PercentSFormat()
+
     /** `%E`. */
     object ExpUpper : PercentSFormat()
+
     /** `%f` or `%F`. */
     object Float : PercentSFormat()
+
     /** `%g`. */
     object FloatCompact : PercentSFormat()
+
     /** `%G`. */
     object FloatCompactUpper : PercentSFormat()
 }
 
 private data class Item(
     val literal: String,
-    val format: PercentSFormat?
+    val format: PercentSFormat?,
 )
 
 private class PercentFormatParser(
-    private var rem: String
+    private var rem: String,
 ) : Iterator<Result<Item>> {
-
-    override fun hasNext(): Boolean {
-        return rem.isNotEmpty()
-    }
+    override fun hasNext(): Boolean = rem.isNotEmpty()
 
     @Suppress("ReturnCount")
     override fun next(): Result<Item> {
@@ -108,33 +122,37 @@ private class PercentFormatParser(
             }
 
             val f = remAfterPercent[1]
-            val res: Item = when (f) {
-                '%' -> {
-                    // Include the percent in the literal.
-                    val literalWithPercent = prevRem.substring(0, indexOfPercent + 1)
-                    Item(literalWithPercent, null)
-                }
-                's' -> Item(literal, PercentSFormat.Str)
-                'r' -> Item(literal, PercentSFormat.Repr)
-                'd' -> Item(literal, PercentSFormat.Dec)
-                'o' -> Item(literal, PercentSFormat.Oct)
-                'x' -> Item(literal, PercentSFormat.Hex)
-                'X' -> Item(literal, PercentSFormat.HexUpper)
-                'e' -> Item(literal, PercentSFormat.Exp)
-                'E' -> Item(literal, PercentSFormat.ExpUpper)
-                'f', 'F' -> Item(literal, PercentSFormat.Float)
-                'g' -> Item(literal, PercentSFormat.FloatCompact)
-                'G' -> Item(literal, PercentSFormat.FloatCompactUpper)
-                else -> {
-                    // Note we need to find the second character, not the second byte.
-                    val chars = remAfterPercent.iterator()
-                    chars.next() // skip '%'
-                    val c = if (chars.hasNext()) chars.next() else {
-                        return Result.failure(StringInterpolationError.ExpectingFormatCharacter())
+            val res: Item =
+                when (f) {
+                    '%' -> {
+                        // Include the percent in the literal.
+                        val literalWithPercent = prevRem.substring(0, indexOfPercent + 1)
+                        Item(literalWithPercent, null)
                     }
-                    return Result.failure(StringInterpolationError.UnsupportedFormatCharacter(c))
+                    's' -> Item(literal, PercentSFormat.Str)
+                    'r' -> Item(literal, PercentSFormat.Repr)
+                    'd' -> Item(literal, PercentSFormat.Dec)
+                    'o' -> Item(literal, PercentSFormat.Oct)
+                    'x' -> Item(literal, PercentSFormat.Hex)
+                    'X' -> Item(literal, PercentSFormat.HexUpper)
+                    'e' -> Item(literal, PercentSFormat.Exp)
+                    'E' -> Item(literal, PercentSFormat.ExpUpper)
+                    'f', 'F' -> Item(literal, PercentSFormat.Float)
+                    'g' -> Item(literal, PercentSFormat.FloatCompact)
+                    'G' -> Item(literal, PercentSFormat.FloatCompactUpper)
+                    else -> {
+                        // Note we need to find the second character, not the second byte.
+                        val chars = remAfterPercent.iterator()
+                        chars.next() // skip '%'
+                        val c =
+                            if (chars.hasNext()) {
+                                chars.next()
+                            } else {
+                                return Result.failure(StringInterpolationError.ExpectingFormatCharacter())
+                            }
+                        return Result.failure(StringInterpolationError.UnsupportedFormatCharacter(c))
+                    }
                 }
-            }
             // We reach here only if format character is ASCII,
             // so we can safely skip 2 bytes.
             rem = remAfterPercent.substring(2)
@@ -161,18 +179,19 @@ fun percent(format: String, value: Value): Result<String> {
 
     val tuple = Tuple.fromValue(value)
     val one = listOf(value)
-    val values: List<Value> = when (tuple) {
-        null -> one
-        else -> tuple.content()
-    }
+    val values: List<Value> =
+        when (tuple) {
+            null -> one
+            else -> tuple.content()
+        }
     var valueIndex = 0
-    fun nextValue(): Result<Value> {
-        return if (valueIndex < values.size) {
+
+    fun nextValue(): Result<Value> =
+        if (valueIndex < values.size) {
             Result.success(values[valueIndex++])
         } else {
             Result.failure(StringInterpolationError.NotEnoughParameters())
         }
-    }
 
     // because of the way format is defined, we can deal with it as bytes
     val parser = PercentFormatParser(format)
@@ -383,28 +402,29 @@ fun percentSOne(
     before: String,
     arg: Value,
     after: String,
-    heap: Heap
+    heap: Heap,
 ): Result<StringValue> {
     val strValue = StringValue.new(arg)
     return if (strValue != null) {
         Result.success(heap.allocStrConcat3(before, strValue.toString(), after))
     } else {
         val tuple = Tuple.fromValue(arg)
-        val one = when (tuple) {
-            null -> arg
-            else -> {
-                val content = tuple.content()
-                when {
-                    content.isEmpty() -> {
-                        return Result.failure(StringInterpolationError.NotEnoughParameters())
-                    }
-                    content.size == 1 -> content[0]
-                    else -> {
-                        return Result.failure(StringInterpolationError.TooManyParameters())
+        val one =
+            when (tuple) {
+                null -> arg
+                else -> {
+                    val content = tuple.content()
+                    when {
+                        content.isEmpty() -> {
+                            return Result.failure(StringInterpolationError.NotEnoughParameters())
+                        }
+                        content.size == 1 -> content[0]
+                        else -> {
+                            return Result.failure(StringInterpolationError.TooManyParameters())
+                        }
                     }
                 }
             }
-        }
         Result.success(formatOne(before, one, after, heap))
     }
 }

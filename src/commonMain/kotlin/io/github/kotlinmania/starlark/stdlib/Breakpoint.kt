@@ -19,15 +19,15 @@ package io.github.kotlinmania.starlark.stdlib
  * limitations under the License.
  */
 
+import io.github.kotlinmania.starlark.ReentrantLock
 import io.github.kotlinmania.starlark.debug.evalStatements
 import io.github.kotlinmania.starlark.debug.localVariables
 import io.github.kotlinmania.starlark.environment.GlobalsBuilder
+import io.github.kotlinmania.starlark.eval.runtime.Evaluator
+import io.github.kotlinmania.starlark.readline.ReadLine
 import io.github.kotlinmania.starlark.syntax.AstModule
 import io.github.kotlinmania.starlark.syntax.dialect.Dialect
-import io.github.kotlinmania.starlark.eval.runtime.Evaluator
-import io.github.kotlinmania.starlark.read_line.ReadLine
 import io.github.kotlinmania.starlark.values.types.none.NoneType
-import io.github.kotlinmania.starlark.ReentrantLock
 import io.github.kotlinmania.starlark.withLock
 import kotlin.text.iterator
 import kotlin.toString
@@ -53,7 +53,6 @@ internal interface BreakpointConsole {
 internal class RealBreakpointConsole(
     private val readLine: ReadLine,
 ) : BreakpointConsole {
-
     override fun readLine(): String? = readLine.readLine("$> ")
 
     override fun println(line: String) {
@@ -61,12 +60,10 @@ internal class RealBreakpointConsole(
     }
 
     companion object {
-        fun factory(): () -> BreakpointConsole {
-            return {
-                RealBreakpointConsole(
-                    readLine = ReadLine.new("STARLARK_RUST_DEBUGGER_HISTFILE"),
-                )
-            }
+        fun factory(): () -> BreakpointConsole = {
+            RealBreakpointConsole(
+                readLine = ReadLine.new("STARLARK_RUST_DEBUGGER_HISTFILE"),
+            )
         }
     }
 }
@@ -77,14 +74,14 @@ internal class RealBreakpointConsole(
  */
 private enum class State {
     Allow, // More breakpoints are fine
-    Stop,  // No more breakpoints
+    Stop, // No more breakpoints
 }
 
 /** We've run a breakpoint command, what should we do. */
 private enum class Next {
-    Again,  // Accept another breakpoint command
+    Again, // Accept another breakpoint command
     Resume, // Continue running
-    Fail,   // Stop running
+    Fail, // Stop running
 }
 
 private fun cmdHelp(_eval: Evaluator, rl: BreakpointConsole): Next {
@@ -95,13 +92,12 @@ private fun cmdHelp(_eval: Evaluator, rl: BreakpointConsole): Next {
 }
 
 private fun cmdVariables(eval: Evaluator, rl: BreakpointConsole): Next {
-    fun truncate(s: String, n: Int): String {
-        return if (s.length > n) {
+    fun truncate(s: String, n: Int): String =
+        if (s.length > n) {
             s.substring(0, n) + "..."
         } else {
             s
         }
-    }
 
     for ((name, value) in eval.localVariables()) {
         rl.println("* $name = ${truncate(value.toString(), 80)}")
@@ -116,23 +112,20 @@ private fun cmdStack(eval: Evaluator, rl: BreakpointConsole): Next {
     return Next.Again
 }
 
-private fun cmdResume(_eval: Evaluator, _rl: BreakpointConsole): Next {
-    return Next.Resume
-}
+private fun cmdResume(_eval: Evaluator, _rl: BreakpointConsole): Next = Next.Resume
 
-private fun cmdFail(_eval: Evaluator, _rl: BreakpointConsole): Next {
-    return Next.Fail
-}
+private fun cmdFail(_eval: Evaluator, _rl: BreakpointConsole): Next = Next.Fail
 
 private typealias CommandFn = (Evaluator, BreakpointConsole) -> Next
 
-private val COMMANDS: List<Triple<List<String>, String, CommandFn>> = listOf(
-    Triple(listOf("help", "?"), "Show this help message", ::cmdHelp),
-    Triple(listOf("vars"), "Show all local variables", ::cmdVariables),
-    Triple(listOf("stack"), "Show the stack trace", ::cmdStack),
-    Triple(listOf("resume", "quit", "exit"), "Resume execution", ::cmdResume),
-    Triple(listOf("fail"), "Abort with a failure message", ::cmdFail),
-)
+private val COMMANDS: List<Triple<List<String>, String, CommandFn>> =
+    listOf(
+        Triple(listOf("help", "?"), "Show this help message", ::cmdHelp),
+        Triple(listOf("vars"), "Show all local variables", ::cmdVariables),
+        Triple(listOf("stack"), "Show the stack trace", ::cmdStack),
+        Triple(listOf("resume", "quit", "exit"), "Resume execution", ::cmdResume),
+        Triple(listOf("fail"), "Abort with a failure message", ::cmdFail),
+    )
 
 private fun pickCommand(x: String, rl: BreakpointConsole): CommandFn? {
     // If we can find a command that matches perfectly, do that
@@ -176,8 +169,10 @@ private fun breakpointLoop(eval: Evaluator, rl: BreakpointConsole): State {
                 }
             }
         } else {
-            val res = AstModule.parse("interactive", readline, Dialect.AllOptionsInternal)
-                .mapCatching { ast -> eval.evalStatements(ast).getOrThrow() }
+            val res =
+                AstModule
+                    .parse("interactive", readline, Dialect.AllOptionsInternal)
+                    .mapCatching { ast -> eval.evalStatements(ast).getOrThrow() }
             res.fold(
                 onSuccess = { v ->
                     if (!v.isNone()) {
@@ -193,7 +188,9 @@ private fun breakpointLoop(eval: Evaluator, rl: BreakpointConsole): State {
 }
 
 /** Error thrown when no breakpoint handler is configured on the evaluator. */
-internal class BreakpointError(message: String) : RuntimeException(message)
+internal class BreakpointError(
+    message: String,
+) : RuntimeException(message)
 
 internal const val BREAKPOINT_HIT_MESSAGE: String =
     "BREAKPOINT HIT! :resume to continue, :help for all options"
@@ -214,8 +211,9 @@ fun breakpointGlobal(builder: GlobalsBuilder) {
     builder.setFunction("breakpoint") { _, eval ->
         breakpointLock.withLock {
             if (breakpointState == State.Allow) {
-                val handler = eval.breakpointHandler
-                    ?: throw BreakpointError("Breakpoint handler is not enabled for current Evaluator")
+                val handler =
+                    eval.breakpointHandler
+                        ?: throw BreakpointError("Breakpoint handler is not enabled for current Evaluator")
                 val rl = handler()
                 rl.println(BREAKPOINT_HIT_MESSAGE)
                 breakpointState = breakpointLoop(eval, rl)

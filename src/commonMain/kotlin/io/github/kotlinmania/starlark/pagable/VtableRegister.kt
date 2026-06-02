@@ -19,8 +19,8 @@ package io.github.kotlinmania.starlark.pagable
  * limitations under the License.
  */
 
-import kotlin.reflect.KClass
 import io.github.kotlinmania.starlark.values.layout.AValueVTable
+import kotlin.reflect.KClass
 
 /**
  * In Rust, `register_avalue_simple_frozen!` is a macro that registers a frozen value type
@@ -46,7 +46,7 @@ fun registerAvalueSimpleFrozen(type: KClass<*>) {
         VTableRegistryEntry(
             deserTypeId = DeserTypeId(type),
             vtable = AValueVTable.forType(type),
-        )
+        ),
     )
 }
 
@@ -62,7 +62,7 @@ internal fun registerSpecialAvalueFrozen(starlarkValue: KClass<*>, avalue: KClas
         VTableRegistryEntry(
             deserTypeId = DeserTypeId(starlarkValue),
             vtable = AValueVTable.forType(avalue),
-        )
+        ),
     )
 }
 

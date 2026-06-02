@@ -30,62 +30,63 @@ import io.github.kotlinmania.starlark.docs.DocItem
 import io.github.kotlinmania.starlark.docs.DocMember
 import io.github.kotlinmania.starlark.docs.DocString
 import io.github.kotlinmania.starlark.docs.DocStringKind
+import io.github.kotlinmania.starlark.docs.extractRawStarlarkDocstring
 import io.github.kotlinmania.starlark.docs.fromDocstring
 import io.github.kotlinmania.starlark.environment.FrozenModuleData
 import io.github.kotlinmania.starlark.environment.Globals
-import io.github.kotlinmania.starlark.eval.runtime.Evaluator
+import io.github.kotlinmania.starlark.eval.bc.Bc
+import io.github.kotlinmania.starlark.eval.bc.allocaFrame
+import io.github.kotlinmania.starlark.eval.bc.compiler.asBc
+import io.github.kotlinmania.starlark.eval.compiler.optctx.OptCtx
+import io.github.kotlinmania.starlark.eval.compiler.optctx.OptCtxEvalForOptimizeOnFreeze
 import io.github.kotlinmania.starlark.eval.compiler.scope.CstAssignIdent
 import io.github.kotlinmania.starlark.eval.compiler.scope.CstParameter
 import io.github.kotlinmania.starlark.eval.compiler.scope.CstStmt
 import io.github.kotlinmania.starlark.eval.compiler.scope.CstTypeExpr
+import io.github.kotlinmania.starlark.eval.runtime.Arguments
+import io.github.kotlinmania.starlark.eval.runtime.ArgumentsImpl
+import io.github.kotlinmania.starlark.eval.runtime.Evaluator
 import io.github.kotlinmania.starlark.eval.runtime.FrameSpan
 import io.github.kotlinmania.starlark.eval.runtime.LocalSlotId
 import io.github.kotlinmania.starlark.eval.runtime.LocalSlotIdCapturedOrNot
-import io.github.kotlinmania.starlark.eval.runtime.frozen_file_span.FrozenFileSpan
+import io.github.kotlinmania.starlark.eval.runtime.ResolvedArgName
+import io.github.kotlinmania.starlark.eval.runtime.frozenfilespan.FrozenFileSpan
 import io.github.kotlinmania.starlark.eval.runtime.params.spec.ParametersSpec
 import io.github.kotlinmania.starlark.eval.runtime.profile.ProfilerInstant
-import io.github.kotlinmania.starlark.eval.runtime.Arguments
-import io.github.kotlinmania.starlark.eval.runtime.ArgumentsImpl
-import io.github.kotlinmania.starlark.eval.runtime.ResolvedArgName
-import io.github.kotlinmania.starlark.eval.bc.Bc
-import io.github.kotlinmania.starlark.eval.bc.allocaFrame
-import io.github.kotlinmania.starlark.eval.bc.compiler.asBc
-import io.github.kotlinmania.starlark.eval.compiler.opt_ctx.OptCtx
-import io.github.kotlinmania.starlark.eval.compiler.opt_ctx.OptCtxEvalForOptimizeOnFreeze
-import io.github.kotlinmania.starlark.docs.extractRawStarlarkDocstring
-import io.github.kotlinmania.starlark.values.layout.heap.ValueHolder
 import io.github.kotlinmania.starlark.typing.DefParam
-import io.github.kotlinmania.starlark.typing.DefParamKind
 import io.github.kotlinmania.starlark.typing.DefParamIndices
+import io.github.kotlinmania.starlark.typing.DefParamKind
+import io.github.kotlinmania.starlark.typing.ParamIsRequired
 import io.github.kotlinmania.starlark.typing.ParamSpec
 import io.github.kotlinmania.starlark.typing.Ty
-import io.github.kotlinmania.starlark.typing.ParamIsRequired
 import io.github.kotlinmania.starlark.values.AtomicFrozenRefOption
-import io.github.kotlinmania.starlark.values.layout.heap.FrozenHeap
+import io.github.kotlinmania.starlark.values.ComplexValue
+import io.github.kotlinmania.starlark.values.Freeze
 import io.github.kotlinmania.starlark.values.FrozenRef
-import io.github.kotlinmania.starlark.values.layout.FrozenValue
 import io.github.kotlinmania.starlark.values.StarlarkValue
-import io.github.kotlinmania.starlark.values.types.FUNCTION_TYPE
+import io.github.kotlinmania.starlark.values.Trace
+import io.github.kotlinmania.starlark.values.layout.Freezer
+import io.github.kotlinmania.starlark.values.layout.FrozenValue
 import io.github.kotlinmania.starlark.values.layout.Value
 import io.github.kotlinmania.starlark.values.layout.ValueLike
-import io.github.kotlinmania.starlark.values.layout.heap.Heap
-import io.github.kotlinmania.starlark.values.typing.type_compiled.TypeCompiled
-import io.github.kotlinmania.starlark.values.layout.typed.FrozenStringValue
 import io.github.kotlinmania.starlark.values.layout.avalues.allocComplex
-import io.github.kotlinmania.starlark.values.ComplexValue
-import io.github.kotlinmania.starlark.values.Trace
+import io.github.kotlinmania.starlark.values.layout.heap.FrozenHeap
+import io.github.kotlinmania.starlark.values.layout.heap.Heap
 import io.github.kotlinmania.starlark.values.layout.heap.Tracer
-import io.github.kotlinmania.starlark.values.layout.Freezer
-import io.github.kotlinmania.starlark.values.Freeze
+import io.github.kotlinmania.starlark.values.layout.heap.ValueHolder
+import io.github.kotlinmania.starlark.values.layout.typed.FrozenStringValue
+import io.github.kotlinmania.starlark.values.types.FUNCTION_TYPE
+import io.github.kotlinmania.starlark.values.typing.typecompiled.TypeCompiled
 
 // ---- DefError ----
 
 /**
  * Errors specific to `def` compilation and invocation.
  */
-private sealed class DefError(message: String) : Exception(message) {
-    class CheckReturnTypeNoType :
-        DefError("Function has no type, while function was compiled with return type (internal error)")
+private sealed class DefError(
+    message: String,
+) : Exception(message) {
+    class CheckReturnTypeNoType : DefError("Function has no type, while function was compiled with return type (internal error)")
 }
 
 // ---- StmtCompiledCell ----
@@ -159,45 +160,37 @@ internal sealed class ParameterCompiled<out T> {
 /**
  * Map the expression type of this parameter using [f].
  */
-internal fun <T, U> ParameterCompiled<T>.mapExpr(f: (T) -> U): ParameterCompiled<U> {
-    return when (this) {
+internal fun <T, U> ParameterCompiled<T>.mapExpr(f: (T) -> U): ParameterCompiled<U> =
+    when (this) {
         is ParameterCompiled.Normal -> ParameterCompiled.Normal(paramName, type, defaultValue?.let(f))
         is ParameterCompiled.Args -> ParameterCompiled.Args(paramName, type)
         is ParameterCompiled.KwArgs -> ParameterCompiled.KwArgs(paramName, type)
     }
-}
 
 /**
  * Returns `true` if this parameter accepts a positional argument.
  */
-internal fun <T> ParameterCompiled<T>.acceptsPositional(): Boolean {
-    return this is ParameterCompiled.Normal
-}
+internal fun <T> ParameterCompiled<T>.acceptsPositional(): Boolean = this is ParameterCompiled.Normal
 
 /**
  * Returns the [Captured] status of this parameter.
  */
-internal fun <T> ParameterCompiled<T>.captured(): Captured {
-    return nameTy().first.captured
-}
+internal fun <T> ParameterCompiled<T>.captured(): Captured = nameTy().first.captured
 
 /**
  * Returns a pair of the parameter name and its optional type.
  */
-internal fun <T> ParameterCompiled<T>.nameTy(): Pair<ParameterName, TypeCompiled?> {
-    return when (this) {
+internal fun <T> ParameterCompiled<T>.nameTy(): Pair<ParameterName, TypeCompiled?> =
+    when (this) {
         is ParameterCompiled.Normal -> Pair(paramName, type)
         is ParameterCompiled.Args -> Pair(paramName, type)
         is ParameterCompiled.KwArgs -> Pair(paramName, type)
     }
-}
 
 /**
  * Returns `true` if this parameter has a type annotation.
  */
-internal fun <T> ParameterCompiled<T>.hasType(): Boolean {
-    return nameTy().second != null
-}
+internal fun <T> ParameterCompiled<T>.hasType(): Boolean = nameTy().second != null
 
 /**
  * Returns the [Ty] for this parameter, or [Ty.any] if no type annotation is present.
@@ -210,22 +203,19 @@ internal fun <T> ParameterCompiled<T>.ty(): Ty {
 /**
  * Returns whether this parameter is required (i.e., has no default value).
  */
-internal fun <T> ParameterCompiled<T>.required(): ParamIsRequired {
-    return when (this) {
+internal fun <T> ParameterCompiled<T>.required(): ParamIsRequired =
+    when (this) {
         is ParameterCompiled.Normal -> {
             if (defaultValue == null) ParamIsRequired.Yes else ParamIsRequired.No
         }
         is ParameterCompiled.Args -> ParamIsRequired.No
         is ParameterCompiled.KwArgs -> ParamIsRequired.No
     }
-}
 
 /**
  * Returns `true` if this parameter is `*args` or `**kwargs`.
  */
-internal fun <T> ParameterCompiled<T>.isStarOrStarStar(): Boolean {
-    return this is ParameterCompiled.Args || this is ParameterCompiled.KwArgs
-}
+internal fun <T> ParameterCompiled<T>.isStarOrStarStar(): Boolean = this is ParameterCompiled.Args || this is ParameterCompiled.KwArgs
 
 // ---- ParametersCompiled ----
 
@@ -260,48 +250,49 @@ internal data class ParametersCompiled<T>(
     /**
      * Has `*args` or `**kwargs` parameter? `*` (bare star) is fine.
      */
-    fun hasArgsOrKwargs(): Boolean {
-        return params.any { it.node.isStarOrStarStar() }
-    }
+    fun hasArgsOrKwargs(): Boolean = params.any { it.node.isStarOrStarStar() }
 
     /**
      * Returns indices of parameters which are captured in nested defs.
      */
-    fun parameterCaptures(): List<LocalSlotId> {
-        return params.mapIndexedNotNull { i, p ->
+    fun parameterCaptures(): List<LocalSlotId> =
+        params.mapIndexedNotNull { i, p ->
             if (p.node.captured() == Captured.Yes) {
                 LocalSlotId(i.toUInt())
             } else {
                 null
             }
         }
-    }
 
     /**
      * Converts the compiled parameters to a [ParamSpec] for type checking.
      */
-    fun toTyParams(): ParamSpec {
-        return ParamSpec.newParts(
-            posOnly = indices.posOnly().map { i ->
-                val p = params[i].node
-                Pair(p.required(), p.ty())
-            },
-            posOrName = indices.posOrNamed().map { i ->
-                val p = params[i].node
-                Triple(p.nameTy().first.name, p.required(), p.ty())
-            },
-            args = indices.args?.let { i ->
-                params[i.toInt()].node.ty()
-            },
-            namedOnly = indices.namedOnly(params.size).map { i ->
-                val p = params[i].node
-                Triple(p.nameTy().first.name, p.required(), p.ty())
-            },
-            kwargs = indices.kwargs?.let { i ->
-                params[i.toInt()].node.ty()
-            },
+    fun toTyParams(): ParamSpec =
+        ParamSpec.newParts(
+            posOnly =
+                indices.posOnly().map { i ->
+                    val p = params[i].node
+                    Pair(p.required(), p.ty())
+                },
+            posOrName =
+                indices.posOrNamed().map { i ->
+                    val p = params[i].node
+                    Triple(p.nameTy().first.name, p.required(), p.ty())
+                },
+            args =
+                indices.args?.let { i ->
+                    params[i.toInt()].node.ty()
+                },
+            namedOnly =
+                indices.namedOnly(params.size).map { i ->
+                    val p = params[i].node
+                    Triple(p.nameTy().first.name, p.required(), p.ty())
+                },
+            kwargs =
+                indices.kwargs?.let { i ->
+                    params[i.toInt()].node.ty()
+                },
         )
-    }
 }
 
 // ---- CopySlotFromParent ----
@@ -395,8 +386,8 @@ internal class DefInfo(
             localNames: List<FrozenStringValue>,
             parent: List<CopySlotFromParent>,
             globals: FrozenRef<Globals>,
-        ): DefInfo {
-            return DefInfo(
+        ): DefInfo =
+            DefInfo(
                 name = FrozenStringValue.default(),
                 signatureSpan = FrozenFileSpan.default(),
                 parameterCaptures = emptyList(),
@@ -411,7 +402,6 @@ internal class DefInfo(
                 inlineDefBody = null,
                 globals = globals,
             )
-        }
     }
 }
 
@@ -450,22 +440,26 @@ internal fun Compiler.parameter(
 ): IrSpanned<ParameterCompiled<IrSpanned<ExprCompiled>>> {
     val span = FrameSpan.new(FrozenFileSpan.new(this.codemap, x.span))
     val pName = parameterName(x.node.ident)
-    val node: ParameterCompiled<IrSpanned<ExprCompiled>> = when (val kind = x.node.kind) {
-        is DefParamKind.Regular -> ParameterCompiled.Normal(
-            pName,
-            this.exprForType(x.node.ty)?.node,
-            kind.defaultValue?.let { d -> this.expr(d).getOrThrow() },
-        )
-        is DefParamKind.Args -> ParameterCompiled.Args(
-            pName,
-            this.exprForType(x.node.ty)?.node,
-        )
-        is DefParamKind.Kwargs -> ParameterCompiled.KwArgs(
-            pName,
-            this.exprForType(x.node.ty)?.node,
-        )
-        else -> throw IllegalStateException("Unexpected parameter kind: $kind")
-    }
+    val node: ParameterCompiled<IrSpanned<ExprCompiled>> =
+        when (val kind = x.node.kind) {
+            is DefParamKind.Regular ->
+                ParameterCompiled.Normal(
+                    pName,
+                    this.exprForType(x.node.ty)?.node,
+                    kind.defaultValue?.let { d -> this.expr(d).getOrThrow() },
+                )
+            is DefParamKind.Args ->
+                ParameterCompiled.Args(
+                    pName,
+                    this.exprForType(x.node.ty)?.node,
+                )
+            is DefParamKind.Kwargs ->
+                ParameterCompiled.KwArgs(
+                    pName,
+                    this.exprForType(x.node.ty)?.node,
+                )
+            else -> throw IllegalStateException("Unexpected parameter kind: $kind")
+        }
     return IrSpanned(span, node)
 }
 
@@ -498,10 +492,11 @@ internal fun Compiler.function(
     val parametersCompiled = ParametersCompiled(compiledParams, defParams.second)
     val compiledReturnType = this.exprForType(returnType)?.node
 
-    val ty = Ty.function(
-        parametersCompiled.toTyParams(),
-        compiledReturnType?.asTy() ?: Ty.any(),
-    )
+    val ty =
+        Ty.function(
+            parametersCompiled.toTyParams(),
+            compiledReturnType?.asTy() ?: Ty.any(),
+        )
 
     this.enterScope(scopeId)
 
@@ -512,44 +507,49 @@ internal fun Compiler.function(
 
     val hasTypes = compiledReturnType != null || parametersCompiled.hasTypes()
 
-    val inlineDef = if (hasTypes) {
-        // It is harder to inline if a function declares parameter types or return type.
-        null
-    } else {
-        inlineDefBody(parametersCompiled, body)
-    }
+    val inlineDef =
+        if (hasTypes) {
+            // It is harder to inline if a function declares parameter types or return type.
+            null
+        } else {
+            inlineDefBody(parametersCompiled, body)
+        }
 
     val paramCount = parametersCompiled.countParamVariables()
 
     val used = scopeNames.used
-    val info = DefInfo(
-        name = frozenName,
-        signatureSpan = signatureSpan,
-        parameterCaptures = parametersCompiled.parameterCaptures(),
-        ty = ty,
-        codemap = this.codemap,
-        docstring = docstring,
-        used = used,
-        parent = scopeNames.parent,
-        stmtCompiled = body.asBc(
-            this.compileContext(compiledReturnType != null),
-            FrozenRef(used),
-            paramCount,
-            this.eval.moduleEnv.frozenHeap(),
-        ),
-        bodyStmts = body,
-        inlineDefBody = inlineDef,
-        stmtCompileContext = this.compileContext(compiledReturnType != null),
-        globals = this.globals,
-    )
+    val info =
+        DefInfo(
+            name = frozenName,
+            signatureSpan = signatureSpan,
+            parameterCaptures = parametersCompiled.parameterCaptures(),
+            ty = ty,
+            codemap = this.codemap,
+            docstring = docstring,
+            used = used,
+            parent = scopeNames.parent,
+            stmtCompiled =
+                body.asBc(
+                    this.compileContext(compiledReturnType != null),
+                    FrozenRef(used),
+                    paramCount,
+                    this.eval.moduleEnv.frozenHeap(),
+                ),
+            bodyStmts = body,
+            inlineDefBody = inlineDef,
+            stmtCompileContext = this.compileContext(compiledReturnType != null),
+            globals = this.globals,
+        )
     val frozenInfo = FrozenRef(info)
 
-    return ExprCompiled.Def(DefCompiled(
-        functionName = functionName,
-        params = parametersCompiled,
-        returnType = compiledReturnType,
-        info = frozenInfo,
-    ))
+    return ExprCompiled.Def(
+        DefCompiled(
+            functionName = functionName,
+            params = parametersCompiled,
+            returnType = compiledReturnType,
+            info = frozenInfo,
+        ),
+    )
 }
 
 /**
@@ -582,12 +582,13 @@ private fun unpackDefParamsForCompiler(
                 val ident = param.name as CstAssignIdent
                 val ty = param.typ as CstTypeExpr?
                 val defaultVal = param.defaultVal as io.github.kotlinmania.starlark.eval.compiler.scope.CstExpr?
-                val mode = if (seenStar) {
-                    io.github.kotlinmania.starlark.typing.DefRegularParamMode.NameOnly
-                } else {
-                    numPositional++
-                    io.github.kotlinmania.starlark.typing.DefRegularParamMode.PosOrName
-                }
+                val mode =
+                    if (seenStar) {
+                        io.github.kotlinmania.starlark.typing.DefRegularParamMode.NameOnly
+                    } else {
+                        numPositional++
+                        io.github.kotlinmania.starlark.typing.DefRegularParamMode.PosOrName
+                    }
                 val kind = DefParamKind.Regular(mode, defaultVal)
                 defParams.add(Spanned(DefParam(ident, kind, ty), p.span))
             }
@@ -615,12 +616,13 @@ private fun unpackDefParamsForCompiler(
         numPositional = defParams.size.toUInt()
     }
 
-    val indices = DefParamIndices(
-        numPositional = numPositional,
-        numPositionalOnly = numPositionalOnly,
-        args = args,
-        kwargs = kwargs,
-    )
+    val indices =
+        DefParamIndices(
+            numPositional = numPositional,
+            numPositionalOnly = numPositionalOnly,
+            args = args,
+            kwargs = kwargs,
+        )
     return Pair(defParams, indices)
 }
 
@@ -677,8 +679,9 @@ internal class DefGen<V>(
     internal val optimizedOnFreezeStmt: StmtCompiledCell,
     /** Whether this DefGen holds frozen values. */
     private val frozen: Boolean,
-) : ComplexValue, Trace, Freeze<FrozenDef> {
-
+) : ComplexValue,
+    Trace,
+    Freeze<FrozenDef> {
     override fun toString(): String = parameters.signature()
 
     // Trace implementation: trace all captured Value references.
@@ -701,51 +704,57 @@ internal class DefGen<V>(
     override fun freeze(freezer: Freezer): Result<FrozenDef> {
         @Suppress("UNCHECKED_CAST")
         val frozenParameters = parameters as ParametersSpec<FrozenValue>
-        val frozenParameterTypes = parameterTypes.map { (slot, name, ty) ->
-            Triple(slot, name, ty.toFrozen(freezer.heap))
-        }
+        val frozenParameterTypes =
+            parameterTypes.map { (slot, name, ty) ->
+                Triple(slot, name, ty.toFrozen(freezer.heap))
+            }
         val frozenReturnType = returnType?.toFrozen(freezer.heap)
+
         @Suppress("UNCHECKED_CAST")
-        val frozenCaptured = (captured as List<Value>).map { v ->
-            freezer.freeze(v).getOrElse { return Result.failure(it) }
-        }
-        return Result.success(DefGen(
-            parameters = frozenParameters,
-            parameterCaptures = parameterCaptures,
-            parameterTypes = frozenParameterTypes,
-            returnType = frozenReturnType,
-            defInfo = defInfo,
-            captured = frozenCaptured,
-            module = AtomicFrozenRefOption(module.loadRelaxed()),
-            optimizedOnFreezeStmt = optimizedOnFreezeStmt,
-            frozen = true,
-        ))
+        val frozenCaptured =
+            (captured as List<Value>).map { v ->
+                freezer.freeze(v).getOrElse { return Result.failure(it) }
+            }
+        return Result.success(
+            DefGen(
+                parameters = frozenParameters,
+                parameterCaptures = parameterCaptures,
+                parameterTypes = frozenParameterTypes,
+                returnType = frozenReturnType,
+                defInfo = defInfo,
+                captured = frozenCaptured,
+                module = AtomicFrozenRefOption(module.loadRelaxed()),
+                optimizedOnFreezeStmt = optimizedOnFreezeStmt,
+                frozen = true,
+            ),
+        )
     }
 
     /**
      * Returns the bytecode for this function. For frozen defs, returns
      * the post-freeze optimized bytecode; otherwise, returns the original.
      */
-    fun bc(): Bc {
-        return if (frozen) {
+    fun bc(): Bc =
+        if (frozen) {
             optimizedOnFreezeStmt.get()
         } else {
             defInfo.stmtCompiled
         }
-    }
 
     /**
      * Check that the parameter types match the values provided.
      */
     private fun checkParameterTypes(eval: Evaluator): Result<Unit> {
-        val start = if (eval.typecheckProfile.enabled) {
-            ProfilerInstant.now()
-        } else {
-            null
-        }
+        val start =
+            if (eval.typecheckProfile.enabled) {
+                ProfilerInstant.now()
+            } else {
+                null
+            }
         for ((i, argName, ty) in parameterTypes) {
-            val v = eval.currentFrame.getSlot(i.toCapturedOrNot())
-                ?: error("Not allowed optional unassigned with type annotations on them")
+            val v =
+                eval.currentFrame.getSlot(i.toCapturedOrNot())
+                    ?: error("Not allowed optional unassigned with type annotations on them")
             ty.checkType(v, argName).getOrElse { return Result.failure(it) }
         }
         if (start != null) {
@@ -758,13 +767,15 @@ internal class DefGen<V>(
      * Check the return value matches the declared return type.
      */
     fun checkReturnType(ret: Value, eval: Evaluator): Result<Unit> {
-        val returnTypeTy = returnType
-            ?: return Result.failure(DefError.CheckReturnTypeNoType())
-        val start = if (eval.typecheckProfile.enabled) {
-            ProfilerInstant.now()
-        } else {
-            null
-        }
+        val returnTypeTy =
+            returnType
+                ?: return Result.failure(DefError.CheckReturnTypeNoType())
+        val start =
+            if (eval.typecheckProfile.enabled) {
+                ProfilerInstant.now()
+            } else {
+                null
+            }
         returnTypeTy.checkType(ret, null).getOrElse { return Result.failure(it) }
         if (start != null) {
             eval.typecheckProfile.add(defInfo.name, start.elapsed())
@@ -806,9 +817,7 @@ internal class DefGen<V>(
         me: Value,
         args: ArgumentsImpl<*>,
         eval: Evaluator,
-    ): Result<Value> {
-        return invokeImpl(me, args, eval)
-    }
+    ): Result<Value> = invokeImpl(me, args, eval)
 
     /**
      * Invoke the function, assuming that:
@@ -836,11 +845,12 @@ internal class DefGen<V>(
         if (captured.isNotEmpty()) {
             for ((copy, cap) in defInfo.parent.zip(captured)) {
                 @Suppress("UNCHECKED_CAST")
-                val capValue = when (cap) {
-                    is Value -> cap
-                    is FrozenValue -> cap.toValue()
-                    else -> (cap as ValueLike).toValue()
-                }
+                val capValue =
+                    when (cap) {
+                        is Value -> cap
+                        is FrozenValue -> cap.toValue()
+                        else -> (cap as ValueLike).toValue()
+                    }
                 eval.currentFrame.setSlot(copy.child, capValue)
             }
         }
@@ -849,16 +859,15 @@ internal class DefGen<V>(
             check(module.loadRelaxed() != null) { "frozen def must have module set" }
         }
 
-        return eval.evalBc(me, bc())
+        return eval
+            .evalBc(me, bc())
             .mapCatching { it }
     }
 
     /**
      * Resolve a named argument to its index in the parameters.
      */
-    fun resolveArgName(name: Hashed<String>): ResolvedArgName {
-        return parameters.resolveName(name)
-    }
+    fun resolveArgName(name: Hashed<String>): ResolvedArgName = parameters.resolveName(name)
 
     /**
      * Dump debug information about the bytecode.
@@ -879,16 +888,12 @@ internal class DefGen<V>(
     /**
      * Returns the name used in call stack frames.
      */
-    override fun nameForCallStack(_me: Value): String {
-        return defInfo.name.asStr()
-    }
+    override fun nameForCallStack(_me: Value): String = defInfo.name.asStr()
 
     /**
      * Invoke this function with the given arguments.
      */
-    override fun invoke(me: Value, args: Arguments, eval: Evaluator): Result<Value> {
-        return invokeImpl(me, args.inner, eval)
-    }
+    override fun invoke(me: Value, args: Arguments, eval: Evaluator): Result<Value> = invokeImpl(me, args.inner, eval)
 
     /**
      * Generate documentation for this function.
@@ -902,12 +907,13 @@ internal class DefGen<V>(
 
         val retType = returnType?.asTy() ?: Ty.any()
 
-        val functionDocs = DocFunction.fromDocstring(
-            DocStringKind.Starlark,
-            parameters.documentation(paramTys, mutableMapOf()),
-            retType,
-            defInfo.docstring,
-        )
+        val functionDocs =
+            DocFunction.fromDocstring(
+                DocStringKind.Starlark,
+                parameters.documentation(paramTys, mutableMapOf()),
+                retType,
+                defInfo.docstring,
+            )
 
         return DocItem.Member(DocMember.Function(functionDocs))
     }
@@ -955,20 +961,22 @@ internal fun newDef(
     stmt: DefInfo,
     eval: Evaluator,
 ): Result<Value> {
-    val captured = stmt.parent.map { copy ->
-        eval.cloneSlotCapture(copy, stmt)
-    }
-    val def = DefGen(
-        parameters = parameters,
-        parameterCaptures = stmt.parameterCaptures,
-        parameterTypes = parameterTypes,
-        returnType = returnType,
-        defInfo = stmt,
-        captured = captured,
-        module = AtomicFrozenRefOption(runCatching { eval.topFrameDefFrozenModule(false) }.getOrElse { return Result.failure(it) }),
-        optimizedOnFreezeStmt = StmtCompiledCell.new(),
-        frozen = false,
-    )
+    val captured =
+        stmt.parent.map { copy ->
+            eval.cloneSlotCapture(copy, stmt)
+        }
+    val def =
+        DefGen(
+            parameters = parameters,
+            parameterCaptures = stmt.parameterCaptures,
+            parameterTypes = parameterTypes,
+            returnType = returnType,
+            defInfo = stmt,
+            captured = captured,
+            module = AtomicFrozenRefOption(runCatching { eval.topFrameDefFrozenModule(false) }.getOrElse { return Result.failure(it) }),
+            optimizedOnFreezeStmt = StmtCompiledCell.new(),
+            frozen = false,
+        )
     return Result.success(eval.heap().allocComplex(def))
 }
 
@@ -987,30 +995,33 @@ internal fun FrozenDef.postFreeze(
     frozenHeap: FrozenHeap,
 ) {
     // `defModule` contains the module where this `def` is declared.
-    val defModule = this.module.loadRelaxed() ?: run {
-        this.module.storeRelaxed(module)
-        module
-    }
+    val defModule =
+        this.module.loadRelaxed() ?: run {
+            this.module.storeRelaxed(module)
+            module
+        }
 
     // Now perform the optimization of function body with fully frozen module:
     // all module variables are frozen, so we can inline more aggressively.
-    val bodyOptimized = this.defInfo.bodyStmts
-        .optimize(OptCtx.new(
-            OptCtxEvalForOptimizeOnFreeze(
-                OptimizeOnFreezeContext(
-                    module = defModule.asRef(),
-                    heap = heap,
-                    frozenHeap = frozenHeap,
+    val bodyOptimized =
+        this.defInfo.bodyStmts
+            .optimize(
+                OptCtx.new(
+                    OptCtxEvalForOptimizeOnFreeze(
+                        OptimizeOnFreezeContext(
+                            module = defModule.asRef(),
+                            heap = heap,
+                            frozenHeap = frozenHeap,
+                        ),
+                    ),
+                    this.parameters.len().toUInt(),
                 ),
-            ),
-            this.parameters.len().toUInt(),
-        ))
-        .asBc(
-            this.defInfo.stmtCompileContext,
-            FrozenRef(this.defInfo.used),
-            this.parameters.len(),
-            frozenHeap,
-        )
+            ).asBc(
+                this.defInfo.stmtCompileContext,
+                FrozenRef(this.defInfo.used),
+                this.parameters.len(),
+                frozenHeap,
+            )
 
     // Store the optimized body.
     // This is (relatively) safe because we know that during freeze
@@ -1022,7 +1033,9 @@ internal fun FrozenDef.postFreeze(
  * A [MutableList] view backed by an array, so that [ParametersSpec.collectInline]
  * can write directly into frame slots without an intermediate copy.
  */
-private class ArrayBackedMutableList<T>(private val array: Array<T>) : AbstractMutableList<T>() {
+private class ArrayBackedMutableList<T>(
+    private val array: Array<T>,
+) : AbstractMutableList<T>() {
     override val size: Int get() = array.size
 
     override fun get(index: Int): T = array[index]
@@ -1033,11 +1046,7 @@ private class ArrayBackedMutableList<T>(private val array: Array<T>) : AbstractM
         return old
     }
 
-    override fun add(index: Int, element: T) {
-        throw UnsupportedOperationException("ArrayBackedMutableList does not support add at index $index (element=$element)")
-    }
+    override fun add(index: Int, element: T): Unit = throw UnsupportedOperationException("ArrayBackedMutableList does not support add at index $index (element=$element)")
 
-    override fun removeAt(index: Int): T {
-        throw UnsupportedOperationException("ArrayBackedMutableList does not support removeAt at index $index")
-    }
+    override fun removeAt(index: Int): T = throw UnsupportedOperationException("ArrayBackedMutableList does not support removeAt at index $index")
 }

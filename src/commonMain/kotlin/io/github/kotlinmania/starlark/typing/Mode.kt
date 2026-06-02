@@ -21,12 +21,14 @@ package io.github.kotlinmania.starlark.typing
 
 // #[derive(Copy, Clone, Dupe, Debug, Eq, PartialEq)]
 // pub(crate) enum TypecheckMode { Lint, Compiler }
+
 /**
  * Mode in which the typechecker is operating.
  */
 internal enum class TypecheckMode {
     /** Lint mode. */
     Lint,
+
     /** Invoked from the compiler. */
     Compiler,
 }

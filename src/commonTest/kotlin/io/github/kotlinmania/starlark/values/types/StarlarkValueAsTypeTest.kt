@@ -28,10 +28,14 @@ import io.github.kotlinmania.starlark.values.layout.heap.Heap
 import kotlin.test.Test
 
 class StarlarkValueAsTypeTest {
-
-    private class CompilerArgs(val value: String) : StarlarkValue, AllocValue {
+    private class CompilerArgs(
+        val value: String,
+    ) : StarlarkValue,
+        AllocValue {
         override val TYPE: String get() = "compiler_args"
+
         override fun toString(): String = value
+
         override fun allocValue(heap: Heap): Value = heap.allocSimple(this)
     }
 

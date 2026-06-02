@@ -21,19 +21,19 @@ package io.github.kotlinmania.starlark.values.types.record
 
 /** An actual record instance. */
 
+import io.github.kotlinmania.starlark.collections.Hashed
 import io.github.kotlinmania.starlark.collections.SmallMap
 import io.github.kotlinmania.starlark.collections.StarlarkHasher
 import io.github.kotlinmania.starlark.typing.Ty
 import io.github.kotlinmania.starlark.values.ComplexValue
 import io.github.kotlinmania.starlark.values.Freeze
-import io.github.kotlinmania.starlark.values.layout.Freezer
 import io.github.kotlinmania.starlark.values.freezeList
-import io.github.kotlinmania.starlark.values.types.record.record_type.RecordTypeGen
-import io.github.kotlinmania.starlark.collections.Hashed
-import io.github.kotlinmania.starlark.values.types.TypeInstanceId
-import io.github.kotlinmania.starlark.values.layout.heap.Heap
+import io.github.kotlinmania.starlark.values.layout.Freezer
 import io.github.kotlinmania.starlark.values.layout.Value
-import io.github.kotlinmania.starlark.values.types.record.record_type.recordFields
+import io.github.kotlinmania.starlark.values.layout.heap.Heap
+import io.github.kotlinmania.starlark.values.types.TypeInstanceId
+import io.github.kotlinmania.starlark.values.types.record.recordtype.RecordTypeGen
+import io.github.kotlinmania.starlark.values.types.record.recordtype.recordFields
 
 /** Helper: format keyed container like "record[Name](a=1, b=2)". */
 private fun <K, V> fmtKeyedContainer(
@@ -85,7 +85,8 @@ private fun equalsSlice(
 class RecordGen internal constructor(
     internal val typ: Value, // Must be RecordType
     internal val values: List<Value>,
-) : ComplexValue, Freeze<RecordGen> {
+) : ComplexValue,
+    Freeze<RecordGen> {
     override val HAS_equals: Boolean get() = true
 
     companion object {
@@ -95,9 +96,7 @@ class RecordGen internal constructor(
 
         /** Attempt to extract a Record from a Value. */
         // From starlark_complex_value!(pub Record) macro expansion.
-        fun fromValue(value: Value): RecordGen? {
-            return value.downcastRef()
-        }
+        fun fromValue(value: Value): RecordGen? = value.downcastRef()
     }
 
     // impl Display for RecordGen
@@ -110,13 +109,14 @@ class RecordGen internal constructor(
     // fn freeze(self, freezer: &Freezer) -> Result<Self::Frozen>
     override fun freeze(freezer: Freezer): Result<RecordGen> {
         val frozenTyp = typ.freeze(freezer).getOrElse { return Result.failure(it) }
-        val frozenValues = freezeList(values, freezer) { v, f -> v.freeze(f) }
-            .getOrElse { return Result.failure(it) }
+        val frozenValues =
+            freezeList(values, freezer) { v, f -> v.freeze(f) }
+                .getOrElse { return Result.failure(it) }
         return Result.success(
             RecordGen(
                 typ = frozenTyp.toValue(),
                 values = frozenValues.map { it.toValue() },
-            )
+            ),
         )
     }
 
@@ -129,26 +129,20 @@ class RecordGen internal constructor(
     }
 
     // fn record_type_name(&self) -> Option<&'v str>
-    private fun recordTypeName(): String? {
-        return getRecordType().tyRecordData()?.name
-    }
+    private fun recordTypeName(): String? = getRecordType().tyRecordData()?.name
 
     // pub(crate) fn record_type_id(&self) -> TypeInstanceId
-    internal fun recordTypeId(): TypeInstanceId {
-        return getRecordType().id
-    }
+    internal fun recordTypeId(): TypeInstanceId = getRecordType().id
 
     // fn get_record_fields(&self) -> &'v SmallMap<String, FieldGen<Value<'v>>>
-    private fun getRecordFields(): SmallMap<String, Field> {
-        return recordFields(getRecordType())
-    }
+    private fun getRecordFields(): SmallMap<String, Field> = recordFields(getRecordType())
 
     /** Iterate over the elements in the record. */
     // pub fn iter<'a>(&'a self) -> impl ExactSizeIterator<Item = (&'v str, V)> + 'a
-    fun iter(): Sequence<Pair<String, Value>> {
-        return getRecordFields().keys()
+    fun iter(): Sequence<Pair<String, Value>> =
+        getRecordFields()
+            .keys()
             .zip(values.asSequence())
-    }
 
     // #[starlark_value(type = Record::TYPE)]
     // impl StarlarkValue for RecordGen
@@ -162,9 +156,7 @@ class RecordGen internal constructor(
     }
 
     // fn get_attr(&self, attribute: &str, heap: Heap<'v>) -> Option<Value<'v>>
-    override fun getAttr(attribute: String, heap: Heap): Value? {
-        return getAttrHashed(Hashed.new(attribute), heap)
-    }
+    override fun getAttr(attribute: String, heap: Heap): Value? = getAttrHashed(Hashed.new(attribute), heap)
 
     // fn get_attr_hashed(&self, attribute: Hashed<&str>, _heap: Heap<'v>) -> Option<Value<'v>>
     override fun getAttrHashed(attribute: Hashed<String>, heap: Heap): Value? {
@@ -183,25 +175,20 @@ class RecordGen internal constructor(
     }
 
     // fn dir_attr(&self) -> Vec<String>
-    override fun dirAttr(): List<String> {
-        return getRecordFields().keys().toList()
-    }
+    override fun dirAttr(): List<String> = getRecordFields().keys().toList()
 
     // fn typechecker_ty(&self) -> Option<Ty>
-    override fun typecheckerTy(): Ty? {
-        return getRecordType().instanceTy()
-    }
+    override fun typecheckerTy(): Ty? = getRecordType().instanceTy()
 
     // impl Serialize for RecordGen
     // fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
-    fun serialize(): Map<String, Value> {
-        return iter().toMap()
-    }
+    fun serialize(): Map<String, Value> = iter().toMap()
 }
 
 /** Type alias for unfrozen record. */
 // pub type Record<'v> = RecordGen<Value<'v>>;
 typealias Record = RecordGen
+
 /** Type alias for frozen record. */
 // pub type FrozenRecord = RecordGen<FrozenValue>;
 typealias FrozenRecord = RecordGen

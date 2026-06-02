@@ -22,8 +22,8 @@ package io.github.kotlinmania.starlark.values.types.set
 import io.github.kotlinmania.starlark.environment.GlobalsBuilder
 import io.github.kotlinmania.starlark.typing.Ty
 import io.github.kotlinmania.starlark.typing.TyStarlarkValue
-import io.github.kotlinmania.starlark.values.layout.heap.Heap
 import io.github.kotlinmania.starlark.values.layout.Value
+import io.github.kotlinmania.starlark.values.layout.heap.Heap
 
 /**
  * Register the `set` builtin function.
@@ -60,31 +60,32 @@ internal fun registerSet(globals: GlobalsBuilder) {
     ) { callArgs, eval ->
         val heap: Heap = eval.heap()
         val arg: Value? = callArgs.optionalPositional(0)
-        val set = when (arg) {
-            null -> SetData()
-            else -> {
-                val pos = arg
-                when (val setRef = SetRef.unpackValueOpt(pos)) {
-                    null -> {
-                        val it = pos.iterate(heap).getOrThrow()
-                        val data = SetData()
-                        for (el in it) {
-                            val hashedEl = el.getHashed().getOrThrow()
-                            data.content.insertHashed(hashedEl)
+        val set =
+            when (arg) {
+                null -> SetData()
+                else -> {
+                    val pos = arg
+                    when (val setRef = SetRef.unpackValueOpt(pos)) {
+                        null -> {
+                            val it = pos.iterate(heap).getOrThrow()
+                            val data = SetData()
+                            for (el in it) {
+                                val hashedEl = el.getHashed().getOrThrow()
+                                data.content.insertHashed(hashedEl)
+                            }
+                            data
                         }
-                        data
-                    }
-                    else -> {
-                        // (set.aref).clone() -- clone the SetData from the SetRef
-                        val data = SetData()
-                        for (el in setRef.content.iterHashed()) {
-                            data.content.insertHashed(el)
+                        else -> {
+                            // (set.aref).clone() -- clone the SetData from the SetRef
+                            val data = SetData()
+                            for (el in setRef.content.iterHashed()) {
+                                data.content.insertHashed(el)
+                            }
+                            data
                         }
-                        data
                     }
                 }
             }
-        }
         set.allocValue(heap)
     }
 }

@@ -1,5 +1,5 @@
 // port-lint: source src/ordered_set.rs
-package io.github.kotlinmania.starlark.collections.ordered_set
+package io.github.kotlinmania.starlark.collections.orderedset
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.
@@ -21,7 +21,7 @@ package io.github.kotlinmania.starlark.collections.ordered_set
 
 import io.github.kotlinmania.starlark.collections.Equivalent
 import io.github.kotlinmania.starlark.collections.Hashed
-import io.github.kotlinmania.starlark.collections.small_set.SmallSet
+import io.github.kotlinmania.starlark.collections.smallset.SmallSet
 
 /**
  * [SmallSet] wrapper, but equality and hash of self depends on iteration order.
@@ -31,8 +31,8 @@ import io.github.kotlinmania.starlark.collections.small_set.SmallSet
  */
 class OrderedSet<T> internal constructor(
     internal val inner: SmallSet<T>,
-) : Iterable<T>, Comparable<OrderedSet<T>> {
-
+) : Iterable<T>,
+    Comparable<OrderedSet<T>> {
     companion object {
         /** Create a new empty set. */
         fun <T> new(): OrderedSet<T> = OrderedSet(SmallSet())
@@ -133,11 +133,14 @@ class OrderedSet<T> internal constructor(
      */
     fun tryInsert(value: T): OccupiedError<T>? {
         val hashed = Hashed.new(value)
-        val existing = inner.getHashed(object : Equivalent<T> {
-            override fun equivalent(key: T): Boolean = hashed.key() == key
-        }.let { equiv ->
-            Hashed.newUnchecked(hashed.hash(), equiv)
-        })
+        val existing =
+            inner.getHashed(
+                object : Equivalent<T> {
+                    override fun equivalent(key: T): Boolean = hashed.key() == key
+                }.let { equiv ->
+                    Hashed.newUnchecked(hashed.hash(), equiv)
+                },
+            )
         if (existing != null) {
             return OccupiedError(value, existing)
         }
@@ -209,6 +212,7 @@ class OrderedSet<T> internal constructor(
         while (thisIter.hasNext() && otherIter.hasNext()) {
             val t = thisIter.next()
             val o = otherIter.next()
+
             @Suppress("UNCHECKED_CAST")
             val cmp = (t as Comparable<T>).compareTo(o)
             if (cmp != 0) return cmp
@@ -220,9 +224,7 @@ class OrderedSet<T> internal constructor(
         }
     }
 
-    override fun toString(): String {
-        return iter().joinToString(", ", "{", "}")
-    }
+    override fun toString(): String = iter().joinToString(", ", "{", "}")
 }
 
 /**

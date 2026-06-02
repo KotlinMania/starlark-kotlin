@@ -53,7 +53,6 @@ class SymbolMap<T> private constructor(
     private val table: HashMap<ULong, MutableList<Pair<Symbol, T>>>,
     private var size: Int,
 ) {
-
     /** Create a new empty [SymbolMap]. */
     constructor() : this(HashMap(), 0)
 
@@ -91,9 +90,7 @@ class SymbolMap<T> private constructor(
     }
 
     /** Look up a value by string key. */
-    fun getStr(key: String): T? {
-        return getHashedStr(Hashed.new(key))
-    }
+    fun getStr(key: String): T? = getHashedStr(Hashed.new(key))
 
     /** Look up a value by pre-hashed string key. */
     fun getHashedStr(key: Hashed<String>): T? {

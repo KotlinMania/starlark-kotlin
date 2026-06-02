@@ -26,8 +26,8 @@ package io.github.kotlinmania.starlark.values
 
 import io.github.kotlinmania.starlark.typing.Ty
 import io.github.kotlinmania.starlark.values.layout.heap.Heap
-import io.github.kotlinmania.starlark.values.types.none.NoneType
 import io.github.kotlinmania.starlark.values.types.list.ListType
+import io.github.kotlinmania.starlark.values.types.none.NoneType
 
 /**
  * Provides a starlark type representation, even if StarlarkValue is not implemented.
@@ -61,16 +61,12 @@ interface StarlarkTypeRepr {
 class SetType<T : StarlarkTypeRepr>(
     private val elementRepr: T,
 ) : StarlarkTypeRepr {
-    override fun starlarkTypeRepr(): Ty {
-        return Ty.set(elementRepr.starlarkTypeRepr())
-    }
+    override fun starlarkTypeRepr(): Ty = Ty.set(elementRepr.starlarkTypeRepr())
 }
 
 /** StarlarkTypeRepr implementation for String. */
 object StringTypeRepr : StarlarkTypeRepr {
-    override fun starlarkTypeRepr(): Ty {
-        return Ty.string()
-    }
+    override fun starlarkTypeRepr(): Ty = Ty.string()
 }
 
 /**
@@ -80,18 +76,14 @@ object StringTypeRepr : StarlarkTypeRepr {
 class OptionTypeRepr<T : StarlarkTypeRepr>(
     private val inner: T,
 ) : StarlarkTypeRepr {
-    override fun starlarkTypeRepr(): Ty {
-        return Ty.union2(NoneType.starlarkTypeRepr(), inner.starlarkTypeRepr())
-    }
+    override fun starlarkTypeRepr(): Ty = Ty.union2(NoneType.starlarkTypeRepr(), inner.starlarkTypeRepr())
 }
 
 /** StarlarkTypeRepr implementation for List<T>. */
 class ListTypeRepr<T : StarlarkTypeRepr>(
     private val element: T,
 ) : StarlarkTypeRepr {
-    override fun starlarkTypeRepr(): Ty {
-        return ListType.starlarkTypeRepr(element.starlarkTypeRepr())
-    }
+    override fun starlarkTypeRepr(): Ty = ListType.starlarkTypeRepr(element.starlarkTypeRepr())
 }
 
 /**
@@ -102,9 +94,7 @@ class EitherTypeRepr<TLeft : StarlarkTypeRepr, TRight : StarlarkTypeRepr>(
     private val left: TLeft,
     private val right: TRight,
 ) : StarlarkTypeRepr {
-    override fun starlarkTypeRepr(): Ty {
-        return Ty.union2(left.starlarkTypeRepr(), right.starlarkTypeRepr())
-    }
+    override fun starlarkTypeRepr(): Ty = Ty.union2(left.starlarkTypeRepr(), right.starlarkTypeRepr())
 }
 
 /**
@@ -114,6 +104,4 @@ class EitherTypeRepr<TLeft : StarlarkTypeRepr, TRight : StarlarkTypeRepr>(
 fun <T : StarlarkTypeRepr> typeReprFromAttrImpl(
     f: (Any?, Heap) -> Result<T>,
     instance: T,
-): Ty {
-    return instance.starlarkTypeRepr()
-}
+): Ty = instance.starlarkTypeRepr()

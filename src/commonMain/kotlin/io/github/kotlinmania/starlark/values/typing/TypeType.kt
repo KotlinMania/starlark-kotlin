@@ -20,39 +20,37 @@ package io.github.kotlinmania.starlark.values.typing
  */
 
 import io.github.kotlinmania.starlark.typing.Ty
+import io.github.kotlinmania.starlark.values.StarlarkTypeRepr
 import io.github.kotlinmania.starlark.values.UnpackValue
 import io.github.kotlinmania.starlark.values.layout.Value
-import io.github.kotlinmania.starlark.values.StarlarkTypeRepr
 import io.github.kotlinmania.starlark.values.typing.ty.AbstractType
 
 /** Represent a type of type. (For example, an expression `int` is valid for this type.) */
-class TypeType private constructor() : StarlarkTypeRepr, UnpackValue<TypeType> {
-    // impl StarlarkTypeRepr for TypeType
+class TypeType private constructor() :
+    StarlarkTypeRepr,
+    UnpackValue<TypeType> {
+        // impl StarlarkTypeRepr for TypeType
 
-    override fun starlarkTypeRepr(): Ty {
-        return AbstractType.starlarkTypeRepr()
-    }
+        override fun starlarkTypeRepr(): Ty = AbstractType.starlarkTypeRepr()
 
-    // impl UnpackValue for TypeType
-    override fun unpackValueImpl(value: Value): Result<TypeType?> {
-        return if (value.vtable().hasEvalType) {
-            Result.success(TypeType())
-        } else {
-            Result.success(null)
-        }
-    }
-
-    companion object {
-        /** Validate the value is a type. */
-        fun unpackValue(value: Value): TypeType? {
-            return if (value.vtable().hasEvalType) {
-                TypeType()
+        // impl UnpackValue for TypeType
+        override fun unpackValueImpl(value: Value): Result<TypeType?> =
+            if (value.vtable().hasEvalType) {
+                Result.success(TypeType())
             } else {
-                null
+                Result.success(null)
             }
+
+        companion object {
+            /** Validate the value is a type. */
+            fun unpackValue(value: Value): TypeType? =
+                if (value.vtable().hasEvalType) {
+                    TypeType()
+                } else {
+                    null
+                }
         }
     }
-}
 
 // #[cfg(test)] mod tests
 // Tests are in commonTest, not here.

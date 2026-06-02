@@ -29,8 +29,8 @@ import io.github.kotlinmania.starlark.values.AllocValue
 import io.github.kotlinmania.starlark.values.StarlarkTypeRepr
 import io.github.kotlinmania.starlark.values.StarlarkValue
 import io.github.kotlinmania.starlark.values.ValueError
-import io.github.kotlinmania.starlark.values.layout.Value
 import io.github.kotlinmania.starlark.values.layout.FrozenValue
+import io.github.kotlinmania.starlark.values.layout.Value
 import io.github.kotlinmania.starlark.values.layout.avalues.simple.allocSimple
 import io.github.kotlinmania.starlark.values.layout.heap.FrozenHeap
 import io.github.kotlinmania.starlark.values.layout.heap.Heap
@@ -76,8 +76,11 @@ internal fun writeNonFinite(output: Appendable, f: Double) {
 }
 
 internal fun writeDecimal(output: Appendable, f: Double) {
-    if (!f.isFinite()) writeNonFinite(output, f)
-    else output.append(formatFixed(f, WRITE_PRECISION))
+    if (!f.isFinite()) {
+        writeNonFinite(output, f)
+    } else {
+        output.append(formatFixed(f, WRITE_PRECISION))
+    }
 }
 
 internal fun writeScientific(
@@ -147,8 +150,12 @@ internal fun writeCompact(output: Appendable, f: Double, exponentChar: Char) {
 }
 
 /** Runtime representation of Starlark `float` type. */
-data class StarlarkFloat(val value: Double) : StarlarkTypeRepr, StarlarkValue, AllocValue, AllocFrozenValue {
-
+data class StarlarkFloat(
+    val value: Double,
+) : StarlarkTypeRepr,
+    StarlarkValue,
+    AllocValue,
+    AllocFrozenValue {
     override val TYPE: String get() = Companion.TYPE
     override val HAS_equals: Boolean get() = true
 
@@ -159,8 +166,11 @@ data class StarlarkFloat(val value: Double) : StarlarkTypeRepr, StarlarkValue, A
         internal fun compareImpl(a: Double, b: Double): Int {
             // According to the spec, all NaN values compare equal to each other,
             // but greater than any non-NaN float value.
-            return if (!a.isNaN() && !b.isNaN()) a.compareTo(b)
-            else a.isNaN().compareTo(b.isNaN())
+            return if (!a.isNaN() && !b.isNaN()) {
+                a.compareTo(b)
+            } else {
+                a.isNaN().compareTo(b.isNaN())
+            }
         }
 
         internal fun floorDivImpl(a: Double, b: Double): Result<Double> =
@@ -169,8 +179,11 @@ data class StarlarkFloat(val value: Double) : StarlarkTypeRepr, StarlarkValue, A
         internal fun percentImpl(a: Double, b: Double): Result<Double> {
             if (b == 0.0) return Result.failure(ValueError.DivisionByZero)
             val r = a % b
-            return if (r == 0.0) Result.success(0.0)
-            else Result.success(if (b.sign != r.sign) r + b else r)
+            return if (r == 0.0) {
+                Result.success(0.0)
+            } else {
+                Result.success(if (b.sign != r.sign) r + b else r)
+            }
         }
     }
 
@@ -193,7 +206,9 @@ data class StarlarkFloat(val value: Double) : StarlarkTypeRepr, StarlarkValue, A
     override fun equals(other: Value): Result<Boolean> =
         Result.success(NumRef.Float(StarlarkFloat(value)) == other.unpackNum())
 
-    override fun collectRepr(collector: StringBuilder) { collector.append(toString()) }
+    override fun collectRepr(collector: StringBuilder) {
+        collector.append(toString())
+    }
 
     override fun toBool(): Boolean = value != 0.0
 

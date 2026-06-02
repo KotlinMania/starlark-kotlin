@@ -1,5 +1,5 @@
 // port-lint: source src/util/arc_or_static.rs
-package io.github.kotlinmania.starlark.util.arc_or_static
+package io.github.kotlinmania.starlark.util.arcorstatic
 
 /*
  * Copyright 2018 The Starlark in Rust Authors.
@@ -41,37 +41,29 @@ internal class ArcOrStatic<T : Any> private constructor(
 ) : Comparable<ArcOrStatic<T>> {
     companion object {
         // pub(crate) fn new_static(a: &'static T) -> Self
-        fun <T : Any> newStatic(a: T): ArcOrStatic<T> {
-            return ArcOrStatic(Inner.Static(a))
-        }
+        fun <T : Any> newStatic(a: T): ArcOrStatic<T> = ArcOrStatic(Inner.Static(a))
 
         // pub(crate) fn new_arc(a: Arc<T>) -> Self
-        fun <T : Any> newArc(a: T): ArcOrStatic<T> {
-            return ArcOrStatic(Inner.Arc(a))
-        }
+        fun <T : Any> newArc(a: T): ArcOrStatic<T> = ArcOrStatic(Inner.Arc(a))
 
         // pub(crate) fn new(a: T) -> Self
-        fun <T : Any> new(a: T): ArcOrStatic<T> {
-            return newArc(a)
-        }
+        fun <T : Any> new(a: T): ArcOrStatic<T> = newArc(a)
     }
 
     // impl Deref for ArcOrStatic
     // fn deref(&self) -> &T
-    fun deref(): T {
-        return when (val inner = inner) {
+    fun deref(): T =
+        when (val inner = inner) {
             is Inner.Arc -> inner.value
             is Inner.Static -> inner.value
         }
-    }
 
     // impl Clone for ArcOrStatic<T>
-    fun clone(): ArcOrStatic<T> {
-        return when (val inner = inner) {
+    fun clone(): ArcOrStatic<T> =
+        when (val inner = inner) {
             is Inner.Arc -> ArcOrStatic(Inner.Arc(inner.value))
             is Inner.Static -> ArcOrStatic(Inner.Static(inner.value))
         }
-    }
 
     // impl Display for ArcOrStatic
     override fun toString(): String = deref().toString()
@@ -88,7 +80,5 @@ internal class ArcOrStatic<T : Any> private constructor(
 
     // impl Ord for ArcOrStatic
     @Suppress("UNCHECKED_CAST")
-    override fun compareTo(other: ArcOrStatic<T>): Int {
-        return (deref() as Comparable<T>).compareTo(other.deref())
-    }
+    override fun compareTo(other: ArcOrStatic<T>): Int = (deref() as Comparable<T>).compareTo(other.deref())
 }

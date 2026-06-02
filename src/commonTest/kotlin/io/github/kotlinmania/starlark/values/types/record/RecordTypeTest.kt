@@ -20,11 +20,9 @@ package io.github.kotlinmania.starlark.values.types.record
  */
 
 import io.github.kotlinmania.starlark.assert.Assert
-import io.github.kotlinmania.starlark.assert.failGolden
 import kotlin.test.Test
 
 class RecordTypeTest {
-
     @Test
     fun testRecordTypeAsTypePass() {
         Assert.pass(
@@ -41,7 +39,7 @@ f_pass(RecPass(a = 1, b = 2))
 
     @Test
     fun testRecordTypeAsTypeCompileTime() {
-        failGolden(
+        Assert.failGolden(
             "src/values/types/record/record_type/record_type_as_type_compile_time.golden",
             """
 RecFailCt1 = record(a = field(int), b = field(int))
@@ -58,7 +56,7 @@ def test():
 
     @Test
     fun testRecordTypeAsTypeRuntime() {
-        failGolden(
+        Assert.failGolden(
             "src/values/types/record/record_type/record_type_as_type_runtime.golden",
             """
 RecFailRt1 = record(a = field(int), b = field(int))
@@ -74,7 +72,7 @@ noop(f_fail_rt)(RecFailRt2(a = 1, b = 2))
 
     @Test
     fun testAnonRecord() {
-        failGolden(
+        Assert.failGolden(
             "src/values/types/record/record_type/anon_record.golden",
             "record(a = field(int))(a = 1)",
         )
@@ -82,7 +80,7 @@ noop(f_fail_rt)(RecFailRt2(a = 1, b = 2))
 
     @Test
     fun testMissingFieldError() {
-        failGolden(
+        Assert.failGolden(
             "src/values/types/record/record_type/missing_field_error.golden",
             """
 RecFail = record(a = field(int), b = field(int))

@@ -42,8 +42,9 @@ import kotlin.concurrent.Volatile
 // pub(crate) struct ValueCaptured<'v>(Cell<Option<Value<'v>>>);
 internal class ValueCaptured private constructor(
     @Volatile private var payload: Value?,
-) : ComplexValue, Trace, Freeze<FrozenValueCaptured> {
-
+) : ComplexValue,
+    Trace,
+    Freeze<FrozenValueCaptured> {
     override val TYPE: String get() = "value_captured"
 
     // #[display("{:?}", self)]
@@ -79,24 +80,23 @@ internal class ValueCaptured private constructor(
     }
 
     // Cell::get equivalent
-    internal fun get(): Value? {
-        return payload
-    }
+    internal fun get(): Value? = payload
 
     // impl Freeze for ValueCaptured
     // type Frozen = FrozenValueCaptured;
     // fn freeze(self, freezer: &Freezer) -> Result<FrozenValueCaptured>
     override fun freeze(freezer: Freezer): Result<FrozenValueCaptured> {
-        val frozenPayload: FrozenValue? = if (payload != null) {
-            val result = payload!!.freeze(freezer)
-            if (result.isFailure) {
-                @Suppress("UNCHECKED_CAST")
-                return result as Result<FrozenValueCaptured>
+        val frozenPayload: FrozenValue? =
+            if (payload != null) {
+                val result = payload!!.freeze(freezer)
+                if (result.isFailure) {
+                    @Suppress("UNCHECKED_CAST")
+                    return result as Result<FrozenValueCaptured>
+                }
+                result.getOrThrow()
+            } else {
+                null
             }
-            result.getOrThrow()
-        } else {
-            null
-        }
         return Result.success(FrozenValueCaptured(frozenPayload))
     }
 }
@@ -108,15 +108,12 @@ internal class ValueCaptured private constructor(
 internal class FrozenValueCaptured(
     private val payload: FrozenValue?,
 ) : StarlarkValue {
-
     override val TYPE: String get() = "value_captured"
 
     // #[display("{:?}", self)]
     override fun toString(): String = "FrozenValueCaptured($payload)"
 
-    internal fun get(): FrozenValue? {
-        return payload
-    }
+    internal fun get(): FrozenValue? = payload
 }
 
 // #[starlark_value(type = "value_captured")]
@@ -131,12 +128,14 @@ internal class FrozenValueCaptured(
 internal fun valueCapturedGet(valueCaptured: Value): Value? {
     val frozen = valueCaptured.unpackFrozen()
     if (frozen != null) {
-        val frozenCaptured = frozen.downcastRef<FrozenValueCaptured>()
-            ?: error("not a ValueCaptured")
+        val frozenCaptured =
+            frozen.downcastRef<FrozenValueCaptured>()
+                ?: error("not a ValueCaptured")
         return frozenCaptured.get()?.toValue()
     } else {
-        val captured = valueCaptured.downcastRef<ValueCaptured>()
-            ?: error("not a ValueCaptured")
+        val captured =
+            valueCaptured.downcastRef<ValueCaptured>()
+                ?: error("not a ValueCaptured")
         return captured.get()
     }
 }

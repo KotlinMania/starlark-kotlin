@@ -19,15 +19,16 @@ package io.github.kotlinmania.starlark.stdlib
  * limitations under the License.
  */
 
-import io.github.kotlinmania.starlark.values.types.dict.allocValue
+import io.github.kotlinmania.starlark.collections.Hashed
+import io.github.kotlinmania.starlark.collections.SmallMap
 import io.github.kotlinmania.starlark.environment.GlobalsBuilder
 import io.github.kotlinmania.starlark.typing.Ty
-import io.github.kotlinmania.starlark.values.layout.FrozenValue
 import io.github.kotlinmania.starlark.values.StarlarkTypeRepr
+import io.github.kotlinmania.starlark.values.layout.FrozenValue
 import io.github.kotlinmania.starlark.values.layout.Value
 import io.github.kotlinmania.starlark.values.layout.avalues.allocListIter
 import io.github.kotlinmania.starlark.values.layout.avalues.simple.allocSimple
-import io.github.kotlinmania.starlark.values.layout.avalues.str_.allocStr
+import io.github.kotlinmania.starlark.values.layout.avalues.str.allocStr
 import io.github.kotlinmania.starlark.values.layout.heap.FrozenHeap
 import io.github.kotlinmania.starlark.values.layout.heap.Heap
 import io.github.kotlinmania.starlark.values.types.dict.Dict
@@ -43,8 +44,6 @@ import kotlinx.serialization.json.JsonNull
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.JsonPrimitive
 import kotlinx.serialization.json.booleanOrNull
-import io.github.kotlinmania.starlark.collections.Hashed
-import io.github.kotlinmania.starlark.collections.SmallMap
 import kotlin.text.iterator
 
 // ---- JsonNumber: analogous to serde_json::Number ----
@@ -55,8 +54,9 @@ import kotlin.text.iterator
  * Represents a JSON number that can be an integer (i64/u64) or floating point (f64),
  * or an arbitrarily large integer stored as its string representation.
  */
-class JsonNumber(private val raw: String) {
-
+class JsonNumber(
+    private val raw: String,
+) {
     /** Try to interpret this number as an unsigned 64-bit integer. */
     fun asU64(): Long? {
         val v = raw.toLongOrNull()
@@ -96,8 +96,13 @@ class JsonNumber(private val raw: String) {
 
 /** [io.github.kotlinmania.starlark.values.StarlarkTypeRepr] implementation for [JsonNumber]. */
 object JsonNumberTypeRepr : io.github.kotlinmania.starlark.values.StarlarkTypeRepr {
-    override fun starlarkTypeRepr(): io.github.kotlinmania.starlark.typing.Ty = _root_ide_package_.io.github.kotlinmania.starlark.typing.Ty.Companion.union2(
-        _root_ide_package_.io.github.kotlinmania.starlark.typing.Ty.Companion.int(), _root_ide_package_.io.github.kotlinmania.starlark.typing.Ty.Companion.float())
+    override fun starlarkTypeRepr(): io.github.kotlinmania.starlark.typing.Ty =
+        io.github.kotlinmania.starlark.typing.Ty.Companion.union2(
+            io.github.kotlinmania.starlark.typing.Ty.Companion
+                .int(),
+            io.github.kotlinmania.starlark.typing.Ty.Companion
+                .float(),
+        )
 }
 
 // ---- AllocValue for JsonNumber ----
@@ -111,24 +116,26 @@ object JsonNumberTypeRepr : io.github.kotlinmania.starlark.values.StarlarkTypeRe
  * For small ints that fit in an [InlineInt], no heap allocation is needed.
  * For big ints, the value is allocated on the heap via [StarlarkBigInt.allocValue].
  */
-private fun allocStarlarkInt(starlarkInt: io.github.kotlinmania.starlark.values.types.int.StarlarkInt, heap: io.github.kotlinmania.starlark.values.layout.heap.Heap): io.github.kotlinmania.starlark.values.layout.Value {
-    return when (starlarkInt) {
-        is io.github.kotlinmania.starlark.values.types.int.StarlarkInt.Small -> _root_ide_package_.io.github.kotlinmania.starlark.values.layout.Value.Companion.newInt(starlarkInt.value)
+private fun allocStarlarkInt(starlarkInt: io.github.kotlinmania.starlark.values.types.int.StarlarkInt, heap: io.github.kotlinmania.starlark.values.layout.heap.Heap): io.github.kotlinmania.starlark.values.layout.Value =
+    when (starlarkInt) {
+        is io.github.kotlinmania.starlark.values.types.int.StarlarkInt.Small ->
+            io.github.kotlinmania.starlark.values.layout.Value.Companion
+                .newInt(starlarkInt.value)
         is io.github.kotlinmania.starlark.values.types.int.StarlarkInt.Big -> starlarkInt.value.allocValue(heap)
     }
-}
 
 /**
  * Allocate a [io.github.kotlinmania.starlark.values.types.int.StarlarkInt] as a frozen Starlark value.
  *
  * Same dispatch as [allocStarlarkInt], but on a [io.github.kotlinmania.starlark.values.layout.heap.FrozenHeap].
  */
-private fun allocFrozenStarlarkInt(starlarkInt: io.github.kotlinmania.starlark.values.types.int.StarlarkInt, heap: io.github.kotlinmania.starlark.values.layout.heap.FrozenHeap): io.github.kotlinmania.starlark.values.layout.FrozenValue {
-    return when (starlarkInt) {
-        is io.github.kotlinmania.starlark.values.types.int.StarlarkInt.Small -> _root_ide_package_.io.github.kotlinmania.starlark.values.layout.FrozenValue.Companion.newInt(starlarkInt.value)
+private fun allocFrozenStarlarkInt(starlarkInt: io.github.kotlinmania.starlark.values.types.int.StarlarkInt, heap: io.github.kotlinmania.starlark.values.layout.heap.FrozenHeap): io.github.kotlinmania.starlark.values.layout.FrozenValue =
+    when (starlarkInt) {
+        is io.github.kotlinmania.starlark.values.types.int.StarlarkInt.Small ->
+            io.github.kotlinmania.starlark.values.layout.FrozenValue.Companion
+                .newInt(starlarkInt.value)
         is io.github.kotlinmania.starlark.values.types.int.StarlarkInt.Big -> starlarkInt.value.allocFrozenValue(heap)
     }
-}
 
 /**
  * Allocate a [JsonNumber] as a Starlark [io.github.kotlinmania.starlark.values.layout.Value] on the heap.
@@ -138,15 +145,31 @@ private fun allocFrozenStarlarkInt(starlarkInt: io.github.kotlinmania.starlark.v
  * then falls back to BigInt for arbitrarily large integers.
  */
 fun allocJsonNumber(number: JsonNumber, heap: io.github.kotlinmania.starlark.values.layout.heap.Heap): io.github.kotlinmania.starlark.values.layout.Value {
-    number.asU64()?.let { return allocStarlarkInt(_root_ide_package_.io.github.kotlinmania.starlark.values.types.int.StarlarkInt.Companion.from(it), heap) }
-    number.asI64()?.let { return allocStarlarkInt(_root_ide_package_.io.github.kotlinmania.starlark.values.types.int.StarlarkInt.Companion.from(it), heap) }
-    number.asF64()?.let { return heap.allocSimple(
-        _root_ide_package_.io.github.kotlinmania.starlark.values.types.float.StarlarkFloat(
-            it
+    number.asU64()?.let {
+        return allocStarlarkInt(
+            io.github.kotlinmania.starlark.values.types.int.StarlarkInt.Companion
+                .from(it),
+            heap,
         )
-    ) }
+    }
+    number.asI64()?.let {
+        return allocStarlarkInt(
+            io.github.kotlinmania.starlark.values.types.int.StarlarkInt.Companion
+                .from(it),
+            heap,
+        )
+    }
+    number.asF64()?.let {
+        return heap.allocSimple(
+            io.github.kotlinmania.starlark.values.types.float.StarlarkFloat(
+                it,
+            ),
+        )
+    }
     val bigStr = number.toString()
-    val big = _root_ide_package_.io.github.kotlinmania.starlark.values.types.int.StarlarkInt.Companion.fromStrRadix(bigStr, 10)
+    val big =
+        io.github.kotlinmania.starlark.values.types.int.StarlarkInt.Companion
+            .fromStrRadix(bigStr, 10)
     if (big.isSuccess) return allocStarlarkInt(big.getOrThrow(), heap)
     error("Unrepresentable number: $number")
 }
@@ -162,15 +185,31 @@ fun allocJsonNumber(number: JsonNumber, heap: io.github.kotlinmania.starlark.val
  * Same conversion logic as [allocJsonNumber], but on a [io.github.kotlinmania.starlark.values.layout.heap.FrozenHeap].
  */
 fun allocFrozenJsonNumber(number: JsonNumber, heap: io.github.kotlinmania.starlark.values.layout.heap.FrozenHeap): io.github.kotlinmania.starlark.values.layout.FrozenValue {
-    number.asU64()?.let { return allocFrozenStarlarkInt(_root_ide_package_.io.github.kotlinmania.starlark.values.types.int.StarlarkInt.Companion.from(it), heap) }
-    number.asI64()?.let { return allocFrozenStarlarkInt(_root_ide_package_.io.github.kotlinmania.starlark.values.types.int.StarlarkInt.Companion.from(it), heap) }
-    number.asF64()?.let { return heap.allocSimple(
-        _root_ide_package_.io.github.kotlinmania.starlark.values.types.float.StarlarkFloat(
-            it
+    number.asU64()?.let {
+        return allocFrozenStarlarkInt(
+            io.github.kotlinmania.starlark.values.types.int.StarlarkInt.Companion
+                .from(it),
+            heap,
         )
-    ) }
+    }
+    number.asI64()?.let {
+        return allocFrozenStarlarkInt(
+            io.github.kotlinmania.starlark.values.types.int.StarlarkInt.Companion
+                .from(it),
+            heap,
+        )
+    }
+    number.asF64()?.let {
+        return heap.allocSimple(
+            io.github.kotlinmania.starlark.values.types.float.StarlarkFloat(
+                it,
+            ),
+        )
+    }
     val bigStr = number.toString()
-    val big = _root_ide_package_.io.github.kotlinmania.starlark.values.types.int.StarlarkInt.Companion.fromStrRadix(bigStr, 10)
+    val big =
+        io.github.kotlinmania.starlark.values.types.int.StarlarkInt.Companion
+            .fromStrRadix(bigStr, 10)
     if (big.isSuccess) return allocFrozenStarlarkInt(big.getOrThrow(), heap)
     error("Unrepresentable number: $number")
 }
@@ -185,11 +224,26 @@ fun allocFrozenJsonNumber(number: JsonNumber, heap: io.github.kotlinmania.starla
  */
 sealed class JsonValue {
     data object Null : JsonValue()
-    data class Bool(val value: Boolean) : JsonValue()
-    data class Number(val value: JsonNumber) : JsonValue()
-    data class Str(val value: String) : JsonValue()
-    data class Array(val value: List<JsonValue>) : JsonValue()
-    data class Object(val value: Map<String, JsonValue>) : JsonValue()
+
+    data class Bool(
+        val value: Boolean,
+    ) : JsonValue()
+
+    data class Number(
+        val value: JsonNumber,
+    ) : JsonValue()
+
+    data class Str(
+        val value: String,
+    ) : JsonValue()
+
+    data class Array(
+        val value: List<JsonValue>,
+    ) : JsonValue()
+
+    data class Object(
+        val value: Map<String, JsonValue>,
+    ) : JsonValue()
 }
 
 // ---- StarlarkTypeRepr for JsonValue ----
@@ -199,7 +253,9 @@ sealed class JsonValue {
 
 /** [io.github.kotlinmania.starlark.values.StarlarkTypeRepr] implementation for [JsonValue]. */
 object JsonValueTypeRepr : io.github.kotlinmania.starlark.values.StarlarkTypeRepr {
-    override fun starlarkTypeRepr(): io.github.kotlinmania.starlark.typing.Ty = _root_ide_package_.io.github.kotlinmania.starlark.typing.Ty.Companion.any()
+    override fun starlarkTypeRepr(): io.github.kotlinmania.starlark.typing.Ty =
+        io.github.kotlinmania.starlark.typing.Ty.Companion
+            .any()
 }
 
 // ---- AllocValue for JsonValue ----
@@ -218,19 +274,23 @@ object JsonValueTypeRepr : io.github.kotlinmania.starlark.values.StarlarkTypeRep
  * - arrays become Starlark lists
  * - objects become Starlark dicts
  */
-fun allocJsonValue(json: JsonValue, heap: io.github.kotlinmania.starlark.values.layout.heap.Heap): io.github.kotlinmania.starlark.values.layout.Value {
-    return when (json) {
-        is JsonValue.Null -> _root_ide_package_.io.github.kotlinmania.starlark.values.layout.Value.Companion.newNone()
-        is JsonValue.Bool -> _root_ide_package_.io.github.kotlinmania.starlark.values.layout.Value.Companion.newBool(json.value)
+fun allocJsonValue(json: JsonValue, heap: io.github.kotlinmania.starlark.values.layout.heap.Heap): io.github.kotlinmania.starlark.values.layout.Value =
+    when (json) {
+        is JsonValue.Null ->
+            io.github.kotlinmania.starlark.values.layout.Value.Companion
+                .newNone()
+        is JsonValue.Bool ->
+            io.github.kotlinmania.starlark.values.layout.Value.Companion
+                .newBool(json.value)
         is JsonValue.Number -> allocJsonNumber(json.value, heap)
         is JsonValue.Str -> heap.allocStr(json.value)
         is JsonValue.Array -> heap.allocListIter(json.value.map { allocJsonValue(it, heap) })
-        is JsonValue.Object -> allocJsonMapOnHeap(
-            json.value.mapValues { allocJsonValue(it.value, heap) },
-            heap,
-        )
+        is JsonValue.Object ->
+            allocJsonMapOnHeap(
+                json.value.mapValues { allocJsonValue(it.value, heap) },
+                heap,
+            )
     }
-}
 
 // ---- AllocFrozenValue for JsonValue ----
 
@@ -242,19 +302,23 @@ fun allocJsonValue(json: JsonValue, heap: io.github.kotlinmania.starlark.values.
  *
  * Same recursive conversion as [allocJsonValue], but on a [io.github.kotlinmania.starlark.values.layout.heap.FrozenHeap].
  */
-fun allocFrozenJsonValue(json: JsonValue, heap: io.github.kotlinmania.starlark.values.layout.heap.FrozenHeap): io.github.kotlinmania.starlark.values.layout.FrozenValue {
-    return when (json) {
-        is JsonValue.Null -> _root_ide_package_.io.github.kotlinmania.starlark.values.layout.FrozenValue.Companion.newNone()
-        is JsonValue.Bool -> _root_ide_package_.io.github.kotlinmania.starlark.values.layout.FrozenValue.Companion.newBool(json.value)
+fun allocFrozenJsonValue(json: JsonValue, heap: io.github.kotlinmania.starlark.values.layout.heap.FrozenHeap): io.github.kotlinmania.starlark.values.layout.FrozenValue =
+    when (json) {
+        is JsonValue.Null ->
+            io.github.kotlinmania.starlark.values.layout.FrozenValue.Companion
+                .newNone()
+        is JsonValue.Bool ->
+            io.github.kotlinmania.starlark.values.layout.FrozenValue.Companion
+                .newBool(json.value)
         is JsonValue.Number -> allocFrozenJsonNumber(json.value, heap)
         is JsonValue.Str -> heap.allocStr(json.value).toFrozenValue()
         is JsonValue.Array -> heap.allocListIter(json.value.map { allocFrozenJsonValue(it, heap) })
-        is JsonValue.Object -> allocFrozenJsonMapOnHeap(
-            json.value.mapValues { allocFrozenJsonValue(it.value, heap) },
-            heap,
-        )
+        is JsonValue.Object ->
+            allocFrozenJsonMapOnHeap(
+                json.value.mapValues { allocFrozenJsonValue(it.value, heap) },
+                heap,
+            )
     }
-}
 
 // ---- StarlarkTypeRepr for JSON Map ----
 
@@ -262,8 +326,13 @@ fun allocFrozenJsonValue(json: JsonValue, heap: io.github.kotlinmania.starlark.v
 
 /** [io.github.kotlinmania.starlark.values.StarlarkTypeRepr] implementation for JSON maps (dict type). */
 object JsonMapTypeRepr : io.github.kotlinmania.starlark.values.StarlarkTypeRepr {
-    override fun starlarkTypeRepr(): io.github.kotlinmania.starlark.typing.Ty = _root_ide_package_.io.github.kotlinmania.starlark.typing.Ty.Companion.dict(
-        _root_ide_package_.io.github.kotlinmania.starlark.typing.Ty.Companion.string(), _root_ide_package_.io.github.kotlinmania.starlark.typing.Ty.Companion.any())
+    override fun starlarkTypeRepr(): io.github.kotlinmania.starlark.typing.Ty =
+        io.github.kotlinmania.starlark.typing.Ty.Companion.dict(
+            io.github.kotlinmania.starlark.typing.Ty.Companion
+                .string(),
+            io.github.kotlinmania.starlark.typing.Ty.Companion
+                .any(),
+        )
 }
 
 // ---- AllocValue for JSON Map ----
@@ -296,12 +365,16 @@ fun allocFrozenJsonMap(map: Map<String, JsonValue>, heap: io.github.kotlinmania.
  * Allocates each string key on the heap, hashes it, builds a [io.github.kotlinmania.starlark.collections.SmallMap], and wraps in a [io.github.kotlinmania.starlark.values.types.dict.Dict].
  */
 private fun allocJsonMapOnHeap(map: Map<String, io.github.kotlinmania.starlark.values.layout.Value>, heap: io.github.kotlinmania.starlark.values.layout.heap.Heap): io.github.kotlinmania.starlark.values.layout.Value {
-    val sm = _root_ide_package_.io.github.kotlinmania.starlark.collections.SmallMap.Companion.withCapacity<io.github.kotlinmania.starlark.values.layout.Value, io.github.kotlinmania.starlark.values.layout.Value>(map.size)
+    val sm =
+        io.github.kotlinmania.starlark.collections.SmallMap.Companion
+            .withCapacity<io.github.kotlinmania.starlark.values.layout.Value, io.github.kotlinmania.starlark.values.layout.Value>(map.size)
     for ((k, v) in map) {
         val keyValue = heap.allocStr(k)
         sm.insertHashed(keyValue.getHashed().getOrThrow(), v)
     }
-    return _root_ide_package_.io.github.kotlinmania.starlark.values.types.dict.Dict.Companion.new(sm).allocValue(heap)
+    return io.github.kotlinmania.starlark.values.types.dict.Dict.Companion
+        .new(sm)
+        .allocValue(heap)
 }
 
 /**
@@ -311,26 +384,34 @@ private fun allocJsonMapOnHeap(map: Map<String, io.github.kotlinmania.starlark.v
  * and wraps in a [io.github.kotlinmania.starlark.values.types.dict.FrozenDictData] + [io.github.kotlinmania.starlark.values.types.dict.DictGen].
  */
 private fun allocFrozenJsonMapOnHeap(map: Map<String, io.github.kotlinmania.starlark.values.layout.FrozenValue>, heap: io.github.kotlinmania.starlark.values.layout.heap.FrozenHeap): io.github.kotlinmania.starlark.values.layout.FrozenValue {
-    val sm = _root_ide_package_.io.github.kotlinmania.starlark.collections.SmallMap.Companion.withCapacity<io.github.kotlinmania.starlark.values.layout.FrozenValue, io.github.kotlinmania.starlark.values.layout.FrozenValue>(map.size)
+    val sm =
+        io.github.kotlinmania.starlark.collections.SmallMap.Companion
+            .withCapacity<io.github.kotlinmania.starlark.values.layout.FrozenValue, io.github.kotlinmania.starlark.values.layout.FrozenValue>(map.size)
     for ((k, v) in map) {
         val keyFrozen = heap.allocStr(k).toFrozenValue()
         val keyHash = keyFrozen.toValue().getHash().getOrThrow()
-        sm.insertHashed(_root_ide_package_.io.github.kotlinmania.starlark.collections.Hashed.Companion.newUnchecked(keyHash, keyFrozen), v)
+        sm.insertHashed(
+            io.github.kotlinmania.starlark.collections.Hashed.Companion
+                .newUnchecked(keyHash, keyFrozen),
+            v,
+        )
     }
     return heap.allocSimple(
-        _root_ide_package_.io.github.kotlinmania.starlark.values.types.dict.DictGen(
-            _root_ide_package_.io.github.kotlinmania.starlark.values.types.dict.FrozenDictData(sm)
-        )
+        io.github.kotlinmania.starlark.values.types.dict.DictGen(
+            io.github.kotlinmania.starlark.values.types.dict
+                .FrozenDictData(sm),
+        ),
     )
 }
 
 // ---- JSON Parsing via kotlinx.serialization.json ----
 
 /** The kotlinx.serialization.json instance used for parsing, configured to be lenient. */
-private val jsonParser = Json {
-    isLenient = true
-    ignoreUnknownKeys = true
-}
+private val jsonParser =
+    Json {
+        isLenient = true
+        ignoreUnknownKeys = true
+    }
 
 /**
  * Convert a [kotlinx.serialization.json.JsonElement] into a [JsonValue].
@@ -353,9 +434,10 @@ private fun jsonElementToJsonValue(element: JsonElement): JsonValue {
             }
         }
         is JsonArray -> JsonValue.Array(element.map { jsonElementToJsonValue(it) })
-        is JsonObject -> JsonValue.Object(
-            element.entries.associate { (k, v) -> k to jsonElementToJsonValue(v) }
-        )
+        is JsonObject ->
+            JsonValue.Object(
+                element.entries.associate { (k, v) -> k to jsonElementToJsonValue(v) },
+            )
     }
 }
 
@@ -376,23 +458,20 @@ internal fun parseJsonValue(input: String): JsonValue {
  *
  * Delegates to [io.github.kotlinmania.starlark.values.layout.Value.toJson].
  */
-fun jsonEncode(x: io.github.kotlinmania.starlark.values.layout.Value): Result<String> {
-    return x.toJson()
-}
+fun jsonEncode(x: io.github.kotlinmania.starlark.values.layout.Value): Result<String> = x.toJson()
 
 /**
  * `json.decode`: Decode a JSON string to a Starlark value.
  *
  * Parses the input string as JSON and allocates the resulting value on the given heap.
  */
-fun jsonDecode(x: String, heap: io.github.kotlinmania.starlark.values.layout.heap.Heap): Result<io.github.kotlinmania.starlark.values.layout.Value> {
-    return try {
+fun jsonDecode(x: String, heap: io.github.kotlinmania.starlark.values.layout.heap.Heap): Result<io.github.kotlinmania.starlark.values.layout.Value> =
+    try {
         val parsed = parseJsonValue(x)
         Result.success(allocJsonValue(parsed, heap))
     } catch (e: Exception) {
         Result.failure(e)
     }
-}
 
 // ---- Module registration ----
 

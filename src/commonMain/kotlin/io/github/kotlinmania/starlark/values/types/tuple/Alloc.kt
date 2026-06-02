@@ -22,12 +22,12 @@ package io.github.kotlinmania.starlark.values.types.tuple
 import io.github.kotlinmania.starlark.typing.Ty
 import io.github.kotlinmania.starlark.values.AllocFrozenValue
 import io.github.kotlinmania.starlark.values.AllocValue
-import io.github.kotlinmania.starlark.values.layout.heap.FrozenHeap
-import io.github.kotlinmania.starlark.values.layout.FrozenValue
 import io.github.kotlinmania.starlark.values.StarlarkTypeRepr
-import io.github.kotlinmania.starlark.values.layout.heap.Heap
+import io.github.kotlinmania.starlark.values.layout.FrozenValue
 import io.github.kotlinmania.starlark.values.layout.Value
 import io.github.kotlinmania.starlark.values.layout.avalues.allocTupleIter
+import io.github.kotlinmania.starlark.values.layout.heap.FrozenHeap
+import io.github.kotlinmania.starlark.values.layout.heap.Heap
 
 /**
  * Utility to allocate a tuple.
@@ -41,27 +41,30 @@ import io.github.kotlinmania.starlark.values.layout.avalues.allocTupleIter
  * val ls = frozenHeap.alloc(AllocTuple(listOf(1, 2, 3)))
  * ```
  */
-class AllocTuple<T>(val items: Iterable<T>) : StarlarkTypeRepr, AllocValue, AllocFrozenValue
+class AllocTuple<T>(
+    val items: Iterable<T>,
+) : StarlarkTypeRepr,
+    AllocValue,
+    AllocFrozenValue
     where T : StarlarkTypeRepr, T : AllocValue, T : AllocFrozenValue {
-
     companion object {
         /** Allocate an empty tuple. */
         val EMPTY: AllocTuple<Nothing> = AllocTuple(emptyList())
     }
 
-    override fun starlarkTypeRepr(): Ty {
-        return Ty.tupleOf(items.firstOrNull()?.starlarkTypeRepr() ?: Ty.any())
-    }
+    override fun starlarkTypeRepr(): Ty = Ty.tupleOf(items.firstOrNull()?.starlarkTypeRepr() ?: Ty.any())
 
-    override fun allocValue(heap: Heap): Value {
-        return heap.allocTupleIter(items.map { x ->
-            (x as AllocValue).allocValue(heap)
-        })
-    }
+    override fun allocValue(heap: Heap): Value =
+        heap.allocTupleIter(
+            items.map { x ->
+                (x as AllocValue).allocValue(heap)
+            },
+        )
 
-    override fun allocFrozenValue(heap: FrozenHeap): FrozenValue {
-        return heap.allocTupleIter(items.map { x ->
-            (x as AllocFrozenValue).allocFrozenValue(heap)
-        })
-    }
+    override fun allocFrozenValue(heap: FrozenHeap): FrozenValue =
+        heap.allocTupleIter(
+            items.map { x ->
+                (x as AllocFrozenValue).allocFrozenValue(heap)
+            },
+        )
 }

@@ -33,14 +33,13 @@ private class ChunkData(
     val len: AlignedSize,
 ) {
     val refCount = AtomicInt(1)
+
     /** The backing data buffer. */
     val data: ByteArray = ByteArray(len.bytes().toInt())
 
     companion object {
         // fn layout_for_len(len: AlignedSize) -> Layout
-        fun layoutForLen(len: AlignedSize): Int {
-            return HEADER_SIZE_BYTES + len.bytes().toInt()
-        }
+        fun layoutForLen(len: AlignedSize): Int = HEADER_SIZE_BYTES + len.bytes().toInt()
 
         // fn alloc_ref_count_1(len: AlignedSize) -> NonNull<ChunkData>
         fun allocRefCount1(len: AlignedSize): ChunkData {
@@ -89,13 +88,12 @@ internal class Chunk private constructor(
         /** Allocate chunk which can hold at least `len_words` words. */
         // #[inline]
         // pub(crate) fn alloc_at_least(len: AlignedSize) -> Chunk
-        fun allocAtLeast(len: AlignedSize): Chunk {
-            return if (len == AlignedSize.ZERO) {
+        fun allocAtLeast(len: AlignedSize): Chunk =
+            if (len == AlignedSize.ZERO) {
                 Chunk(chunkData = null)
             } else {
                 allocAtLeastNotEmpty(len)
             }
-        }
 
         // fn alloc_at_least_not_empty(len: AlignedSize) -> Chunk
         private fun allocAtLeastNotEmpty(len: AlignedSize): Chunk {
@@ -108,21 +106,15 @@ internal class Chunk private constructor(
     }
 
     // impl fmt::Debug for Chunk
-    override fun toString(): String {
-        return "Chunk(data=$chunkData)"
-    }
+    override fun toString(): String = "Chunk(data=$chunkData)"
 
     // #[inline]
     // pub(crate) fn ref_count(&self) -> u32
-    fun refCount(): Int {
-        return chunkData?.refCount?.load() ?: 0
-    }
+    fun refCount(): Int = chunkData?.refCount?.load() ?: 0
 
     // #[cfg(test)]
     // pub(crate) fn ptr_eq(&self, other: &Chunk) -> bool
-    fun ptrEq(other: Chunk): Boolean {
-        return chunkData === other.chunkData
-    }
+    fun ptrEq(other: Chunk): Boolean = chunkData === other.chunkData
 
     // #[inline]
     // fn data(&self) -> &ChunkData
@@ -134,13 +126,12 @@ internal class Chunk private constructor(
 
     // #[inline]
     // pub(crate) fn allocated_bytes_with_metadata(&self) -> Int
-    fun allocatedBytesWithMetadata(): Int {
-        return if (isEmpty()) {
+    fun allocatedBytesWithMetadata(): Int =
+        if (isEmpty()) {
             0
         } else {
             ChunkData.layoutForLen(len())
         }
-    }
 
     // #[inline]
     // fn is_empty(&self) -> bool
@@ -153,9 +144,7 @@ internal class Chunk private constructor(
     // #[inline]
     // pub(crate) fn ptr_at_offset(&self, offset: AlignedSize) -> NonNull<usize>
     // Kotlin: returns the byte offset into the data array.
-    fun ptrAtOffset(offset: AlignedSize): Int {
-        return offset.bytes().toInt()
-    }
+    fun ptrAtOffset(offset: AlignedSize): Int = offset.bytes().toInt()
 
     /** Access the raw backing data array. */
     fun dataBytes(): ByteArray? = chunkData?.data

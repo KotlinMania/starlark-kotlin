@@ -19,7 +19,7 @@ package io.github.kotlinmania.starlark.values.types
  * limitations under the License.
  */
 
-//! The string type. All strings must be valid UTF8.
+// ! The string type. All strings must be valid UTF8.
 
 // mod alloc_unpack;
 // pub(crate) mod dot_format;

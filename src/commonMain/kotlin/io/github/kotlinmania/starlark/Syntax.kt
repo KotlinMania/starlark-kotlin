@@ -21,7 +21,7 @@ package io.github.kotlinmania.starlark
  * limitations under the License.
  */
 
-/// Public API for parser.
+// / Public API for parser.
 
 // pub use starlark_syntax::dialect::Dialect;
 // pub use starlark_syntax::dialect::DialectTypes;

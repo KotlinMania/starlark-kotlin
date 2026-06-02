@@ -29,13 +29,13 @@ package io.github.kotlinmania.starlark.values.types
  * and consume it in another.
  */
 
-import io.github.kotlinmania.starlark.values.layout.Value
-import io.github.kotlinmania.starlark.values.StarlarkValue
-import io.github.kotlinmania.starlark.values.layout.heap.Heap
-import io.github.kotlinmania.starlark.values.layout.heap.FrozenHeap
 import io.github.kotlinmania.starlark.values.FrozenRef
+import io.github.kotlinmania.starlark.values.StarlarkValue
+import io.github.kotlinmania.starlark.values.layout.Value
 import io.github.kotlinmania.starlark.values.layout.avalues.simple.allocSimple
 import io.github.kotlinmania.starlark.values.layout.avalues.simple.allocSimpleTypedStatic
+import io.github.kotlinmania.starlark.values.layout.heap.FrozenHeap
+import io.github.kotlinmania.starlark.values.layout.heap.Heap
 
 /**
  * A type that can be passed around as a Starlark [Value], but in most
@@ -57,9 +57,7 @@ class StarlarkAny<T>(
          * Create a new [StarlarkAny] value. Such a value can be allocated on a heap with
          * `heap.alloc(StarlarkAny.new(x))`.
          */
-        fun <T> new(x: T): StarlarkAny<T> {
-            return StarlarkAny(x)
-        }
+        fun <T> new(x: T): StarlarkAny<T> = StarlarkAny(x)
 
         /**
          * Extract from a [Value] that contains a [StarlarkAny] underneath. Returns null if
@@ -72,19 +70,16 @@ class StarlarkAny<T>(
     }
 
     /** AllocValue implementation: allocate this value on a heap. */
-    fun allocValue(heap: Heap): Value {
-        return heap.allocSimple(this)
-    }
+    fun allocValue(heap: Heap): Value = heap.allocSimple(this)
 
-    override fun toString(): String {
-        return inner.toString()
-    }
+    override fun toString(): String = inner.toString()
 }
 
 /** Allocate any value in the frozen heap. */
 fun <T> FrozenHeap.allocAny(value: T): FrozenRef<T> {
     @Suppress("UNCHECKED_CAST")
-    return this.allocSimpleTypedStatic(StarlarkAny.new(value))
+    return this
+        .allocSimpleTypedStatic(StarlarkAny.new(value))
         .asFrozenRef()
         .map { r -> (r as StarlarkAny<T>).inner }
 }

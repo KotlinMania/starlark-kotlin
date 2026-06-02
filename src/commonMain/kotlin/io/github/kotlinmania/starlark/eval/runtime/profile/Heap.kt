@@ -19,13 +19,13 @@ package io.github.kotlinmania.starlark.eval.runtime.profile.heap
  * limitations under the License.
  */
 
-import io.github.kotlinmania.starlark.eval.runtime.profile.data.ProfileDataImpl
-import io.github.kotlinmania.starlark.eval.runtime.profile.mode.ProfileMode
 import io.github.kotlinmania.starlark.eval.runtime.profile.ProfilerType
 import io.github.kotlinmania.starlark.eval.runtime.profile.data.ProfileData
-import io.github.kotlinmania.starlark.values.layout.heap.profile.AggregateHeapProfileInfo
-import io.github.kotlinmania.starlark.values.layout.heap.Heap
+import io.github.kotlinmania.starlark.eval.runtime.profile.data.ProfileDataImpl
+import io.github.kotlinmania.starlark.eval.runtime.profile.mode.ProfileMode
 import io.github.kotlinmania.starlark.values.layout.Value
+import io.github.kotlinmania.starlark.values.layout.heap.Heap
+import io.github.kotlinmania.starlark.values.layout.heap.profile.AggregateHeapProfileInfo
 
 // pub(crate) struct HeapAllocatedProfilerType
 internal object HeapAllocatedProfilerType : ProfilerType<AggregateHeapProfileInfo> {

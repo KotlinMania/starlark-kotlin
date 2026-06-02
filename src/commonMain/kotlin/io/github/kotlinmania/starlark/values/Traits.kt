@@ -35,26 +35,26 @@ package io.github.kotlinmania.starlark.values
  */
 
 import io.github.kotlinmania.starlark.collections.Hashed
-import io.github.kotlinmania.starlark.collections.StarlarkHasher
 import io.github.kotlinmania.starlark.collections.StarlarkHashValue
+import io.github.kotlinmania.starlark.collections.StarlarkHasher
 import io.github.kotlinmania.starlark.docs.DocItem
 import io.github.kotlinmania.starlark.docs.DocMember
 import io.github.kotlinmania.starlark.docs.DocProperty
 import io.github.kotlinmania.starlark.environment.Methods
+import io.github.kotlinmania.starlark.eval.runtime.Arguments
+import io.github.kotlinmania.starlark.eval.runtime.Evaluator
 import io.github.kotlinmania.starlark.typing.Ty
 import io.github.kotlinmania.starlark.typing.TyBasic
+import io.github.kotlinmania.starlark.typing.TyStarlarkValue
 import io.github.kotlinmania.starlark.typing.TypingBinOp
 import io.github.kotlinmania.starlark.values.demand.Demand
 import io.github.kotlinmania.starlark.values.layout.Freezer
 import io.github.kotlinmania.starlark.values.layout.FrozenValue
 import io.github.kotlinmania.starlark.values.layout.Value
+import io.github.kotlinmania.starlark.values.layout.avalues.allocTuple
 import io.github.kotlinmania.starlark.values.layout.heap.Heap
 import io.github.kotlinmania.starlark.values.layout.typed.FrozenStringValue
-import io.github.kotlinmania.starlark.eval.runtime.Evaluator
-import io.github.kotlinmania.starlark.eval.runtime.Arguments
 import io.github.kotlinmania.starlark.values.types.FUNCTION_TYPE
-import io.github.kotlinmania.starlark.typing.TyStarlarkValue
-import io.github.kotlinmania.starlark.values.layout.avalues.allocTuple
 
 /**
  * A trait for values which are more complex - because they are either mutable,
@@ -85,7 +85,6 @@ interface ComplexValue : StarlarkValue
  * implementation returns an "unimplemented" error.
  */
 interface StarlarkValue {
-
     /**
      * Capability flags mirroring Rust's `#[starlark_value]` `HAS_*` constants.
      * These indicate which StarlarkValue trait methods are meaningfully overridden.
@@ -117,9 +116,7 @@ interface StarlarkValue {
      * type annotations. This often will be the same as TYPE, but in
      * some instances it might be slightly different than what is returned by TYPE.
      */
-    fun getTypeStarlarkRepr(): Ty {
-        return Ty.starlarkValue(TyStarlarkValue.new(TYPE))
-    }
+    fun getTypeStarlarkRepr(): Ty = Ty.starlarkValue(TyStarlarkValue.new(TYPE))
 
     /**
      * Type is special in Starlark, it is implemented differently than user defined types.
@@ -147,10 +144,14 @@ interface StarlarkValue {
      */
     fun documentation(): DocItem {
         val ty = typecheckerTy() ?: getTypeStarlarkRepr()
-        return DocItem.Member(DocMember.Property(DocProperty(
-            docs = null,
-            typ = ty,
-        )))
+        return DocItem.Member(
+            DocMember.Property(
+                DocProperty(
+                    docs = null,
+                    typ = ty,
+                ),
+            ),
+        )
     }
 
     /**
@@ -174,13 +175,11 @@ interface StarlarkValue {
 
     /** Invoked to print `repr` when a cycle in the object stack is detected. */
     fun collectReprCycle(collector: StringBuilder) {
-        collector.append("<${TYPE}...>")
+        collector.append("<$TYPE...>")
     }
 
     /** String used when printing call stack. `repr(self)` by default. */
-    fun nameForCallStack(me: Value): String {
-        return me.toRepr()
-    }
+    fun nameForCallStack(me: Value): String = me.toRepr()
 
     /**
      * Convert self to a boolean, as returned by the bool() function.
@@ -193,8 +192,8 @@ interface StarlarkValue {
      * Return an error if there is no hash for this value (e.g. list).
      * Must be stable between frozen and non-frozen values.
      */
-    fun writeHash(hasher: StarlarkHasher): Result<Unit> {
-        return if (TYPE == FUNCTION_TYPE) {
+    fun writeHash(hasher: StarlarkHasher): Result<Unit> =
+        if (TYPE == FUNCTION_TYPE) {
             // The Starlark spec says values of type "function" must be hashable.
             // We could return the address of the function, but that changes
             // with frozen/non-frozen which breaks freeze for Dict.
@@ -206,7 +205,6 @@ interface StarlarkValue {
         } else {
             Result.failure(ControlError.NotHashableValue(TYPE))
         }
-    }
 
     /** Get the hash value. Calls writeHash by default. */
     fun getHash(): Result<StarlarkHashValue> {
@@ -234,9 +232,7 @@ interface StarlarkValue {
      * This method returns a result of type Ordering, or an error
      * if the two types differ.
      */
-    fun compare(other: Value): Result<Int> {
-        return ValueError.unsupportedWith(TYPE, "compare", other)
-    }
+    fun compare(other: Value): Result<Int> = ValueError.unsupportedWith(TYPE, "compare", other)
 
     /**
      * Directly invoke a function.
@@ -246,23 +242,17 @@ interface StarlarkValue {
         me: Value,
         args: Arguments,
         eval: Evaluator,
-    ): Result<Value> {
-        return ValueError.unsupported(TYPE, "call()")
-    }
+    ): Result<Value> = ValueError.unsupported(TYPE, "call()")
 
     /** Return the result of `a[index]` if `a` is indexable. */
-    fun at(index: Value, heap: Heap): Result<Value> {
-        return ValueError.unsupportedWith(TYPE, "[]", index)
-    }
+    fun at(index: Value, heap: Heap): Result<Value> = ValueError.unsupportedWith(TYPE, "[]", index)
 
     /** Return the result of `a[index0, index1]` if `a` is indexable by two parameters. */
     fun at2(
         index0: Value,
         index1: Value,
         heap: Heap,
-    ): Result<Value> {
-        return ValueError.unsupported(TYPE, "[,]")
-    }
+    ): Result<Value> = ValueError.unsupported(TYPE, "[,]")
 
     /**
      * Extract a slice of the underlying object if the object is indexable. The
@@ -275,17 +265,13 @@ interface StarlarkValue {
         stop: Value?,
         stride: Value?,
         heap: Heap,
-    ): Result<Value> {
-        return ValueError.unsupported(TYPE, "[::]")
-    }
+    ): Result<Value> = ValueError.unsupported(TYPE, "[::]")
 
     /**
      * Implement iteration over the value of this container by providing
      * the values in a list.
      */
-    fun iterateCollect(heap: Heap): Result<List<Value>> {
-        return ValueError.unsupported(TYPE, "(iter)")
-    }
+    fun iterateCollect(heap: Heap): Result<List<Value>> = ValueError.unsupported(TYPE, "(iter)")
 
     /**
      * Returns an iterator over the value of this container if this value holds
@@ -325,9 +311,7 @@ interface StarlarkValue {
     }
 
     /** Returns the length of the value, if this value is a sequence. */
-    fun length(): Result<Int> {
-        return ValueError.unsupported(TYPE, "len()")
-    }
+    fun length(): Result<Int> = ValueError.unsupported(TYPE, "len()")
 
     /**
      * Attribute type, for the typechecker.
@@ -352,36 +336,26 @@ interface StarlarkValue {
      * thus implementation may reuse the hash of the string if this is called
      * repeatedly with the same string.
      */
-    fun getAttrHashed(attribute: Hashed<String>, heap: Heap): Value? {
-        return getAttr(attribute.key(), heap)
-    }
+    fun getAttrHashed(attribute: Hashed<String>, heap: Heap): Value? = getAttr(attribute.key(), heap)
 
     /**
      * Return true if an attribute of name `attribute` exists for the current value.
      *
      * Default implementation of this function delegates to getAttr.
      */
-    fun hasAttr(attribute: String, heap: Heap): Boolean {
-        return getAttr(attribute, heap) != null
-    }
+    fun hasAttr(attribute: String, heap: Heap): Boolean = getAttr(attribute, heap) != null
 
     /** Return a list of string listing all attributes of the current value. */
     fun dirAttr(): List<String> = emptyList()
 
     /** Tell whether `other` is in the current value, if it is a container. */
-    fun isIn(other: Value): Result<Boolean> {
-        return ValueError.unsupportedOwned(other.getType(), "in", TYPE)
-    }
+    fun isIn(other: Value): Result<Boolean> = ValueError.unsupportedOwned(other.getType(), "in", TYPE)
 
     /** Apply the `+` unary operator to the current value. */
-    fun plus(heap: Heap): Result<Value> {
-        return ValueError.unsupported(TYPE, "+")
-    }
+    fun plus(heap: Heap): Result<Value> = ValueError.unsupported(TYPE, "+")
 
     /** Apply the `-` unary operator to the current value. */
-    fun minus(heap: Heap): Result<Value> {
-        return ValueError.unsupported(TYPE, "-")
-    }
+    fun minus(heap: Heap): Result<Value> = ValueError.unsupported(TYPE, "-")
 
     /**
      * Add with the arguments the other way around.
@@ -396,9 +370,7 @@ interface StarlarkValue {
     fun add(rhs: Value, heap: Heap): Result<Value>? = null
 
     /** Subtract `other` from the current value. */
-    fun sub(other: Value, heap: Heap): Result<Value> {
-        return ValueError.unsupportedWith(TYPE, "-", other)
-    }
+    fun sub(other: Value, heap: Heap): Result<Value> = ValueError.unsupportedWith(TYPE, "-", other)
 
     /** Called on `rhs` of `lhs * rhs` when `lhs.mul` returns null. */
     fun rmul(lhs: Value, heap: Heap): Result<Value>? = null
@@ -411,52 +383,34 @@ interface StarlarkValue {
     fun mul(rhs: Value, heap: Heap): Result<Value>? = null
 
     /** Divide the current value by `other`. Always results in a float value. */
-    fun div(other: Value, heap: Heap): Result<Value> {
-        return ValueError.unsupportedWith(TYPE, "/", other)
-    }
+    fun div(other: Value, heap: Heap): Result<Value> = ValueError.unsupportedWith(TYPE, "/", other)
 
     /**
      * Apply the percent operator between the current value and `other`. Usually used on
      * strings, as per the Starlark spec string interpolation.
      */
-    fun percent(other: Value, heap: Heap): Result<Value> {
-        return ValueError.unsupportedWith(TYPE, "%", other)
-    }
+    fun percent(other: Value, heap: Heap): Result<Value> = ValueError.unsupportedWith(TYPE, "%", other)
 
     /** Floor division between the current value and `other`. */
-    fun floorDiv(other: Value, heap: Heap): Result<Value> {
-        return ValueError.unsupportedWith(TYPE, "//", other)
-    }
+    fun floorDiv(other: Value, heap: Heap): Result<Value> = ValueError.unsupportedWith(TYPE, "//", other)
 
     /** Bitwise `&` operator. */
-    fun bitAnd(other: Value, heap: Heap): Result<Value> {
-        return ValueError.unsupportedWith(TYPE, "&", other)
-    }
+    fun bitAnd(other: Value, heap: Heap): Result<Value> = ValueError.unsupportedWith(TYPE, "&", other)
 
     /** Bitwise `|` operator. */
-    fun bitOr(other: Value, heap: Heap): Result<Value> {
-        return ValueError.unsupportedWith(TYPE, "|", other)
-    }
+    fun bitOr(other: Value, heap: Heap): Result<Value> = ValueError.unsupportedWith(TYPE, "|", other)
 
     /** Bitwise `^` operator. */
-    fun bitXor(other: Value, heap: Heap): Result<Value> {
-        return ValueError.unsupportedWith(TYPE, "^", other)
-    }
+    fun bitXor(other: Value, heap: Heap): Result<Value> = ValueError.unsupportedWith(TYPE, "^", other)
 
     /** Bitwise `~` operator. */
-    fun bitNot(heap: Heap): Result<Value> {
-        return ValueError.unsupported(TYPE, "~")
-    }
+    fun bitNot(heap: Heap): Result<Value> = ValueError.unsupported(TYPE, "~")
 
     /** Bitwise `<<` operator. */
-    fun leftShift(other: Value, heap: Heap): Result<Value> {
-        return ValueError.unsupportedWith(TYPE, "<<", other)
-    }
+    fun leftShift(other: Value, heap: Heap): Result<Value> = ValueError.unsupportedWith(TYPE, "<<", other)
 
     /** Bitwise `>>` operator. */
-    fun rightShift(other: Value, heap: Heap): Result<Value> {
-        return ValueError.unsupportedWith(TYPE, ">>", other)
-    }
+    fun rightShift(other: Value, heap: Heap): Result<Value> = ValueError.unsupportedWith(TYPE, ">>", other)
 
     /** Typecheck `this op rhs`. */
     fun binOpTy(op: TypingBinOp, rhs: TyBasic): Ty? = null
@@ -475,17 +429,13 @@ interface StarlarkValue {
     }
 
     /** Set the value at `index` with the new value. */
-    fun setAt(index: Value, newValue: Value): Result<Unit> {
-        return Result.failure(ValueError.CannotMutateImmutableValue)
-    }
+    fun setAt(index: Value, newValue: Value): Result<Unit> = Result.failure(ValueError.CannotMutateImmutableValue)
 
     /**
      * Set the attribute named `attribute` of the current value to
      * `value` (e.g. `a.attribute = value`).
      */
-    fun setAttr(attribute: String, newValue: Value): Result<Unit> {
-        return ValueError.unsupported(TYPE, ".${attribute}=")
-    }
+    fun setAttr(attribute: String, newValue: Value): Result<Unit> = ValueError.unsupported(TYPE, ".$attribute=")
 
     /** Dynamically provide values based on type. */
     fun provide(demand: Demand) {

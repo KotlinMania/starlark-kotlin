@@ -28,14 +28,15 @@ import io.github.kotlinmania.starlark.docs.DocProperty
 import io.github.kotlinmania.starlark.docs.DocString
 import io.github.kotlinmania.starlark.docs.DocType
 import io.github.kotlinmania.starlark.docs.RenderConfig
+import io.github.kotlinmania.starlark.docs.renderCode
 import io.github.kotlinmania.starlark.typing.Ty
 import io.github.kotlinmania.starlark.typing.TypeRenderConfig
-import io.github.kotlinmania.starlark.docs.renderCode
 
 /** Configuration for layout rendering. */
 // pub enum LayoutRenderConfig
 enum class LayoutRenderConfig {
     Default,
+
     /** Renders the summary + detail above function signature. */
     SignatureAtBottom,
 }
@@ -45,10 +46,13 @@ enum class LayoutRenderConfig {
 private enum class DSOpts {
     /** Just the summary. */
     Summary,
+
     /** Just the details (if present). */
     Details,
+
     /** Just the examples section (if present). */
     Examples,
+
     /** Both the summary, details, and examples separated in an appropriate fashion. */
     Combined,
 }
@@ -81,16 +85,15 @@ private fun renderDocString(opts: DSOpts, string: DocString?): String? {
  * so escape them if we render them outside a codeblock.
  */
 // fn escape_name(name: &str) -> String
-private fun escapeName(name: String): String {
-    return name.replace("_", "\\_")
-}
+private fun escapeName(name: String): String = name.replace("_", "\\_")
 
 // fn render_property(name: &str, property: &DocProperty, render_config: &RenderConfig) -> String
 private fun renderProperty(name: String, property: DocProperty, renderConfig: RenderConfig): String {
-    val prototype = renderCodeBlock(
-        "$name: ${property.typ.displayWith(renderConfig.typeConfig)}",
-        renderConfig.typeConfig,
-    )
+    val prototype =
+        renderCodeBlock(
+            "$name: ${property.typ.displayWith(renderConfig.typeConfig)}",
+            renderConfig.typeConfig,
+        )
     val header = "## ${escapeName(name)}\n\n$prototype"
     val summary = renderDocString(DSOpts.Summary, property.docs)
     val details = renderDocString(DSOpts.Details, property.docs)
@@ -127,10 +130,11 @@ private fun renderFunctionParameters(params: Iterable<Pair<String, DocParam>>): 
         val linesIter = docs.lines().iterator()
         if (linesIter.hasNext()) {
             val firstLine = linesIter.next()
-            val default = when (val v = p.defaultValue) {
-                null -> " (required)"
-                else -> " (defaults to: `$v`)"
-            }
+            val default =
+                when (val v = p.defaultValue) {
+                    null -> " (required)"
+                    else -> " (defaults to: `$v`)"
+                }
 
             paramList.appendLine("* `$name`:$default\n")
             paramList.appendLine("  $firstLine\n")
@@ -168,15 +172,17 @@ private fun renderDefaultLayout(
     includeHeader: Boolean,
     renderConfig: RenderConfig,
 ): String {
-    val prototype = renderCodeBlock(
-        renderFunctionPrototype(name, function, renderConfig.typeConfig),
-        renderConfig.typeConfig,
-    )
-    val header = if (includeHeader) {
-        "## ${escapeName(name)}\n\n$prototype"
-    } else {
-        prototype
-    }
+    val prototype =
+        renderCodeBlock(
+            renderFunctionPrototype(name, function, renderConfig.typeConfig),
+            renderConfig.typeConfig,
+        )
+    val header =
+        if (includeHeader) {
+            "## ${escapeName(name)}\n\n$prototype"
+        } else {
+            prototype
+        }
 
     val summary = renderDocString(DSOpts.Summary, function.docs)
     val details = renderDocString(DSOpts.Details, function.docs)
@@ -222,10 +228,11 @@ private fun renderSignatureAtBottomLayout(
     function: DocFunction,
     renderConfig: RenderConfig,
 ): String {
-    val prototype = renderCodeBlock(
-        renderFunctionPrototype(name, function, renderConfig.typeConfig),
-        renderConfig.typeConfig,
-    )
+    val prototype =
+        renderCodeBlock(
+            renderFunctionPrototype(name, function, renderConfig.typeConfig),
+            renderConfig.typeConfig,
+        )
 
     val summary = renderDocString(DSOpts.Summary, function.docs)
     val details = renderDocString(DSOpts.Details, function.docs)
@@ -263,17 +270,20 @@ internal fun renderMembers(
     afterSummary: String?,
     renderConfig: RenderConfig,
 ): String {
-    val summary = renderDocString(DSOpts.Combined, docs)
-        ?.let { "\n\n$it" } ?: ""
+    val summary =
+        renderDocString(DSOpts.Combined, docs)
+            ?.let { "\n\n$it" } ?: ""
 
     val sortedMembers = members.sortedBy { it.first }
-    val memberDetails = sortedMembers.map { (child, member) ->
-        renderDocMember("$prefix$child", member, renderConfig)
-    }
-    val allParts = buildList {
-        if (afterSummary != null) add(afterSummary)
-        addAll(memberDetails)
-    }
+    val memberDetails =
+        sortedMembers.map { (child, member) ->
+            renderDocMember("$prefix$child", member, renderConfig)
+        }
+    val allParts =
+        buildList {
+            if (afterSummary != null) add(afterSummary)
+            addAll(memberDetails)
+        }
     val membersDetails = allParts.joinToString("\n\n---\n\n")
 
     val header = if (name.isEmpty()) "" else "# $name"
@@ -293,7 +303,10 @@ internal fun renderDocType(
         name,
         t.docs,
         prefix,
-        t.members.iter().map { (n, m) -> Pair(n, m) }.asIterable(),
+        t.members
+            .iter()
+            .map { (n, m) -> Pair(n, m) }
+            .asIterable(),
         constructor,
         renderConfig,
     )
@@ -304,8 +317,8 @@ internal fun renderDocType(
  * It will not render the type signatures with link to types.
  */
 // pub fn render_doc_item_no_link(name: &str, item: &DocItem) -> String
-fun renderDocItemNoLink(name: String, item: DocItem): String {
-    return renderDocItem(
+fun renderDocItemNoLink(name: String, item: DocItem): String =
+    renderDocItem(
         name,
         item,
         RenderConfig(
@@ -313,48 +326,48 @@ fun renderDocItemNoLink(name: String, item: DocItem): String {
             layoutConfig = LayoutRenderConfig.Default,
         ),
     )
-}
 
 // pub fn render_doc_item(name: &str, item: &DocItem, render_config: &RenderConfig) -> String
-fun renderDocItem(name: String, item: DocItem, renderConfig: RenderConfig): String {
-    return when (item) {
-        is DocItem.Module -> renderMembers(
-            name,
-            item.module.docs,
-            "",
-            item.module.members.iter().mapNotNull { (n, m) ->
-                m.tryAsMemberWithCollapsedObject().getOrNull()?.let { Pair(n, it) }
-            }.asIterable(),
-            null,
-            renderConfig,
-        )
-        is DocItem.Type -> renderDocType(
-            "`$name` type",
-            "$name.",
-            item.type,
-            renderConfig,
-        )
-        is DocItem.Member -> when (val member = item.member) {
-            is DocMember.Function -> renderFunction(name, member.function, true, renderConfig)
-            is DocMember.Property -> renderProperty(name, member.property, renderConfig)
-        }
+fun renderDocItem(name: String, item: DocItem, renderConfig: RenderConfig): String =
+    when (item) {
+        is DocItem.Module ->
+            renderMembers(
+                name,
+                item.module.docs,
+                "",
+                item.module.members
+                    .iter()
+                    .mapNotNull { (n, m) ->
+                        m.tryAsMemberWithCollapsedObject().getOrNull()?.let { Pair(n, it) }
+                    }.asIterable(),
+                null,
+                renderConfig,
+            )
+        is DocItem.Type ->
+            renderDocType(
+                "`$name` type",
+                "$name.",
+                item.type,
+                renderConfig,
+            )
+        is DocItem.Member ->
+            when (val member = item.member) {
+                is DocMember.Function -> renderFunction(name, member.function, true, renderConfig)
+                is DocMember.Property -> renderProperty(name, member.property, renderConfig)
+            }
     }
-}
 
 /** Used by LSP. */
 // pub fn render_doc_member(name: &str, item: &DocMember, render_config: &RenderConfig) -> String
-fun renderDocMember(name: String, item: DocMember, renderConfig: RenderConfig): String {
-    return when (item) {
+fun renderDocMember(name: String, item: DocMember, renderConfig: RenderConfig): String =
+    when (item) {
         is DocMember.Function -> renderFunction(name, item.function, true, renderConfig)
         is DocMember.Property -> renderProperty(name, item.property, renderConfig)
     }
-}
 
 /** Used by LSP. */
 // pub fn render_doc_param(starred_name: String, item: &DocParam) -> String
-fun renderDocParam(starredName: String, item: DocParam): String {
-    return renderFunctionParameters(listOf(Pair(starredName, item))) ?: ""
-}
+fun renderDocParam(starredName: String, item: DocParam): String = renderFunctionParameters(listOf(Pair(starredName, item))) ?: ""
 
 /**
  * Any functions with more parameters than this will have
@@ -369,13 +382,12 @@ private const val MAX_ARGS_BEFORE_MULTILINE = 3
 private const val MAX_LENGTH_BEFORE_MULTILINE = 80
 
 // fn raw_type_prefix(prefix: &str, t: &Ty, render_config: &TypeRenderConfig) -> String
-private fun rawTypePrefix(prefix: String, t: Ty, renderConfig: TypeRenderConfig): String {
-    return if (t.isAny()) {
+private fun rawTypePrefix(prefix: String, t: Ty, renderConfig: TypeRenderConfig): String =
+    if (t.isAny()) {
         ""
     } else {
         "$prefix${t.displayWith(renderConfig)}"
     }
-}
 
 // fn render_function_prototype(function_name: &str, f: &DocFunction, render_config: &TypeRenderConfig) -> String
 private fun renderFunctionPrototype(
@@ -388,8 +400,8 @@ private fun renderFunctionPrototype(
     val oneLineParams = f.params.renderCode(null, renderConfig)
     val singleLineResult = "$prefix($oneLineParams)$retType"
 
-    return if (f.params.docParams().count() > MAX_ARGS_BEFORE_MULTILINE
-        || singleLineResult.length > MAX_LENGTH_BEFORE_MULTILINE
+    return if (f.params.docParams().count() > MAX_ARGS_BEFORE_MULTILINE ||
+        singleLineResult.length > MAX_LENGTH_BEFORE_MULTILINE
     ) {
         val chunkedParams = f.params.renderCode("    ", renderConfig)
         "$prefix(\n$chunkedParams)$retType"
@@ -401,22 +413,20 @@ private fun renderFunctionPrototype(
 // fn render_strings_with_code_blocks(contents: &str, render_config: &TypeRenderConfig) -> String
 private val CODE_BLOCK_RE = Regex("""```([\s\S]*?)```""")
 
-private fun renderStringsWithCodeBlocks(contents: String, renderConfig: TypeRenderConfig): String {
-    return CODE_BLOCK_RE.replace(contents) { matchResult ->
+private fun renderStringsWithCodeBlocks(contents: String, renderConfig: TypeRenderConfig): String =
+    CODE_BLOCK_RE.replace(contents) { matchResult ->
         renderCodeBlock(matchResult.groupValues[1], renderConfig)
     }
-}
 
 // For LinkedType render in markdown, for code block ``` ``` we cannot contain the link in it.
 // We need to use the html block here.
 // fn render_code_block(contents: &str, render_config: &TypeRenderConfig) -> String
-private fun renderCodeBlock(contents: String, renderConfig: TypeRenderConfig): String {
-    return when (renderConfig) {
+private fun renderCodeBlock(contents: String, renderConfig: TypeRenderConfig): String =
+    when (renderConfig) {
         is TypeRenderConfig.Default -> "```python\n$contents\n```"
         is TypeRenderConfig.LinkedType ->
             """<pre class="language-python"><code>$contents</code></pre>"""
     }
-}
 
 // --- Extension methods on DocModule and DocType (impl blocks in Rust) ---
 
@@ -425,22 +435,22 @@ private fun renderCodeBlock(contents: String, renderConfig: TypeRenderConfig): S
 fun DocModule.renderMarkdownPageForMultipageRender(
     name: String,
     renderConfig: RenderConfig,
-): String {
-    return renderMembers(
+): String =
+    renderMembers(
         name,
         this.docs,
         "",
-        this.members.iter().mapNotNull { (n, m) -> m.tryAsMember()?.let { Pair(n, it) } }.asIterable(),
+        this.members
+            .iter()
+            .mapNotNull { (n, m) -> m.tryAsMember()?.let { Pair(n, it) } }
+            .asIterable(),
         null,
         renderConfig,
     )
-}
 
 // impl DocType
 // pub(super) fn render_markdown_page_for_multipage_render(&self, name: &str, render_config: &RenderConfig) -> String
 fun DocType.renderMarkdownPageForMultipageRender(
     name: String,
     renderConfig: RenderConfig,
-): String {
-    return renderDocType(name, "$name.", this, renderConfig)
-}
+): String = renderDocType(name, "$name.", this, renderConfig)

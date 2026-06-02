@@ -153,14 +153,16 @@ enum class BcOpcode {
         /** Get bytecode opcode for the instruction. */
         fun forInstr(instrClass: KClass<out BcInstr>): BcOpcode {
             var found: BcOpcode? = null
-            dispatchAll(object : BcOpcodeAllHandler {
-                override fun <I : BcInstr> handle(klass: KClass<I>, opcode: BcOpcode) {
-                    if (klass.equals(instrClass)) {
-                        check(found == null)
-                        found = opcode
+            dispatchAll(
+                object : BcOpcodeAllHandler {
+                    override fun <I : BcInstr> handle(klass: KClass<I>, opcode: BcOpcode) {
+                        if (klass.equals(instrClass)) {
+                            check(found == null)
+                            found = opcode
+                        }
                     }
-                }
-            })
+                },
+            )
             return found
                 ?: throw IllegalStateException("No opcode for instruction ${instrClass.simpleName}")
         }
@@ -172,18 +174,15 @@ enum class BcOpcode {
         return doDispatch(handler)
     }
 
-    private fun <R> doDispatch(handler: BcOpcodeHandler<R>): R {
-        return handler.handle(BcInstr::class)
-    }
+    private fun <R> doDispatch(handler: BcOpcodeHandler<R>): R = handler.handle(BcInstr::class)
 
     /** Size of instruction representation. */
     // pub(crate) fn size_of_repr(self) -> usize  (in Rust: repr.rs)
     fun sizeOfRepr(): Int {
-        val handler = object : BcOpcodeHandler<Int> {
-            override fun <I : BcInstr> handle(instrClass: KClass<I>): Int {
-                return BcInstrRepr.sizeOf(instrClass)
+        val handler =
+            object : BcOpcodeHandler<Int> {
+                override fun <I : BcInstr> handle(instrClass: KClass<I>): Int = BcInstrRepr.sizeOf(instrClass)
             }
-        }
         return dispatch(handler)
     }
 

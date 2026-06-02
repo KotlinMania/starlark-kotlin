@@ -19,17 +19,19 @@ package io.github.kotlinmania.starlark.values.types.enumeration.value
  * limitations under the License.
  */
 
-import io.github.kotlinmania.starlark.values.layout.Value
-import io.github.kotlinmania.starlark.typing.Ty
 import io.github.kotlinmania.starlark.collections.StarlarkHasher
-import io.github.kotlinmania.starlark.values.types.TypeInstanceId
-import io.github.kotlinmania.starlark.values.types.enumeration.TyEnumData
 import io.github.kotlinmania.starlark.environment.Methods
 import io.github.kotlinmania.starlark.environment.MethodsBuilder
 import io.github.kotlinmania.starlark.environment.MethodsStatic
+import io.github.kotlinmania.starlark.typing.Ty
+import io.github.kotlinmania.starlark.values.layout.Value
+import io.github.kotlinmania.starlark.values.types.TypeInstanceId
+import io.github.kotlinmania.starlark.values.types.enumeration.TyEnumData
 import io.github.kotlinmania.starlark.values.types.int.InlineInt
 
-class EnumType(val value: Value) {
+class EnumType(
+    val value: Value,
+) {
     fun tyEnumData(): TyEnumData? = null
 
     companion object {
@@ -42,19 +44,25 @@ class FrozenEnumType {
 }
 
 sealed class EnumTypeRef {
-    class Unfrozen(val value: EnumType) : EnumTypeRef()
-    class Frozen(val value: FrozenEnumType) : EnumTypeRef()
+    class Unfrozen(
+        val value: EnumType,
+    ) : EnumTypeRef()
+
+    class Frozen(
+        val value: FrozenEnumType,
+    ) : EnumTypeRef()
 }
 
 /** A value from an enumeration. */
 class EnumValueGen(
     // Must ignore value.typ or type.elements, since they are circular
     internal val typ: Value, // Must be EnumType it points back to (so it can get the type)
-    internal val value: Value,   // The value of this enumeration
+    internal val value: Value, // The value of this enumeration
     internal val index: Int, // The index in the enumeration
     internal val id: TypeInstanceId,
 ) : io.github.kotlinmania.starlark.values.StarlarkValue {
     override val TYPE: String get() = Companion.TYPE
+
     companion object {
         /** The result of calling `type()` on an enum value. */
         const val TYPE: String = "enum"
@@ -66,20 +74,19 @@ class EnumValueGen(
     }
 
     override fun toString(): String {
-        val tyEnumData = when (val enumTypeRef = getEnumType()) {
-            is EnumTypeRef.Unfrozen -> enumTypeRef.value.tyEnumData()
-            is EnumTypeRef.Frozen -> enumTypeRef.value.tyEnumData()
-            null -> null
-        }
+        val tyEnumData =
+            when (val enumTypeRef = getEnumType()) {
+                is EnumTypeRef.Unfrozen -> enumTypeRef.value.tyEnumData()
+                is EnumTypeRef.Frozen -> enumTypeRef.value.tyEnumData()
+                null -> null
+            }
         return when {
             tyEnumData != null -> "${tyEnumData.name}($value)"
             else -> "enum()($value)"
         }
     }
 
-    override fun writeHash(hasher: StarlarkHasher): Result<Unit> {
-        return value.writeHash(hasher)
-    }
+    override fun writeHash(hasher: StarlarkHasher): Result<Unit> = value.writeHash(hasher)
 
     override fun getMethods(): Methods? {
         val res = MethodsStatic()
@@ -87,11 +94,12 @@ class EnumValueGen(
     }
 
     override fun typecheckerTy(): Ty? {
-        val tyEnumType = when (val enumTypeRef = getEnumType()) {
-            is EnumTypeRef.Unfrozen -> enumTypeRef.value.tyEnumData() ?: return null
-            is EnumTypeRef.Frozen -> enumTypeRef.value.tyEnumData() ?: return null
-            null -> return null
-        }
+        val tyEnumType =
+            when (val enumTypeRef = getEnumType()) {
+                is EnumTypeRef.Unfrozen -> enumTypeRef.value.tyEnumData() ?: return null
+                is EnumTypeRef.Frozen -> enumTypeRef.value.tyEnumData() ?: return null
+                null -> return null
+            }
         return tyEnumType.tyEnumValue
     }
 

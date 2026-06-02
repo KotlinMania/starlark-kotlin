@@ -21,11 +21,11 @@ package io.github.kotlinmania.starlark.debug
 
 import io.github.kotlinmania.starlark.collections.SmallMap
 import io.github.kotlinmania.starlark.eval.evalModule
+import io.github.kotlinmania.starlark.eval.runtime.Evaluator
 import io.github.kotlinmania.starlark.eval.runtime.LocalSlotIdCapturedOrNot
 import io.github.kotlinmania.starlark.syntax.AstModule
 import io.github.kotlinmania.starlark.values.layout.Value
 import io.github.kotlinmania.starlark.values.layout.typed.FrozenStringValue
-import io.github.kotlinmania.starlark.eval.runtime.Evaluator
 import kotlin.text.get
 import kotlin.text.iterator
 
@@ -50,11 +50,12 @@ fun Evaluator.evalStatements(statements: AstModule): Result<Value> {
 
     // We want all the local variables to be available to the module, so we capture
     // everything before, shove the local variables into the module, and then revert after
-    val originalModule: SmallMap<FrozenStringValue, Value?> = SmallMap.new<FrozenStringValue, Value?>().also { map ->
-        for ((name, slot) in moduleEnv.mutableNames().allNamesAndSlots()) {
-            map.insert(name, moduleEnv.slots().getSlot(slot))
+    val originalModule: SmallMap<FrozenStringValue, Value?> =
+        SmallMap.new<FrozenStringValue, Value?>().also { map ->
+            for ((name, slot) in moduleEnv.mutableNames().allNamesAndSlots()) {
+                map.insert(name, moduleEnv.slots().getSlot(slot))
+            }
         }
-    }
 
     // Push all the frozen variables into the module
     val frozen = topFrameDefFrozenModule(true)
@@ -68,9 +69,11 @@ fun Evaluator.evalStatements(statements: AstModule): Result<Value> {
     }
 
     // Push all local variables into the module
-    val locals = callStack.toFunctionValues()
-        .reversed()
-        .firstNotNullOfOrNull { toScopeNamesByLocalSlotId(it) }
+    val locals =
+        callStack
+            .toFunctionValues()
+            .reversed()
+            .firstNotNullOfOrNull { toScopeNamesByLocalSlotId(it) }
     if (locals != null) {
         for ((slot, name) in locals.withIndex()) {
             val value = currentFrame.getSlotSlow(LocalSlotIdCapturedOrNot(slot.toUInt()))

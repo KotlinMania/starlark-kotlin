@@ -27,7 +27,6 @@ import kotlin.test.Test
 import kotlin.test.assertNotNull
 
 class StdlibTest {
-
     @Test
     fun testNoArg() {
         fun global(builder: GlobalsBuilder) {
@@ -48,21 +47,33 @@ class StdlibTest {
         // by name; the Bool2 starlark value lives behind globalsAdd for parity.
 
         fun methods(builder: MethodsBuilder) {
-            fun invert1(thisVal: io.github.kotlinmania.starlark.values.layout.Value): Result<io.github.kotlinmania.starlark.values.layout.Value> {
-                return Result.success(io.github.kotlinmania.starlark.values.layout.Value.newBool(!thisVal.unpackBool()!!))
-            }
+            fun invert1(thisVal: io.github.kotlinmania.starlark.values.layout.Value): Result<io.github.kotlinmania.starlark.values.layout.Value> =
+                Result.success(
+                    io.github.kotlinmania.starlark.values.layout.Value
+                        .newBool(!thisVal.unpackBool()!!),
+                )
 
-            fun invert2(thisVal: io.github.kotlinmania.starlark.values.layout.Value): Result<io.github.kotlinmania.starlark.values.layout.Value> {
-                return Result.success(io.github.kotlinmania.starlark.values.layout.Value.newBool(!thisVal.unpackBool()!!))
-            }
+            fun invert2(thisVal: io.github.kotlinmania.starlark.values.layout.Value): Result<io.github.kotlinmania.starlark.values.layout.Value> =
+                Result.success(
+                    io.github.kotlinmania.starlark.values.layout.Value
+                        .newBool(!thisVal.unpackBool()!!),
+                )
 
             builder.setAttribute("invert1") { thisVal, _ -> invert1(thisVal) }
             builder.setMethod("invert2") { eval, thisVal, _, _ -> invert2(thisVal) }
         }
 
         fun globals(builder: GlobalsBuilder) {
-            builder.setConst("True2", io.github.kotlinmania.starlark.values.layout.Value.newBool(true))
-            builder.setConst("False2", io.github.kotlinmania.starlark.values.layout.Value.newBool(false))
+            builder.setConst(
+                "True2",
+                io.github.kotlinmania.starlark.values.layout.Value
+                    .newBool(true),
+            )
+            builder.setConst(
+                "False2",
+                io.github.kotlinmania.starlark.values.layout.Value
+                    .newBool(false),
+            )
         }
 
         val a = Assert()

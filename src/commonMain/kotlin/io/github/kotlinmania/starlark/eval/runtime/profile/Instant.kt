@@ -24,7 +24,7 @@ import kotlin.time.DurationUnit
 import kotlin.time.TimeSource
 import kotlin.time.toDuration
 
-/// Real `Instant` for production code, thread-local counter for tests.
+// / Real `Instant` for production code, thread-local counter for tests.
 // #[derive(Debug, Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Allocative)]
 // pub(crate) struct ProfilerInstant(
 //     #[cfg(not(test))] std::time::Instant,
@@ -33,7 +33,6 @@ import kotlin.time.toDuration
 internal class ProfilerInstant private constructor(
     private val value: Long, // millis in test mode, nanos in production
 ) : Comparable<ProfilerInstant> {
-
     // impl ProfilerInstant
 
     companion object {
@@ -74,8 +73,8 @@ internal class ProfilerInstant private constructor(
 
     // #[inline]
     // pub(crate) fn duration_since(&self, earlier: ProfilerInstant) -> Duration
-    fun durationSince(earlier: ProfilerInstant): Duration {
-        return if (testMode) {
+    fun durationSince(earlier: ProfilerInstant): Duration =
+        if (testMode) {
             // #[cfg(test)]
             // Duration::from_millis(self.0.checked_sub(earlier.0).unwrap())
             val diffMillis = value - earlier.value
@@ -88,7 +87,6 @@ internal class ProfilerInstant private constructor(
             require(diffNanos >= 0) { "ProfilerInstant::duration_since: earlier is later than self" }
             diffNanos.toDuration(DurationUnit.NANOSECONDS)
         }
-    }
 
     // #[inline]
     // pub(crate) fn elapsed(&self) -> Duration
@@ -104,13 +102,9 @@ internal class ProfilerInstant private constructor(
     // type Output = Duration;
     // #[inline]
     // fn sub(self, rhs: Self) -> Self::Output
-    operator fun minus(rhs: ProfilerInstant): Duration {
-        return durationSince(rhs)
-    }
+    operator fun minus(rhs: ProfilerInstant): Duration = durationSince(rhs)
 
-    override fun compareTo(other: ProfilerInstant): Int {
-        return value.compareTo(other.value)
-    }
+    override fun compareTo(other: ProfilerInstant): Int = value.compareTo(other.value)
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true

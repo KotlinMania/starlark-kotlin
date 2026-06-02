@@ -20,13 +20,12 @@ package io.github.kotlinmania.starlark.values.layout
  */
 
 import io.github.kotlinmania.starlark.values.StarlarkValue
-import io.github.kotlinmania.starlark.values.layout.heap.Tracer
 import io.github.kotlinmania.starlark.values.layout.heap.AValueHeader
+import io.github.kotlinmania.starlark.values.layout.heap.Tracer
 import io.github.kotlinmania.starlark.values.layout.heap.arena.MIN_ALLOC
 
 /** Extended vtable methods (those not covered by [StarlarkValue]). */
 interface AValue {
-
     /**
      * Certain types like `Tuple` or `StarlarkStr` have payload array
      * placed in a heap after `Self`. This is the type of an element of that array.
@@ -55,11 +54,12 @@ interface AValue {
         val baseSize = AlignedSize.alignUp(offsetOfExtra())
         val minAllocSize = MIN_ALLOC
         // Content is not necessarily aligned to end of `A`.
-        val extraSize = AlignedSize.alignUp(
-            offsetOfExtra() + (elemSize * extraLen)
-        )
+        val extraSize =
+            AlignedSize.alignUp(
+                offsetOfExtra() + (elemSize * extraLen),
+            )
         return ValueAllocSize.new(
-            maxOf(baseSize, minAllocSize, extraSize)
+            maxOf(baseSize, minAllocSize, extraSize),
         )
     }
 
@@ -70,9 +70,7 @@ interface AValue {
      *
      * This existing is a bit of a hack to let statically allocated values set this to zero.
      */
-    fun totalMemoryForProfile(value: StarlarkValue): Int {
-        return allocSizeForExtraLen(extraLen(value)).bytes().toInt()
-    }
+    fun totalMemoryForProfile(value: StarlarkValue): Int = allocSizeForExtraLen(extraLen(value)).bytes().toInt()
 
     /** Freeze this value on the heap. */
     fun heapFreeze(freezer: Freezer): Result<FrozenValue>
@@ -89,9 +87,7 @@ class AValueImpl<T : AValue>(
     internal val value: StarlarkValue,
 ) {
     companion object {
-        fun <T : AValue> new(value: StarlarkValue): AValueImpl<T> {
-            return AValueImpl(value)
-        }
+        fun <T : AValue> new(value: StarlarkValue): AValueImpl<T> = AValueImpl(value)
     }
 }
 

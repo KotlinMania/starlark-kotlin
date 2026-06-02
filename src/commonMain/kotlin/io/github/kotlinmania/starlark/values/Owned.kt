@@ -21,19 +21,24 @@ package io.github.kotlinmania.starlark.values.owned
 
 import io.github.kotlinmania.starlark.typing.Ty
 import io.github.kotlinmania.starlark.values.AllocFrozenValue
-import io.github.kotlinmania.starlark.values.layout.heap.FrozenHeap
-import io.github.kotlinmania.starlark.values.layout.FrozenValue
 import io.github.kotlinmania.starlark.values.StarlarkValue
-import io.github.kotlinmania.starlark.values.owned_frozen_ref.OwnedFrozenRef
-import io.github.kotlinmania.starlark.values.owned_frozen_ref.OwnedRefFrozenRef
-import io.github.kotlinmania.starlark.values.layout.heap.FrozenHeapRef
-import io.github.kotlinmania.starlark.values.layout.Value
+import io.github.kotlinmania.starlark.values.layout.FrozenValue
 import io.github.kotlinmania.starlark.values.layout.FrozenValueTyped
+import io.github.kotlinmania.starlark.values.layout.Value
+import io.github.kotlinmania.starlark.values.layout.heap.FrozenHeap
+import io.github.kotlinmania.starlark.values.layout.heap.FrozenHeapRef
+import io.github.kotlinmania.starlark.values.ownedfrozenref.OwnedFrozenRef
+import io.github.kotlinmania.starlark.values.ownedfrozenref.OwnedRefFrozenRef
 
-internal sealed class OwnedError(override val message: String) : Exception(message) {
-    class WrongType(typeName: String, actual: String) : OwnedError(
-        "Expected value of type `$typeName` but got `$actual`"
-    )
+internal sealed class OwnedError(
+    override val message: String,
+) : Exception(message) {
+    class WrongType(
+        typeName: String,
+        actual: String,
+    ) : OwnedError(
+            "Expected value of type `$typeName` but got `$actual`",
+        )
 }
 
 /**
@@ -50,7 +55,6 @@ class OwnedFrozenValue(
     // Invariant: this FrozenValue must be kept alive by the `owner` field.
     @PublishedApi internal val value: FrozenValue,
 ) {
-
     companion object {
         /** Create an [OwnedFrozenValue] in a new heap. */
         fun alloc(x: AllocFrozenValue): OwnedFrozenValue {
@@ -82,10 +86,12 @@ class OwnedFrozenValue(
         return if (typed != null) {
             Result.success(OwnedFrozenValueTyped(owner, typed))
         } else {
-            Result.failure(OwnedError.WrongType(
-                T::class.simpleName ?: "unknown",
-                value.toString()
-            ))
+            Result.failure(
+                OwnedError.WrongType(
+                    T::class.simpleName ?: "unknown",
+                    value.toString(),
+                ),
+            )
         }
     }
 
@@ -93,22 +99,16 @@ class OwnedFrozenValue(
     fun value(): Value = Value.newFrozen(value)
 
     /** Extract a [Value] by passing the [FrozenHeap] which will promise to keep it alive. */
-    fun ownedValue(heap: FrozenHeap): Value {
-        return ownedFrozenValue(heap).toValue()
-    }
+    fun ownedValue(heap: FrozenHeap): Value = ownedFrozenValue(heap).toValue()
 
     /**
      * Operate on the [FrozenValue] stored inside.
      * Safe provided you don't store the argument [FrozenValue] after the closure has returned.
      */
-    fun map(f: (FrozenValue) -> FrozenValue): OwnedFrozenValue {
-        return OwnedFrozenValue(owner, f(value))
-    }
+    fun map(f: (FrozenValue) -> FrozenValue): OwnedFrozenValue = OwnedFrozenValue(owner, f(value))
 
     /** Same as [map] above but with [Result]. */
-    fun <E : Throwable> tryMap(f: (FrozenValue) -> Result<FrozenValue>): Result<OwnedFrozenValue> {
-        return f(value).map { OwnedFrozenValue(owner, it) }
-    }
+    fun <E : Throwable> tryMap(f: (FrozenValue) -> Result<FrozenValue>): Result<OwnedFrozenValue> = f(value).map { OwnedFrozenValue(owner, it) }
 
     /** Obtain a reference to the FrozenHeap that owns this value. */
     fun owner(): FrozenHeapRef = owner
@@ -132,15 +132,12 @@ class OwnedFrozenValueTyped<T : StarlarkValue>(
     private val owner: FrozenHeapRef,
     private val value: FrozenValueTyped<T>,
 ) {
-
     /** Access the underlying value. */
     fun asRef(): T = value.asRef()
 
     /** Create an [OwnedFrozenValueTyped] from an owner and typed value. */
     companion object {
-        fun <T : StarlarkValue> new(owner: FrozenHeapRef, value: FrozenValueTyped<T>): OwnedFrozenValueTyped<T> {
-            return OwnedFrozenValueTyped(owner, value)
-        }
+        fun <T : StarlarkValue> new(owner: FrozenHeapRef, value: FrozenValueTyped<T>): OwnedFrozenValueTyped<T> = OwnedFrozenValueTyped(owner, value)
     }
 
     /** Erase the type. */
@@ -150,19 +147,13 @@ class OwnedFrozenValueTyped<T : StarlarkValue>(
     fun toValue(): Value = toFrozenValue().toValue()
 
     /** Erase the type. */
-    fun toOwnedFrozenValue(): OwnedFrozenValue {
-        return OwnedFrozenValue(owner, value.toFrozenValue())
-    }
+    fun toOwnedFrozenValue(): OwnedFrozenValue = OwnedFrozenValue(owner, value.toFrozenValue())
 
     /** Convert to borrowed ref. */
-    fun asOwnedRefFrozenRef(): OwnedRefFrozenRef<T> {
-        return OwnedRefFrozenRef.newUnchecked(value.asRef(), owner)
-    }
+    fun asOwnedRefFrozenRef(): OwnedRefFrozenRef<T> = OwnedRefFrozenRef.newUnchecked(value.asRef(), owner)
 
     /** Convert to an owned ref. */
-    fun intoOwnedFrozenRef(): OwnedFrozenRef<T> {
-        return OwnedFrozenRef.newUnchecked(value.asRef(), owner)
-    }
+    fun intoOwnedFrozenRef(): OwnedFrozenRef<T> = OwnedFrozenRef.newUnchecked(value.asRef(), owner)
 
     /** Obtain a reference to the FrozenHeap that owns this value. */
     fun owner(): FrozenHeapRef = owner
@@ -177,14 +168,10 @@ class OwnedFrozenValueTyped<T : StarlarkValue>(
     }
 
     /** Extract a [FrozenValue] by passing the [FrozenHeap] which will keep it alive. */
-    fun ownedFrozenValue(heap: FrozenHeap): FrozenValue {
-        return ownedFrozenValueTyped(heap).toFrozenValue()
-    }
+    fun ownedFrozenValue(heap: FrozenHeap): FrozenValue = ownedFrozenValueTyped(heap).toFrozenValue()
 
     /** Extract a [Value] by passing the [FrozenHeap] which will promise to keep it alive. */
-    fun ownedValue(heap: FrozenHeap): Value {
-        return ownedFrozenValue(heap).toValue()
-    }
+    fun ownedValue(heap: FrozenHeap): Value = ownedFrozenValue(heap).toValue()
 
     /** Extract a reference by passing the [FrozenHeap] which will promise to keep it alive. */
     fun ownedAsRef(heap: FrozenHeap): T {
@@ -194,14 +181,10 @@ class OwnedFrozenValueTyped<T : StarlarkValue>(
     }
 
     /** Operate on the [FrozenValue] stored inside. */
-    fun <U : StarlarkValue> map(f: (FrozenValueTyped<T>) -> FrozenValueTyped<U>): OwnedFrozenValueTyped<U> {
-        return OwnedFrozenValueTyped(owner, f(value))
-    }
+    fun <U : StarlarkValue> map(f: (FrozenValueTyped<T>) -> FrozenValueTyped<U>): OwnedFrozenValueTyped<U> = OwnedFrozenValueTyped(owner, f(value))
 
     /** Same as [map] above but with [Result]. */
-    fun <U : StarlarkValue> tryMap(f: (FrozenValueTyped<T>) -> Result<FrozenValueTyped<U>>): Result<OwnedFrozenValueTyped<U>> {
-        return f(value).map { OwnedFrozenValueTyped(owner, it) }
-    }
+    fun <U : StarlarkValue> tryMap(f: (FrozenValueTyped<T>) -> Result<FrozenValueTyped<U>>): Result<OwnedFrozenValueTyped<U>> = f(value).map { OwnedFrozenValueTyped(owner, it) }
 
     /** Same as [map] above but with nullable. */
     fun <U : StarlarkValue> maybeMap(f: (FrozenValueTyped<T>) -> FrozenValueTyped<U>?): OwnedFrozenValueTyped<U>? {
@@ -213,6 +196,6 @@ class OwnedFrozenValueTyped<T : StarlarkValue>(
 // Placeholder for NoneType alloc — will be replaced when NoneType is fully ported.
 private object NoneAllocFrozenValue : AllocFrozenValue {
     override fun allocFrozenValue(heap: FrozenHeap): FrozenValue = FrozenValue.newNone()
+
     override fun starlarkTypeRepr(): Ty = Ty.none()
 }
-

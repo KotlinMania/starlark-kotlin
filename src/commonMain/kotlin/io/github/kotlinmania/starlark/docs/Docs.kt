@@ -21,12 +21,12 @@ package io.github.kotlinmania.starlark.docs
 
 /** Types supporting documentation for code written in or for Starlark. */
 
-import kotlin.js.JsName
 import io.github.kotlinmania.starlark.collections.SmallMap
-import io.github.kotlinmania.starlark.typing.Ty
-import io.github.kotlinmania.starlark.values.StarlarkValue
 import io.github.kotlinmania.starlark.eval.runtime.params.FmtParam
 import io.github.kotlinmania.starlark.eval.runtime.params.iterFmtParamSpec
+import io.github.kotlinmania.starlark.typing.Ty
+import io.github.kotlinmania.starlark.values.StarlarkValue
+import kotlin.js.JsName
 
 /** The documentation provided by a user for a specific module, object, function, etc. */
 // #[derive(Debug, Clone, PartialEq, Trace, Default, Allocative)]
@@ -89,12 +89,13 @@ class DocFunction(
     val ret: DocReturn = DocReturn(),
 ) {
     companion object
+
     /** Used by LSP. Return starred name and the doc. */
     // pub fn find_param_with_name(&self, param_name: &str) -> Option<(String, &DocParam)>
-    fun findParamWithName(paramName: String): Pair<String, DocParam>? {
-        return params.docParamsWithStarredNames()
+    fun findParamWithName(paramName: String): Pair<String, DocParam>? =
+        params
+            .docParamsWithStarredNames()
             .firstOrNull { (_, p) -> p.name == paramName }
-    }
 }
 
 /** Function parameters. */
@@ -109,54 +110,48 @@ data class DocParams(
 ) {
     /** Iterate parameters ignoring information about positional-only, named-only. */
     // pub(crate) fn doc_params(&self) -> impl Iterator<Item = &DocParam>
-    internal fun docParams(): Sequence<DocParam> {
-        return sequence {
+    internal fun docParams(): Sequence<DocParam> =
+        sequence {
             yieldAll(posOnly)
             yieldAll(posOrNamed)
             if (args != null) yield(args)
             yieldAll(namedOnly)
             if (kwargs != null) yield(kwargs)
         }
-    }
 
     // pub(crate) fn doc_params_with_starred_names(&self) -> impl Iterator<Item = (String, &DocParam)>
-    internal fun docParamsWithStarredNames(): Sequence<Pair<String, DocParam>> {
-        return sequence {
+    internal fun docParamsWithStarredNames(): Sequence<Pair<String, DocParam>> =
+        sequence {
             for (p in posOnly) yield(Pair(p.name, p))
             for (p in posOrNamed) yield(Pair(p.name, p))
             if (args != null) yield(Pair("*${args.name}", args))
             for (p in namedOnly) yield(Pair(p.name, p))
             if (kwargs != null) yield(Pair("**${kwargs.name}", kwargs))
         }
-    }
 
     /** Mutable iteration over parameters. */
     // pub(crate) fn doc_params_mut(&mut self) -> impl Iterator<Item = &mut DocParam>
-    internal fun docParamsMut(): Iterator<DocParam> {
-        return docParams().iterator()
-    }
+    internal fun docParamsMut(): Iterator<DocParam> = docParams().iterator()
 
     /** Non-star parameters. */
     // pub fn regular_params(&self) -> impl Iterator<Item = &DocParam>
-    fun regularParams(): Sequence<DocParam> {
-        return sequence {
+    fun regularParams(): Sequence<DocParam> =
+        sequence {
             yieldAll(posOnly)
             yieldAll(posOrNamed)
             yieldAll(namedOnly)
         }
-    }
 
     /** Iterate params with `/` and `*` markers to output function signature. */
     // pub fn fmt_params(&self) -> impl Iterator<Item = FmtParam<&'_ DocParam>>
-    fun fmtParams(): Sequence<FmtParam<DocParam>> {
-        return iterFmtParamSpec(
+    fun fmtParams(): Sequence<FmtParam<DocParam>> =
+        iterFmtParamSpec(
             posOnly,
             posOrNamed,
             args,
             namedOnly,
             kwargs,
         )
-    }
 }
 
 /** A single parameter of a function. */
@@ -172,15 +167,11 @@ data class DocParam(
 ) {
     /** Get the underlying [DocString] for this item, if it exists. */
     // pub fn get_doc_string(&self) -> Option<&DocString>
-    fun getDocString(): DocString? {
-        return docs
-    }
+    fun getDocString(): DocString? = docs
 
     /** Get the summary of the underlying [DocString] for this item, if it exists. */
     // pub fn get_doc_summary(&self) -> Option<&str>
-    fun getDocSummary(): String? {
-        return getDocString()?.summary
-    }
+    fun getDocSummary(): String? = getDocString()?.summary
 }
 
 /** Details about the return value of a function. */
@@ -204,24 +195,26 @@ class DocProperty(
 // pub enum DocMember
 sealed class DocMember {
     // Property(DocProperty)
-    class Property(val property: DocProperty) : DocMember()
+    class Property(
+        val property: DocProperty,
+    ) : DocMember()
+
     // Function(DocFunction)
-    class Function(val function: DocFunction) : DocMember()
+    class Function(
+        val function: DocFunction,
+    ) : DocMember()
 
     /** Get the underlying [DocString] for this item, if it exists. */
     // pub fn get_doc_string(&self) -> Option<&DocString>
-    fun getDocString(): DocString? {
-        return when (this) {
+    fun getDocString(): DocString? =
+        when (this) {
             is Function -> function.docs
             is Property -> property.docs
         }
-    }
 
     /** Get the summary of the underlying [DocString] for this item, if it exists. */
     // pub fn get_doc_summary(&self) -> Option<&str>
-    fun getDocSummary(): String? {
-        return getDocString()?.summary
-    }
+    fun getDocSummary(): String? = getDocString()?.summary
 }
 
 /**
@@ -263,27 +256,32 @@ class DocType(
 // pub enum DocItem
 sealed class DocItem {
     // Module(DocModule)
-    class Module(val module: DocModule) : DocItem()
+    class Module(
+        val module: DocModule,
+    ) : DocItem()
+
     // Type(DocType)
-    class Type(val type: DocType) : DocItem()
+    class Type(
+        val type: DocType,
+    ) : DocItem()
+
     // Member(DocMember)
-    class Member(val member: DocMember) : DocItem()
+    class Member(
+        val member: DocMember,
+    ) : DocItem()
 
     /** Get the underlying [DocString] for this item, if it exists. */
     // pub fn get_doc_string(&self) -> Option<&DocString>
-    fun getDocString(): DocString? {
-        return when (this) {
+    fun getDocString(): DocString? =
+        when (this) {
             is Module -> module.docs
             is Type -> type.docs
             is Member -> member.getDocString()
         }
-    }
 
     /** Get the summary of the underlying [DocString] for this item, if it exists. */
     // pub fn get_doc_summary(&self) -> Option<&str>
-    fun getDocSummary(): String? {
-        return getDocString()?.summary
-    }
+    fun getDocSummary(): String? = getDocString()?.summary
 
     /**
      * Converts to a doc member, if possible.
@@ -292,26 +290,25 @@ sealed class DocItem {
      * single property that just indicates their type.
      */
     // pub fn try_as_member_with_collapsed_object(&self) -> Result<DocMember, &DocModule>
-    fun tryAsMemberWithCollapsedObject(): Result<DocMember> {
-        return when (this) {
+    fun tryAsMemberWithCollapsedObject(): Result<DocMember> =
+        when (this) {
             is Module -> Result.failure(IllegalStateException("Cannot collapse module to member"))
             is Member -> Result.success(member)
-            is Type -> Result.success(
-                DocMember.Property(
-                    DocProperty(
-                        docs = type.docs,
-                        typ = type.ty,
-                    )
+            is Type ->
+                Result.success(
+                    DocMember.Property(
+                        DocProperty(
+                            docs = type.docs,
+                            typ = type.ty,
+                        ),
+                    ),
                 )
-            )
         }
-    }
 
     // pub fn try_as_member(&self) -> Option<DocMember>
-    fun tryAsMember(): DocMember? {
-        return when (this) {
+    fun tryAsMember(): DocMember? =
+        when (this) {
             is Member -> member
             else -> null
         }
-    }
 }

@@ -22,6 +22,10 @@ import io.github.kotlinmania.starlark.eval.runtime.profile.mode.ProfileMode
 
 internal sealed class ProfileOrInstrumentationMode {
     data object None : ProfileOrInstrumentationMode()
-    data class Profile(val mode: ProfileMode) : ProfileOrInstrumentationMode()
+
+    data class Profile(
+        val mode: ProfileMode,
+    ) : ProfileOrInstrumentationMode()
+
     data object Collected : ProfileOrInstrumentationMode()
 }

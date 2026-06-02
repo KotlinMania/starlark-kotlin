@@ -1,11 +1,11 @@
 // port-lint: source src/eval/compiler/compr.rs
 package io.github.kotlinmania.starlark.eval.compiler
 
+import io.github.kotlinmania.starlark.eval.compiler.optctx.OptCtx
 import io.github.kotlinmania.starlark.eval.compiler.scope.CstExpr
 import io.github.kotlinmania.starlark.eval.compiler.scope.CstPayload
 import io.github.kotlinmania.starlark.syntax.ast.ClauseP
 import io.github.kotlinmania.starlark.syntax.ast.ForClauseP
-import io.github.kotlinmania.starlark.eval.compiler.opt_ctx.OptCtx
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.
@@ -37,10 +37,14 @@ internal fun Compiler.listComprehension(
     val compiledClauses = compileClauses(forClause, clauses)
     if (compiledClauses.isFailure) return Result.failure(compiledClauses.exceptionOrNull()!!)
     val compiledX = this.expr(x).getOrElse { return Result.failure(it) }
-    return Result.success(ExprCompiled.Compr(ComprCompiled.List(
-        compiledX,
-        compiledClauses.getOrThrow(),
-    )))
+    return Result.success(
+        ExprCompiled.Compr(
+            ComprCompiled.List(
+                compiledX,
+                compiledClauses.getOrThrow(),
+            ),
+        ),
+    )
 }
 
 internal fun Compiler.dictComprehension(
@@ -53,10 +57,14 @@ internal fun Compiler.dictComprehension(
     if (compiledClauses.isFailure) return Result.failure(compiledClauses.exceptionOrNull()!!)
     val compiledK = this.expr(k).getOrElse { return Result.failure(it) }
     val compiledV = this.expr(v).getOrElse { return Result.failure(it) }
-    return Result.success(ExprCompiled.Compr(ComprCompiled.Dict(
-        Pair(compiledK, compiledV),
-        compiledClauses.getOrThrow(),
-    )))
+    return Result.success(
+        ExprCompiled.Compr(
+            ComprCompiled.Dict(
+                Pair(compiledK, compiledV),
+                compiledClauses.getOrThrow(),
+            ),
+        ),
+    )
 }
 
 /** Peel the final if's from clauses, and return them (in the order they started), plus the next for you get to. */
@@ -102,18 +110,21 @@ private fun Compiler.compileClauses(
         if (result.isFailure) return Result.failure(result.exceptionOrNull()!!)
         val (nextFor, ifs) = result.getOrThrow()
         if (nextFor == null) {
-            val last = ClauseCompiled(
-                variable = this.assignTarget(forClause.varTarget).getOrElse { return Result.failure(it) },
-                over = over,
-                ifs = ifs,
-            )
+            val last =
+                ClauseCompiled(
+                    variable = this.assignTarget(forClause.varTarget).getOrElse { return Result.failure(it) },
+                    over = over,
+                    ifs = ifs,
+                )
             return Result.success(ClausesCompiled.new(res, last))
         } else {
-            res.add(ClauseCompiled(
-                over = this.expr(nextFor.over).getOrElse { return Result.failure(it) },
-                variable = this.assignTarget(nextFor.varTarget).getOrElse { return Result.failure(it) },
-                ifs = ifs,
-            ))
+            res.add(
+                ClauseCompiled(
+                    over = this.expr(nextFor.over).getOrElse { return Result.failure(it) },
+                    variable = this.assignTarget(nextFor.varTarget).getOrElse { return Result.failure(it) },
+                    ifs = ifs,
+                ),
+            )
         }
     }
 }
@@ -129,15 +140,14 @@ internal sealed class ComprCompiled {
         val clauses: ClausesCompiled,
     ) : ComprCompiled()
 
-    fun clauses(): ClausesCompiled {
-        return when (this) {
+    fun clauses(): ClausesCompiled =
+        when (this) {
             is List -> clauses
             is Dict -> clauses
         }
-    }
 
-    fun optimize(ctx: OptCtx): ExprCompiled {
-        return when (this) {
+    fun optimize(ctx: OptCtx): ExprCompiled =
+        when (this) {
             is List -> {
                 val optimizedClauses = clauses.optimize(ctx)
                 ExprCompiled.Compr(List(x.optimize(ctx), optimizedClauses))
@@ -145,13 +155,14 @@ internal sealed class ComprCompiled {
             is Dict -> {
                 val (k, v) = kv
                 val optimizedClauses = clauses.optimize(ctx)
-                ExprCompiled.Compr(Dict(
-                    Pair(k.optimize(ctx), v.optimize(ctx)),
-                    optimizedClauses.optimize(ctx),
-                ))
+                ExprCompiled.Compr(
+                    Dict(
+                        Pair(k.optimize(ctx), v.optimize(ctx)),
+                        optimizedClauses.optimize(ctx),
+                    ),
+                )
             }
         }
-    }
 }
 
 internal class ClauseCompiled(
@@ -159,20 +170,20 @@ internal class ClauseCompiled(
     val over: IrSpanned<ExprCompiled>,
     val ifs: List<IrSpanned<ExprCompiled>>,
 ) {
-    fun optimize(ctx: OptCtx): ClauseCompiled {
-        return ClauseCompiled(
+    fun optimize(ctx: OptCtx): ClauseCompiled =
+        ClauseCompiled(
             variable = variable.map { it },
             over = over.optimize(ctx),
-            ifs = ifs.mapNotNull { e ->
-                val optimized = e.optimize(ctx)
-                val asBool = ExprCompiledBool.new(optimized)
-                when (val node = asBool.node) {
-                    is ExprCompiledBool.Const -> if (node.value) null else IrSpanned(span = asBool.span, node = node.intoExpr())
-                    else -> IrSpanned(span = asBool.span, node = node.intoExpr())
-                }
-            },
+            ifs =
+                ifs.mapNotNull { e ->
+                    val optimized = e.optimize(ctx)
+                    val asBool = ExprCompiledBool.new(optimized)
+                    when (val node = asBool.node) {
+                        is ExprCompiledBool.Const -> if (node.value) null else IrSpanned(span = asBool.span, node = node.intoExpr())
+                        else -> IrSpanned(span = asBool.span, node = node.intoExpr())
+                    }
+                },
         )
-    }
 }
 
 /** All clauses in a comprehension. Never empty. */
@@ -199,15 +210,13 @@ internal class ClausesCompiled private constructor(
         //   There are missing optimizations here:
         //   * we could separate effects and emit empty list/dict.
         //   * or at least do not generate comprehension terminator.
-        return splitLast().first.over.node.isIterableEmpty()
+        return splitLast()
+            .first.over.node
+            .isIterableEmpty()
     }
 
     /** Last clause is the one which is executed first. */
-    fun splitLast(): Pair<ClauseCompiled, List<ClauseCompiled>> {
-        return Pair(clauses.last(), clauses.dropLast(1))
-    }
+    fun splitLast(): Pair<ClauseCompiled, List<ClauseCompiled>> = Pair(clauses.last(), clauses.dropLast(1))
 
-    fun optimize(ctx: OptCtx): ClausesCompiled {
-        return ClausesCompiled(clauses.map { c -> c.optimize(ctx) })
-    }
+    fun optimize(ctx: OptCtx): ClausesCompiled = ClausesCompiled(clauses.map { c -> c.optimize(ctx) })
 }

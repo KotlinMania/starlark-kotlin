@@ -42,8 +42,8 @@ import io.github.kotlinmania.starlark.eval.runtime.LocalSlotId
 //     definitely_assigned: Vec<bool>,
 // }
 class BcDefinitelyAssigned private constructor(
-    /// Map from local variable slot to flag indicating whether it is definitely assigned
-    /// at the current program point.
+    // / Map from local variable slot to flag indicating whether it is definitely assigned
+    // / at the current program point.
     private val definitelyAssigned: BooleanArray,
 ) {
     // impl BcDefinitelyAssigned
@@ -53,9 +53,7 @@ class BcDefinitelyAssigned private constructor(
 
     /** Is local variable definitely assigned at given program point? */
     // pub(crate) fn is_definitely_assigned(&self, local: LocalSlotId) -> bool
-    internal fun isDefinitelyAssigned(local: LocalSlotId): Boolean {
-        return definitelyAssigned[local.index.toInt()]
-    }
+    internal fun isDefinitelyAssigned(local: LocalSlotId): Boolean = definitelyAssigned[local.index.toInt()]
 
     /**
      * Mark variable definitely assigned.
@@ -88,9 +86,7 @@ class BcDefinitelyAssigned private constructor(
     }
 
     // #[derive(Clone)]
-    fun copy(): BcDefinitelyAssigned {
-        return BcDefinitelyAssigned(definitelyAssigned.copyOf())
-    }
+    fun copy(): BcDefinitelyAssigned = BcDefinitelyAssigned(definitelyAssigned.copyOf())
 
     // #[derive(PartialEq, Eq)]
     override fun equals(other: Any?): Boolean {
@@ -102,7 +98,5 @@ class BcDefinitelyAssigned private constructor(
     override fun hashCode(): Int = definitelyAssigned.contentHashCode()
 
     // #[derive(Debug)]
-    override fun toString(): String {
-        return "BcDefinitelyAssigned(${definitelyAssigned.toList()})"
-    }
+    override fun toString(): String = "BcDefinitelyAssigned(${definitelyAssigned.toList()})"
 }

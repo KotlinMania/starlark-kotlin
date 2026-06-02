@@ -20,16 +20,18 @@ import io.github.kotlinmania.starlark.values.layout.constFrozenString
 import kotlin.test.Test
 
 class ComplexTest {
-
     private fun testModule(globals: GlobalsBuilder) {
-        fun testUnpack(v: ValueTypedComplex<TestComplexValue<Value>>): Result<String> {
-            return when (val unpacked = v.unpack()) {
+        fun testUnpack(v: ValueTypedComplex<TestComplexValue<Value>>): Result<String> =
+            when (val unpacked = v.unpack()) {
                 is io.github.kotlinmania.starlark.util.Either.Left ->
                     Result.success(unpacked.value.value.unpackStr() ?: error("not a string"))
                 is io.github.kotlinmania.starlark.util.Either.Right ->
-                    Result.success(unpacked.value.value.toValue().unpackStr() ?: error("not a string"))
+                    Result.success(
+                        unpacked.value.value
+                            .toValue()
+                            .unpackStr() ?: error("not a string"),
+                    )
             }
-        }
         globals.setFunction("test_unpack") { args, eval ->
             val v = args.positional<ValueTypedComplex<TestComplexValue<Value>>>(0)
             testUnpack(v).map { eval.heap().allocStr(it).toValue() }
@@ -43,9 +45,10 @@ class ComplexTest {
         a.setupEval { eval ->
             val s = eval.heap().alloc("test1")
             val x = eval.heap().alloc(TestComplexValue(s))
-            val y = eval.frozenHeap().alloc(
-                TestComplexValue(constFrozenString("test2").toFrozenValue()),
-            )
+            val y =
+                eval.frozenHeap().alloc(
+                    TestComplexValue(constFrozenString("test2").toFrozenValue()),
+                )
             eval.module().set("x", x)
             eval.module().set("y", y.toValue())
         }

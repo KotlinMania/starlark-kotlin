@@ -96,6 +96,4 @@ internal interface SwitchHaveSimd<R> {
  * The Rust version checks for SSE2 support at compile time and dispatches
  * to the appropriate implementation. In Kotlin, we always use the non-SIMD path.
  */
-internal fun <R> SwitchHaveSimd<R>.switchImpl(): R {
-    return noSimd()
-}
+internal fun <R> SwitchHaveSimd<R>.switchImpl(): R = noSimd()

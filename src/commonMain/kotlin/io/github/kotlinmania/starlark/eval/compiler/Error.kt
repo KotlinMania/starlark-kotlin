@@ -21,14 +21,13 @@ package io.github.kotlinmania.starlark.eval.compiler
 
 import io.github.kotlinmania.starlark.typing.EvalException
 
-class CompilerInternalError(private val exception: EvalException) : Exception(exception.message, exception) {
-
+class CompilerInternalError(
+    private val exception: EvalException,
+) : Exception(exception.message, exception) {
     // impl CompilerInternalError
 
     companion object {
-        fun fromEvalException(e: EvalException): CompilerInternalError {
-            return CompilerInternalError(e.intoInternalError())
-        }
+        fun fromEvalException(e: EvalException): CompilerInternalError = CompilerInternalError(e.intoInternalError())
     }
 
     fun intoEvalException(): EvalException = exception

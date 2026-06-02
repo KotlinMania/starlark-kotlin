@@ -1,5 +1,5 @@
 // port-lint: source src/util/non_static_type_id.rs
-package io.github.kotlinmania.starlark.util.non_static_type_id
+package io.github.kotlinmania.starlark.util.nonstatictypeid
 
 /*
  * Copyright 2018 The Starlark in Rust Authors.
@@ -27,15 +27,14 @@ import kotlin.reflect.KClass
 // We provide a KClass-based approximation for test utilities.
 
 // pub(crate) fn non_static_type_id<T: ?Sized>() -> TypeId
+
 /**
  * Get the runtime type identifier for a type.
  *
  * In Rust, this uses unsafe transmute to get TypeId for types with non-'static lifetimes.
  * In Kotlin, KClass serves as the type identifier since there are no lifetime parameters.
  */
-internal inline fun <reified T : Any> nonStaticTypeId(): KClass<T> {
-    return T::class
-}
+internal inline fun <reified T : Any> nonStaticTypeId(): KClass<T> = T::class
 
 // #[cfg(test)] mod tests
 // Tests are in commonTest, not here.

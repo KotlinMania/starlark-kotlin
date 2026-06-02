@@ -42,18 +42,16 @@ import kotlin.reflect.KClass
  * In Kotlin, we use [KClass] as the unique identifier and derive the string name
  * from [KClass.qualifiedName].
  */
-data class DeserTypeId(val typeClass: KClass<*>) {
+data class DeserTypeId(
+    val typeClass: KClass<*>,
+) {
     companion object {
         /** Create a [DeserTypeId] for a type. */
-        inline fun <reified T : Any> of(): DeserTypeId {
-            return DeserTypeId(T::class)
-        }
+        inline fun <reified T : Any> of(): DeserTypeId = DeserTypeId(T::class)
     }
 
     /** Get the underlying type name string. */
-    fun asStr(): String {
-        return typeClass.simpleName ?: typeClass.toString()
-    }
+    fun asStr(): String = typeClass.simpleName ?: typeClass.toString()
 
     override fun toString(): String = asStr()
 }
@@ -98,15 +96,12 @@ fun registerVTableEntry(entry: VTableRegistryEntry) {
  * Look up a vtable by its deserialization type id.
  * Returns a failure result if the type is not registered.
  */
-fun lookupVtable(deserTypeId: DeserTypeId): Result<AValueVTable> {
-    return VTableRegistry.registry[deserTypeId]?.let {
+fun lookupVtable(deserTypeId: DeserTypeId): Result<AValueVTable> =
+    VTableRegistry.registry[deserTypeId]?.let {
         Result.success(it)
     } ?: Result.failure(
-        PagableError.TypeNotRegistered(typeId = deserTypeId.asStr())
+        PagableError.TypeNotRegistered(typeId = deserTypeId.asStr()),
     )
-}
 
 /** Get a list of all registered type IDs (for debugging/testing). */
-internal fun registeredTypeIds(): List<DeserTypeId> {
-    return VTableRegistry.registry.keys.toList()
-}
+internal fun registeredTypeIds(): List<DeserTypeId> = VTableRegistry.registry.keys.toList()

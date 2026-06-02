@@ -20,4 +20,3 @@ package io.github.kotlinmania.starlark.util
  */
 
 /** Utilities. */
-

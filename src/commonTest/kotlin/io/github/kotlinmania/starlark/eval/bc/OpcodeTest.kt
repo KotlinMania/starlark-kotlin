@@ -18,7 +18,6 @@ import kotlin.test.assertNotNull
 import kotlin.test.assertNull
 
 class OpcodeTest {
-
     @Test
     fun opcodeCount() {
         for (i in 0 until 10000) {

@@ -25,7 +25,7 @@ import io.github.kotlinmania.starlark.environment.GlobalsBuilder
 import io.github.kotlinmania.starlark.eval.runtime.Arguments
 import io.github.kotlinmania.starlark.eval.runtime.Evaluator
 import io.github.kotlinmania.starlark.values.layout.typed.StringValue
-import io.github.kotlinmania.starlark.values.types.enumeration.enum_type.EnumType
+import io.github.kotlinmania.starlark.values.types.enumeration.enumtype.EnumType
 
 // #[starlark_module]
 // pub fn register_enum(builder: &mut GlobalsBuilder)
@@ -62,6 +62,7 @@ fun registerEnum(builder: GlobalsBuilder) {
     builder.setFunction("enum") { args: Arguments, eval: Evaluator ->
         val heap = eval.heap()
         val positionalArgs = args.positionalAll()
+
         // Every Value must either be a field or a value (the type)
         @Suppress("UNCHECKED_CAST")
         val stringArgs = positionalArgs as List<StringValue>

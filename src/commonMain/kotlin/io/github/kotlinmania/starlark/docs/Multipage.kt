@@ -20,11 +20,11 @@ package io.github.kotlinmania.starlark.docs
  */
 
 import io.github.kotlinmania.starlark.docs.markdown.LayoutRenderConfig
+import io.github.kotlinmania.starlark.docs.markdown.renderMarkdownPageForMultipageRender
 import io.github.kotlinmania.starlark.typing.Ty
 import io.github.kotlinmania.starlark.typing.TyBasic
 import io.github.kotlinmania.starlark.typing.TyStarlarkValue
 import io.github.kotlinmania.starlark.typing.TypeRenderConfig
-import io.github.kotlinmania.starlark.docs.markdown.renderMarkdownPageForMultipageRender
 
 // pub struct RenderConfig
 class RenderConfig(
@@ -42,9 +42,7 @@ class DocModuleInfo(
     // impl DocModuleInfo
 
     // fn into_page_renders(&self) -> Vec<PageRender<'a>>
-    internal fun intoPageRenders(): List<PageRender> {
-        return traverseInner(module, name, pagePath)
-    }
+    internal fun intoPageRenders(): List<PageRender> = traverseInner(module, name, pagePath)
 
     companion object {
         // fn traverse_inner(docs: &DocModule, module_name: &str, base_path: &str) -> Vec<PageRender>
@@ -61,15 +59,16 @@ class DocModuleInfo(
                     path = basePath,
                     name = moduleName,
                     ty = null,
-                )
+                ),
             )
 
             for ((memberName, doc) in docs.members.iter()) {
-                val path = if (basePath.isEmpty()) {
-                    memberName
-                } else {
-                    "$basePath/$memberName"
-                }
+                val path =
+                    if (basePath.isEmpty()) {
+                        memberName
+                    } else {
+                        "$basePath/$memberName"
+                    }
                 when (doc) {
                     is DocItem.Module -> {
                         result.addAll(traverseInner(doc.module, memberName, path))
@@ -81,7 +80,7 @@ class DocModuleInfo(
                                 path = path,
                                 name = memberName,
                                 ty = doc.type.ty,
-                            )
+                            ),
                         )
                     }
                     is DocItem.Member -> {
@@ -103,9 +102,14 @@ class DocModuleInfo(
 // enum DocPageRef<'a>
 internal sealed class DocPageRef {
     // Module(&'a DocModule)
-    class Module(val module: DocModule) : DocPageRef()
+    class Module(
+        val module: DocModule,
+    ) : DocPageRef()
+
     // Type(&'a DocType)
-    class Type(val type: DocType) : DocPageRef()
+    class Type(
+        val type: DocType,
+    ) : DocPageRef()
 }
 
 /** A single page to render. */
@@ -120,8 +124,8 @@ internal class PageRender(
     // impl PageRender
 
     // fn render_markdown(&self, render_config: &RenderConfig) -> String
-    fun renderMarkdown(renderConfig: RenderConfig): String {
-        return when (page) {
+    fun renderMarkdown(renderConfig: RenderConfig): String =
+        when (page) {
             is DocPageRef.Module -> {
                 page.module.renderMarkdownPageForMultipageRender(name, renderConfig)
             }
@@ -129,7 +133,6 @@ internal class PageRender(
                 page.type.renderMarkdownPageForMultipageRender(name, renderConfig)
             }
         }
-    }
 }
 
 /**
@@ -187,32 +190,34 @@ internal class MultipageRender(
                     }
                 }
 
-                typeRenderConfig = TypeRenderConfig.LinkedType(
-                    renderLinkedTyStarlarkValue = renderLinkedTyStarlarkValue,
-                )
+                typeRenderConfig =
+                    TypeRenderConfig.LinkedType(
+                        renderLinkedTyStarlarkValue = renderLinkedTyStarlarkValue,
+                    )
             }
 
             return MultipageRender(
                 pageRenders = res,
-                renderConfig = RenderConfig(
-                    typeConfig = typeRenderConfig,
-                    layoutConfig = if (renderSignatureAtBottom) {
-                        LayoutRenderConfig.SignatureAtBottom
-                    } else {
-                        LayoutRenderConfig.Default
-                    },
-                ),
+                renderConfig =
+                    RenderConfig(
+                        typeConfig = typeRenderConfig,
+                        layoutConfig =
+                            if (renderSignatureAtBottom) {
+                                LayoutRenderConfig.SignatureAtBottom
+                            } else {
+                                LayoutRenderConfig.Default
+                            },
+                    ),
             )
         }
     }
 
     /** Render the docs into a map of markdown paths to markdown content. */
     // fn render_markdown_pages(&self) -> HashMap<String, String>
-    fun renderMarkdownPages(): Map<String, String> {
-        return pageRenders.associate { page ->
+    fun renderMarkdownPages(): Map<String, String> =
+        pageRenders.associate { page ->
             page.path to page.renderMarkdown(renderConfig)
         }
-    }
 }
 
 /**

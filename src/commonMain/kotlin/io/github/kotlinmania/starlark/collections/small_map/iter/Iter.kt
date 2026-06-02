@@ -1,5 +1,5 @@
 // port-lint: source src/small_map/iter.rs
-package io.github.kotlinmania.starlark.collections.small_map.iter
+package io.github.kotlinmania.starlark.collections.smallmap.iter
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.
@@ -20,12 +20,12 @@ package io.github.kotlinmania.starlark.collections.small_map.iter
  */
 
 import io.github.kotlinmania.starlark.collections.Hashed
-import io.github.kotlinmania.starlark.collections.vec_map.iter.IterHashed as VecMapIterHashed
-import io.github.kotlinmania.starlark.collections.vec_map.iter.Iter as VecMapIter
-import io.github.kotlinmania.starlark.collections.vec_map.iter.IntoIterHashed as VecMapIntoIterHashed
-import io.github.kotlinmania.starlark.collections.vec_map.iter.IntoIter as VecMapIntoIter
-import io.github.kotlinmania.starlark.collections.vec_map.iter.Keys as VecMapKeys
-import io.github.kotlinmania.starlark.collections.vec_map.iter.Values as VecMapValues
+import io.github.kotlinmania.starlark.collections.vecmap.iter.IntoIter as VecMapIntoIter
+import io.github.kotlinmania.starlark.collections.vecmap.iter.IntoIterHashed as VecMapIntoIterHashed
+import io.github.kotlinmania.starlark.collections.vecmap.iter.Iter as VecMapIter
+import io.github.kotlinmania.starlark.collections.vecmap.iter.IterHashed as VecMapIterHashed
+import io.github.kotlinmania.starlark.collections.vecmap.iter.Keys as VecMapKeys
+import io.github.kotlinmania.starlark.collections.vecmap.iter.Values as VecMapValues
 
 /**
  * Iterator types for [SmallMap][io.github.kotlinmania.starlark.collections.SmallMap].
@@ -40,7 +40,9 @@ internal class IterHashed<K, V>(
     internal val iter: VecMapIterHashed<K, V>,
 ) : Iterator<Pair<Hashed<K>, V>> {
     override fun hasNext(): Boolean = iter.hasNext()
+
     override fun next(): Pair<Hashed<K>, V> = iter.next()
+
     fun len(): Int = iter.len()
 }
 
@@ -49,7 +51,9 @@ internal class Iter<K, V>(
     internal val iter: VecMapIter<K, V>,
 ) : Iterator<Pair<K, V>> {
     override fun hasNext(): Boolean = iter.hasNext()
+
     override fun next(): Pair<K, V> = iter.next()
+
     fun len(): Int = iter.len()
 }
 
@@ -62,7 +66,9 @@ internal class IterMut<K, V>(
     internal val iter: VecMapIter<K, V>,
 ) : Iterator<Pair<K, V>> {
     override fun hasNext(): Boolean = iter.hasNext()
+
     override fun next(): Pair<K, V> = iter.next()
+
     fun len(): Int = iter.len()
 }
 
@@ -76,7 +82,9 @@ internal class IterMutUnchecked<K, V>(
     internal val iter: VecMapIter<K, V>,
 ) : Iterator<Pair<K, V>> {
     override fun hasNext(): Boolean = iter.hasNext()
+
     override fun next(): Pair<K, V> = iter.next()
+
     fun len(): Int = iter.len()
 }
 
@@ -85,7 +93,9 @@ internal class IntoIterHashed<K, V>(
     internal val iter: VecMapIntoIterHashed<K, V>,
 ) : Iterator<Pair<Hashed<K>, V>> {
     override fun hasNext(): Boolean = iter.hasNext()
+
     override fun next(): Pair<Hashed<K>, V> = iter.next()
+
     fun len(): Int = iter.len()
 }
 
@@ -94,7 +104,9 @@ internal class IntoIter<K, V>(
     internal val iter: VecMapIntoIter<K, V>,
 ) : Iterator<Pair<K, V>> {
     override fun hasNext(): Boolean = iter.hasNext()
+
     override fun next(): Pair<K, V> = iter.next()
+
     fun len(): Int = iter.len()
 }
 
@@ -103,6 +115,7 @@ internal class Keys<K, V>(
     internal val iter: VecMapKeys<K, V>,
 ) : Iterator<K> {
     override fun hasNext(): Boolean = iter.hasNext()
+
     override fun next(): K = iter.next()
 }
 
@@ -111,6 +124,7 @@ internal class Values<K, V>(
     internal val iter: VecMapValues<K, V>,
 ) : Iterator<V> {
     override fun hasNext(): Boolean = iter.hasNext()
+
     override fun next(): V = iter.next()
 }
 
@@ -119,7 +133,9 @@ internal class IntoKeys<K, V>(
     internal val iter: VecMapIntoIter<K, V>,
 ) : Iterator<K> {
     override fun hasNext(): Boolean = iter.hasNext()
+
     override fun next(): K = iter.next().first
+
     fun len(): Int = iter.len()
 }
 
@@ -128,7 +144,9 @@ internal class IntoValues<K, V>(
     internal val iter: VecMapIntoIter<K, V>,
 ) : Iterator<V> {
     override fun hasNext(): Boolean = iter.hasNext()
+
     override fun next(): V = iter.next().second
+
     fun len(): Int = iter.len()
 }
 
@@ -141,5 +159,6 @@ internal class ValuesMut<K, V>(
     internal val iter: VecMapValues<K, V>,
 ) : Iterator<V> {
     override fun hasNext(): Boolean = iter.hasNext()
+
     override fun next(): V = iter.next()
 }

@@ -17,7 +17,6 @@ import io.github.kotlinmania.starlark.assert.Assert
 import kotlin.test.Test
 
 class InternalTest {
-
     @Test
     fun testTyOfValueDebug() {
         Assert.pass("print(starlark_rust_internal.ty_of_value_debug(1))")

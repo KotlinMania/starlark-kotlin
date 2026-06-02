@@ -22,26 +22,34 @@ package io.github.kotlinmania.starlark.typing
 import io.github.kotlinmania.starlark.codemap.Span
 import io.github.kotlinmania.starlark.typing.oracle.TypingOracleCtx
 import io.github.kotlinmania.starlark.values.types.TypeInstanceId
-import io.github.kotlinmania.starlark.values.typing.type_compiled.TypeMatcherAlloc
-import io.github.kotlinmania.starlark.values.typing.type_compiled.TypeMatcherFactory as TypeMatcherFactoryBoxed
+import io.github.kotlinmania.starlark.values.typing.typecompiled.TypeMatcherAlloc
+import io.github.kotlinmania.starlark.values.typing.typecompiled.TypeMatcherFactory as TypeMatcherFactoryBoxed
 
 // #[derive(Debug, thiserror::Error)]
 // enum TyUserError
-private sealed class TyUserError(override val message: String) : Exception(message) {
+private sealed class TyUserError(
+    override val message: String,
+) : Exception(message) {
     // #[error("Type `{0}` specifies custom callable, but underlying `StarlarkValue` is not callable")]
-    class CallableNotCallable(name: String) : TyUserError(
-        "Type `$name` specifies custom callable, but underlying `StarlarkValue` is not callable"
-    )
+    class CallableNotCallable(
+        name: String,
+    ) : TyUserError(
+            "Type `$name` specifies custom callable, but underlying `StarlarkValue` is not callable",
+        )
 
     // #[error("Type `{0}` specifies custom indexable, but underlying `StarlarkValue` is not indexable")]
-    class IndexableNotIndexable(name: String) : TyUserError(
-        "Type `$name` specifies custom indexable, but underlying `StarlarkValue` is not indexable"
-    )
+    class IndexableNotIndexable(
+        name: String,
+    ) : TyUserError(
+            "Type `$name` specifies custom indexable, but underlying `StarlarkValue` is not indexable",
+        )
 
     // #[error("Type `{0}` specifies custom iterable, but underlying `StarlarkValue` is not iterable")]
-    class IterableNotIterable(name: String) : TyUserError(
-        "Type `$name` specifies custom iterable, but underlying `StarlarkValue` is not iterable"
-    )
+    class IterableNotIterable(
+        name: String,
+    ) : TyUserError(
+            "Type `$name` specifies custom iterable, but underlying `StarlarkValue` is not iterable",
+        )
 }
 
 /**
@@ -70,21 +78,22 @@ data class TyUserFields(
      */
     val unknown: Boolean,
 ) : Comparable<TyUserFields> {
-
     companion object {
         /** No fields. */
         // Safe default: assuming the type is not abstract,
         // so fields are provided by `TyStarlarkValue`.
-        fun noFields(): TyUserFields = TyUserFields(
-            known = emptyMap(),
-            unknown = false,
-        )
+        fun noFields(): TyUserFields =
+            TyUserFields(
+                known = emptyMap(),
+                unknown = false,
+            )
 
         /** All fields are not known. */
-        fun unknown(): TyUserFields = TyUserFields(
-            known = emptyMap(),
-            unknown = true,
-        )
+        fun unknown(): TyUserFields =
+            TyUserFields(
+                known = emptyMap(),
+                unknown = true,
+            )
 
         // impl Default for TyUserFields
         fun default(): TyUserFields = noFields()
@@ -153,8 +162,8 @@ class TyUser private constructor(
     private val index: TyUserIndex?,
     /** Set if more precise iter item is known than `base` provides. */
     private val iterItem: Ty?,
-) : TyCustomImpl, Comparable<TyCustomImpl> {
-
+) : TyCustomImpl,
+    Comparable<TyCustomImpl> {
     companion object {
         /** Constructor. */
         // pub fn new(name, base, id, params) -> crate::Result<TyUser>
@@ -192,7 +201,7 @@ class TyUser private constructor(
                     callable = callable,
                     index = index,
                     iterItem = iterItem,
-                )
+                ),
             )
         }
 
@@ -276,13 +285,12 @@ class TyUser private constructor(
     }
 
     // fn as_callable(&self) -> Option<TyCallable>
-    override fun asCallable(): TyCallable? {
-        return if (base.isCallable()) {
+    override fun asCallable(): TyCallable? =
+        if (base.isCallable()) {
             TyCallable.any()
         } else {
             null
         }
-    }
 
     // fn validate_call(&self, span, args, oracle) -> Result<Ty, TypingOrInternalError>
     override fun validateCall(span: Span, args: TyCallArgs, oracle: TypingOracleCtx): Result<Ty> {
@@ -315,8 +323,13 @@ class TyUser private constructor(
 
 /** Destructuring support for [TyUserParams]. */
 private operator fun TyUserParams.component1(): List<TyBasic> = supertypes
+
 private operator fun TyUserParams.component2(): TypeMatcherFactoryBoxed? = matcher
+
 private operator fun TyUserParams.component3(): TyUserFields = fields
+
 private operator fun TyUserParams.component4(): TyCallable? = callable
+
 private operator fun TyUserParams.component5(): TyUserIndex? = index
+
 private operator fun TyUserParams.component6(): Ty? = iterItem

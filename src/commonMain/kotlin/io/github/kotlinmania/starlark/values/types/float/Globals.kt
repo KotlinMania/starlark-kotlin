@@ -29,9 +29,17 @@ import io.github.kotlinmania.starlark.values.types.string.stringRepr
  * This mimics Rust's `Either<Either<NumRef, bool>, &str>` type.
  */
 sealed class FloatParam {
-    data class Num(val value: NumRef) : FloatParam()
-    data class Bool(val value: Boolean) : FloatParam()
-    data class Str(val value: String) : FloatParam()
+    data class Num(
+        val value: NumRef,
+    ) : FloatParam()
+
+    data class Bool(
+        val value: Boolean,
+    ) : FloatParam()
+
+    data class Str(
+        val value: String,
+    ) : FloatParam()
 }
 
 /**
@@ -95,22 +103,23 @@ internal fun registerFloat(globals: GlobalsBuilder) {
         val asStr = v.unpackStr()
         if (asStr != null) {
             val s = asStr
-            val f: Double = try {
-                val f = s.toDouble()
-                if (f.isInfinite() && !s.lowercase().contains("inf")) {
+            val f: Double =
+                try {
+                    val f = s.toDouble()
+                    if (f.isInfinite() && !s.lowercase().contains("inf")) {
+                        throw IllegalArgumentException(
+                            "float() floating-point number too large: $s",
+                        )
+                    } else {
+                        f
+                    }
+                } catch (x: NumberFormatException) {
+                    val repr = StringBuilder()
+                    stringRepr(s, repr)
                     throw IllegalArgumentException(
-                        "float() floating-point number too large: $s"
+                        "$repr is not a valid number: $x",
                     )
-                } else {
-                    f
                 }
-            } catch (x: NumberFormatException) {
-                val repr = StringBuilder()
-                stringRepr(s, repr)
-                throw IllegalArgumentException(
-                    "$repr is not a valid number: $x"
-                )
-            }
             return@setFunction StarlarkFloat(f).allocValue(eval.heap())
         }
 
@@ -121,7 +130,7 @@ internal fun registerFloat(globals: GlobalsBuilder) {
         }
 
         throw IllegalArgumentException(
-            "float() argument doesn't match, expected int, float, bool or string"
+            "float() argument doesn't match, expected int, float, bool or string",
         )
     }
 }

@@ -20,19 +20,19 @@ package io.github.kotlinmania.starlark.stdlib.funcs
  */
 
 import io.github.kotlinmania.starlark.environment.GlobalsBuilder
-import io.github.kotlinmania.starlark.stdlib.funcs.min_max.registerMinMax
-import io.github.kotlinmania.starlark.stdlib.funcs.zip.registerZip
+import io.github.kotlinmania.starlark.stdlib.funcs.minmax.registerMinMax
 import io.github.kotlinmania.starlark.stdlib.funcs.other.registerOther
+import io.github.kotlinmania.starlark.stdlib.funcs.zip.registerZip
 import io.github.kotlinmania.starlark.values.types.bool.registerBool
+import io.github.kotlinmania.starlark.values.types.dict.registerDict
 import io.github.kotlinmania.starlark.values.types.float.registerFloat
 import io.github.kotlinmania.starlark.values.types.int.registerInt
+import io.github.kotlinmania.starlark.values.types.list.registerList
 import io.github.kotlinmania.starlark.values.types.none.registerNone
+import io.github.kotlinmania.starlark.values.types.num.registerNum
 import io.github.kotlinmania.starlark.values.types.range.registerRange
 import io.github.kotlinmania.starlark.values.types.string.registerStr
 import io.github.kotlinmania.starlark.values.types.tuple.registerTuple
-import io.github.kotlinmania.starlark.values.types.dict.registerDict
-import io.github.kotlinmania.starlark.values.types.list.registerList
-import io.github.kotlinmania.starlark.values.types.num.registerNum
 
 internal fun registerGlobals(globals: GlobalsBuilder) {
     registerList(globals)

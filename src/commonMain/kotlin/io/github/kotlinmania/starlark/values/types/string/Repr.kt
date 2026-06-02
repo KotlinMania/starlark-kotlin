@@ -21,7 +21,6 @@ import io.github.kotlinmania.starlark.unlikely
  * limitations under the License.
  */
 
-
 /**
  * Implementation of `repr()`.
  */
@@ -82,15 +81,13 @@ private fun pushEscapeCodePoint(codePoint: Int, buffer: StringBuilder) {
 /**
  * Check if a character needs to be escaped in `repr()`.
  */
-private fun needEscape(c: Char): Boolean {
-    return needEscapeCodePoint(c.code)
-}
+private fun needEscape(c: Char): Boolean = needEscapeCodePoint(c.code)
 
 /**
  * Check if a Unicode code point needs to be escaped in `repr()`.
  */
-private fun needEscapeCodePoint(codePoint: Int): Boolean {
-    return when {
+private fun needEscapeCodePoint(codePoint: Int): Boolean =
+    when {
         codePoint < 0x20 -> true
         codePoint == '"'.code -> true
         codePoint == '\\'.code -> true
@@ -108,7 +105,6 @@ private fun needEscapeCodePoint(codePoint: Int): Boolean {
         // but `is_alphanumeric` is practically enough for now.
         else -> !Char(codePoint).isLetterOrDigit()
     }
-}
 
 /**
  * Convert a string to its repr() representation.
@@ -194,7 +190,7 @@ internal fun stringRepr(str: String, buffer: StringBuilder) {
      */
     class Switch(
         private val s: String,
-        private val buffer: StringBuilder
+        private val buffer: StringBuilder,
     ) : SwitchHaveSimd<Unit> {
         override fun noSimd() {
             loopAscii(s, buffer)

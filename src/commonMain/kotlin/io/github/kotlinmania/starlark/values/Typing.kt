@@ -1,5 +1,6 @@
 // port-lint: source src/values/typing.rs
 @file:Suppress("unused")
+
 package io.github.kotlinmania.starlark.values
 
 /*
@@ -20,7 +21,7 @@ package io.github.kotlinmania.starlark.values
  * limitations under the License.
  */
 
-/// Typechecker-related types.
+// / Typechecker-related types.
 
 // pub(crate) mod any;
 // internal val any = "any" // conflicts with Types.kt declaration

@@ -1,5 +1,5 @@
 // port-lint: source src/values/typing/type_compiled/type_matcher_factory.rs
-package io.github.kotlinmania.starlark.values.typing.type_compiled
+package io.github.kotlinmania.starlark.values.typing.typecompiled
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.
@@ -29,16 +29,15 @@ private class TypeMatcherFactoryImpl(
     // impl<M: TypeMatcher> TypeMatcherFactoryDyn for TypeMatcherFactoryImpl<M>
 
     // fn matcher_box(&self) -> TypeMatcherBox
-    override fun matcherBox(): TypeMatcherBox {
-        return TypeMatcherBox.new(object : TypeMatcherT {
-            override fun matches(value: Value): Boolean = matcher.matches(value)
-        })
-    }
+    override fun matcherBox(): TypeMatcherBox =
+        TypeMatcherBox.new(
+            object : TypeMatcherT {
+                override fun matches(value: Value): Boolean = matcher.matches(value)
+            },
+        )
 
     // fn type_compiled<'v>(&self, factory: TypeCompiledFactory<'_, 'v>) -> TypeCompiled>
-    override fun typeCompiled(factory: TypeCompiledFactory): TypeCompiled {
-        return factory.alloc(matcher)
-    }
+    override fun typeCompiled(factory: TypeCompiledFactory): TypeCompiled = factory.alloc(matcher)
 
     override fun toString(): String = "TypeMatcherFactoryImpl($matcher)"
 }
@@ -49,6 +48,7 @@ private class TypeMatcherFactoryImpl(
 // }
 internal interface TypeMatcherFactoryDyn {
     fun matcherBox(): TypeMatcherBox
+
     fun typeCompiled(factory: TypeCompiledFactory): TypeCompiled
 }
 
@@ -60,9 +60,7 @@ class TypeMatcherFactory internal constructor(
 
     companion object {
         /** Create a new [TypeMatcherFactory] from a [TypeMatcher]. */
-        fun new(matcher: TypeMatcher): TypeMatcherFactory {
-            return TypeMatcherFactory(TypeMatcherFactoryImpl(matcher))
-        }
+        fun new(matcher: TypeMatcher): TypeMatcherFactory = TypeMatcherFactory(TypeMatcherFactoryImpl(matcher))
     }
 
     override fun toString(): String = "TypeMatcherFactory($factory)"

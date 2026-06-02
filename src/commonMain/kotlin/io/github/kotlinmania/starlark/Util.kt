@@ -21,7 +21,7 @@ package io.github.kotlinmania.starlark
  * limitations under the License.
  */
 
-/// Utilities.
+// / Utilities.
 
 // pub(crate) mod arc_or_static;
 // pub(crate) mod arc_str;

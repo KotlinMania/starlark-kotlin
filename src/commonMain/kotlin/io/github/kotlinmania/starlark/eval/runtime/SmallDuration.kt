@@ -32,17 +32,14 @@ import kotlin.time.Duration
 import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.Duration.Companion.nanoseconds
 
-/// Slightly faster than `Duration`.
+// / Slightly faster than `Duration`.
 // #[derive(Copy, Clone, Dupe, Default, Eq, PartialEq, Ord, PartialOrd, Debug, Allocative)]
 internal data class SmallDuration(
-    /// `u64::MAX` nanos is 500 years.
+    // / `u64::MAX` nanos is 500 years.
     // pub(crate) nanos: u64,
     internal var nanos: ULong = 0u,
 ) : Comparable<SmallDuration> {
-
-    override fun compareTo(other: SmallDuration): Int {
-        return nanos.compareTo(other.nanos)
-    }
+    override fun compareTo(other: SmallDuration): Int = nanos.compareTo(other.nanos)
 
     // impl SmallDuration
 
@@ -52,21 +49,15 @@ internal data class SmallDuration(
         fun default(): SmallDuration = SmallDuration(0u)
 
         // pub(crate) fn from_duration(duration: Duration) -> SmallDuration
-        fun fromDuration(duration: Duration): SmallDuration {
-            return SmallDuration(duration.inWholeNanoseconds.toULong())
-        }
+        fun fromDuration(duration: Duration): SmallDuration = SmallDuration(duration.inWholeNanoseconds.toULong())
 
         // #[cfg(test)]
         // pub(crate) fn from_millis(millis: u64) -> SmallDuration
-        internal fun fromMillis(millis: ULong): SmallDuration {
-            return fromDuration(millis.toLong().milliseconds)
-        }
+        internal fun fromMillis(millis: ULong): SmallDuration = fromDuration(millis.toLong().milliseconds)
     }
 
     // pub(crate) fn to_duration(self) -> Duration
-    fun toDuration(): Duration {
-        return nanos.toLong().nanoseconds
-    }
+    fun toDuration(): Duration = nanos.toLong().nanoseconds
 
     // impl AddAssign for SmallDuration
     // Kotlin: += works via reassignment (x = x + other) thanks to plus operators.
@@ -75,28 +66,20 @@ internal data class SmallDuration(
     // impl Add<Duration> for SmallDuration
     // type Output = SmallDuration;
     // fn add(self, other: Duration) -> Self::Output
-    operator fun plus(other: Duration): SmallDuration {
-        return SmallDuration(nanos + other.inWholeNanoseconds.toULong())
-    }
+    operator fun plus(other: Duration): SmallDuration = SmallDuration(nanos + other.inWholeNanoseconds.toULong())
 
     // impl Add<SmallDuration> for SmallDuration
     // type Output = SmallDuration;
     // fn add(self, other: SmallDuration) -> SmallDuration
-    operator fun plus(other: SmallDuration): SmallDuration {
-        return SmallDuration(nanos + other.nanos)
-    }
+    operator fun plus(other: SmallDuration): SmallDuration = SmallDuration(nanos + other.nanos)
 
     // impl Div<u64> for SmallDuration
     // type Output = SmallDuration;
     // fn div(self, other: u64) -> SmallDuration
-    operator fun div(other: ULong): SmallDuration {
-        return SmallDuration(nanos / other)
-    }
+    operator fun div(other: ULong): SmallDuration = SmallDuration(nanos / other)
 }
 
 // impl<'a> Sum<&'a SmallDuration> for SmallDuration
 // fn sum<I>(iter: I) -> SmallDuration
 // where I: Iterator<Item = &'a SmallDuration>
-internal fun Iterable<SmallDuration>.sum(): SmallDuration {
-    return fold(SmallDuration.default()) { acc, x -> acc + x }
-}
+internal fun Iterable<SmallDuration>.sum(): SmallDuration = fold(SmallDuration.default()) { acc, x -> acc + x }

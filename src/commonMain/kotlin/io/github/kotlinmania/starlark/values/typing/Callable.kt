@@ -25,28 +25,29 @@ import io.github.kotlinmania.starlark.typing.TyBasic
 import io.github.kotlinmania.starlark.typing.TyCallable
 import io.github.kotlinmania.starlark.values.AllocFrozenValue
 import io.github.kotlinmania.starlark.values.AllocValue
-import io.github.kotlinmania.starlark.values.layout.Freezer
-import io.github.kotlinmania.starlark.values.layout.heap.FrozenHeap
-import io.github.kotlinmania.starlark.values.layout.FrozenValue
-import io.github.kotlinmania.starlark.values.layout.FrozenValueStarlarkTypeRepr
 import io.github.kotlinmania.starlark.values.StarlarkTypeRepr
 import io.github.kotlinmania.starlark.values.StarlarkValue
 import io.github.kotlinmania.starlark.values.UnpackValue
+import io.github.kotlinmania.starlark.values.layout.Freezer
+import io.github.kotlinmania.starlark.values.layout.FrozenValue
+import io.github.kotlinmania.starlark.values.layout.FrozenValueStarlarkTypeRepr
 import io.github.kotlinmania.starlark.values.layout.Value
 import io.github.kotlinmania.starlark.values.layout.avalues.simple.allocSimple
+import io.github.kotlinmania.starlark.values.layout.heap.FrozenHeap
 import io.github.kotlinmania.starlark.values.layout.heap.Heap
+import io.github.kotlinmania.starlark.values.types.list.UnpackListUnpackValue
 import io.github.kotlinmania.starlark.values.typing.callable.StarlarkCallableParamAny
 import io.github.kotlinmania.starlark.values.typing.callable.StarlarkCallableParamSpec
-import io.github.kotlinmania.starlark.values.typing.type_compiled.TypeCompiled
-import io.github.kotlinmania.starlark.values.types.list.UnpackListUnpackValue
+import io.github.kotlinmania.starlark.values.typing.typecompiled.TypeCompiled
 
 // Submodules:
 // pub(crate) mod param -> callable.param (Param.kt)
 
 // #[derive(Debug, Display, Allocative, ProvidesStaticType, NoSerialize)]
 // pub(crate) struct TypingCallable
-internal class TypingCallable : StarlarkValue, AllocFrozenValue {
-
+internal class TypingCallable :
+    StarlarkValue,
+    AllocFrozenValue {
     // #[starlark_value(type = "typing.Callable")]
     override val TYPE: String get() = "typing.Callable"
     override val HAS_eval_type: Boolean get() = true
@@ -54,24 +55,22 @@ internal class TypingCallable : StarlarkValue, AllocFrozenValue {
     override fun toString(): String = TYPE
 
     // impl StarlarkTypeRepr (required by AllocFrozenValue)
-    override fun starlarkTypeRepr(): Ty {
-        return StarlarkCallable.starlarkTypeRepr()
-    }
+    override fun starlarkTypeRepr(): Ty = StarlarkCallable.starlarkTypeRepr()
 
     // fn eval_type(&self) -> Option<Ty>
-    override fun evalType(): Ty? {
-        return StarlarkCallable.starlarkTypeRepr()
-    }
+    override fun evalType(): Ty? = StarlarkCallable.starlarkTypeRepr()
 
     // fn at2(&self, param_types: Value<'v>, ret: Value<'v>, heap: Heap<'v>, _private: Private) -> crate::Result<Value<'v>>
-    override fun at2(index0: Value, index1: Value, heap: Heap): Result<Value> {
-        return runCatching {
-            val unpacker = UnpackListUnpackValue<Value>(
-                object : UnpackValue<Value> {
-                    override fun starlarkTypeRepr(): Ty = Ty.any()
-                    override fun unpackValueImpl(value: Value): Result<Value?> = Result.success(value)
-                }
-            )
+    override fun at2(index0: Value, index1: Value, heap: Heap): Result<Value> =
+        runCatching {
+            val unpacker =
+                UnpackListUnpackValue<Value>(
+                    object : UnpackValue<Value> {
+                        override fun starlarkTypeRepr(): Ty = Ty.any()
+
+                        override fun unpackValueImpl(value: Value): Result<Value?> = Result.success(value)
+                    },
+                )
             val paramTypesList = unpacker.unpackValueErr(index0)
             val retTy = TypeCompiled.new(index1, heap).asTy()
             val paramTys = mutableListOf<Ty>()
@@ -83,15 +82,12 @@ internal class TypingCallable : StarlarkValue, AllocFrozenValue {
             heap.allocSimple(
                 TypingCallableAt2(
                     callable = TyCallable.new(ParamSpec.posOnly(paramTys, emptyList()), retTy),
-                )
+                ),
             )
         }
-    }
 
     // impl AllocFrozenValue for TypingCallable
-    override fun allocFrozenValue(heap: FrozenHeap): FrozenValue {
-        return heap.allocSimple(this)
-    }
+    override fun allocFrozenValue(heap: FrozenHeap): FrozenValue = heap.allocSimple(this)
 }
 
 // #[derive(Allocative, Debug, ProvidesStaticType, NoSerialize, Display)]
@@ -99,7 +95,6 @@ internal class TypingCallable : StarlarkValue, AllocFrozenValue {
 internal class TypingCallableAt2(
     val callable: TyCallable,
 ) : StarlarkValue {
-
     // #[starlark_value(type = "typing.Callable")]
     override val TYPE: String get() = "typing.Callable"
     override val HAS_eval_type: Boolean get() = true
@@ -107,9 +102,7 @@ internal class TypingCallableAt2(
     override fun toString(): String = callable.toString()
 
     // fn eval_type(&self) -> Option<Ty>
-    override fun evalType(): Ty? {
-        return Ty.basic(TyBasic.Callable(callable))
-    }
+    override fun evalType(): Ty? = Ty.basic(TyBasic.Callable(callable))
 }
 
 /**
@@ -119,27 +112,22 @@ internal class TypingCallableAt2(
 // pub struct StarlarkCallable<'v, P: StarlarkCallableParamSpec, R: StarlarkTypeRepr>
 class StarlarkCallable<P : StarlarkCallableParamSpec, R : StarlarkTypeRepr>(
     val value: Value,
-) : StarlarkTypeRepr, UnpackValue<StarlarkCallable<P, R>>, AllocValue {
-
+) : StarlarkTypeRepr,
+    UnpackValue<StarlarkCallable<P, R>>,
+    AllocValue {
     companion object {
         /** Wrap the value. */
         // pub fn unchecked_new(value: Value<'v>) -> Self
-        fun <P : StarlarkCallableParamSpec, R : StarlarkTypeRepr> uncheckedNew(value: Value): StarlarkCallable<P, R> {
-            return StarlarkCallable(value)
-        }
+        fun <P : StarlarkCallableParamSpec, R : StarlarkTypeRepr> uncheckedNew(value: Value): StarlarkCallable<P, R> = StarlarkCallable(value)
 
         // fn starlark_type_repr() -> Ty
-        fun starlarkTypeRepr(): Ty {
-            return Ty.callable(StarlarkCallableParamAny.params(), FrozenValueStarlarkTypeRepr.starlarkTypeRepr())
-        }
+        fun starlarkTypeRepr(): Ty = Ty.callable(StarlarkCallableParamAny.params(), FrozenValueStarlarkTypeRepr.starlarkTypeRepr())
 
         // fn starlark_type_repr() -> Ty  (parameterized)
         fun <P : StarlarkCallableParamSpec, R : StarlarkTypeRepr> starlarkTypeRepr(
             paramSpec: P,
             returnTypeRepr: R,
-        ): Ty {
-            return Ty.callable(paramSpec.params(), returnTypeRepr.starlarkTypeRepr())
-        }
+        ): Ty = Ty.callable(paramSpec.params(), returnTypeRepr.starlarkTypeRepr())
     }
 
     /** Convert to `FrozenValue` version. */
@@ -151,68 +139,51 @@ class StarlarkCallable<P : StarlarkCallableParamSpec, R : StarlarkTypeRepr>(
 
     /** Erase parameter and return types. */
     // pub fn erase(self) -> StarlarkCallable<'v>
-    fun erase(): StarlarkCallable<StarlarkCallableParamAny, StarlarkTypeRepr> {
-        return uncheckedNew(value)
-    }
+    fun erase(): StarlarkCallable<StarlarkCallableParamAny, StarlarkTypeRepr> = uncheckedNew(value)
 
     // impl StarlarkTypeRepr for StarlarkCallable
-    override fun starlarkTypeRepr(): Ty {
-        return Companion.starlarkTypeRepr()
-    }
+    override fun starlarkTypeRepr(): Ty = Companion.starlarkTypeRepr()
 
     // impl UnpackValue for StarlarkCallable
     // fn unpack_value_impl(value: Value<'v>) -> Result<Option<Self>, Self::Error>
-    override fun unpackValueImpl(value: Value): Result<StarlarkCallable<P, R>?> {
-        return if (value.vtable().hasInvoke) {
+    override fun unpackValueImpl(value: Value): Result<StarlarkCallable<P, R>?> =
+        if (value.vtable().hasInvoke) {
             Result.success(uncheckedNew(value))
         } else {
             Result.success(null)
         }
-    }
 
     // impl AllocValue for StarlarkCallable
-    override fun allocValue(heap: Heap): Value {
-        return value
-    }
+    override fun allocValue(heap: Heap): Value = value
 }
 
 /** Marker for a callable value. */
 // pub struct FrozenStarlarkCallable<P: StarlarkCallableParamSpec, R: StarlarkTypeRepr>
 class FrozenStarlarkCallable<P : StarlarkCallableParamSpec, R : StarlarkTypeRepr>(
     val value: FrozenValue,
-) : StarlarkTypeRepr, AllocFrozenValue {
-
+) : StarlarkTypeRepr,
+    AllocFrozenValue {
     companion object {
         /** Wrap the value. */
         // pub fn unchecked_new(value: FrozenValue) -> Self
-        fun <P : StarlarkCallableParamSpec, R : StarlarkTypeRepr> uncheckedNew(value: FrozenValue): FrozenStarlarkCallable<P, R> {
-            return FrozenStarlarkCallable(value)
-        }
+        fun <P : StarlarkCallableParamSpec, R : StarlarkTypeRepr> uncheckedNew(value: FrozenValue): FrozenStarlarkCallable<P, R> = FrozenStarlarkCallable(value)
     }
 
     override fun toString(): String = "FrozenStarlarkCallable($value)"
 
     /** Erase parameter and return types. */
     // pub fn erase(self) -> FrozenStarlarkCallable
-    fun erase(): FrozenStarlarkCallable<StarlarkCallableParamAny, StarlarkTypeRepr> {
-        return uncheckedNew(value)
-    }
+    fun erase(): FrozenStarlarkCallable<StarlarkCallableParamAny, StarlarkTypeRepr> = uncheckedNew(value)
 
     // impl StarlarkTypeRepr for FrozenStarlarkCallable
-    override fun starlarkTypeRepr(): Ty {
-        return StarlarkCallable.starlarkTypeRepr()
-    }
+    override fun starlarkTypeRepr(): Ty = StarlarkCallable.starlarkTypeRepr()
 
     // impl AllocFrozenValue for FrozenStarlarkCallable
-    override fun allocFrozenValue(heap: FrozenHeap): FrozenValue {
-        return value
-    }
+    override fun allocFrozenValue(heap: FrozenHeap): FrozenValue = value
 
     /** Convert to `Value`-version. */
     // pub fn to_callable<'v>(self) -> StarlarkCallable<'v, P, R>
-    fun toCallable(): StarlarkCallable<P, R> {
-        return StarlarkCallable.uncheckedNew(value.toValue())
-    }
+    fun toCallable(): StarlarkCallable<P, R> = StarlarkCallable.uncheckedNew(value.toValue())
 }
 
 // impl Freeze for StarlarkCallable
@@ -240,20 +211,17 @@ fun <P : StarlarkCallableParamSpec, R : StarlarkTypeRepr> StarlarkCallable<P, R>
 // pub struct StarlarkCallableChecked<'v, P: StarlarkCallableParamSpec, R: StarlarkTypeRepr>
 class StarlarkCallableChecked<P : StarlarkCallableParamSpec, R : StarlarkTypeRepr>(
     val value: Value,
-) : StarlarkTypeRepr, UnpackValue<StarlarkCallableChecked<P, R>>, AllocValue {
-
+) : StarlarkTypeRepr,
+    UnpackValue<StarlarkCallableChecked<P, R>>,
+    AllocValue {
     override fun toString(): String = "StarlarkCallableChecked($value)"
 
     /** Convert to [`StarlarkCallable`]. */
     // pub fn to_unchecked(self) -> StarlarkCallable<'v, P, R>
-    fun toUnchecked(): StarlarkCallable<P, R> {
-        return StarlarkCallable.uncheckedNew(value)
-    }
+    fun toUnchecked(): StarlarkCallable<P, R> = StarlarkCallable.uncheckedNew(value)
 
     // impl StarlarkTypeRepr for StarlarkCallableChecked
-    override fun starlarkTypeRepr(): Ty {
-        return StarlarkCallable.starlarkTypeRepr()
-    }
+    override fun starlarkTypeRepr(): Ty = StarlarkCallable.starlarkTypeRepr()
 
     // impl UnpackValue for StarlarkCallableChecked
     // fn unpack_value_impl(value: Value<'v>) -> Result<Option<Self>, Self::Error>
@@ -272,7 +240,5 @@ class StarlarkCallableChecked<P : StarlarkCallableParamSpec, R : StarlarkTypeRep
     }
 
     // impl AllocValue for StarlarkCallableChecked
-    override fun allocValue(heap: Heap): Value {
-        return value
-    }
+    override fun allocValue(heap: Heap): Value = value
 }

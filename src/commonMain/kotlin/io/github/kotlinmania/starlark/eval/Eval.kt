@@ -38,6 +38,7 @@ import io.github.kotlinmania.starlark.eval.compiler.Compiler
 import io.github.kotlinmania.starlark.eval.compiler.DefInfo
 import io.github.kotlinmania.starlark.eval.compiler.ModuleScopes
 import io.github.kotlinmania.starlark.eval.compiler.ScopeId
+import io.github.kotlinmania.starlark.eval.compiler.evalModule
 import io.github.kotlinmania.starlark.eval.compiler.scope.ScopeResolverGlobals
 import io.github.kotlinmania.starlark.eval.runtime.ArgNames
 import io.github.kotlinmania.starlark.eval.runtime.Arguments
@@ -88,31 +89,35 @@ fun Evaluator.evalModule(ast: AstModule, globals: Globals): Result<Value> {
         moduleEnv.setDocstring(docstring)
     }
 
-    val moduleScopes = runCatching {
-        ModuleScopes.checkModuleErr(
-            moduleEnv.mutableNames(),
-            moduleEnv.frozenHeap(),
-            emptyMap(),
-            statement,
-            ScopeResolverGlobals(globals = globalsRef),
-            codemapRef,
-            dialect,
-        )
-    }.getOrElse { return Result.failure(it) }
+    val moduleScopes =
+        runCatching {
+            ModuleScopes.checkModuleErr(
+                moduleEnv.mutableNames(),
+                moduleEnv.frozenHeap(),
+                emptyMap(),
+                statement,
+                ScopeResolverGlobals(globals = globalsRef),
+                codemapRef,
+                dialect,
+            )
+        }.getOrElse { return Result.failure(it) }
 
     val scopeNames = moduleScopes.scopeData.getScope(ScopeId.module())
     val localNames = frozenHeap().allocAnySlice(scopeNames.used)
 
     moduleEnv.slots().ensureSlots(moduleScopes.moduleSlotCount)
     val oldDefInfo = moduleDefInfo
-    moduleDefInfo = moduleEnv.frozenHeap().allocAny(
-        DefInfo.forModule(
-            codemapRef,
-            localNames.deref(),
-            moduleEnv.frozenHeap().allocAnySlice(scopeNames.parent).deref(),
-            globalsRef,
-        )
-    ).deref()
+    moduleDefInfo =
+        moduleEnv
+            .frozenHeap()
+            .allocAny(
+                DefInfo.forModule(
+                    codemapRef,
+                    localNames.deref(),
+                    moduleEnv.frozenHeap().allocAnySlice(scopeNames.parent).deref(),
+                    globalsRef,
+                ),
+            ).deref()
 
     runCatching {
         callStack.allocIfNeeded(
@@ -125,16 +130,17 @@ fun Evaluator.evalModule(ast: AstModule, globals: Globals): Result<Value> {
     callStack.push(Value.newNone(), null)
 
     // Evaluation
-    val compiler = Compiler(
-        scopeData = moduleScopes.scopeData,
-        locals = mutableListOf(),
-        globals = globalsRef,
-        codemap = codemapRef,
-        eval = this,
-        checkTypes = dialect.enableTypes == DialectTypes.Enable,
-        topLevelStmtCount = moduleScopes.topLevelStmtCount,
-        typecheck = typecheck,
-    )
+    val compiler =
+        Compiler(
+            scopeData = moduleScopes.scopeData,
+            locals = mutableListOf(),
+            globals = globalsRef,
+            codemap = codemapRef,
+            eval = this,
+            checkTypes = dialect.enableTypes == DialectTypes.Enable,
+            topLevelStmtCount = moduleScopes.topLevelStmtCount,
+            typecheck = typecheck,
+        )
 
     val res = compiler.evalModule(moduleScopes.cst, localNames)
 
@@ -160,15 +166,16 @@ fun Evaluator.evalFunction(
 ): Result<Value> {
     val names = named.map { (s, _) -> Pair(Symbol.new(s), StringValue.newUnchecked(heap().allocStr(s))) }
     val namedValues = named.map { it.second }
-    val params = Arguments(
-        ArgumentsFull(
-            pos = positional,
-            named = namedValues,
-            names = ArgNames.newCheckUnique(names).getOrElse { return Result.failure(it) },
-            args = null,
-            kwargs = null,
+    val params =
+        Arguments(
+            ArgumentsFull(
+                pos = positional,
+                named = namedValues,
+                names = ArgNames.newCheckUnique(names).getOrElse { return Result.failure(it) },
+                args = null,
+                kwargs = null,
+            ),
         )
-    )
     runCatching {
         callStack.allocIfNeeded(
             maxCallstackSize ?: DEFAULT_STACK_SIZE,
@@ -178,9 +185,10 @@ fun Evaluator.evalFunction(
     // eval_module pushes an "empty" call stack frame. other places expect that first frame
     // to be ignorable, and so we push an empty frame too (otherwise things would ignore
     // this function's own frame).
-    val res = withCallStack(Value.newNone(), null) { eval ->
-        function.invoke(params, eval)
-    }
+    val res =
+        withCallStack(Value.newNone(), null) { eval ->
+            function.invoke(params, eval)
+        }
 
     runCatching { runInfrequentInstrChecks() }.getOrElse { return Result.failure(it) }
 

@@ -24,7 +24,6 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 
 class CsvTest {
-
     @Test
     fun testCsvWriter() {
         val csv = CsvWriter(listOf("File", "Count", "Duration"))

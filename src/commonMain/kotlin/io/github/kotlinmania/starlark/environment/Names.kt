@@ -21,8 +21,8 @@ package io.github.kotlinmania.starlark.environment
 
 import io.github.kotlinmania.starlark.collections.Hashed
 import io.github.kotlinmania.starlark.collections.SmallMap
-import io.github.kotlinmania.starlark.values.layout.typed.FrozenStringValue
 import io.github.kotlinmania.starlark.syntax.ast.Visibility
+import io.github.kotlinmania.starlark.values.layout.typed.FrozenStringValue
 
 /**
  * MutableNames are how we allocate slots (index-based) to variables
@@ -103,9 +103,7 @@ class MutableNames {
 
     /** Add an exported name, or if it's already there, return the existing name. */
     // pub(crate) fn add_name(&self, name: FrozenStringValue) -> ModuleSlotId
-    fun addName(name: FrozenStringValue): ModuleSlotId {
-        return addNameVisibility(name, Visibility.Public)
-    }
+    fun addName(name: FrozenStringValue): ModuleSlotId = addNameVisibility(name, Visibility.Public)
 
     // pub(crate) fn hide_name(&self, name: &str)
     fun hideName(name: String) {
@@ -117,24 +115,16 @@ class MutableNames {
     }
 
     // pub(crate) fn all_names_and_slots(&self) -> Vec<(FrozenStringValue, ModuleSlotId)>
-    fun allNamesAndSlots(): List<Pair<FrozenStringValue, ModuleSlotId>> {
-        return map.iter().map { (name, pair) -> Pair(name, pair.first) }.toList()
-    }
+    fun allNamesAndSlots(): List<Pair<FrozenStringValue, ModuleSlotId>> = map.iter().map { (name, pair) -> Pair(name, pair.first) }.toList()
 
     // pub(crate) fn all_names_and_visibilities(&self) -> Vec<(FrozenStringValue, Visibility)>
-    fun allNamesAndVisibilities(): List<Pair<FrozenStringValue, Visibility>> {
-        return map.iter().map { (name, pair) -> Pair(name, pair.second) }.toList()
-    }
+    fun allNamesAndVisibilities(): List<Pair<FrozenStringValue, Visibility>> = map.iter().map { (name, pair) -> Pair(name, pair.second) }.toList()
 
     // pub(crate) fn all_names_slots_and_visibilities(&self) -> Vec<(FrozenStringValue, ModuleSlotId, Visibility)>
-    fun allNamesSlotsAndVisibilities(): List<Triple<FrozenStringValue, ModuleSlotId, Visibility>> {
-        return map.iter().map { (name, pair) -> Triple(name, pair.first, pair.second) }.toList()
-    }
+    fun allNamesSlotsAndVisibilities(): List<Triple<FrozenStringValue, ModuleSlotId, Visibility>> = map.iter().map { (name, pair) -> Triple(name, pair.first, pair.second) }.toList()
 
     // pub(crate) fn freeze(self) -> FrozenNames
-    fun freeze(): FrozenNames {
-        return FrozenNames(map)
-    }
+    fun freeze(): FrozenNames = FrozenNames(map)
 }
 
 /** Frozen (immutable) form of [MutableNames]. */
@@ -156,19 +146,16 @@ class FrozenNames(
 
     /** Symbols including private. */
     // pub(crate) fn all_symbols(&self) -> impl Iterator<Item = (FrozenStringValue, ModuleSlotId)> + '_
-    fun allSymbols(): Sequence<Pair<FrozenStringValue, ModuleSlotId>> {
-        return map.iter().asSequence().map { (name, pair) -> Pair(name, pair.first) }
-    }
+    fun allSymbols(): Sequence<Pair<FrozenStringValue, ModuleSlotId>> = map.iter().asSequence().map { (name, pair) -> Pair(name, pair.first) }
 
     /** Exported symbols. */
     // pub(crate) fn symbols(&self) -> impl Iterator<Item = (FrozenStringValue, ModuleSlotId)> + '_
-    fun symbols(): Sequence<Pair<FrozenStringValue, ModuleSlotId>> {
-        return map.iter().asSequence().mapNotNull { (name, pair) ->
+    fun symbols(): Sequence<Pair<FrozenStringValue, ModuleSlotId>> =
+        map.iter().asSequence().mapNotNull { (name, pair) ->
             val (slot, vis) = pair
             when (vis) {
                 Visibility.Private -> null
                 Visibility.Public -> Pair(name, slot)
             }
         }
-    }
 }

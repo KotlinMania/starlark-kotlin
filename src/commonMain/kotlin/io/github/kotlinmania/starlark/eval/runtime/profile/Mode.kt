@@ -29,30 +29,44 @@ enum class ProfileMode {
      * performed by each function.
      */
     HeapSummaryAllocated,
+
     /** Like heap summary, but information about retained memory after module is frozen. */
     HeapSummaryRetained,
+
     /** Like heap profile, but writes output comparable with flamegraph.pl. */
     HeapFlameAllocated,
+
     /** Like heap flame, but information about retained memory after module is frozen. */
     HeapFlameRetained,
+
     /** HeapSummaryAllocated+HeapFlameAllocated */
     HeapAllocated,
+
     /** HeapSummaryRetained+HeapFlameRetained */
     HeapRetained,
+
     /** The statement profile mode provides information about time spent in each statement. */
     Statement,
+
     /** Code coverage. */
     Coverage,
+
     /** The bytecode profile mode provides information about bytecode instructions. */
     Bytecode,
+
     /** The bytecode profile mode provides information about bytecode instruction pairs. */
     BytecodePairs,
+
     /** Provide output compatible with flamegraph.pl. */
     TimeFlame,
+
     /** Profile runtime typechecking. */
     Typecheck,
+
     /** Don't record any profile information. */
-    None;
+    None,
+
+    ;
 
     companion object {
         // pub(crate) const ALL: [ProfileMode; 13]
@@ -69,28 +83,30 @@ enum class ProfileMode {
 
     /** Name of this profile mode. */
     // pub(crate) fn name(&self) -> &str
-    fun modeName(): String = when (this) {
-        HeapSummaryAllocated -> "heap-summary-allocated"
-        HeapSummaryRetained -> "heap-summary-retained"
-        HeapFlameAllocated -> "heap-flame-allocated"
-        HeapFlameRetained -> "heap-flame-retained"
-        HeapAllocated -> "heap-allocated"
-        HeapRetained -> "heap-retained"
-        Statement -> "statement"
-        Coverage -> "coverage"
-        Bytecode -> "bytecode"
-        BytecodePairs -> "bytecode-pairs"
-        TimeFlame -> "time-flame"
-        Typecheck -> "typecheck"
-        None -> "none"
-    }
+    fun modeName(): String =
+        when (this) {
+            HeapSummaryAllocated -> "heap-summary-allocated"
+            HeapSummaryRetained -> "heap-summary-retained"
+            HeapFlameAllocated -> "heap-flame-allocated"
+            HeapFlameRetained -> "heap-flame-retained"
+            HeapAllocated -> "heap-allocated"
+            HeapRetained -> "heap-retained"
+            Statement -> "statement"
+            Coverage -> "coverage"
+            Bytecode -> "bytecode"
+            BytecodePairs -> "bytecode-pairs"
+            TimeFlame -> "time-flame"
+            Typecheck -> "typecheck"
+            None -> "none"
+        }
 
     /** Profile data for this mode can be obtained from FrozenModule.heapProfile. */
     // pub fn requires_frozen_module(&self) -> bool
-    fun requiresFrozenModule(): Boolean = when (this) {
-        HeapSummaryRetained, HeapFlameRetained, HeapRetained -> true
-        else -> false
-    }
+    fun requiresFrozenModule(): Boolean =
+        when (this) {
+            HeapSummaryRetained, HeapFlameRetained, HeapRetained -> true
+            else -> false
+        }
 
     override fun toString(): String = modeName()
 }

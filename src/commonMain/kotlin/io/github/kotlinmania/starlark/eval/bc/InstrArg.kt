@@ -23,29 +23,31 @@ package io.github.kotlinmania.starlark.eval.bc
  * Instruction arguments.
  */
 
-import kotlin.reflect.KClass
-import io.github.kotlinmania.starlark.eval.runtime.ArgSymbol
-import io.github.kotlinmania.starlark.eval.runtime.FrameSpan
-import io.github.kotlinmania.starlark.eval.runtime.LocalCapturedSlotId
-import io.github.kotlinmania.starlark.eval.runtime.LocalSlotId
 import io.github.kotlinmania.starlark.collections.Hashed
 import io.github.kotlinmania.starlark.collections.SmallMap
 import io.github.kotlinmania.starlark.collections.symbol.Symbol
 import io.github.kotlinmania.starlark.environment.ModuleSlotId
+import io.github.kotlinmania.starlark.eval.runtime.ArgSymbol
+import io.github.kotlinmania.starlark.eval.runtime.FrameSpan
+import io.github.kotlinmania.starlark.eval.runtime.LocalCapturedSlotId
+import io.github.kotlinmania.starlark.eval.runtime.LocalSlotId
 import io.github.kotlinmania.starlark.values.FrozenRef
-import io.github.kotlinmania.starlark.values.layout.FrozenValue
 import io.github.kotlinmania.starlark.values.StarlarkValue
+import io.github.kotlinmania.starlark.values.layout.FrozenValue
 import io.github.kotlinmania.starlark.values.layout.FrozenValueNotSpecial
-import io.github.kotlinmania.starlark.values.types.KnownMethod
-import io.github.kotlinmania.starlark.values.typing.type_compiled.TypeCompiled
 import io.github.kotlinmania.starlark.values.layout.FrozenValueTyped
+import io.github.kotlinmania.starlark.values.types.KnownMethod
+import io.github.kotlinmania.starlark.values.typing.typecompiled.TypeCompiled
+import kotlin.reflect.KClass
 
 // ---- TruncateValueRepr ----
 
 /**
  * Truncate value if it is too long.
  */
-private class TruncateValueRepr(private val value: FrozenValue) {
+private class TruncateValueRepr(
+    private val value: FrozenValue,
+) {
     override fun toString(): String {
         val repr = value.toValue().toRepr()
         // Truncate too long constants (like dicts with hundreds of elements).
@@ -98,7 +100,9 @@ object UnitInstrArg : BcInstrArg {
 /**
  * [BcInstrArg] implementation for [UInt] (Rust `u32`).
  */
-class UIntInstrArg(val value: UInt) : BcInstrArg {
+class UIntInstrArg(
+    val value: UInt,
+) : BcInstrArg {
     override fun fmtAppend(ip: BcAddr, endArg: BcInstrEndArg?, f: StringBuilder) {
         f.append(" $value")
     }
@@ -111,7 +115,9 @@ class UIntInstrArg(val value: UInt) : BcInstrArg {
 /**
  * [BcInstrArg] implementation for [Int] (Rust `i32`).
  */
-class IntInstrArg(val value: Int) : BcInstrArg {
+class IntInstrArg(
+    val value: Int,
+) : BcInstrArg {
     override fun fmtAppend(ip: BcAddr, endArg: BcInstrEndArg?, f: StringBuilder) {
         f.append(" $value")
     }
@@ -254,7 +260,9 @@ class SextInstrArg(
 /**
  * [BcInstrArg] implementation for a list of arguments (Rust `[A; N]`).
  */
-class ArrayInstrArg(val items: List<BcInstrArg>) : BcInstrArg {
+class ArrayInstrArg(
+    val items: List<BcInstrArg>,
+) : BcInstrArg {
     override fun fmtAppend(ip: BcAddr, endArg: BcInstrEndArg?, f: StringBuilder) {
         for (item in items) {
             item.fmtAppend(ip, endArg, f)
@@ -273,7 +281,9 @@ class ArrayInstrArg(val items: List<BcInstrArg>) : BcInstrArg {
 /**
  * [BcInstrArg] implementation for [BcAddrOffset] (forward jump offset).
  */
-class BcAddrOffsetInstrArg(val offset: BcAddrOffset) : BcInstrArg {
+class BcAddrOffsetInstrArg(
+    val offset: BcAddrOffset,
+) : BcInstrArg {
     override fun fmtAppend(ip: BcAddr, endArg: BcInstrEndArg?, f: StringBuilder) {
         f.append(" ${ip.offset(offset).value}")
     }
@@ -288,7 +298,9 @@ class BcAddrOffsetInstrArg(val offset: BcAddrOffset) : BcInstrArg {
 /**
  * [BcInstrArg] implementation for [BcAddrOffsetNeg] (backward jump offset).
  */
-class BcAddrOffsetNegInstrArg(val offset: BcAddrOffsetNeg) : BcInstrArg {
+class BcAddrOffsetNegInstrArg(
+    val offset: BcAddrOffsetNeg,
+) : BcInstrArg {
     override fun fmtAppend(ip: BcAddr, endArg: BcInstrEndArg?, f: StringBuilder) {
         f.append(" ${ip.offsetNeg(offset).value}")
     }
@@ -303,7 +315,9 @@ class BcAddrOffsetNegInstrArg(val offset: BcAddrOffsetNeg) : BcInstrArg {
 /**
  * [BcInstrArg] implementation for [FrozenValue].
  */
-class FrozenValueInstrArg(val value: FrozenValue) : BcInstrArg {
+class FrozenValueInstrArg(
+    val value: FrozenValue,
+) : BcInstrArg {
     override fun fmtAppend(ip: BcAddr, endArg: BcInstrEndArg?, f: StringBuilder) {
         f.append(" ${TruncateValueRepr(value)}")
     }
@@ -316,7 +330,9 @@ class FrozenValueInstrArg(val value: FrozenValue) : BcInstrArg {
 /**
  * [BcInstrArg] implementation for [FrozenValueNotSpecial].
  */
-internal class FrozenValueNotSpecialInstrArg(val value: FrozenValueNotSpecial) : BcInstrArg {
+internal class FrozenValueNotSpecialInstrArg(
+    val value: FrozenValueNotSpecial,
+) : BcInstrArg {
     override fun fmtAppend(ip: BcAddr, endArg: BcInstrEndArg?, f: StringBuilder) {
         FrozenValueInstrArg(value.toFrozenValue()).fmtAppend(ip, endArg, f)
     }
@@ -329,7 +345,9 @@ internal class FrozenValueNotSpecialInstrArg(val value: FrozenValueNotSpecial) :
 /**
  * [BcInstrArg] implementation for [TypeCompiled].
  */
-class TypeCompiledInstrArg(val value: TypeCompiled) : BcInstrArg {
+class TypeCompiledInstrArg(
+    val value: TypeCompiled,
+) : BcInstrArg {
     override fun fmtAppend(ip: BcAddr, endArg: BcInstrEndArg?, f: StringBuilder) {
         f.append(" $value")
     }
@@ -342,7 +360,9 @@ class TypeCompiledInstrArg(val value: TypeCompiled) : BcInstrArg {
 /**
  * [BcInstrArg] implementation for optional arguments (Rust `Option<T>`).
  */
-class OptionalInstrArg(val inner: BcInstrArg?) : BcInstrArg {
+class OptionalInstrArg(
+    val inner: BcInstrArg?,
+) : BcInstrArg {
     override fun fmtAppend(ip: BcAddr, endArg: BcInstrEndArg?, f: StringBuilder) {
         if (inner == null) {
             f.append(" ()")
@@ -361,7 +381,9 @@ class OptionalInstrArg(val inner: BcInstrArg?) : BcInstrArg {
 /**
  * [BcInstrArg] implementation for [String].
  */
-class StringInstrArg(val value: String) : BcInstrArg {
+class StringInstrArg(
+    val value: String,
+) : BcInstrArg {
     override fun fmtAppend(ip: BcAddr, endArg: BcInstrEndArg?, f: StringBuilder) {
         // Rust: write!(f, "{param:?}") -- debug format, which quotes the string
         f.append(" \"$value\"")
@@ -375,7 +397,9 @@ class StringInstrArg(val value: String) : BcInstrArg {
 /**
  * [BcInstrArg] implementation for [FrozenRef] of a single value.
  */
-class FrozenRefInstrArg<T>(val ref: FrozenRef<T>) : BcInstrArg {
+class FrozenRefInstrArg<T>(
+    val ref: FrozenRef<T>,
+) : BcInstrArg {
     override fun fmtAppend(ip: BcAddr, endArg: BcInstrEndArg?, f: StringBuilder) {
         f.append(" ${ref.asRef()}")
     }
@@ -388,7 +412,9 @@ class FrozenRefInstrArg<T>(val ref: FrozenRef<T>) : BcInstrArg {
 /**
  * [BcInstrArg] implementation for [FrozenRef] of a list (Rust `FrozenRef<[T]>`).
  */
-class FrozenRefListInstrArg<T>(val ref: FrozenRef<List<T>>) : BcInstrArg {
+class FrozenRefListInstrArg<T>(
+    val ref: FrozenRef<List<T>>,
+) : BcInstrArg {
     override fun fmtAppend(ip: BcAddr, endArg: BcInstrEndArg?, f: StringBuilder) {
         f.append(" [${ref.asRef().joinToString(", ")}]")
     }
@@ -416,7 +442,9 @@ class FrozenValueTypedInstrArg<T : StarlarkValue>(
 /**
  * [BcInstrArg] implementation for [BcNativeFunction].
  */
-class BcNativeFunctionInstrArg(val func: BcNativeFunction) : BcInstrArg {
+class BcNativeFunctionInstrArg(
+    val func: BcNativeFunction,
+) : BcInstrArg {
     override fun fmtAppend(ip: BcAddr, endArg: BcInstrEndArg?, f: StringBuilder) {
         FrozenValueInstrArg(func.func().toFrozenValue()).fmtAppend(ip, endArg, f)
     }
@@ -448,7 +476,9 @@ private class BcSlotDisplay(
 /**
  * [BcInstrArg] implementation for [LocalSlotId].
  */
-internal class LocalSlotIdInstrArg(val slot: LocalSlotId) : BcInstrArg {
+internal class LocalSlotIdInstrArg(
+    val slot: LocalSlotId,
+) : BcInstrArg {
     override fun fmtAppend(ip: BcAddr, endArg: BcInstrEndArg?, f: StringBuilder) {
         f.append(" ${BcSlotDisplay(slot.toBcSlot(), endArg)}")
     }
@@ -461,7 +491,9 @@ internal class LocalSlotIdInstrArg(val slot: LocalSlotId) : BcInstrArg {
 /**
  * [BcInstrArg] implementation for [LocalCapturedSlotId].
  */
-internal class LocalCapturedSlotIdInstrArg(val slot: LocalCapturedSlotId) : BcInstrArg {
+internal class LocalCapturedSlotIdInstrArg(
+    val slot: LocalCapturedSlotId,
+) : BcInstrArg {
     override fun fmtAppend(ip: BcAddr, endArg: BcInstrEndArg?, f: StringBuilder) {
         f.append(" ${BcSlotDisplay(slot.toBcSlot(), endArg)}")
     }
@@ -474,7 +506,9 @@ internal class LocalCapturedSlotIdInstrArg(val slot: LocalCapturedSlotId) : BcIn
 /**
  * [BcInstrArg] implementation for [BcSlotIn].
  */
-class BcSlotInInstrArg(val slot: BcSlotIn) : BcInstrArg {
+class BcSlotInInstrArg(
+    val slot: BcSlotIn,
+) : BcInstrArg {
     override fun fmtAppend(ip: BcAddr, endArg: BcInstrEndArg?, f: StringBuilder) {
         f.append(" ${BcSlotDisplay(slot.get(), endArg)}")
     }
@@ -487,7 +521,9 @@ class BcSlotInInstrArg(val slot: BcSlotIn) : BcInstrArg {
 /**
  * [BcInstrArg] implementation for [BcSlotOut].
  */
-class BcSlotOutInstrArg(val slot: BcSlotOut) : BcInstrArg {
+class BcSlotOutInstrArg(
+    val slot: BcSlotOut,
+) : BcInstrArg {
     override fun fmtAppend(ip: BcAddr, endArg: BcInstrEndArg?, f: StringBuilder) {
         f.append(" ->${BcSlotDisplay(slot.get(), endArg)}")
     }
@@ -500,11 +536,15 @@ class BcSlotOutInstrArg(val slot: BcSlotOut) : BcInstrArg {
 /**
  * [BcInstrArg] implementation for [BcSlotInRange].
  */
-class BcSlotInRangeInstrArg(val range: BcSlotInRange) : BcInstrArg {
+class BcSlotInRangeInstrArg(
+    val range: BcSlotInRange,
+) : BcInstrArg {
     override fun fmtAppend(ip: BcAddr, endArg: BcInstrEndArg?, f: StringBuilder) {
-        val items = range.iter()
-            .map { s -> BcSlotDisplay(s.get(), endArg).toString() }
-            .joinToString(", ")
+        val items =
+            range
+                .iter()
+                .map { s -> BcSlotDisplay(s.get(), endArg).toString() }
+                .joinToString(", ")
         f.append(" [$items]")
     }
 
@@ -516,7 +556,9 @@ class BcSlotInRangeInstrArg(val range: BcSlotInRange) : BcInstrArg {
 /**
  * [BcInstrArg] implementation for [BcSlotInRangeFrom].
  */
-class BcSlotInRangeFromInstrArg(val rangeFrom: BcSlotInRangeFrom) : BcInstrArg {
+class BcSlotInRangeFromInstrArg(
+    val rangeFrom: BcSlotInRangeFrom,
+) : BcInstrArg {
     override fun fmtAppend(ip: BcAddr, endArg: BcInstrEndArg?, f: StringBuilder) {
         f.append(" ${rangeFrom.start}..")
     }
@@ -529,7 +571,9 @@ class BcSlotInRangeFromInstrArg(val rangeFrom: BcSlotInRangeFrom) : BcInstrArg {
 /**
  * [BcInstrArg] implementation for [ModuleSlotId].
  */
-class ModuleSlotIdInstrArg(val slot: ModuleSlotId) : BcInstrArg {
+class ModuleSlotIdInstrArg(
+    val slot: ModuleSlotId,
+) : BcInstrArg {
     override fun fmtAppend(ip: BcAddr, endArg: BcInstrEndArg?, f: StringBuilder) {
         f.append(" m${slot.index}")
     }
@@ -542,7 +586,9 @@ class ModuleSlotIdInstrArg(val slot: ModuleSlotId) : BcInstrArg {
 /**
  * [BcInstrArg] implementation for [FrameSpan].
  */
-class FrameSpanInstrArg(val span: FrameSpan) : BcInstrArg {
+class FrameSpanInstrArg(
+    val span: FrameSpan,
+) : BcInstrArg {
     override fun fmtAppend(ip: BcAddr, endArg: BcInstrEndArg?, f: StringBuilder) {
         f.append(" $span")
     }
@@ -555,7 +601,9 @@ class FrameSpanInstrArg(val span: FrameSpan) : BcInstrArg {
 /**
  * Opcode as instruction argument.
  */
-class BcOpcodeInstrArg(val opcode: BcOpcode) : BcInstrArg {
+class BcOpcodeInstrArg(
+    val opcode: BcOpcode,
+) : BcInstrArg {
     override fun fmtAppend(ip: BcAddr, endArg: BcInstrEndArg?, f: StringBuilder) {
         f.append(" $opcode")
     }
@@ -568,7 +616,9 @@ class BcOpcodeInstrArg(val opcode: BcOpcode) : BcInstrArg {
 /**
  * [BcInstrArg] implementation for [LoopDepth].
  */
-class LoopDepthInstrArg(val depth: LoopDepth) : BcInstrArg {
+class LoopDepthInstrArg(
+    val depth: LoopDepth,
+) : BcInstrArg {
     override fun fmtAppend(ip: BcAddr, endArg: BcInstrEndArg?, f: StringBuilder) {
         f.append(" $depth")
     }
@@ -581,7 +631,9 @@ class LoopDepthInstrArg(val depth: LoopDepth) : BcInstrArg {
 /**
  * [BcInstrArg] implementation for [KnownMethod].
  */
-internal class KnownMethodInstrArg(val method: KnownMethod) : BcInstrArg {
+internal class KnownMethodInstrArg(
+    val method: KnownMethod,
+) : BcInstrArg {
     override fun fmtAppend(ip: BcAddr, endArg: BcInstrEndArg?, f: StringBuilder) {
         f.append(" <m>")
     }
@@ -594,7 +646,9 @@ internal class KnownMethodInstrArg(val method: KnownMethod) : BcInstrArg {
 /**
  * [BcInstrArg] implementation for [Symbol].
  */
-class SymbolInstrArg(val symbol: Symbol) : BcInstrArg {
+class SymbolInstrArg(
+    val symbol: Symbol,
+) : BcInstrArg {
     override fun fmtAppend(ip: BcAddr, endArg: BcInstrEndArg?, f: StringBuilder) {
         f.append(" ${symbol.asStr()}")
     }
@@ -607,7 +661,9 @@ class SymbolInstrArg(val symbol: Symbol) : BcInstrArg {
 /**
  * [BcInstrArg] implementation for a list of [FrozenValue] (Rust `Box<[FrozenValue]>`).
  */
-class FrozenValueListInstrArg(val values: List<FrozenValue>) : BcInstrArg {
+class FrozenValueListInstrArg(
+    val values: List<FrozenValue>,
+) : BcInstrArg {
     override fun fmtAppend(ip: BcAddr, endArg: BcInstrEndArg?, f: StringBuilder) {
         f.append(" [")
         for ((i, v) in values.withIndex()) {
@@ -672,7 +728,9 @@ class SmallMapInstrArg(
 /**
  * [BcInstrArg] implementation for [InstrDefData].
  */
-internal class InstrDefDataInstrArg(val data: InstrDefData) : BcInstrArg {
+internal class InstrDefDataInstrArg(
+    val data: InstrDefData,
+) : BcInstrArg {
     override fun fmtAppend(ip: BcAddr, endArg: BcInstrEndArg?, f: StringBuilder) {
         f.append(" InstrDefData")
     }
@@ -700,7 +758,9 @@ class BcCallArgsFullInstrArg<S : ArgSymbol>(
 /**
  * [BcInstrArg] implementation for [BcCallArgsPos].
  */
-class BcCallArgsPosInstrArg(val args: BcCallArgsPos) : BcInstrArg {
+class BcCallArgsPosInstrArg(
+    val args: BcCallArgsPos,
+) : BcInstrArg {
     override fun fmtAppend(ip: BcAddr, endArg: BcInstrEndArg?, f: StringBuilder) {
         f.append(" ${args.pos}")
     }
@@ -713,7 +773,9 @@ class BcCallArgsPosInstrArg(val args: BcCallArgsPos) : BcInstrArg {
 /**
  * [BcInstrArg] implementation for [BcInstrEndArg].
  */
-class BcInstrEndArgInstrArg(val endArgValue: BcInstrEndArg) : BcInstrArg {
+class BcInstrEndArgInstrArg(
+    val endArgValue: BcInstrEndArg,
+) : BcInstrArg {
     override fun fmtAppend(ip: BcAddr, endArg: BcInstrEndArg?, f: StringBuilder) {
         f.append(" BcInstrEndArg")
     }
@@ -736,15 +798,17 @@ fun BcOpcode.fmtAppendArg(
     endArg: BcInstrEndArg?,
     f: StringBuilder,
 ) {
-    this.dispatch(object : BcOpcodeHandler<Unit> {
-        override fun <I : BcInstr> handle(instrClass: KClass<I>): Unit {
-            val instr: BcInstrRepr<I> = ptr.getInstr(instrClass, ptr)
-            val arg = instr.arg
-            if (arg is BcInstrArg) {
-                arg.fmtAppend(ip, endArg, f)
+    this.dispatch(
+        object : BcOpcodeHandler<Unit> {
+            override fun <I : BcInstr> handle(instrClass: KClass<I>) {
+                val instr: BcInstrRepr<I> = ptr.getInstr(instrClass, ptr)
+                val arg = instr.arg
+                if (arg is BcInstrArg) {
+                    arg.fmtAppend(ip, endArg, f)
+                }
             }
-        }
-    })
+        },
+    )
 }
 
 // ---- BcOpcode extension: visitJumpAddr ----
@@ -761,13 +825,15 @@ fun BcOpcode.visitJumpAddr(
     addr: BcAddr,
     consumer: (BcAddr) -> Unit,
 ) {
-    this.dispatch(object : BcOpcodeHandler<Unit> {
-        override fun <I : BcInstr> handle(instrClass: KClass<I>): Unit {
-            val instr: BcInstrRepr<I> = ptr.getInstr(instrClass, ptr)
-            val arg = instr.arg
-            if (arg is BcInstrArg) {
-                arg.visitJumpAddr(addr, consumer)
+    this.dispatch(
+        object : BcOpcodeHandler<Unit> {
+            override fun <I : BcInstr> handle(instrClass: KClass<I>) {
+                val instr: BcInstrRepr<I> = ptr.getInstr(instrClass, ptr)
+                val arg = instr.arg
+                if (arg is BcInstrArg) {
+                    arg.visitJumpAddr(addr, consumer)
+                }
             }
-        }
-    })
+        },
+    )
 }

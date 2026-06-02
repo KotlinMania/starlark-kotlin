@@ -23,8 +23,8 @@ import io.github.kotlinmania.starlark.CallStack
 import io.github.kotlinmania.starlark.Error
 import io.github.kotlinmania.starlark.Frame
 import io.github.kotlinmania.starlark.any.AnyLifetime
-import io.github.kotlinmania.starlark.codemap.FileSpanRef
 import io.github.kotlinmania.starlark.codemap.FileSpan
+import io.github.kotlinmania.starlark.codemap.FileSpanRef
 import io.github.kotlinmania.starlark.codemap.ResolvedFileSpan
 import io.github.kotlinmania.starlark.collections.Alloca
 import io.github.kotlinmania.starlark.collections.StringPool
@@ -34,19 +34,19 @@ import io.github.kotlinmania.starlark.environment.ModuleSlotId
 import io.github.kotlinmania.starlark.eval.HardErrorSoftErrorHandler
 import io.github.kotlinmania.starlark.eval.SoftErrorHandler
 import io.github.kotlinmania.starlark.eval.bc.Bc
+import io.github.kotlinmania.starlark.eval.bc.BcFramePtr
 import io.github.kotlinmania.starlark.eval.bc.BcInstrs
 import io.github.kotlinmania.starlark.eval.bc.BcOpcode
 import io.github.kotlinmania.starlark.eval.bc.BcPtrAddr
 import io.github.kotlinmania.starlark.eval.bc.BcStatementLocations
-import io.github.kotlinmania.starlark.eval.bc.BcFramePtr
 import io.github.kotlinmania.starlark.eval.bc.trace
 import io.github.kotlinmania.starlark.eval.compiler.CopySlotFromParent
 import io.github.kotlinmania.starlark.eval.compiler.Def
 import io.github.kotlinmania.starlark.eval.compiler.DefInfo
 import io.github.kotlinmania.starlark.eval.compiler.FrozenDef
-import io.github.kotlinmania.starlark.eval.runtime.before_stmt.BeforeStmt
-import io.github.kotlinmania.starlark.eval.runtime.before_stmt.BeforeStmtFunc
-import io.github.kotlinmania.starlark.eval.runtime.file_loader.FileLoader
+import io.github.kotlinmania.starlark.eval.runtime.beforestmt.BeforeStmt
+import io.github.kotlinmania.starlark.eval.runtime.beforestmt.BeforeStmtFunc
+import io.github.kotlinmania.starlark.eval.runtime.fileloader.FileLoader
 import io.github.kotlinmania.starlark.eval.runtime.profile.BcProfile
 import io.github.kotlinmania.starlark.eval.runtime.profile.ProfileOrInstrumentationMode
 import io.github.kotlinmania.starlark.eval.runtime.profile.StmtProfile
@@ -58,43 +58,55 @@ import io.github.kotlinmania.starlark.eval.runtime.profile.heap.HeapProfile
 import io.github.kotlinmania.starlark.eval.runtime.profile.heap.HeapProfileFormat
 import io.github.kotlinmania.starlark.eval.runtime.profile.heap.RetainedHeapProfileMode
 import io.github.kotlinmania.starlark.eval.runtime.profile.mode.ProfileMode
-import io.github.kotlinmania.starlark.eval.runtime.rust_loc.rustLoc
+import io.github.kotlinmania.starlark.eval.runtime.rustloc.rustLoc
 import io.github.kotlinmania.starlark.stdlib.BreakpointConsole
 import io.github.kotlinmania.starlark.stdlib.PrintHandler
 import io.github.kotlinmania.starlark.stdlib.RealBreakpointConsole
 import io.github.kotlinmania.starlark.stdlib.StderrPrintHandler
 import io.github.kotlinmania.starlark.typing.EvalException
-import io.github.kotlinmania.starlark.values.layout.heap.FrozenHeap
 import io.github.kotlinmania.starlark.values.FrozenRef
-import io.github.kotlinmania.starlark.values.layout.heap.Tracer
 import io.github.kotlinmania.starlark.values.layout.FrozenValueCaptured
 import io.github.kotlinmania.starlark.values.layout.Value
 import io.github.kotlinmania.starlark.values.layout.ValueCaptured
 import io.github.kotlinmania.starlark.values.layout.avalues.allocComplex
 import io.github.kotlinmania.starlark.values.layout.constFrozenString
+import io.github.kotlinmania.starlark.values.layout.heap.FrozenHeap
 import io.github.kotlinmania.starlark.values.layout.heap.Heap
+import io.github.kotlinmania.starlark.values.layout.heap.Tracer
 import io.github.kotlinmania.starlark.values.layout.valueCapturedGet
 import io.github.kotlinmania.starlark.values.types.NativeFunction
 
-private sealed class EvaluatorError(override val message: String) : Exception(message) {
+private sealed class EvaluatorError(
+    override val message: String,
+) : Exception(message) {
     data object ProfilingNotEnabled :
         EvaluatorError("Profiling was not enabled")
+
     data object ProfileDataAlreadyCollected :
         EvaluatorError("Profile data already collected")
+
     data object RetainedMemoryProfilingCannotBeObtainedFromEvaluator :
         EvaluatorError("Retained memory profiling can be only obtained from `FrozenModule`")
+
     data object ProfileOrInstrumentationAlreadyEnabled :
         EvaluatorError("Profile or instrumentation already enabled")
+
     data object TopFrameNotDef :
         EvaluatorError("Top frame is not def (internal error)")
+
     data object CoverageNotEnabled :
         EvaluatorError("Coverage not enabled")
-    data class LocalVariableReferencedBeforeAssignment(val name: String) :
-        EvaluatorError("Local variable `$name` referenced before assignment")
+
+    data class LocalVariableReferencedBeforeAssignment(
+        val name: String,
+    ) : EvaluatorError("Local variable `$name` referenced before assignment")
+
     data object CallstackSizeAlreadySet :
         EvaluatorError("Max callstack size is already set")
+
     data object ZeroCallstackSize :
         EvaluatorError("Max callstack size cannot be zero")
+
     data object Cancelled :
         EvaluatorError("Evaluation cancelled")
 }
@@ -143,9 +155,11 @@ private fun checkVariance() {
 internal class EvaluationInstrumentation {
     // Bytecode profile.
     var bcProfile: BcProfile = BcProfile()
+
     // Extra functions to run on each statement, usually empty
     var beforeStmt: BeforeStmt = BeforeStmt()
     var heapOrFlameProfile: Boolean = false
+
     // Whether we need to instrument evaluation or not, should be set if before_stmt or bc_profile are enabled.
     var enabled: Boolean = false
 
@@ -173,58 +187,82 @@ class Evaluator(
 ) {
     /** Current function (`def` or `lambda`) frame: locals and bytecode stack. */
     internal var currentFrame: BcFramePtr = BcFramePtr.nullPtr()
+
     /** Current bytecode instructions being executed. Set by runBlock. */
     internal var currentBcInstrs: BcInstrs = BcInstrs.default()
+
     // How we deal with a `load` function.
     internal var loader: FileLoader? = null
+
     // `DefInfo` of currently executed module.
     // `DefInfo` of currently execution function can be obtained from call stack.
     internal var moduleDefInfo: DefInfo = DefInfo.empty()
+
     // Should we enable heap profiling or not
     internal var heapProfile: HeapProfile = HeapProfile()
+
     // Should we enable flame profiling or not
     internal var timeFlameProfile: TimeFlameProfile = TimeFlameProfile()
+
     // Is GC disabled for some reason
     internal var disableGc: Boolean = false
+
     // If true, the interpreter prints to stderr on GC.
     // This is used for debugging.
     internal var verboseGc: Boolean = false
+
     // Size of the heap when we should next perform a GC.
     internal var nextGcLevel: Int = GC_THRESHOLD
+
     /** Run static typechecking of the module being evaluated. */
     internal var staticTypechecking: Boolean = false
+
     // Profiling or instrumentation enabled.
     internal var profileOrInstrumentationMode: ProfileOrInstrumentationMode =
         ProfileOrInstrumentationMode.None
+
     // Used for line profiling
     private var stmtProfile: StmtProfile = StmtProfile.new()
+
     // Holds things that require hooking into evaluation.
     internal var evalInstrumentation: EvaluationInstrumentation = EvaluationInstrumentation()
+
     // Total time spent in runtime typechecking.
     // Filled only if runtime typechecking profiling is enabled.
     internal var typecheckProfile: TypecheckProfile = TypecheckProfile()
+
     // Used for stack-like allocation
     private val alloca: Alloca = Alloca()
+
     // Another stack-like allocation
     internal val stringPool: StringPool = StringPool()
+
     /** Field that can be used for any purpose you want (can store types you define).
      * Typically accessed via native functions you also define. */
     var extra: AnyLifetime? = null
+
     /** Like `extra`, but mutable */
     var extraMut: AnyLifetime? = null
+
     /** Called to perform console IO each time `breakpoint` function is called. */
     internal var breakpointHandler: (() -> BreakpointConsole)? = null
+
     /** Use in implementation of `print` function. */
     internal var printHandler: PrintHandler = StderrPrintHandler()
+
     /** Deprecation handler. */
     internal var softErrorHandler: SoftErrorHandler = HardErrorSoftErrorHandler
+
     /** Max size of starlark stack */
     internal var maxCallstackSize: Int? = null
+
     // The Starlark-level call-stack of functions.
     // Must go last because it's quite a big structure
     internal var callStack: CheapCallStack = CheapCallStack()
+
     /** Function to check if evaluation should be cancelled early */
     internal var isCancelled: () -> Boolean = { false }
+
     /** A counter to track when to perform "infrequent" checks like cancellation, timeouts, etc */
     internal var infrequentInstrCheckCounter: UInt = 0u
 
@@ -280,14 +318,17 @@ class Evaluator(
             ProfileMode.HeapSummaryAllocated,
             ProfileMode.HeapFlameAllocated,
             ProfileMode.HeapSummaryRetained,
-            ProfileMode.HeapFlameRetained -> {
+            ProfileMode.HeapFlameRetained,
+            -> {
                 heapProfile.enable()
 
                 when (mode) {
-                    ProfileMode.HeapFlameRetained -> moduleEnv
-                        .enableRetainedHeapProfile(RetainedHeapProfileMode.Flame)
-                    ProfileMode.HeapSummaryRetained -> moduleEnv
-                        .enableRetainedHeapProfile(RetainedHeapProfileMode.Summary)
+                    ProfileMode.HeapFlameRetained ->
+                        moduleEnv
+                            .enableRetainedHeapProfile(RetainedHeapProfileMode.Flame)
+                    ProfileMode.HeapSummaryRetained ->
+                        moduleEnv
+                            .enableRetainedHeapProfile(RetainedHeapProfileMode.Summary)
                     ProfileMode.HeapRetained -> {
                         moduleEnv
                             .enableRetainedHeapProfile(RetainedHeapProfileMode.FlameAndSummary)
@@ -331,31 +372,36 @@ class Evaluator(
      * Only valid if corresponding profiler was enabled.
      */
     fun genProfile(): ProfileData {
-        val mode = when (val pMode = profileOrInstrumentationMode) {
-            ProfileOrInstrumentationMode.None -> {
-                throw Error.newOther(
-                    EvaluatorError.ProfilingNotEnabled
-                )
+        val mode =
+            when (val pMode = profileOrInstrumentationMode) {
+                ProfileOrInstrumentationMode.None -> {
+                    throw Error.newOther(
+                        EvaluatorError.ProfilingNotEnabled,
+                    )
+                }
+                ProfileOrInstrumentationMode.Collected -> {
+                    throw Error.newOther(
+                        EvaluatorError.ProfileDataAlreadyCollected,
+                    )
+                }
+                is ProfileOrInstrumentationMode.Profile -> pMode.mode
             }
-            ProfileOrInstrumentationMode.Collected -> {
-                throw Error.newOther(
-                    EvaluatorError.ProfileDataAlreadyCollected
-                )
-            }
-            is ProfileOrInstrumentationMode.Profile -> pMode.mode
-        }
         profileOrInstrumentationMode = ProfileOrInstrumentationMode.Collected
         return when (mode) {
-            ProfileMode.HeapAllocated -> heapProfile
-                .gen(heap(), HeapProfileFormat.FlameGraphAndSummary)
-            ProfileMode.HeapSummaryAllocated -> heapProfile
-                .gen(heap(), HeapProfileFormat.Summary)
-            ProfileMode.HeapFlameAllocated -> heapProfile
-                .gen(heap(), HeapProfileFormat.FlameGraph)
+            ProfileMode.HeapAllocated ->
+                heapProfile
+                    .gen(heap(), HeapProfileFormat.FlameGraphAndSummary)
+            ProfileMode.HeapSummaryAllocated ->
+                heapProfile
+                    .gen(heap(), HeapProfileFormat.Summary)
+            ProfileMode.HeapFlameAllocated ->
+                heapProfile
+                    .gen(heap(), HeapProfileFormat.FlameGraph)
             ProfileMode.HeapSummaryRetained,
             ProfileMode.HeapFlameRetained,
-            ProfileMode.HeapRetained -> throw Error.newOther(
-                EvaluatorError.RetainedMemoryProfilingCannotBeObtainedFromEvaluator
+            ProfileMode.HeapRetained,
+            -> throw Error.newOther(
+                EvaluatorError.RetainedMemoryProfilingCannotBeObtainedFromEvaluator,
             )
             ProfileMode.Statement -> stmtProfile.gen()
             ProfileMode.Coverage -> stmtProfile.genCoverage()
@@ -363,9 +409,10 @@ class Evaluator(
             ProfileMode.BytecodePairs -> genBcPairsProfile()
             ProfileMode.TimeFlame -> timeFlameProfile.gen()
             ProfileMode.Typecheck -> typecheckProfile.gen()
-            ProfileMode.None -> ProfileData(
-                profile = ProfileDataImpl.None,
-            )
+            ProfileMode.None ->
+                ProfileData(
+                    profile = ProfileDataImpl.None,
+                )
         }
     }
 
@@ -396,32 +443,22 @@ class Evaluator(
     }
 
     /** Obtain the current call-stack, suitable for use in diagnostics. */
-    fun callStack(): CallStack {
-        return callStack.toDiagnosticFrames(InlinedFrames())
-    }
+    fun callStack(): CallStack = callStack.toDiagnosticFrames(InlinedFrames())
 
     /** Obtain the top frame on the call-stack. May be `null` if the
      * call happened via native functions. */
-    fun callStackTopFrame(): Frame? {
-        return callStack.topFrame()
-    }
+    fun callStackTopFrame(): Frame? = callStack.topFrame()
 
     /** Current size (in frames) of the stack. */
-    fun callStackCount(): Int {
-        return callStack.count()
-    }
+    fun callStackCount(): Int = callStack.count()
 
     /** Obtain the top location on the call-stack. May be `null` if the
      * call happened via native functions. */
-    fun callStackTopLocation(): FileSpan? {
-        return callStack.topLocation()
-    }
+    fun callStackTopLocation(): FileSpan? = callStack.topLocation()
 
     /** Obtain the nth location on the call-stack. May be `null` if the
      * stack is not that deep. n=0 is the top of the stack. */
-    fun callStackNthLocation(n: Int): FileSpan? {
-        return callStack.nthLocation(n)
-    }
+    fun callStackNthLocation(n: Int): FileSpan? = callStack.nthLocation(n)
 
     internal fun beforeStmtFn(
         f: (FileSpanRef, Boolean, Evaluator) -> Unit,
@@ -481,14 +518,10 @@ class Evaluator(
     }
 
     /** The active heap where [Value]s are allocated. */
-    fun heap(): Heap {
-        return moduleEnv.heap()
-    }
+    fun heap(): Heap = moduleEnv.heap()
 
     /** Module which was passed to the evaluator. */
-    fun module(): Module {
-        return moduleEnv
-    }
+    fun module(): Module = moduleEnv
 
     /**
      * The frozen heap. It's possible to allocate [FrozenValue][io.github.kotlinmania.starlark.values.FrozenValue]s here,
@@ -497,32 +530,33 @@ class Evaluator(
      * Suitable for use with [addReference][FrozenHeap.addReference]
      * and [OwnedFrozenValue.ownedFrozenValue][io.github.kotlinmania.starlark.values.OwnedFrozenValue.ownedFrozenValue].
      */
-    fun frozenHeap(): FrozenHeap {
-        return moduleEnv.frozenHeap()
-    }
+    fun frozenHeap(): FrozenHeap = moduleEnv.frozenHeap()
 
     internal fun getSlotModule(slot: ModuleSlotId): Result<Value> {
         fun error(eval: Evaluator, slot: ModuleSlotId): Error {
-            val name = try {
-                when (val frozenModule = eval.topFrameDefFrozenModule(false)) {
-                    null -> eval.moduleEnv
-                        .mutableNames()
-                        .getSlot(slot)
-                        ?.asStr()
-                    else -> frozenModule.asRef().getSlotName(slot)?.asStr()
-                }
-            } catch (e: Exception) {
-                "<internal error: $e>"
-            } ?: "<unknown>"
+            val name =
+                try {
+                    when (val frozenModule = eval.topFrameDefFrozenModule(false)) {
+                        null ->
+                            eval.moduleEnv
+                                .mutableNames()
+                                .getSlot(slot)
+                                ?.asStr()
+                        else -> frozenModule.asRef().getSlotName(slot)?.asStr()
+                    }
+                } catch (e: Exception) {
+                    "<internal error: $e>"
+                } ?: "<unknown>"
             return Error.newOther(
-                EvaluatorError.LocalVariableReferencedBeforeAssignment(name)
+                EvaluatorError.LocalVariableReferencedBeforeAssignment(name),
             )
         }
 
-        val value = when (val frozenModule = topFrameDefFrozenModule(false)) {
-            null -> moduleEnv.slots().getSlot(slot)
-            else -> frozenModule.asRef().getSlot(slot)?.let { Value.newFrozen(it) }
-        }
+        val value =
+            when (val frozenModule = topFrameDefFrozenModule(false)) {
+                null -> moduleEnv.slots().getSlot(slot)
+                else -> frozenModule.asRef().getSlot(slot)?.let { Value.newFrozen(it) }
+            }
         return if (value != null) {
             Result.success(value)
         } else {
@@ -531,15 +565,16 @@ class Evaluator(
     }
 
     internal fun localVarReferencedBeforeAssignment(slot: LocalSlotId): Error {
-        val defInfo = try {
-            topFrameDefInfo()
-        } catch (e: Error) {
-            return e
-        }
+        val defInfo =
+            try {
+                topFrameDefInfo()
+            } catch (e: Error) {
+                return e
+            }
         val names = defInfo.used
         val name = names[slot.index.toInt()].asStr()
         return Error.newOther(
-            EvaluatorError.LocalVariableReferencedBeforeAssignment(name)
+            EvaluatorError.LocalVariableReferencedBeforeAssignment(name),
         )
     }
 
@@ -561,8 +596,9 @@ class Evaluator(
     internal fun getSlotLocalCaptured(
         slot: LocalCapturedSlotId,
     ): Result<Value> {
-        val valueCaptured = getSlotLocal(currentFrame, LocalSlotId(slot.index))
-            .getOrElse { return Result.failure(it) }
+        val valueCaptured =
+            getSlotLocal(currentFrame, LocalSlotId(slot.index))
+                .getOrElse { return Result.failure(it) }
         val result = valueCapturedGet(valueCaptured)
         return if (result != null) {
             Result.success(result)
@@ -574,8 +610,8 @@ class Evaluator(
     internal fun cloneSlotCapture(
         copy: CopySlotFromParent,
         targetDefInfo: DefInfo,
-    ): Value {
-        return when (val valueCaptured = currentFrame.getSlot(copy.parent)) {
+    ): Value =
+        when (val valueCaptured = currentFrame.getSlot(copy.parent)) {
             null -> {
                 val newValueCaptured = heap().allocComplex(ValueCaptured.new(null))
                 currentFrame.setSlot(copy.parent, newValueCaptured)
@@ -584,7 +620,7 @@ class Evaluator(
             else -> {
                 check(
                     valueCaptured.downcastRef<ValueCaptured>() != null ||
-                        valueCaptured.downcastRef<FrozenValueCaptured>() != null
+                        valueCaptured.downcastRef<FrozenValueCaptured>() != null,
                 ) {
                     "slot ${copy.parent.index} (${
                         targetDefInfo.used.getOrNull(copy.child.index.toInt())?.asStr() ?: ""
@@ -595,7 +631,6 @@ class Evaluator(
                 valueCaptured
             }
         }
-    }
 
     /**
      * Set a variable in the top-level module currently being processed.
@@ -627,8 +662,9 @@ class Evaluator(
                 currentFrame.setSlot(localSlot.toCapturedOrNot(), newValueCaptured)
             }
             else -> {
-                val vc = valueCaptured.downcastRef<ValueCaptured>()
-                    ?: error("not a ValueCaptured")
+                val vc =
+                    valueCaptured.downcastRef<ValueCaptured>()
+                        ?: error("not a ValueCaptured")
                 vc.set(value)
             }
         }
@@ -636,8 +672,9 @@ class Evaluator(
 
     /** Take a value from the local slot and store it back wrapped in [ValueCaptured]. */
     internal fun wrapLocalSlotCaptured(slot: LocalSlotId) {
-        val value = currentFrame.getSlot(slot.toCapturedOrNot())
-            ?: error("slot unset")
+        val value =
+            currentFrame.getSlot(slot.toCapturedOrNot())
+                ?: error("slot unset")
         check(value.downcastRef<ValueCaptured>() == null)
         val valueCaptured = heap().allocComplex(ValueCaptured.new(value))
         currentFrame.setSlot(slot.toCapturedOrNot(), valueCaptured)
@@ -654,7 +691,7 @@ class Evaluator(
             return frozenDefRef.checkReturnType(ret, this)
         }
         return Result.failure(
-            Error.newOther(EvaluatorError.TopFrameNotDef)
+            Error.newOther(EvaluatorError.TopFrameNotDef),
         )
     }
 
@@ -724,12 +761,12 @@ class Evaluator(
     fun garbageCollect() {
         if (verboseGc) {
             eprintln(
-                "Starlark: allocated bytes: ${heap().allocatedBytes()}, starting GC..."
+                "Starlark: allocated bytes: ${heap().allocatedBytes()}, starting GC...",
             )
         }
 
         stmtProfile.beforeStmt(
-            rustLoc("evaluator.kt", 704).asRef().span.fileSpanRef()
+            rustLoc("evaluator.kt", 704).asRef().span.fileSpanRef(),
         )
 
         timeFlameProfile.recordCallEnter(constFrozenString("GC").toValue())
@@ -762,7 +799,7 @@ class Evaluator(
 
         if (verboseGc) {
             eprintln(
-                "Starlark: GC complete. Allocated bytes: ${heap().allocatedBytes()}."
+                "Starlark: GC complete. Allocated bytes: ${heap().allocatedBytes()}.",
             )
         }
     }
@@ -771,30 +808,20 @@ class Evaluator(
      * Note that the finalizer for the `T` will not be called. That's safe if there is no finalizer,
      * or you call it yourself.
      */
-    internal fun <T, R> allocaUninit(len: Int, k: (Array<Any?>, Evaluator) -> R): R {
-        return alloca.allocaUninit<T, R>(len) { xs -> k(xs, this) }
-    }
+    internal fun <T, R> allocaUninit(len: Int, k: (Array<Any?>, Evaluator) -> R): R = alloca.allocaUninit<T, R>(len) { xs -> k(xs, this) }
 
     /**
      * Allocate `len` elements, initialize them with `init` function, and invoke
      * a callback `k` with the pointer to the allocated memory and `self`.
      */
-    internal fun <T, R> allocaInit(len: Int, init: () -> T, k: (MutableList<T>, Evaluator) -> R): R {
-        return alloca.allocaInit(len, init) { xs -> k(xs, this) }
-    }
+    internal fun <T, R> allocaInit(len: Int, init: () -> T, k: (MutableList<T>, Evaluator) -> R): R = alloca.allocaInit(len, init) { xs -> k(xs, this) }
 
     /** Concat two slices and invoke the callback with the result. */
-    internal fun <T, R> allocaConcat(x: List<T>, y: List<T>, k: (List<T>, Evaluator) -> R): R {
-        return alloca.allocaConcat(x, y) { xs -> k(xs, this) }
-    }
+    internal fun <T, R> allocaConcat(x: List<T>, y: List<T>, k: (List<T>, Evaluator) -> R): R = alloca.allocaConcat(x, y) { xs -> k(xs, this) }
 
-    internal fun genBcProfile(): ProfileData {
-        return evalInstrumentation.bcProfile.genBcProfile()
-    }
+    internal fun genBcProfile(): ProfileData = evalInstrumentation.bcProfile.genBcProfile()
 
-    internal fun genBcPairsProfile(): ProfileData {
-        return evalInstrumentation.bcProfile.genBcPairsProfile()
-    }
+    internal fun genBcPairsProfile(): ProfileData = evalInstrumentation.bcProfile.genBcPairsProfile()
 
     private fun evalBcWithCallbacks(
         def: Value,
@@ -809,20 +836,21 @@ class Evaluator(
             timeFlameProfile.recordCallExit()
             return res
         } else {
-            val mode = when {
-                evalInstrumentation.beforeStmt.enabled() && !evalInstrumentation.bcProfile.enabled() ->
-                    EvalCallbacksMode.BeforeStmt
-                !evalInstrumentation.beforeStmt.enabled() && evalInstrumentation.bcProfile.enabled() ->
-                    EvalCallbacksMode.BcProfile
-                evalInstrumentation.beforeStmt.enabled() && evalInstrumentation.bcProfile.enabled() ->
-                    return Result.failure(
-                        EvalException("both before_stmt and bc_profile are enabled")
-                    )
-                else ->
-                    return Result.failure(
-                        EvalException("neither before_stmt nor bc_profile are enabled")
-                    )
-            }
+            val mode =
+                when {
+                    evalInstrumentation.beforeStmt.enabled() && !evalInstrumentation.bcProfile.enabled() ->
+                        EvalCallbacksMode.BeforeStmt
+                    !evalInstrumentation.beforeStmt.enabled() && evalInstrumentation.bcProfile.enabled() ->
+                        EvalCallbacksMode.BcProfile
+                    evalInstrumentation.beforeStmt.enabled() && evalInstrumentation.bcProfile.enabled() ->
+                        return Result.failure(
+                            EvalException("both before_stmt and bc_profile are enabled"),
+                        )
+                    else ->
+                        return Result.failure(
+                            EvalException("neither before_stmt nor bc_profile are enabled"),
+                        )
+                }
             return bc.run(
                 this,
                 EvalCallbacksEnabled(
@@ -834,13 +862,12 @@ class Evaluator(
         }
     }
 
-    internal fun evalBc(def: Value, bc: Bc): Result<Value> {
-        return if (evalInstrumentation.enabled) {
+    internal fun evalBc(def: Value, bc: Bc): Result<Value> =
+        if (evalInstrumentation.enabled) {
             evalBcWithCallbacks(def, bc)
         } else {
             bc.run(this, EvalCallbacksDisabled)
         }
-    }
 
     /**
      * Sets max call stack size.
@@ -869,7 +896,7 @@ class Evaluator(
     internal fun runInfrequentInstrChecks(): Result<Unit> {
         if (isCancelled()) {
             return Result.failure(
-                Error.newOther(EvaluatorError.Cancelled)
+                Error.newOther(EvaluatorError.Cancelled),
             )
         }
         return Result.success(Unit)
@@ -937,11 +964,12 @@ fun beforeStmtFn(
     check(eval.evalInstrumentation.beforeStmt.enabled()) {
         "this code should only be called if `before_stmt` is set"
     }
-    val fs = eval.evalInstrumentation.change { evalInstrumentation ->
-        val taken = evalInstrumentation.beforeStmt.beforeStmt.toMutableList()
-        evalInstrumentation.beforeStmt.beforeStmt.clear()
-        taken
-    }
+    val fs =
+        eval.evalInstrumentation.change { evalInstrumentation ->
+            val taken = evalInstrumentation.beforeStmt.beforeStmt.toMutableList()
+            evalInstrumentation.beforeStmt.beforeStmt.clear()
+            taken
+        }
     var result: Exception? = null
     for (f in fs) {
         if (result == null) {
@@ -952,12 +980,13 @@ fun beforeStmtFn(
             }
         }
     }
-    val added = eval.evalInstrumentation.change { evalInstrumentation ->
-        val added = evalInstrumentation.beforeStmt.beforeStmt.toMutableList()
-        evalInstrumentation.beforeStmt.beforeStmt.clear()
-        evalInstrumentation.beforeStmt.beforeStmt.addAll(fs)
-        added
-    }
+    val added =
+        eval.evalInstrumentation.change { evalInstrumentation ->
+            val added = evalInstrumentation.beforeStmt.beforeStmt.toMutableList()
+            evalInstrumentation.beforeStmt.beforeStmt.clear()
+            evalInstrumentation.beforeStmt.beforeStmt.addAll(fs)
+            added
+        }
     check(added.isEmpty()) {
         "`before_stmt` cannot be modified during evaluation"
     }

@@ -22,13 +22,23 @@ package io.github.kotlinmania.starlark.eval.runtime.params
 /** Parameter or `*` or `/` separator, but only if needed for formatting. */
 sealed class FmtParam<out T> {
     /** Positional-only, positional-or-named, or named-only parameter. */
-    data class Regular<T>(val value: T) : FmtParam<T>()
+    data class Regular<T>(
+        val value: T,
+    ) : FmtParam<T>()
+
     /** `*args` parameter. */
-    data class Args<T>(val value: T) : FmtParam<T>()
+    data class Args<T>(
+        val value: T,
+    ) : FmtParam<T>()
+
     /** `**kwargs` parameter. */
-    data class Kwargs<T>(val value: T) : FmtParam<T>()
+    data class Kwargs<T>(
+        val value: T,
+    ) : FmtParam<T>()
+
     /** `/` separator. */
     data object Slash : FmtParam<Nothing>()
+
     /** `*` separator. */
     data object Star : FmtParam<Nothing>()
 }
@@ -40,43 +50,46 @@ internal fun <T> iterFmtParamSpec(
     args: T?,
     namedOnly: Iterable<T>,
     kwargs: T?,
-): Sequence<FmtParam<T>> = sequence {
-    val posOnlyIter = posOnly.iterator()
-    val hasPositionalOnly = posOnlyIter.hasNext()
-    val slash: FmtParam<T>? = if (hasPositionalOnly) {
-        FmtParam.Slash
-    } else {
-        null
-    }
+): Sequence<FmtParam<T>> =
+    sequence {
+        val posOnlyIter = posOnly.iterator()
+        val hasPositionalOnly = posOnlyIter.hasNext()
+        val slash: FmtParam<T>? =
+            if (hasPositionalOnly) {
+                FmtParam.Slash
+            } else {
+                null
+            }
 
-    val namedOnlyList = namedOnly.toList()
-    val hasNamedOnly = namedOnlyList.isNotEmpty()
-    // `*args`, otherwise `*` if needed.
-    val argsOrStar: FmtParam<T>? = when {
-        args != null -> FmtParam.Args(args)
-        hasNamedOnly -> FmtParam.Star
-        else -> null
-    }
+        val namedOnlyList = namedOnly.toList()
+        val hasNamedOnly = namedOnlyList.isNotEmpty()
+        // `*args`, otherwise `*` if needed.
+        val argsOrStar: FmtParam<T>? =
+            when {
+                args != null -> FmtParam.Args(args)
+                hasNamedOnly -> FmtParam.Star
+                else -> null
+            }
 
-    for (p in posOnlyIter) {
-        yield(FmtParam.Regular(p))
+        for (p in posOnlyIter) {
+            yield(FmtParam.Regular(p))
+        }
+        if (slash != null) {
+            yield(slash)
+        }
+        for (p in posNamed) {
+            yield(FmtParam.Regular(p))
+        }
+        if (argsOrStar != null) {
+            yield(argsOrStar)
+        }
+        for (p in namedOnlyList) {
+            yield(FmtParam.Regular(p))
+        }
+        if (kwargs != null) {
+            yield(FmtParam.Kwargs(kwargs))
+        }
     }
-    if (slash != null) {
-        yield(slash)
-    }
-    for (p in posNamed) {
-        yield(FmtParam.Regular(p))
-    }
-    if (argsOrStar != null) {
-        yield(argsOrStar)
-    }
-    for (p in namedOnlyList) {
-        yield(FmtParam.Regular(p))
-    }
-    if (kwargs != null) {
-        yield(FmtParam.Kwargs(kwargs))
-    }
-}
 
 /** What to print for unknown default/optional. */
 internal const val PARAM_FMT_OPTIONAL: String = "..."
@@ -99,7 +112,14 @@ internal fun <T, D> fmtParamSpec(
     kwargs: ParamFmt<T, D>?,
 ) {
     fmtParamSpecMaybeMultiline(
-        f, null, posOnly, posNamed, args, namedOnly, kwargs, false,
+        f,
+        null,
+        posOnly,
+        posNamed,
+        args,
+        namedOnly,
+        kwargs,
+        false,
     )
 }
 

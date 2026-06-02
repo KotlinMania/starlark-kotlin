@@ -19,17 +19,13 @@ package io.github.kotlinmania.starlark.values.types.bool
  * limitations under the License.
  */
 
-import io.github.kotlinmania.starlark.values.layout.heap.FrozenHeap
 import io.github.kotlinmania.starlark.values.layout.FrozenValue
-import io.github.kotlinmania.starlark.values.layout.heap.Heap
 import io.github.kotlinmania.starlark.values.layout.Value
+import io.github.kotlinmania.starlark.values.layout.heap.FrozenHeap
+import io.github.kotlinmania.starlark.values.layout.heap.Heap
 
 // impl AllocValue for Boolean
-internal fun Boolean.allocValue(heap: Heap): Value {
-    return Value.newBool(this)
-}
+internal fun Boolean.allocValue(heap: Heap): Value = Value.newBool(this)
 
 // impl AllocFrozenValue for Boolean
-internal fun Boolean.allocFrozenValue(heap: FrozenHeap): FrozenValue {
-    return FrozenValue.newBool(this)
-}
+internal fun Boolean.allocFrozenValue(heap: FrozenHeap): FrozenValue = FrozenValue.newBool(this)

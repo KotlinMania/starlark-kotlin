@@ -33,7 +33,6 @@ class TyEnumData(
     /** Type of enum type value. */
     internal val tyEnumType: Ty,
 ) : Comparable<TyEnumData> {
-
     // impl PartialEq for TyEnumData
     override fun equals(other: Any?): Boolean {
         if (this === other) return true

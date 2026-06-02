@@ -19,12 +19,12 @@ package io.github.kotlinmania.starlark.eval.bc
  * limitations under the License.
  */
 
-import io.github.kotlinmania.starlark.eval.runtime.Evaluator
 import io.github.kotlinmania.starlark.eval.runtime.Arguments
-import io.github.kotlinmania.starlark.values.types.NativeFunction
-import io.github.kotlinmania.starlark.values.types.NativeFunc
-import io.github.kotlinmania.starlark.values.layout.Value
+import io.github.kotlinmania.starlark.eval.runtime.Evaluator
 import io.github.kotlinmania.starlark.values.layout.FrozenValueTyped
+import io.github.kotlinmania.starlark.values.layout.Value
+import io.github.kotlinmania.starlark.values.types.NativeFunc
+import io.github.kotlinmania.starlark.values.types.NativeFunction
 
 /** Pointer to a native function optimized for bytecode execution. */
 class BcNativeFunction private constructor(
@@ -33,19 +33,16 @@ class BcNativeFunction private constructor(
     private val imp: NativeFunc,
 ) {
     companion object {
-        internal fun new(func: FrozenValueTyped<NativeFunction>): BcNativeFunction {
-            return BcNativeFunction(
+        internal fun new(func: FrozenValueTyped<NativeFunction>): BcNativeFunction =
+            BcNativeFunction(
                 func = func,
                 imp = func.asRef().function,
             )
-        }
     }
 
     internal fun func(): FrozenValueTyped<NativeFunction> = func
 
     fun toValue(): Value = func.toValue()
 
-    fun invoke(args: Arguments, eval: Evaluator): Result<Value> {
-        return imp.invoke(eval, args)
-    }
+    fun invoke(args: Arguments, eval: Evaluator): Result<Value> = imp.invoke(eval, args)
 }

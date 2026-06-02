@@ -1,25 +1,25 @@
 // port-lint: source src/values/typing/type_compiled/compiled.rs
-package io.github.kotlinmania.starlark.values.typing.type_compiled
+package io.github.kotlinmania.starlark.values.typing.typecompiled
 
-import io.github.kotlinmania.starlark.typing.Ty
-import io.github.kotlinmania.starlark.values.layout.Value
-import io.github.kotlinmania.starlark.values.layout.FrozenValue
-import io.github.kotlinmania.starlark.values.layout.typed.StringValue
-import io.github.kotlinmania.starlark.values.layout.heap.Heap
-import io.github.kotlinmania.starlark.values.layout.heap.FrozenHeap
-import io.github.kotlinmania.starlark.values.layout.avalues.simple.allocSimple
-import io.github.kotlinmania.starlark.values.types.tuple.Tuple
-import io.github.kotlinmania.starlark.values.types.tuple.fromValue
-import io.github.kotlinmania.starlark.values.types.list.ListRef
-import io.github.kotlinmania.starlark.values.layout.avalues.AllocStaticSimple
-import io.github.kotlinmania.starlark.values.types.none.NoneType
-import io.github.kotlinmania.starlark.values.types.dict.dictRefFromValue
-import io.github.kotlinmania.starlark.values.StarlarkValue
 import io.github.kotlinmania.starlark.collections.StarlarkHasher
-import io.github.kotlinmania.starlark.values.demand.Demand
 import io.github.kotlinmania.starlark.environment.Methods
 import io.github.kotlinmania.starlark.environment.MethodsBuilder
 import io.github.kotlinmania.starlark.environment.MethodsStatic
+import io.github.kotlinmania.starlark.typing.Ty
+import io.github.kotlinmania.starlark.values.StarlarkValue
+import io.github.kotlinmania.starlark.values.demand.Demand
+import io.github.kotlinmania.starlark.values.layout.FrozenValue
+import io.github.kotlinmania.starlark.values.layout.Value
+import io.github.kotlinmania.starlark.values.layout.avalues.AllocStaticSimple
+import io.github.kotlinmania.starlark.values.layout.avalues.simple.allocSimple
+import io.github.kotlinmania.starlark.values.layout.heap.FrozenHeap
+import io.github.kotlinmania.starlark.values.layout.heap.Heap
+import io.github.kotlinmania.starlark.values.layout.typed.StringValue
+import io.github.kotlinmania.starlark.values.types.dict.dictRefFromValue
+import io.github.kotlinmania.starlark.values.types.list.ListRef
+import io.github.kotlinmania.starlark.values.types.none.NoneType
+import io.github.kotlinmania.starlark.values.types.tuple.Tuple
+import io.github.kotlinmania.starlark.values.types.tuple.fromValue
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.
@@ -41,7 +41,9 @@ import io.github.kotlinmania.starlark.environment.MethodsStatic
 
 // Real types should be imported from their respective packages
 
-sealed class TypingError(message: String) : Exception(message) {
+sealed class TypingError(
+    message: String,
+) : Exception(message) {
     /** The value does not have the specified type */
     class TypeAnnotationMismatch(
         val value: String,
@@ -51,7 +53,9 @@ sealed class TypingError(message: String) : Exception(message) {
     ) : TypingError("Value `$value` of type `$typeName` does not match the type annotation `$typeAnnotation` for $context")
 
     /** The given type annotation does not represent a type */
-    class InvalidTypeAnnotation(val typeName: String) : TypingError("Type `$typeName` is not a valid type annotation")
+    class InvalidTypeAnnotation(
+        val typeName: String,
+    ) : TypingError("Type `$typeName` is not a valid type annotation")
 
     data object Dict : TypingError("`{A: B}` cannot be used as type, perhaps you meant `dict[A, B]`")
 
@@ -77,7 +81,9 @@ sealed class TypingError(message: String) : Exception(message) {
 /** Trait for compiled type expressions that can be used dynamically. */
 interface TypeCompiledDyn {
     fun asTyDyn(): Ty
+
     fun isRuntimeWildcardDyn(): Boolean
+
     fun toFrozenDyn(heap: FrozenHeap): TypeCompiled
 }
 
@@ -85,8 +91,8 @@ interface TypeCompiledDyn {
 class TypeCompiledImplAsStarlarkValue<T : TypeMatcher>(
     internal val typeCompiledImpl: T,
     internal val ty: Ty,
-) : StarlarkValue, TypeCompiledDyn {
-
+) : StarlarkValue,
+    TypeCompiledDyn {
     override val TYPE: String get() = "type"
     override val HAS_eval_type: Boolean get() = true
 
@@ -94,13 +100,9 @@ class TypeCompiledImplAsStarlarkValue<T : TypeMatcher>(
 
     override fun isRuntimeWildcardDyn(): Boolean = typeCompiledImpl.isWildcard()
 
-    override fun toFrozenDyn(heap: FrozenHeap): TypeCompiled {
-        return TypeCompiled(heap.allocSimple(this).toValue())
-    }
+    override fun toFrozenDyn(heap: FrozenHeap): TypeCompiled = TypeCompiled(heap.allocSimple(this).toValue())
 
-    override fun typeMatchesValue(value: Value): Boolean {
-        return typeCompiledImpl.matches(value)
-    }
+    override fun typeMatchesValue(value: Value): Boolean = typeCompiledImpl.matches(value)
 
     override fun provide(demand: Demand) {
         demand.provideRefStatic(this)
@@ -111,13 +113,9 @@ class TypeCompiledImplAsStarlarkValue<T : TypeMatcher>(
         return kotlin.Result.success(Unit)
     }
 
-    override fun evalType(): Ty? {
-        return ty
-    }
+    override fun evalType(): Ty? = ty
 
-    override fun getMethods(): Methods? {
-        return MethodsStatic().methods(::typeCompiledMethods)
-    }
+    override fun getMethods(): Methods? = MethodsStatic().methods(::typeCompiledMethods)
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
@@ -133,28 +131,23 @@ class TypeCompiledImplAsStarlarkValue<T : TypeMatcher>(
         fun <T : TypeMatcher> allocStatic(
             imp: T,
             ty: Ty,
-        ): AllocStaticSimple<TypeCompiledImplAsStarlarkValue<T>> {
-            return AllocStaticSimple.alloc(TypeCompiledImplAsStarlarkValue(imp, ty))
-        }
+        ): AllocStaticSimple<TypeCompiledImplAsStarlarkValue<T>> = AllocStaticSimple.alloc(TypeCompiledImplAsStarlarkValue(imp, ty))
     }
 }
 
 /** Dummy type matcher used as a canonical type. */
 class DummyTypeMatcher : TypeMatcher {
-    override fun matches(value: Value): Boolean {
-        throw IllegalStateException("unreachable")
-    }
+    override fun matches(value: Value): Boolean = throw IllegalStateException("unreachable")
 
     override fun isWildcard(): Boolean = false
 
     override fun hashCode(): Int = 0
+
     override fun equals(other: Any?): Boolean = other is DummyTypeMatcher
 }
 
 /** True iff the value matches this type. */
-fun typeCompiledMatches(thisValue: Value, value: Value): Boolean {
-    return thisValue.getRef().typeMatchesValue(value)
-}
+fun typeCompiledMatches(thisValue: Value, value: Value): Boolean = thisValue.getRef().typeMatchesValue(value)
 
 /** Error if the value does not match this type. */
 fun typeCompiledCheckMatches(thisValue: Value, value: Value): NoneType {
@@ -181,31 +174,24 @@ class TypeCompiled(
 ) {
     internal fun uncheckedNew(value: Value): TypeCompiled = TypeCompiled(value)
 
-    private fun downcast(): TypeCompiledDyn {
-        return inner.requestValue<TypeCompiledDyn>()
+    private fun downcast(): TypeCompiledDyn =
+        inner.requestValue<TypeCompiledDyn>()
             ?: throw IllegalStateException("Not TypeCompiledImpl (internal error)")
-    }
 
     /** Check if given value matches this type. */
-    fun matches(value: Value): Boolean {
-        return inner.toValue().getRef().typeMatchesValue(value)
-    }
+    fun matches(value: Value): Boolean = inner.toValue().getRef().typeMatchesValue(value)
 
     /** Get the typechecker type for this runtime type. */
-    fun asTy(): Ty {
-        return downcast().asTyDyn()
-    }
+    fun asTy(): Ty = downcast().asTyDyn()
 
     /**
      * True if `TypeCompiled` matches any type at runtime.
      * However, compile-time/lint typechecker may still check the type.
      */
-    internal fun isRuntimeWildcard(): Boolean {
-        return downcast().isRuntimeWildcardDyn()
-    }
+    internal fun isRuntimeWildcard(): Boolean = downcast().isRuntimeWildcardDyn()
 
-    private fun checkTypeError(value: Value, argName: String?): kotlin.Result<Unit> {
-        return kotlin.Result.failure(
+    private fun checkTypeError(value: Value, argName: String?): kotlin.Result<Unit> =
+        kotlin.Result.failure(
             TypingError.TypeAnnotationMismatch(
                 value.toStr(),
                 value.getType(),
@@ -214,29 +200,23 @@ class TypeCompiled(
                     null -> "return type"
                     else -> "argument `$argName`"
                 },
-            )
+            ),
         )
-    }
 
-    internal fun checkType(value: Value, argName: String?): kotlin.Result<Unit> {
-        return if (matches(value)) {
+    internal fun checkType(value: Value, argName: String?): kotlin.Result<Unit> =
+        if (matches(value)) {
             kotlin.Result.success(Unit)
         } else {
             checkTypeError(value, argName)
         }
-    }
 
     fun toValue(): TypeCompiled = TypeCompiled(inner.toValue())
 
     fun toInner(): Value = inner
 
-    fun writeHash(hasher: StarlarkHasher): kotlin.Result<Unit> {
-        return inner.toValue().writeHash(hasher)
-    }
+    fun writeHash(hasher: StarlarkHasher): kotlin.Result<Unit> = inner.toValue().writeHash(hasher)
 
-    fun typeEquals(other: TypeCompiled): kotlin.Result<Boolean> {
-        return inner.toValue().equals(other.inner.toValue())
-    }
+    fun typeEquals(other: TypeCompiled): kotlin.Result<Boolean> = inner.toValue().equals(other.inner.toValue())
 
     /** Reallocate the type in a frozen heap. */
     fun toFrozen(heap: FrozenHeap): TypeCompiled {
@@ -259,15 +239,14 @@ class TypeCompiled(
         return inner.toValue().equals(other.inner.toValue()).getOrDefault(false)
     }
 
-    override fun toString(): String {
-        return try {
+    override fun toString(): String =
+        try {
             val t = downcast()
             t.asTyDyn().toString()
         } catch (_: Exception) {
             // This is unreachable, but we should not panic in toString.
             inner.toString()
         }
-    }
 
     companion object {
         fun uncheckedNew(value: Value): TypeCompiled = TypeCompiled(value)
@@ -276,17 +255,11 @@ class TypeCompiled(
             typeCompiledImpl: TypeMatcher,
             ty: Ty,
             heap: Heap,
-        ): TypeCompiled {
-            return TypeCompiled(heap.allocSimple<TypeCompiledImplAsStarlarkValue<TypeMatcher>>(TypeCompiledImplAsStarlarkValue(typeCompiledImpl, ty)))
-        }
+        ): TypeCompiled = TypeCompiled(heap.allocSimple<TypeCompiledImplAsStarlarkValue<TypeMatcher>>(TypeCompiledImplAsStarlarkValue(typeCompiledImpl, ty)))
 
-        internal fun typeListOf(t: TypeCompiled, heap: Heap): TypeCompiled {
-            return TypeCompiledFactory.allocTy(Ty.list(t.asTy()), heap)
-        }
+        internal fun typeListOf(t: TypeCompiled, heap: Heap): TypeCompiled = TypeCompiledFactory.allocTy(Ty.list(t.asTy()), heap)
 
-        internal fun typeSetOf(t: TypeCompiled, heap: Heap): TypeCompiled {
-            return TypeCompiledFactory.allocTy(Ty.set(t.asTy()), heap)
-        }
+        internal fun typeSetOf(t: TypeCompiled, heap: Heap): TypeCompiled = TypeCompiledFactory.allocTy(Ty.set(t.asTy()), heap)
 
         internal fun typeAnyOfTwo(t0: TypeCompiled, t1: TypeCompiled, heap: Heap): TypeCompiled {
             val ty = Ty.union2(t0.asTy(), t1.asTy())
@@ -316,9 +289,7 @@ class TypeCompiled(
             }
         }
 
-        internal fun fromTy(ty: Ty, heap: Heap): TypeCompiled {
-            return TypeCompiledFactory.allocTy(ty, heap)
-        }
+        internal fun fromTy(ty: Ty, heap: Heap): TypeCompiled = TypeCompiledFactory.allocTy(ty, heap)
 
         /** Evaluate type annotation at runtime. */
         fun new(ty: Value, heap: Heap): TypeCompiled {
@@ -351,12 +322,11 @@ class TypeCompiled(
         }
 
         /** Evaluate type annotation at runtime (frozen). */
-        internal fun newFrozen(ty: FrozenValue, frozenHeap: FrozenHeap): TypeCompiled {
-            return Heap.temp { heap ->
+        internal fun newFrozen(ty: FrozenValue, frozenHeap: FrozenHeap): TypeCompiled =
+            Heap.temp { heap ->
                 val compiled = new(ty.toValue(), heap)
                 compiled.toFrozen(frozenHeap)
             }
-        }
 
         /** `typing.Any`. */
         fun any(): TypeCompiled {

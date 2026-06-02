@@ -35,21 +35,22 @@ internal class ScopeResolverGlobals(
 
     companion object {
         // pub(crate) fn unknown() -> ScopeResolverGlobals
-        fun unknown(): ScopeResolverGlobals {
-            return ScopeResolverGlobals(globals = null)
-        }
+        fun unknown(): ScopeResolverGlobals = ScopeResolverGlobals(globals = null)
     }
 
     // pub(crate) fn get_global(&self, name: &str) -> Option<FrozenValue>
-    fun getGlobal(name: String): FrozenValue? {
-        return when (val g = globals) {
+    fun getGlobal(name: String): FrozenValue? =
+        when (val g = globals) {
             null -> constFrozenString("unknown-global").toFrozenValue()
             else -> g.value.getFrozen(name)
         }
-    }
 
     // pub(crate) fn names(&self) -> Option<Vec<String>>
-    fun names(): List<String>? {
-        return globals?.value?.names()?.asSequence()?.map { s -> s.asStr() }?.toList()
-    }
+    fun names(): List<String>? =
+        globals
+            ?.value
+            ?.names()
+            ?.asSequence()
+            ?.map { s -> s.asStr() }
+            ?.toList()
 }

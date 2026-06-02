@@ -22,6 +22,4 @@ package io.github.kotlinmania.starlark.values.types.bool
 import io.github.kotlinmania.starlark.values.layout.Value
 
 // impl UnpackValue for Boolean
-internal fun unpackBool(value: Value): Boolean? {
-    return value.unpackBool()
-}
+internal fun unpackBool(value: Value): Boolean? = value.unpackBool()

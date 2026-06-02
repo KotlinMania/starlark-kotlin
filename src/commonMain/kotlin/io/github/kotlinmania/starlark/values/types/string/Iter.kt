@@ -5,11 +5,11 @@ import io.github.kotlinmania.starlark.any.ProvidesStaticType
 import io.github.kotlinmania.starlark.values.ComplexValue
 import io.github.kotlinmania.starlark.values.Trace
 import io.github.kotlinmania.starlark.values.layout.Value
-import io.github.kotlinmania.starlark.values.layout.typed.StringValue
-import io.github.kotlinmania.starlark.values.layout.heap.Heap
-import io.github.kotlinmania.starlark.values.layout.heap.Tracer
 import io.github.kotlinmania.starlark.values.layout.avalues.allocComplex
 import io.github.kotlinmania.starlark.values.layout.avalues.allocTupleIter
+import io.github.kotlinmania.starlark.values.layout.heap.Heap
+import io.github.kotlinmania.starlark.values.layout.heap.Tracer
+import io.github.kotlinmania.starlark.values.layout.typed.StringValue
 import io.github.kotlinmania.starlark.values.types.int.StarlarkInt
 import io.github.kotlinmania.starlark.values.types.int.allocValue
 import kotlin.reflect.KClass
@@ -44,9 +44,10 @@ import kotlin.reflect.KClass
 // }
 internal class StringIterableGen(
     val string: StringValue,
-    val produceChar: Boolean // if not char, then int
-) : ComplexValue, Trace, ProvidesStaticType {
-
+    val produceChar: Boolean, // if not char, then int
+) : ComplexValue,
+    Trace,
+    ProvidesStaticType {
     // #[display("iterator")]
     override fun toString(): String = "iterator"
 
@@ -59,18 +60,23 @@ internal class StringIterableGen(
     // unsafe fn iterate(&self, _me: Value<'v>, heap: Heap<'v>) -> crate::Result<Value<'v>>
     override fun iterate(me: Value, heap: Heap): Result<Value> {
         // Lazy implementation: we allocate a tuple and then iterate over it.
-        val iter = if (this.produceChar) {
-            heap.allocTupleIter(this.string.asStr().map { c -> heap.allocStr(c.toString()) })
-        } else {
-            heap.allocTupleIter(this.string.asStr().map { c ->
-                StarlarkInt.from(c.code).allocValue(heap)
-            })
-        }
+        val iter =
+            if (this.produceChar) {
+                heap.allocTupleIter(this.string.asStr().map { c -> heap.allocStr(c.toString()) })
+            } else {
+                heap.allocTupleIter(
+                    this.string.asStr().map { c ->
+                        StarlarkInt.from(c.code).allocValue(heap)
+                    },
+                )
+            }
         return Result.success(iter)
     }
 
     // unsafe impl Trace for StringIterableGen
-    override fun trace(@Suppress("unused") tracer: Tracer) {
+    override fun trace(
+        @Suppress("unused") tracer: Tracer,
+    ) {
         // In Rust, Trace is derived. The StringValue's inner Value
         // would be traced. Since Kotlin's GC handles memory, this is a no-op.
     }
@@ -82,15 +88,17 @@ internal class StringIterableGen(
 // ) -> ValueOfUnchecked<'v, StarlarkIter<String>>
 internal fun iterateChars(
     string: StringValue,
-    heap: Heap
+    heap: Heap,
 ): Value {
     // Rust returns ValueOfUnchecked<StarlarkIter<String>> but the Kotlin port
     // cannot represent this phantom type annotation because StarlarkIter does not
     // implement StarlarkTypeRepr yet. Callers only use .get() on the result anyway.
-    return heap.allocComplex(StringIterableGen(
-        string,
-        true
-    ))
+    return heap.allocComplex(
+        StringIterableGen(
+            string,
+            true,
+        ),
+    )
 }
 
 // pub(crate) fn iterate_codepoints<'v>(
@@ -99,13 +107,15 @@ internal fun iterateChars(
 // ) -> ValueOfUnchecked<'v, StarlarkIter<String>>
 internal fun iterateCodepoints(
     string: StringValue,
-    heap: Heap
+    heap: Heap,
 ): Value {
     // Rust returns ValueOfUnchecked<StarlarkIter<String>> but the Kotlin port
     // cannot represent this phantom type annotation because StarlarkIter does not
     // implement StarlarkTypeRepr yet. Callers only use .get() on the result anyway.
-    return heap.allocComplex(StringIterableGen(
-        string,
-        false
-    ))
+    return heap.allocComplex(
+        StringIterableGen(
+            string,
+            false,
+        ),
+    )
 }

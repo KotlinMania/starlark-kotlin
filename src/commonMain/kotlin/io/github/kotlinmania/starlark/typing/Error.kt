@@ -9,8 +9,8 @@ package io.github.kotlinmania.starlark.typing
 // use crate::codemap::CodeMap;
 // use crate::codemap::Span;
 
-import io.github.kotlinmania.starlark.codemap.Span
 import io.github.kotlinmania.starlark.codemap.CodeMap
+import io.github.kotlinmania.starlark.codemap.Span
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.
@@ -32,26 +32,21 @@ import io.github.kotlinmania.starlark.codemap.CodeMap
 
 // Kotlin: EvalException is defined in starlark_syntax in Rust.
 // We define it here for now.
-class EvalException(override val message: String, cause: Throwable? = null) : Exception(message, cause) {
+class EvalException(
+    override val message: String,
+    cause: Throwable? = null,
+) : Exception(message, cause) {
     companion object {
         // fn new(error: crate::Error, span: Span, codemap: &CodeMap) -> EvalException
-        fun new(error: StarlarkError, span: Span, codemap: CodeMap): EvalException {
-            return EvalException("${error.message} at ${span} in ${codemap}")
-        }
+        fun new(error: StarlarkError, span: Span, codemap: CodeMap): EvalException = EvalException("${error.message} at $span in $codemap")
 
-        fun newAnyhow(error: Throwable, span: Span, codemap: CodeMap): EvalException {
-            return EvalException("${error.message} at ${span} in ${codemap}", error)
-        }
+        fun newAnyhow(error: Throwable, span: Span, codemap: CodeMap): EvalException = EvalException("${error.message} at $span in $codemap", error)
 
         // fn parser_error(error: impl Display, span: Span, codemap: &CodeMap) -> EvalException
-        fun parserError(message: String, span: Span, codemap: CodeMap): EvalException {
-            return EvalException("$message at $span in $codemap")
-        }
+        fun parserError(message: String, span: Span, codemap: CodeMap): EvalException = EvalException("$message at $span in $codemap")
 
         // fn internal_error(error: impl Display, span: Span, codemap: &CodeMap) -> EvalException
-        fun internalError(message: String, span: Span, codemap: CodeMap): EvalException {
-            return new(StarlarkError("Internal: $message"), span, codemap)
-        }
+        fun internalError(message: String, span: Span, codemap: CodeMap): EvalException = new(StarlarkError("Internal: $message"), span, codemap)
 
         // EvalException::new_with_callstack(e, span, file, || frames)
         fun newWithCallStack(
@@ -68,58 +63,58 @@ class EvalException(override val message: String, cause: Throwable? = null) : Ex
 
     fun intoError(): StarlarkError = StarlarkError(message, this)
 
-    fun intoInternalError(): EvalException {
-        return EvalException("Internal: $message", cause)
-    }
+    fun intoInternalError(): EvalException = EvalException("Internal: $message", cause)
 }
 
-open class StarlarkError(message: String, cause: Throwable? = null) : Exception(message, cause) {
-    fun intoInternalError(): StarlarkError {
-        return StarlarkError("Internal: $message", cause)
-    }
+open class StarlarkError(
+    message: String,
+    cause: Throwable? = null,
+) : Exception(message, cause) {
+    fun intoInternalError(): StarlarkError = StarlarkError("Internal: $message", cause)
 }
 
-
-class WithDiagnostic<T>(val value: T, val span: Span, val codemap: CodeMap) {
-    fun <R> map(f: (T) -> R): WithDiagnostic<R> {
-        return WithDiagnostic(f(value), span, codemap)
-    }
+class WithDiagnostic<T>(
+    val value: T,
+    val span: Span,
+    val codemap: CodeMap,
+) {
+    fun <R> map(f: (T) -> R): WithDiagnostic<R> = WithDiagnostic(f(value), span, codemap)
 }
 
-/// Internal error, bug in the typechecker.
+// / Internal error, bug in the typechecker.
 // #[derive(Debug)]
 // pub struct InternalError(EvalException);
-class InternalError(private val exception: EvalException) : Exception(exception.message, exception) {
+class InternalError(
+    private val exception: EvalException,
+) : Exception(exception.message, exception) {
     // impl InternalError
     companion object {
         // #[cold]
         // pub(crate) fn msg(message: impl Display, span: Span, codemap: &CodeMap) -> InternalError
-        fun msg(message: Any, span: Span, codemap: CodeMap): InternalError {
-            return InternalError(
+        fun msg(message: Any, span: Span, codemap: CodeMap): InternalError =
+            InternalError(
                 EvalException.new(
                     StarlarkError(message.toString()),
                     span,
-                    codemap
-                )
+                    codemap,
+                ),
             )
-        }
 
         // #[cold]
         // pub(crate) fn from_diagnostic(d: WithDiagnostic<impl Display>) -> InternalError
         fun fromDiagnostic(d: WithDiagnostic<Any>): InternalError {
-            val internal = d.map { m ->
-                StarlarkError(m.toString())
-            }
+            val internal =
+                d.map { m ->
+                    StarlarkError(m.toString())
+                }
             return InternalError(
-                EvalException.new(internal.value, internal.span, internal.codemap)
+                EvalException.new(internal.value, internal.span, internal.codemap),
             )
         }
 
         // #[cold]
         // pub(crate) fn from_eval_exception(e: EvalException) -> InternalError
-        fun fromEvalException(e: EvalException): InternalError {
-            return InternalError(e.intoInternalError())
-        }
+        fun fromEvalException(e: EvalException): InternalError = InternalError(e.intoInternalError())
 
         // #[cold]
         // pub(crate) fn from_error(e: crate::Error, span: Span, codemap: &CodeMap) -> InternalError
@@ -131,84 +126,77 @@ class InternalError(private val exception: EvalException) : Exception(exception.
 
     // #[cold]
     // pub(crate) fn into_error(self) -> crate::Error
-    fun intoError(): StarlarkError {
-        return exception.intoError()
-    }
+    fun intoError(): StarlarkError = exception.intoError()
 
     // #[cold]
     // pub(crate) fn into_eval_exception(self) -> EvalException
-    fun intoEvalException(): EvalException {
-        return exception
-    }
+    fun intoEvalException(): EvalException = exception
 }
 
-/// Errors used in typechecker API. Error has a span.
+// / Errors used in typechecker API. Error has a span.
 // pub struct TypingError(EvalException);
-class TypingError(private val exception: EvalException) {
+class TypingError(
+    private val exception: EvalException,
+) {
     // impl TypingError
     companion object {
         // #[cold]
         // pub(crate) fn msg(message: impl Display, span: Span, codemap: &CodeMap) -> TypingError
-        fun msg(message: Any, span: Span, codemap: CodeMap): TypingError {
-            return TypingError(
+        fun msg(message: Any, span: Span, codemap: CodeMap): TypingError =
+            TypingError(
                 EvalException.newAnyhow(
                     Exception(message.toString()),
                     span,
-                    codemap
-                )
+                    codemap,
+                ),
             )
-        }
 
         // #[cold]
         // pub(crate) fn new(error: crate::Error, span: Span, codemap: &CodeMap) -> TypingError
-        fun new(error: StarlarkError, span: Span, codemap: CodeMap): TypingError {
-            return TypingError(EvalException.new(error, span, codemap))
-        }
+        fun new(error: StarlarkError, span: Span, codemap: CodeMap): TypingError = TypingError(EvalException.new(error, span, codemap))
 
         // #[cold]
         // pub(crate) fn new_anyhow(error: anyhow::Error, span: Span, codemap: &CodeMap) -> TypingError
-        fun newAnyhow(error: Throwable, span: Span, codemap: CodeMap): TypingError {
-            return TypingError(EvalException.newAnyhow(error, span, codemap))
-        }
+        fun newAnyhow(error: Throwable, span: Span, codemap: CodeMap): TypingError = TypingError(EvalException.newAnyhow(error, span, codemap))
 
         // #[cold]
         // pub(crate) fn from_eval_exception(e: EvalException) -> TypingError
-        fun fromEvalException(e: EvalException): TypingError {
-            return TypingError(e)
-        }
+        fun fromEvalException(e: EvalException): TypingError = TypingError(e)
     }
 
     // #[cold]
     // pub(crate) fn into_error(self) -> crate::Error
-    fun intoError(): StarlarkError {
-        return exception.intoError()
-    }
+    fun intoError(): StarlarkError = exception.intoError()
 
     // #[cold]
     // pub(crate) fn into_eval_exception(self) -> EvalException
-    fun intoEvalException(): EvalException {
-        return exception
-    }
+    fun intoEvalException(): EvalException = exception
 }
 
-/// Like [`TypingError`], but without a message or span.
+// / Like [`TypingError`], but without a message or span.
 // pub struct TypingNoContextError;
 object TypingNoContextError : Exception("typing error (no context)")
 
-/// Either a typing error or an internal error.
-/// * Typing error means, types are not compatible.
-/// * Internal error means, bug in the typechecker.
+// / Either a typing error or an internal error.
+// / * Typing error means, types are not compatible.
+// / * Internal error means, bug in the typechecker.
 // pub enum TypingOrInternalError {
 //     Typing(TypingError),
 //     Internal(InternalError),
 // }
 sealed class TypingOrInternalError : Exception() {
-    class Typing(val error: TypingError) : TypingOrInternalError()
-    class Internal(val error: InternalError) : TypingOrInternalError()
+    class Typing(
+        val error: TypingError,
+    ) : TypingOrInternalError()
+
+    class Internal(
+        val error: InternalError,
+    ) : TypingOrInternalError()
 
     companion object {
         // impl From<TypingError> for TypingOrInternalError
         fun from(e: TypingError): TypingOrInternalError = Typing(e)
+
         // impl From<InternalError> for TypingOrInternalError
         fun from(e: InternalError): TypingOrInternalError = Internal(e)
     }
@@ -220,11 +208,17 @@ sealed class TypingOrInternalError : Exception() {
 // }
 sealed class TypingNoContextOrInternalError : Exception() {
     data object Typing : TypingNoContextOrInternalError()
-    class Internal(val error: InternalError) : TypingNoContextOrInternalError()
+
+    class Internal(
+        val error: InternalError,
+    ) : TypingNoContextOrInternalError()
 
     companion object {
         // impl From<TypingNoContextError> for TypingNoContextOrInternalError
-        fun from(@Suppress("UNUSED_PARAMETER") e: TypingNoContextError): TypingNoContextOrInternalError = Typing
+        fun from(
+            @Suppress("UNUSED_PARAMETER") e: TypingNoContextError,
+        ): TypingNoContextOrInternalError = Typing
+
         // impl From<InternalError> for TypingNoContextOrInternalError
         fun from(e: InternalError): TypingNoContextOrInternalError = Internal(e)
     }

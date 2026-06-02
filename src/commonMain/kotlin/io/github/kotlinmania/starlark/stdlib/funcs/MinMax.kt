@@ -1,5 +1,5 @@
 // port-lint: source src/stdlib/funcs/min_max.rs
-package io.github.kotlinmania.starlark.stdlib.funcs.min_max
+package io.github.kotlinmania.starlark.stdlib.funcs.minmax
 
 /*
  * Copyright 2018 The Starlark in Rust Authors.
@@ -30,6 +30,7 @@ import kotlin.text.iterator
 //     eval: &mut Evaluator<'v, '_, '_>,
 //     min: bool,
 // ) -> crate::Result<Value<'v>>
+
 /**
  * Shared iterator-based implementation for both `min` and `max`.
  *
@@ -53,11 +54,12 @@ private fun minMaxIter(
     //     Some(x) => x,
     //     None => { return Err(...) }
     // };
-    var best = if (it.hasNext()) {
-        it.next()
-    } else {
-        error("Argument is an empty iterable, max() expect a non empty iterable")
-    }
+    var best =
+        if (it.hasNext()) {
+            it.next()
+        } else {
+            error("Argument is an empty iterable, max() expect a non empty iterable")
+        }
     // let update_max_ordering = if min { Ordering::Greater } else { Ordering::Less };
     // Ordering::Greater maps to positive (> 0), Ordering::Less maps to negative (< 0).
     // When finding min, we update when best > candidate (compare returns positive).
@@ -100,6 +102,7 @@ private fun minMaxIter(
 //     eval: &mut Evaluator<'v, '_, '_>,
 //     min: bool,
 // ) -> crate::Result<Value<'v>>
+
 /**
  * Common implementation of `min` and `max`.
  *
@@ -135,6 +138,7 @@ private fun minMax(
 
 // #[starlark_module]
 // pub(crate) fn register_min_max(globals: &mut GlobalsBuilder)
+
 /**
  * Register the `min` and `max` builtin functions with the given [io.github.kotlinmania.starlark.environment.GlobalsBuilder].
  *

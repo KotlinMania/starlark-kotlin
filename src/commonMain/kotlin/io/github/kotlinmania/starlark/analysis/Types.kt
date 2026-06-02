@@ -1,8 +1,8 @@
 // port-lint: source src/analysis/types.rs
 package io.github.kotlinmania.starlark.analysis
 
-import io.github.kotlinmania.starlark.codemap.ResolvedFileSpan
 import io.github.kotlinmania.starlark.codemap.FileSpan
+import io.github.kotlinmania.starlark.codemap.ResolvedFileSpan
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.
@@ -38,22 +38,19 @@ class Lint(
     val original: String,
 ) {
     // impl Display for Lint
-    override fun toString(): String {
-        return "$location: $problem"
-    }
+    override fun toString(): String = "$location: $problem"
 }
 
 /** Erase the typed problem into a generic [Lint]. */
 // pub(crate) fn erase(self) -> Lint
-internal fun <T> LintT<T>.erase(): Lint where T : LintWarning {
-    return Lint(
+internal fun <T> LintT<T>.erase(): Lint where T : LintWarning =
+    Lint(
         location = this.location,
         shortName = this.problem.shortName(),
         severity = this.problem.severity(),
         problem = this.problem.toString(),
         original = "", // LintT in flow.kt lacks `original`; will be filled when unified
     )
-}
 
 /** A standardised set of severities. */
 // Note: EvalSeverity is already defined in flow.kt.
@@ -81,15 +78,14 @@ class EvalMessage(
     val original: String? = null,
 ) {
     // impl Display for EvalMessage
-    override fun toString(): String {
-        return buildString {
+    override fun toString(): String =
+        buildString {
             append("$severity: $path:")
             if (span != null) {
                 append("$span")
             }
             append(" $description")
         }
-    }
 
     companion object {
         /** Produce an `EvalMessage` from a `starlark::Error`. */
@@ -106,8 +102,8 @@ class EvalMessage(
          * Prefer to use `fromError` if at all possible.
          */
         // pub fn from_any_error(file: &Path, x: &impl std::fmt::Display) -> Self
-        fun fromAnyError(file: String, x: Any): EvalMessage {
-            return EvalMessage(
+        fun fromAnyError(file: String, x: Any): EvalMessage =
+            EvalMessage(
                 path = file,
                 span = null,
                 severity = EvalSeverity.Error,
@@ -116,7 +112,6 @@ class EvalMessage(
                 fullErrorWithSpan = null,
                 original = null,
             )
-        }
 
         // fn from_diagnostic(span: &FileSpan, message: impl Display, full_error: impl Display) -> Self
         private fun fromDiagnostic(
@@ -139,8 +134,8 @@ class EvalMessage(
 }
 
 // impl From<Lint> for EvalMessage
-fun Lint.toEvalMessage(): EvalMessage {
-    return EvalMessage(
+fun Lint.toEvalMessage(): EvalMessage =
+    EvalMessage(
         path = location.description,
         span = location.resolve(),
         severity = severity,
@@ -149,4 +144,3 @@ fun Lint.toEvalMessage(): EvalMessage {
         fullErrorWithSpan = null,
         original = original,
     )
-}

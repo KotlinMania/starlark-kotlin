@@ -1,37 +1,37 @@
 // port-lint: source src/typing/fill_types_for_lint.rs
 package io.github.kotlinmania.starlark.typing
 
-import io.github.kotlinmania.starlark.values.layout.avalues.allocTuple
-import io.github.kotlinmania.starlark.syntax.ast.AssignTargetP
-import io.github.kotlinmania.starlark.syntax.ast.ExprP
-import io.github.kotlinmania.starlark.syntax.ast.AssignP
-import io.github.kotlinmania.starlark.syntax.ast.CallArgsP
-import io.github.kotlinmania.starlark.syntax.ast.ForP
-import io.github.kotlinmania.starlark.syntax.ast.DefP
-import io.github.kotlinmania.starlark.syntax.ast.LoadP
-import io.github.kotlinmania.starlark.eval.compiler.scope.CstExpr
-import io.github.kotlinmania.starlark.eval.compiler.scope.CstIdent
-import io.github.kotlinmania.starlark.eval.compiler.scope.CstAssignIdent
-import io.github.kotlinmania.starlark.eval.compiler.scope.CstStmt
-import io.github.kotlinmania.starlark.eval.compiler.scope.CstTypeExpr
-import io.github.kotlinmania.starlark.eval.compiler.scope.CstPayload
-import io.github.kotlinmania.starlark.eval.compiler.scope.CstTypeExprPayload
-import io.github.kotlinmania.starlark.codemap.Spanned
-import io.github.kotlinmania.starlark.codemap.Span
 import io.github.kotlinmania.starlark.codemap.CodeMap
+import io.github.kotlinmania.starlark.codemap.Span
+import io.github.kotlinmania.starlark.codemap.Spanned
 import io.github.kotlinmania.starlark.environment.ModuleSlotId
-import io.github.kotlinmania.starlark.values.layout.heap.Heap
-import io.github.kotlinmania.starlark.values.layout.Value
-import io.github.kotlinmania.starlark.typing.oracle.TypingOracleCtx
-import io.github.kotlinmania.starlark.values.typing.type_compiled.TypeCompiled
-import io.github.kotlinmania.starlark.syntax.ast.StmtP
-import io.github.kotlinmania.starlark.syntax.ast.AstLiteral
-import io.github.kotlinmania.starlark.syntax.ast.AstString
+import io.github.kotlinmania.starlark.eval.compiler.BindingId
+import io.github.kotlinmania.starlark.eval.compiler.ModuleScopeData
 import io.github.kotlinmania.starlark.eval.compiler.ResolvedIdent
 import io.github.kotlinmania.starlark.eval.compiler.Slot
-import io.github.kotlinmania.starlark.eval.compiler.ModuleScopeData
-import io.github.kotlinmania.starlark.eval.compiler.BindingId
+import io.github.kotlinmania.starlark.eval.compiler.scope.CstAssignIdent
+import io.github.kotlinmania.starlark.eval.compiler.scope.CstExpr
+import io.github.kotlinmania.starlark.eval.compiler.scope.CstIdent
+import io.github.kotlinmania.starlark.eval.compiler.scope.CstPayload
+import io.github.kotlinmania.starlark.eval.compiler.scope.CstStmt
+import io.github.kotlinmania.starlark.eval.compiler.scope.CstTypeExpr
+import io.github.kotlinmania.starlark.eval.compiler.scope.CstTypeExprPayload
+import io.github.kotlinmania.starlark.syntax.ast.AssignP
+import io.github.kotlinmania.starlark.syntax.ast.AssignTargetP
+import io.github.kotlinmania.starlark.syntax.ast.AstLiteral
+import io.github.kotlinmania.starlark.syntax.ast.AstString
 import io.github.kotlinmania.starlark.syntax.ast.BinOp
+import io.github.kotlinmania.starlark.syntax.ast.CallArgsP
+import io.github.kotlinmania.starlark.syntax.ast.DefP
+import io.github.kotlinmania.starlark.syntax.ast.ExprP
+import io.github.kotlinmania.starlark.syntax.ast.ForP
+import io.github.kotlinmania.starlark.syntax.ast.LoadP
+import io.github.kotlinmania.starlark.syntax.ast.StmtP
+import io.github.kotlinmania.starlark.typing.oracle.TypingOracleCtx
+import io.github.kotlinmania.starlark.values.layout.Value
+import io.github.kotlinmania.starlark.values.layout.avalues.allocTuple
+import io.github.kotlinmania.starlark.values.layout.heap.Heap
+import io.github.kotlinmania.starlark.values.typing.typecompiled.TypeCompiled
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.
@@ -60,33 +60,28 @@ private data class GlobalValue(
 ) {
     companion object {
         // fn union2(a: GlobalValue, b: GlobalValue) -> GlobalValue
-        fun union2(a: GlobalValue, b: GlobalValue): GlobalValue {
-            return GlobalValue(
+        fun union2(a: GlobalValue, b: GlobalValue): GlobalValue =
+            GlobalValue(
                 value = null,
                 ty = Ty.union2(a.ty, b.ty),
             )
-        }
 
         // fn value(value: Value) -> GlobalValue
-        fun value(v: Value): GlobalValue {
-            return GlobalValue(
+        fun value(v: Value): GlobalValue =
+            GlobalValue(
                 value = v,
                 ty = Ty.any(), // Ty::of_value not yet ported
             )
-        }
 
         // fn any() -> GlobalValue
-        fun any(): GlobalValue {
-            return GlobalValue(
+        fun any(): GlobalValue =
+            GlobalValue(
                 value = null,
                 ty = Ty.any(),
             )
-        }
 
         // fn ty(ty: Ty) -> GlobalValue
-        fun ty(ty: Ty): GlobalValue {
-            return GlobalValue(value = null, ty = ty)
-        }
+        fun ty(ty: Ty): GlobalValue = GlobalValue(value = null, ty = ty)
     }
 }
 
@@ -100,9 +95,7 @@ private class GlobalTypesBuilder(
     val ctx: TypingOracleCtx,
 ) {
     // fn internal_error(&self, span: Span, message: impl Display) -> InternalError
-    fun internalError(span: Span, message: String): InternalError {
-        return InternalError.msg(message, span, ctx.codemap)
-    }
+    fun internalError(span: Span, message: String): InternalError = InternalError.msg(message, span, ctx.codemap)
 
     // fn err(&mut self, span: Span, e: crate::Error) -> GlobalValue
     fun err(span: Span, e: StarlarkError): GlobalValue {
@@ -111,9 +104,7 @@ private class GlobalTypesBuilder(
     }
 
     // fn call(&mut self, _f: &CstExpr, _args: &CallArgsP<CstPayload>) -> Result<GlobalValue, InternalError>
-    fun call(_f: CstExpr, _args: CallArgsP<CstPayload>): GlobalValue {
-        return GlobalValue.any()
-    }
+    fun call(_f: CstExpr, _args: CallArgsP<CstPayload>): GlobalValue = GlobalValue.any()
 
     // fn expr_ident(&self, ident: &CstIdent) -> Result<GlobalValue, InternalError>
     fun exprIdent(ident: CstIdent): GlobalValue {
@@ -136,12 +127,11 @@ private class GlobalTypesBuilder(
     }
 
     // fn expr_literal(&mut self, literal: &AstLiteral) -> Result<GlobalValue, InternalError>
-    fun exprLiteral(literal: AstLiteral): GlobalValue {
-        return when (literal) {
+    fun exprLiteral(literal: AstLiteral): GlobalValue =
+        when (literal) {
             is AstLiteral.String -> GlobalValue.value(heap.allocStr(literal.value.node))
             else -> GlobalValue.any()
         }
-    }
 
     // fn tuple(&mut self, xs: &[CstExpr]) -> Result<GlobalValue, InternalError>
     fun tuple(xs: List<CstExpr>): GlobalValue {
@@ -231,7 +221,8 @@ private class GlobalTypesBuilder(
             is ExprP.Dict<*>,
             is ExprP.ListComprehension<*>,
             is ExprP.DictComprehension<*>,
-            is ExprP.FString<*> -> GlobalValue.any()
+            is ExprP.FString<*>,
+            -> GlobalValue.any()
         }
     }
 
@@ -253,8 +244,9 @@ private class GlobalTypesBuilder(
     // fn resolve_assign_ident_to_module_slot_id(&self, ident: &CstAssignIdent) -> Result<ModuleSlotId, InternalError>
     @Suppress("UNCHECKED_CAST")
     fun resolveAssignIdentToModuleSlotId(ident: CstAssignIdent): ModuleSlotId {
-        val bindingId = ident.node.payload as? BindingId
-            ?: throw internalError(ident.span, "binding not resolved")
+        val bindingId =
+            ident.node.payload as? BindingId
+                ?: throw internalError(ident.span, "binding not resolved")
         val binding = moduleScopeData.getBinding(bindingId)
         val resolvedSlot = binding.resolvedSlot(ctx.codemap)
         return when (resolvedSlot) {
@@ -462,9 +454,10 @@ private class GlobalTypesBuilder(
             val ty = TypeCompiled.new(value, heap)
             ty.asTy()
         } catch (e: Exception) {
-            val span = Span.mergeAll(
-                (listOf(first.span) + rem.map { it.span }).iterator()
-            )
+            val span =
+                Span.mergeAll(
+                    (listOf(first.span) + rem.map { it.span }).iterator(),
+                )
             errors.add(TypingError.newAnyhow(e, span, ctx.codemap))
             null
         }
@@ -473,9 +466,10 @@ private class GlobalTypesBuilder(
     // fn path_ty(&mut self, path: TypePathP<CstPayload>) -> Result<Ty, InternalError>
     fun pathTy(first: CstIdent, rem: List<AstString>): Ty {
         tryProperTy(first, rem)?.let { return it }
-        val span = Span.mergeAll(
-            (listOf(first.span) + rem.map { it.span }).iterator()
-        )
+        val span =
+            Span.mergeAll(
+                (listOf(first.span) + rem.map { it.span }).iterator(),
+            )
         return unknownTy(span)
     }
 
@@ -499,16 +493,15 @@ private class GlobalTypesBuilder(
 
     // fn get_ty_expr(&self, expr: &CstTypeExpr) -> Result<Ty, InternalError>
     fun getTyExpr(expr: CstTypeExpr): Ty {
-        val payload = expr.node.payload as? CstTypeExprPayload
-            ?: throw internalError(expr.span, "type not set")
+        val payload =
+            expr.node.payload as? CstTypeExprPayload
+                ?: throw internalError(expr.span, "type not set")
         return payload.typecheckerTy
             ?: throw internalError(expr.span, "type not set")
     }
 
     // fn get_ty_expr_opt(&mut self, expr: Option<&CstTypeExpr>) -> Result<Ty, InternalError>
-    fun getTyExprOpt(expr: CstTypeExpr?): Ty {
-        return if (expr == null) Ty.any() else getTyExpr(expr)
-    }
+    fun getTyExprOpt(expr: CstTypeExpr?): Ty = if (expr == null) Ty.any() else getTyExpr(expr)
 
     // fn fill_types(&mut self, stmt: &mut CstStmt) -> Result<(), InternalError>
     fun fillTypes(stmt: CstStmt) {
@@ -538,18 +531,22 @@ private fun unpackDefParams(params: List<Spanned<*>>, codemap: CodeMap): List<De
     val result = mutableListOf<DefParam>()
     var indexOfStar: Int? = null
 
-    val numPositionalOnly: Int = run {
-        val slashIdx = params.indexOfFirst {
-            it.node is io.github.kotlinmania.starlark.syntax.ast.ParameterP.Slash<*>
+    val numPositionalOnly: Int =
+        run {
+            val slashIdx =
+                params.indexOfFirst {
+                    it.node is io.github.kotlinmania.starlark.syntax.ast.ParameterP.Slash<*>
+                }
+            when {
+                slashIdx < 0 -> 0
+                slashIdx == 0 -> throw EvalException.parserError(
+                    "`/` cannot be first parameter",
+                    params[0].span,
+                    codemap,
+                )
+                else -> slashIdx
+            }
         }
-        when {
-            slashIdx < 0 -> 0
-            slashIdx == 0 -> throw EvalException.parserError(
-                "`/` cannot be first parameter", params[0].span, codemap
-            )
-            else -> slashIdx
-        }
-    }
 
     var state = if (numPositionalOnly == 0) 1 else 0
 
@@ -578,27 +575,34 @@ private fun unpackDefParams(params: List<Spanned<*>>, codemap: CodeMap): List<De
                 } else {
                     seenOptional = true
                 }
-                val mode = when {
-                    state < 1 -> DefRegularParamMode.PosOnly
-                    state < 2 -> DefRegularParamMode.PosOrName
-                    else -> DefRegularParamMode.NameOnly
-                }
-                result.add(DefParam(
-                    param.name as CstAssignIdent,
-                    DefParamKind.Regular(mode, param.defaultVal as CstExpr?),
-                    param.typ as CstTypeExpr?,
-                ))
+                val mode =
+                    when {
+                        state < 1 -> DefRegularParamMode.PosOnly
+                        state < 2 -> DefRegularParamMode.PosOrName
+                        else -> DefRegularParamMode.NameOnly
+                    }
+                result.add(
+                    DefParam(
+                        param.name as CstAssignIdent,
+                        DefParamKind.Regular(mode, param.defaultVal as CstExpr?),
+                        param.typ as CstTypeExpr?,
+                    ),
+                )
             }
             is io.github.kotlinmania.starlark.syntax.ast.ParameterP.NoArgs<*> -> {
                 if (state >= 2) {
                     throw EvalException.parserError(
-                        "Args parameter after another args or kwargs parameter", span, codemap
+                        "Args parameter after another args or kwargs parameter",
+                        span,
+                        codemap,
                     )
                 }
                 state = 2
                 if (indexOfStar != null) {
                     throw EvalException.internalError(
-                        "Multiple `*` in parameters, must have been caught earlier", span, codemap
+                        "Multiple `*` in parameters, must have been caught earlier",
+                        span,
+                        codemap,
                     )
                 }
                 indexOfStar = i
@@ -612,7 +616,9 @@ private fun unpackDefParams(params: List<Spanned<*>>, codemap: CodeMap): List<De
             is io.github.kotlinmania.starlark.syntax.ast.ParameterP.Args<*> -> {
                 if (state >= 2) {
                     throw EvalException.parserError(
-                        "Args parameter after another args or kwargs parameter", span, codemap
+                        "Args parameter after another args or kwargs parameter",
+                        span,
+                        codemap,
                     )
                 }
                 state = 2
@@ -658,16 +664,17 @@ internal fun fillTypesForLintTypechecker(
     ctx: TypingOracleCtx,
     moduleScopeData: ModuleScopeData,
     approximations: MutableList<Approximation>,
-): Pair<List<TypingError>, ModuleVarTypes> {
-    return Heap.temp { heap ->
-        val builder = GlobalTypesBuilder(
-            heap = heap,
-            ctx = ctx,
-            values = mutableMapOf(),
-            errors = mutableListOf(),
-            moduleScopeData = moduleScopeData,
-            approximations = approximations,
-        )
+): Pair<List<TypingError>, ModuleVarTypes> =
+    Heap.temp { heap ->
+        val builder =
+            GlobalTypesBuilder(
+                heap = heap,
+                ctx = ctx,
+                values = mutableMapOf(),
+                errors = mutableListOf(),
+                moduleScopeData = moduleScopeData,
+                approximations = approximations,
+            )
         for (stmt in module) {
             builder.topLevelStmt(stmt)
         }
@@ -677,4 +684,3 @@ internal fun fillTypesForLintTypechecker(
         }
         Pair(builder.errors, ModuleVarTypes(types))
     }
-}

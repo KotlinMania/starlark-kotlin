@@ -19,16 +19,17 @@ package io.github.kotlinmania.starlark.environment
  * limitations under the License.
  */
 
-import io.github.kotlinmania.starlark.values.layout.FrozenValue
-import io.github.kotlinmania.starlark.values.layout.Freezer
-import io.github.kotlinmania.starlark.values.layout.Value
 import io.github.kotlinmania.starlark.values.freezeList
 import io.github.kotlinmania.starlark.values.freezeNullable
+import io.github.kotlinmania.starlark.values.layout.Freezer
+import io.github.kotlinmania.starlark.values.layout.FrozenValue
+import io.github.kotlinmania.starlark.values.layout.Value
 
 // #[derive(Clone, Copy, Dupe, Debug, PartialEq, Eq, Allocative, Hash)]
 // pub(crate) struct ModuleSlotId(pub(crate) u32);
-data class ModuleSlotId(val index: Int) {
-
+data class ModuleSlotId(
+    val index: Int,
+) {
     // impl ModuleSlotId
 
     companion object {
@@ -55,9 +56,7 @@ class MutableSlots {
     fun getSlotsMut(): MutableList<Value?> = slots
 
     // pub fn get_slot(&self, slot: ModuleSlotId) -> Option<Value<'v>>
-    fun getSlot(slot: ModuleSlotId): Value? {
-        return slots[slot.index]
-    }
+    fun getSlot(slot: ModuleSlotId): Value? = slots[slot.index]
 
     // pub fn set_slot(&self, slot: ModuleSlotId, value: Value<'v>)
     fun setSlot(slot: ModuleSlotId, value: Value) {
@@ -82,17 +81,17 @@ class MutableSlots {
     }
 
     // pub(crate) fn values_by_slot_id(&self) -> Vec<(ModuleSlotId, Value<'v>)>
-    fun valuesBySlotId(): List<Pair<ModuleSlotId, Value>> {
-        return slots.mapIndexedNotNull { i, v ->
+    fun valuesBySlotId(): List<Pair<ModuleSlotId, Value>> =
+        slots.mapIndexedNotNull { i, v ->
             if (v != null) Pair(ModuleSlotId.new(i), v) else null
         }
-    }
 
     // pub(crate) fn freeze(self, freezer: &Freezer) -> Result<FrozenSlots>
     fun freeze(freezer: Freezer): Result<FrozenSlots> {
-        val frozenSlots = freezeList(slots, freezer) { slot, f ->
-            freezeNullable(slot, f) { v, ff -> ff.freeze(v) }
-        }
+        val frozenSlots =
+            freezeList(slots, freezer) { slot, f ->
+                freezeNullable(slot, f) { v, ff -> ff.freeze(v) }
+            }
         if (frozenSlots.isFailure) return Result.failure(frozenSlots.exceptionOrNull()!!)
         return Result.success(FrozenSlots(frozenSlots.getOrThrow()))
     }
@@ -107,7 +106,5 @@ class FrozenSlots(
     // impl FrozenSlots
 
     // pub fn get_slot(&self, slot: ModuleSlotId) -> Option<FrozenValue>
-    fun getSlot(slot: ModuleSlotId): FrozenValue? {
-        return slots[slot.index]
-    }
+    fun getSlot(slot: ModuleSlotId): FrozenValue? = slots[slot.index]
 }

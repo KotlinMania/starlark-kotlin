@@ -35,15 +35,12 @@ class BcInstrHeader(
     internal val opcode: BcOpcode,
 ) {
     companion object {
-        fun forInstr(instrClass: KClass<out BcInstr>): BcInstrHeader {
-            return BcInstrHeader(
+        fun forInstr(instrClass: KClass<out BcInstr>): BcInstrHeader =
+            BcInstrHeader(
                 opcode = BcOpcode.forInstr(instrClass),
             )
-        }
 
-        fun forOpcode(opcode: BcOpcode): BcInstrHeader {
-            return BcInstrHeader(opcode)
-        }
+        fun forOpcode(opcode: BcOpcode): BcInstrHeader = BcInstrHeader(opcode)
     }
 }
 

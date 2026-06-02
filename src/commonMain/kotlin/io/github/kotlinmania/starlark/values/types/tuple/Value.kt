@@ -21,17 +21,17 @@ package io.github.kotlinmania.starlark.values.types.tuple
 
 import io.github.kotlinmania.starlark.collections.StarlarkHasher
 import io.github.kotlinmania.starlark.typing.Ty
-import io.github.kotlinmania.starlark.values.layout.FrozenValue
 import io.github.kotlinmania.starlark.values.ValueError
+import io.github.kotlinmania.starlark.values.applySlice
+import io.github.kotlinmania.starlark.values.compareSlice
+import io.github.kotlinmania.starlark.values.convertIndex
+import io.github.kotlinmania.starlark.values.equalsSlice
+import io.github.kotlinmania.starlark.values.layout.FrozenValue
+import io.github.kotlinmania.starlark.values.layout.Value
 import io.github.kotlinmania.starlark.values.layout.ValueLike
 import io.github.kotlinmania.starlark.values.layout.avalues.AllocStaticSimple
-import io.github.kotlinmania.starlark.values.layout.heap.Heap
-import io.github.kotlinmania.starlark.values.layout.Value
 import io.github.kotlinmania.starlark.values.layout.avalues.allocTuple
-import io.github.kotlinmania.starlark.values.equalsSlice
-import io.github.kotlinmania.starlark.values.convertIndex
-import io.github.kotlinmania.starlark.values.compareSlice
-import io.github.kotlinmania.starlark.values.applySlice
+import io.github.kotlinmania.starlark.values.layout.heap.Heap
 
 /** Define the tuple type. See [Tuple] and [FrozenTuple] as the two aliases. */
 class TupleGen<V>(
@@ -60,9 +60,7 @@ class TupleGen<V>(
     }
 
     /** Iterate over the elements of the tuple. */
-    fun iter(): Iterator<Value> {
-        return content.map { (it as ValueLike).toValue() }.iterator()
-    }
+    fun iter(): Iterator<Value> = content.map { (it as ValueLike).toValue() }.iterator()
 
     override fun toString(): String {
         // For single-item tuples we need to add a trailing ','
@@ -94,8 +92,9 @@ class TupleGen<V>(
     }
 
     override fun compare(other: Value): Result<Int> {
-        val otherTuple = TupleGen.fromValue(other)
-            ?: return ValueError.unsupportedWith(TupleGen.TYPE, "cmp()", other)
+        val otherTuple =
+            TupleGen.fromValue(other)
+                ?: return ValueError.unsupportedWith(TupleGen.TYPE, "cmp()", other)
         return compareSlice<Exception, V, Value>(content(), otherTuple.content()) { x, y -> (x as ValueLike).compare(y) }
     }
 
@@ -116,9 +115,10 @@ class TupleGen<V>(
     }
 
     override fun slice(start: Value?, stop: Value?, stride: Value?, heap: Heap): Result<Value> {
-        val sliced = applySlice(content(), start, stop, stride).getOrElse {
-            return Result.failure(it)
-        }
+        val sliced =
+            applySlice(content(), start, stop, stride).getOrElse {
+                return Result.failure(it)
+            }
         return Result.success(heap.allocTuple(sliced.map { (it as ValueLike).toValue() }))
     }
 
@@ -129,9 +129,7 @@ class TupleGen<V>(
         return Pair(rem, rem)
     }
 
-    override fun iterNext(index: Int, heap: Heap): Value? {
-        return content().getOrNull(index)?.let { (it as ValueLike).toValue() }
-    }
+    override fun iterNext(index: Int, heap: Heap): Value? = content().getOrNull(index)?.let { (it as ValueLike).toValue() }
 
     override fun iterStop() {}
 
@@ -176,9 +174,7 @@ val VALUE_EMPTY_TUPLE: AllocStaticSimple<FrozenTuple> =
     AllocStaticSimple.alloc(TupleGen(emptyList()))
 
 /** Downcast a value to a tuple. */
-fun TupleGen.Companion.fromValue(value: Value): Tuple? {
-    return value.downcastRef<Tuple>()
-}
+fun TupleGen.Companion.fromValue(value: Value): Tuple? = value.downcastRef<Tuple>()
 
 // Serialize support for TupleGen
 fun <V> TupleGen<V>.serialize(): List<V> = content()

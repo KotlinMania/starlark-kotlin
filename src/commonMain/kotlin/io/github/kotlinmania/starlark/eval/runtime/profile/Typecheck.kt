@@ -22,14 +22,14 @@ package io.github.kotlinmania.starlark.eval.runtime.profile
 /** Runtime typecheck profile. */
 
 import io.github.kotlinmania.starlark.Error
+import io.github.kotlinmania.starlark.eval.runtime.SmallDuration
 import io.github.kotlinmania.starlark.eval.runtime.profile.csv.CsvWriter
 import io.github.kotlinmania.starlark.eval.runtime.profile.data.ProfileData
 import io.github.kotlinmania.starlark.eval.runtime.profile.data.ProfileDataImpl
-import io.github.kotlinmania.starlark.eval.runtime.SmallDuration
-import kotlin.time.Duration
-import io.github.kotlinmania.starlark.values.layout.typed.FrozenStringValue
-import io.github.kotlinmania.starlark.util.ArcStr
 import io.github.kotlinmania.starlark.eval.runtime.profile.mode.ProfileMode
+import io.github.kotlinmania.starlark.util.ArcStr
+import io.github.kotlinmania.starlark.values.layout.typed.FrozenStringValue
+import kotlin.time.Duration
 
 // pub(crate) struct TypecheckProfilerType
 internal object TypecheckProfilerType : ProfilerType<TypecheckProfileData> {
@@ -58,7 +58,9 @@ internal object TypecheckProfilerType : ProfilerType<TypecheckProfileData> {
 
 // #[derive(Debug, thiserror::Error)]
 // enum TypecheckProfileError
-private sealed class TypecheckProfileError(message: String) : Exception(message) {
+private sealed class TypecheckProfileError(
+    message: String,
+) : Exception(message) {
     // #[error("Typecheck profile not enabled")]
     // NotEnabled
     class NotEnabled : TypecheckProfileError("Typecheck profile not enabled")
@@ -79,10 +81,11 @@ internal data class TypecheckProfileData(
         w.writeValue(totalTime)
         w.finishRow()
 
-        val sorted = byFunction.entries.sortedWith(
-            compareBy<Map.Entry<ArcStr, SmallDuration>> { ULong.MAX_VALUE - it.value.nanos }
-                .thenBy { it.key }
-        )
+        val sorted =
+            byFunction.entries.sortedWith(
+                compareBy<Map.Entry<ArcStr, SmallDuration>> { ULong.MAX_VALUE - it.value.nanos }
+                    .thenBy { it.key },
+            )
 
         for ((name, t) in sorted) {
             w.writeDisplay(name.asStr())
@@ -115,13 +118,15 @@ internal class TypecheckProfile {
             throw Error.newOther(TypecheckProfileError.NotEnabled())
         }
         return ProfileData(
-            profile = ProfileDataImpl.Typecheck(
-                TypecheckProfileData(
-                    byFunction = byFunction.entries.associate { (k, v) ->
-                        ArcStr.from(k.asStr()) to v
-                    }
-                )
-            )
+            profile =
+                ProfileDataImpl.Typecheck(
+                    TypecheckProfileData(
+                        byFunction =
+                            byFunction.entries.associate { (k, v) ->
+                                ArcStr.from(k.asStr()) to v
+                            },
+                    ),
+                ),
         )
     }
 }

@@ -34,8 +34,10 @@ internal class CsvWriter(
 ) {
     /** Column count in CSV file. */
     private val columnCount: Int
+
     /** While writing a row, this is the current column index. */
     private var currentColumnIndex: Int = 0
+
     /** Write CSV there. */
     private val buf: StringBuilder = StringBuilder()
 
@@ -85,15 +87,22 @@ internal class CsvWriter(
 }
 
 // Helper to wrap pre-quoted values
-private class QuotedCsvValue(val quoted: String)
+private class QuotedCsvValue(
+    val quoted: String,
+)
 
 // pub(crate) trait CsvValue + impl for various types
-private fun formatCsvValue(value: Any): String = when (value) {
-    is SmallDuration -> run { val s = value.toDuration().inWholeMilliseconds / 1000.0; "${((s * 1000).toLong() / 1000.0)}" }
-    is String -> quoteStrForCsv(value)
-    is Int -> value.toString()
-    is Long -> value.toString()
-    is ULong -> value.toString()
-    is QuotedCsvValue -> quoteStrForCsv(value.quoted)
-    else -> value.toString()
-}
+private fun formatCsvValue(value: Any): String =
+    when (value) {
+        is SmallDuration ->
+            run {
+                val s = value.toDuration().inWholeMilliseconds / 1000.0
+                "${((s * 1000).toLong() / 1000.0)}"
+            }
+        is String -> quoteStrForCsv(value)
+        is Int -> value.toString()
+        is Long -> value.toString()
+        is ULong -> value.toString()
+        is QuotedCsvValue -> quoteStrForCsv(value.quoted)
+        else -> value.toString()
+    }

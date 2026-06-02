@@ -21,7 +21,7 @@ package io.github.kotlinmania.starlark.values.types.record
 
 import io.github.kotlinmania.starlark.values.layout.Value
 import io.github.kotlinmania.starlark.values.types.TypeInstanceId
-import io.github.kotlinmania.starlark.values.typing.type_compiled.TypeMatcher
+import io.github.kotlinmania.starlark.values.typing.typecompiled.TypeMatcher
 
 data class RecordTypeMatcher(
     val id: TypeInstanceId,

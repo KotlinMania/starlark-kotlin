@@ -36,7 +36,6 @@ data class UnpackList<T>(
     /** Unpacked items. */
     val items: MutableList<T>,
 ) : Iterable<T> {
-
     /** Create an empty [UnpackList]. Corresponds to Rust's `impl Default`. */
     constructor() : this(mutableListOf())
 
@@ -78,10 +77,7 @@ data class UnpackList<T>(
 class UnpackListUnpackValue<T>(
     private val elementUnpacker: UnpackValue<T>,
 ) : UnpackValue<UnpackList<T>> {
-
-    override fun starlarkTypeRepr(): Ty {
-        return Ty.list(elementUnpacker.starlarkTypeRepr())
-    }
+    override fun starlarkTypeRepr(): Ty = Ty.list(elementUnpacker.starlarkTypeRepr())
 
     override fun unpackValueImpl(value: Value): Result<UnpackList<T>?> {
         // In Rust: let Some(list) = <&ListRef>::unpack_value_opt(value) else { return Ok(None) };
@@ -92,9 +88,10 @@ class UnpackListUnpackValue<T>(
         val items = ArrayList<T>(capacity)
         for (v in listRef.iter()) {
             // In Rust: let Some(v) = T::unpack_value_impl(v)? else { return Ok(None) };
-            val unpacked = elementUnpacker.unpackValueImpl(v).getOrElse {
-                return Result.failure(it)
-            }
+            val unpacked =
+                elementUnpacker.unpackValueImpl(v).getOrElse {
+                    return Result.failure(it)
+                }
             if (unpacked == null) {
                 return Result.success(null)
             }
@@ -115,9 +112,7 @@ class UnpackListUnpackValue<T>(
 class UnpackListStarlarkTypeRepr<T : StarlarkTypeRepr>(
     private val elementRepr: T,
 ) : StarlarkTypeRepr {
-    override fun starlarkTypeRepr(): Ty {
-        return Ty.list(elementRepr.starlarkTypeRepr())
-    }
+    override fun starlarkTypeRepr(): Ty = Ty.list(elementRepr.starlarkTypeRepr())
 }
 
 /**

@@ -25,10 +25,10 @@ import io.github.kotlinmania.starlark.docs.DocMember
 import io.github.kotlinmania.starlark.docs.DocParam
 import io.github.kotlinmania.starlark.docs.DocParams
 import io.github.kotlinmania.starlark.docs.DocStringKind
-import io.github.kotlinmania.starlark.docs.fromDocstring
 import io.github.kotlinmania.starlark.docs.DocType
-import io.github.kotlinmania.starlark.typing.Ty
+import io.github.kotlinmania.starlark.docs.fromDocstring
 import io.github.kotlinmania.starlark.eval.runtime.params.PARAM_FMT_OPTIONAL
+import io.github.kotlinmania.starlark.typing.Ty
 
 /** A wrapper for the parameters to `GlobalsBuilder::set_function` and `MethodBuilder::set_method` */
 // pub struct NativeCallableComponents
@@ -41,18 +41,18 @@ class NativeCallableComponents(
     // fn doc_params(&self) -> DocParams
     private fun docParams(): DocParams {
         // fn doc_param(p: &NativeCallableParam) -> DocParam
-        fun docParam(p: NativeCallableParam): DocParam {
-            return DocParam(
+        fun docParam(p: NativeCallableParam): DocParam =
+            DocParam(
                 name = p.name,
                 docs = null,
                 typ = p.ty,
-                defaultValue = when (val required = p.required) {
-                    null -> null
-                    is NativeCallableParamDefaultValue.Optional -> PARAM_FMT_OPTIONAL
-                    is NativeCallableParamDefaultValue.Value -> required.value.toValue().toRepr()
-                },
+                defaultValue =
+                    when (val required = p.required) {
+                        null -> null
+                        is NativeCallableParamDefaultValue.Optional -> PARAM_FMT_OPTIONAL
+                        is NativeCallableParamDefaultValue.Value -> required.value.toValue().toRepr()
+                    },
             )
-        }
 
         return DocParams(
             posOnly = paramSpec.posOnly.map(::docParam),
@@ -65,22 +65,25 @@ class NativeCallableComponents(
 
     // pub(crate) fn into_docs(self, as_type: Option<(Ty, DocType)>) -> DocItem
     internal fun intoDocs(asType: Pair<Ty, DocType>?): DocItem {
-        val funcDocs = DocFunction.fromDocstring(
-            DocStringKind.Rust,
-            docParams(),
-            returnType,
-            rustDocstring,
-        )
+        val funcDocs =
+            DocFunction.fromDocstring(
+                DocStringKind.Rust,
+                docParams(),
+                returnType,
+                rustDocstring,
+            )
         return when (asType) {
             null -> DocItem.Member(DocMember.Function(funcDocs))
             else -> {
                 val (_, tyDocs) = asType
-                DocItem.Type(DocType(
-                    docs = tyDocs.docs,
-                    members = tyDocs.members,
-                    ty = tyDocs.ty,
-                    constructor = funcDocs,
-                ))
+                DocItem.Type(
+                    DocType(
+                        docs = tyDocs.docs,
+                        members = tyDocs.members,
+                        ty = tyDocs.ty,
+                        constructor = funcDocs,
+                    ),
+                )
             }
         }
     }

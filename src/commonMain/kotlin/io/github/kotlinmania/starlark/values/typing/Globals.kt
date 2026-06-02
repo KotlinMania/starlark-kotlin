@@ -20,7 +20,7 @@ package io.github.kotlinmania.starlark.values.typing
  */
 
 import io.github.kotlinmania.starlark.environment.GlobalsBuilder
-import io.github.kotlinmania.starlark.values.typing.type_compiled.registerEvalType
+import io.github.kotlinmania.starlark.values.typing.typecompiled.registerEvalType
 
 internal fun registerTyping(globals: GlobalsBuilder) {
     registerEvalType(globals)

@@ -1,0 +1,340 @@
+// port-lint: tests src/docs/tests/markdown.rs
+package io.github.kotlinmania.starlark.docs.tests
+
+/*
+ * Copyright 2018 The Starlark in Rust Authors.
+ * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) 2025 Sydney Renee, The Solace Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+import io.github.kotlinmania.starlark.assert.Assert
+import io.github.kotlinmania.starlark.docs.DocItem
+import io.github.kotlinmania.starlark.docs.DocModuleInfo
+import io.github.kotlinmania.starlark.docs.DocType
+import io.github.kotlinmania.starlark.docs.markdown.renderDocItemNoLink
+import io.github.kotlinmania.starlark.docs.renderMarkdownMultipage
+import io.github.kotlinmania.starlark.environment.Globals
+import io.github.kotlinmania.starlark.environment.GlobalsBuilder
+import io.github.kotlinmania.starlark.environment.Methods
+import io.github.kotlinmania.starlark.environment.MethodsBuilder
+import io.github.kotlinmania.starlark.environment.MethodsStatic
+import io.github.kotlinmania.starlark.eval.runtime.Arguments
+import io.github.kotlinmania.starlark.eval.runtime.Evaluator
+import io.github.kotlinmania.starlark.goldentesttemplate.goldenTestTemplate
+import io.github.kotlinmania.starlark.typing.Ty
+import io.github.kotlinmania.starlark.typing.TyStarlarkValue
+import io.github.kotlinmania.starlark.values.StarlarkTypeRepr
+import io.github.kotlinmania.starlark.values.StarlarkValue
+import io.github.kotlinmania.starlark.values.layout.Value
+import io.github.kotlinmania.starlark.values.layout.heap.Heap
+import io.github.kotlinmania.starlark.values.types.bigint.allocFrozenValue
+import io.github.kotlinmania.starlark.values.types.starlarkvalueastype.StarlarkValueAsType
+
+// fn docs_golden_test(test_file_name: &str, doc: DocItem) -> String
+private fun docsGoldenTest(testFileName: String, doc: DocItem): String {
+    check(testFileName.endsWith(".golden.md"))
+    check(!testFileName.contains('/'))
+
+    val output = renderDocItemNoLink("name", doc)
+
+    goldenTestTemplate("src/docs/tests/golden/$testFileName", output)
+
+    return output
+}
+
+// const STARLARK_CODE: &str = r#"..."#
+private val STARLARK_CODE = """
+${"\"\"\""}
+This is the summary of the module's docs
+
+Some extra details can go here,
+    and indentation is kept as expected
+${"\"\"\""}
+
+def f1(a, b: str, c: int = 5, *, d: str = "some string", **kwargs) -> list[str]:
+    ${"\"\"\""}
+    Summary line goes here
+
+    Args:
+        a: The docs for a
+        b: The docs for b
+        c: The docs for c, but these
+           go onto two lines
+        **kwargs: Docs for the keyword args
+
+    Returns:
+        A string repr of the args
+    ${"\"\"\""}
+    return [str((a, b, c, d, repr(kwargs)))]
+
+def f2(a, *args: list[str]):
+    ${"\"\"\""}
+    This is a function with *args, and no return type
+
+    Args:
+        *args: Only doc this arg
+    ${"\"\"\""}
+    return None
+
+def f3(a: str) -> str:
+    return a
+
+def f4(a: str) -> str:
+    ${"\"\"\""} This is a docstring with no 'Args:' section ${"\"\"\""}
+    return a
+
+# Not public, so shouldn't show up
+def _do_not_export():
+    pass
+"""
+
+// #[derive(Debug, Display, ProvidesStaticType, Allocative, NoSerialize)]
+// struct Magic;
+private class Magic :
+    StarlarkValue,
+    StarlarkTypeRepr {
+    override val TYPE: String get() = "magic"
+
+    override fun toString(): String = "magic"
+
+    override fun starlarkTypeRepr(): Ty = Ty.starlarkValue(TyStarlarkValue.new(TYPE))
+}
+
+// #[derive(ProvidesStaticType, Debug, Display, Allocative, Serialize)]
+// struct Obj;
+private class MarkdownObj :
+    StarlarkValue,
+    StarlarkTypeRepr {
+    override val TYPE: String get() = "obj"
+
+    override fun toString(): String = "obj"
+
+    override fun starlarkTypeRepr(): Ty = Ty.starlarkValue(TyStarlarkValue.new(TYPE))
+
+    override fun getMethods(): Methods? = objMethodsStatic.methods(::objectMethods)
+
+    companion object {
+        private val objMethodsStatic = MethodsStatic()
+    }
+}
+
+/** These are where the module docs go */
+// #[starlark_module]
+// fn module(builder: &mut GlobalsBuilder)
+private fun moduleFunctions(builder: GlobalsBuilder) {
+    // const MAGIC: i32 = 42
+    builder.setInner("MAGIC", 42.allocFrozenValue(builder.frozenHeap()), false)
+
+    // const Obj: StarlarkValueAsType<Obj> = StarlarkValueAsType::new()
+    builder.set("Obj", StarlarkValueAsType.new(MarkdownObj()))
+
+    /**
+     * Docs for func1
+     *
+     * # Arguments
+     *     * `foo`: Docs for foo
+     *
+     * # Returns
+     * The string 'func1'
+     */
+    // fn func1(foo: String) -> anyhow::Result<String>
+    builder.setFunction("func1") { _args: Arguments, _eval: Evaluator ->
+        Result.success(Value.newNone())
+    }
+
+    // fn func2() -> anyhow::Result<String>
+    builder.setFunction("func2") { _args: Arguments, _eval: Evaluator ->
+        Result.success(Value.newNone())
+    }
+
+    /** A function with only positional arguments. */
+    // #[starlark(as_type = Magic)]
+    // fn Magic(a1: i32, a2: Option<i32>, step: i32) -> anyhow::Result<String>
+    builder.setFunction("Magic") { _args: Arguments, _eval: Evaluator ->
+        Result.success(Value.newNone())
+    }
+
+    // fn with_defaults(...)
+    builder.setFunction("with_defaults") { _args: Arguments, _eval: Evaluator ->
+        Result.success(Value.newNone())
+    }
+
+    // fn pos_either_named(a: i32, b: i32, c: i32) -> anyhow::Result<Magic>
+    builder.setFunction("pos_either_named") { _args: Arguments, _eval: Evaluator ->
+        Result.success(Value.newNone())
+    }
+}
+
+// #[starlark_module]
+// fn submodule(builder: &mut GlobalsBuilder)
+private fun submoduleFunctions(builder: GlobalsBuilder) {
+    // fn notypes(a: Value) -> anyhow::Result<Value>
+    builder.setFunction("notypes") { _args: Arguments, _eval: Evaluator ->
+        Result.success(Value.newNone())
+    }
+
+    // fn starlark_args(#[starlark(args)] args: UnpackTuple<String>) -> anyhow::Result<NoneType>
+    builder.setFunction("starlark_args") { _args: Arguments, _eval: Evaluator ->
+        Result.success(Value.newNone())
+    }
+
+    // fn starlark_kwargs(#[starlark(kwargs)] kwargs: SmallMap<String, u32>) -> anyhow::Result<NoneType>
+    builder.setFunction("starlark_kwargs") { _args: Arguments, _eval: Evaluator ->
+        Result.success(Value.newNone())
+    }
+
+    // fn new_obj() -> anyhow::Result<Obj>
+    builder.setFunction("new_obj") { _args: Arguments, _eval: Evaluator ->
+        Result.success(Value.newNone())
+    }
+}
+
+// fn get_globals() -> Globals
+private fun getGlobals(): Globals =
+    GlobalsBuilder
+        .new()
+        .with(::moduleFunctions)
+        .withNamespace("submod", ::submoduleFunctions)
+        .build()
+
+/** These are where the module docs go */
+// #[starlark_module]
+// fn object(builder: &mut MethodsBuilder)
+private fun objectMethods(builder: MethodsBuilder) {
+    /** Docs for attr1 */
+    // #[starlark(attribute)]
+    // fn attr1(this: Value) -> starlark::Result<String>
+    builder.setAttribute("attr1", docstring = "Docs for attr1") { _thisValue: Value, _heap: Heap ->
+        Result.success(Value.newNone())
+    }
+
+    // #[starlark(attribute)]
+    // fn attr2(this: Value) -> starlark::Result<String>
+    builder.setAttribute("attr2") { _thisValue: Value, _heap: Heap ->
+        Result.success(Value.newNone())
+    }
+
+    /** Docs for func1 */
+    // fn func1(this: Value, foo: String) -> anyhow::Result<String>
+    builder.setMethod("func1") { _eval: Evaluator, _thisValue: Value, _sig, _args ->
+        Result.success(Value.newNone())
+    }
+
+    // fn func2(this: Value) -> anyhow::Result<String>
+    builder.setMethod("func2") { _eval: Evaluator, _thisValue: Value, _sig, _args ->
+        Result.success(Value.newNone())
+    }
+
+    /** Needs to be escaped when rendered in markdown. */
+    // fn __exported__(this: Value) -> anyhow::Result<NoneType>
+    builder.setMethod("__exported__") { _eval: Evaluator, _thisValue: Value, _sig, _args ->
+        Result.success(Value.newNone())
+    }
+}
+
+// fn test_globals_docs_render(with_linked_type: bool, render_signature_at_bottom: bool)
+private fun testGlobalsDocsRender(withLinkedType: Boolean, renderSignatureAtBottom: Boolean) {
+    val global = getGlobals().documentation()
+    val modulesInfo =
+        DocModuleInfo(
+            module = global,
+            name = "globals",
+            pagePath = "",
+        )
+    val linkedTyMapper: ((String, String) -> String)? =
+        if (withLinkedType) {
+            { path, typeName -> "<a to=\"/path/to/$path\">$typeName</a>" }
+        } else {
+            null
+        }
+    val res =
+        renderMarkdownMultipage(
+            listOf(modulesInfo),
+            linkedTyMapper,
+            renderSignatureAtBottom,
+        )
+    val subfolderName =
+        when {
+            withLinkedType && renderSignatureAtBottom -> "multipage_linked_type_and_render_signature_at_bottom"
+            withLinkedType && !renderSignatureAtBottom -> "multipage_linked_type"
+            !withLinkedType && renderSignatureAtBottom -> "multipage_render_signature_at_bottom"
+            else -> "multipage"
+        }
+    val expectedKeys = listOf("", "Magic", "Obj", "submod")
+    check(res.keys.sorted() == expectedKeys)
+    for ((k, v) in res) {
+        val key = if (k.isEmpty()) "globals" else k
+        goldenTestTemplate(
+            "src/docs/tests/golden/$subfolderName/$key.golden.md",
+            v,
+        )
+    }
+}
+
+// #[test]
+// fn golden_docs_starlark()
+internal fun goldenDocsStarlark() {
+    val res =
+        docsGoldenTest(
+            "starlark.golden.md",
+            DocItem.Module(Assert.passModule(STARLARK_CODE).documentation()),
+        )
+    check(!res.contains("_do_not_export"))
+}
+
+// #[test]
+// fn native_docs_module()
+internal fun nativeDocsModule() {
+    val res =
+        docsGoldenTest(
+            "native.golden.md",
+            DocItem.Module(getGlobals().documentation()),
+        )
+    check(!res.contains("starlark::assert::all_true"))
+    check(res.contains("string_default: str = \"my_default\""))
+}
+
+// #[test]
+// fn globals_render_default()
+internal fun globalsRenderDefault() {
+    testGlobalsDocsRender(false, false)
+}
+
+// #[test]
+// fn globals_render_default_with_linked_type()
+internal fun globalsRenderDefaultWithLinkedType() {
+    testGlobalsDocsRender(true, false)
+}
+
+// #[test]
+// fn globals_render_signature_at_bottom()
+internal fun globalsRenderSignatureAtBottom() {
+    testGlobalsDocsRender(false, true)
+}
+
+// #[test]
+// fn globals_render_signature_at_bottom_with_linked_type()
+internal fun globalsRenderSignatureAtBottomWithLinkedType() {
+    testGlobalsDocsRender(true, true)
+}
+
+// #[test]
+// fn golden_docs_object()
+internal fun goldenDocsObject() {
+    val docs = DocType.fromStarlarkValue(MarkdownObj())
+    val res = docsGoldenTest("object.golden.md", DocItem.Type(docs))
+
+    check(res.contains("name.__exported__"))
+}

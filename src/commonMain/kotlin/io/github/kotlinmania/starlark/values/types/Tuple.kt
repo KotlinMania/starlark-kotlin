@@ -19,7 +19,7 @@ package io.github.kotlinmania.starlark.values.types
  * limitations under the License.
  */
 
-//! The list type, an immutable sequence of values.
+// ! The list type, an immutable sequence of values.
 
 // pub(crate) mod alloc;
 // pub(crate) mod globals;

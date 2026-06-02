@@ -19,8 +19,8 @@ package io.github.kotlinmania.starlark.eval.runtime.profile
  * limitations under the License.
  */
 
-import io.github.kotlinmania.starlark.eval.runtime.profile.data.ProfileDataImpl
 import io.github.kotlinmania.starlark.eval.runtime.profile.data.ProfileData
+import io.github.kotlinmania.starlark.eval.runtime.profile.data.ProfileDataImpl
 import io.github.kotlinmania.starlark.eval.runtime.profile.mode.ProfileMode
 
 // #[derive(Debug, thiserror::Error)]
@@ -28,8 +28,10 @@ import io.github.kotlinmania.starlark.eval.runtime.profile.mode.ProfileMode
 //     #[error("Inconsistent profile type, expected `{0}`, got `{1}`")]
 //     InconsistentProfileType(ProfileMode, ProfileMode),
 // }
-private class ProfileError(expected: ProfileMode, got: ProfileMode) :
-    Exception("Inconsistent profile type, expected `$expected`, got `$got`")
+private class ProfileError(
+    expected: ProfileMode,
+    got: ProfileMode,
+) : Exception("Inconsistent profile type, expected `$expected`, got `$got`")
 
 // pub(crate) trait ProfilerType {
 //     type Data;
@@ -57,10 +59,11 @@ internal interface ProfilerType<Data> {
 
     // fn merge_profiles(profiles: &[&ProfileData]) -> crate::Result<ProfileData>
     fun mergeProfiles(profiles: List<ProfileData>): Result<ProfileData> {
-        val typedProfiles = profiles.map { p ->
-            dataFromGeneric(p.profile)
-                ?: return Result.failure(ProfileError(profileMode, p.profile.profileMode()))
-        }
+        val typedProfiles =
+            profiles.map { p ->
+                dataFromGeneric(p.profile)
+                    ?: return Result.failure(ProfileError(profileMode, p.profile.profileMode()))
+            }
         return mergeProfilesImpl(typedProfiles).map { merged ->
             ProfileData(dataToGeneric(merged))
         }

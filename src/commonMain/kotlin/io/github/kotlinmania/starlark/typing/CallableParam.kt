@@ -25,6 +25,7 @@ package io.github.kotlinmania.starlark.typing
 enum class ParamIsRequired {
     /** Parameter is required. */
     Yes,
+
     /** Parameter is optional. */
     No,
 }
@@ -34,13 +35,21 @@ enum class ParamIsRequired {
  */
 sealed class ParamMode : Comparable<ParamMode> {
     /** Parameter can only be passed by position. */
-    data class PosOnly(val required: ParamIsRequired) : ParamMode()
+    data class PosOnly(
+        val required: ParamIsRequired,
+    ) : ParamMode()
 
     /** Parameter can be passed by position or name. */
-    data class PosOrName(val name: String, val required: ParamIsRequired) : ParamMode()
+    data class PosOrName(
+        val name: String,
+        val required: ParamIsRequired,
+    ) : ParamMode()
 
     /** Parameter can only be passed by name. */
-    data class NameOnly(val name: String, val required: ParamIsRequired) : ParamMode()
+    data class NameOnly(
+        val name: String,
+        val required: ParamIsRequired,
+    ) : ParamMode()
 
     /** Parameter is `*args`. */
     data object Args : ParamMode()
@@ -66,13 +75,14 @@ sealed class ParamMode : Comparable<ParamMode> {
         }
     }
 
-    private fun ordinal(): Int = when (this) {
-        is PosOnly -> 0
-        is PosOrName -> 1
-        is NameOnly -> 2
-        is Args -> 3
-        is Kwargs -> 4
-    }
+    private fun ordinal(): Int =
+        when (this) {
+            is PosOnly -> 0
+            is PosOrName -> 1
+            is NameOnly -> 2
+            is Args -> 3
+            is Kwargs -> 4
+        }
 }
 
 /**
@@ -88,7 +98,6 @@ data class Param(
      */
     val ty: Ty,
 ) : Comparable<Param> {
-
     companion object {
         /**
          * Create a `*args` parameter.
@@ -106,36 +115,40 @@ data class Param(
     }
 
     /** Whether this parameter allows positional arguments. */
-    fun allowsPos(): Boolean = when (mode) {
-        is ParamMode.PosOnly, is ParamMode.PosOrName, is ParamMode.Args -> true
-        is ParamMode.NameOnly, is ParamMode.Kwargs -> false
-    }
+    fun allowsPos(): Boolean =
+        when (mode) {
+            is ParamMode.PosOnly, is ParamMode.PosOrName, is ParamMode.Args -> true
+            is ParamMode.NameOnly, is ParamMode.Kwargs -> false
+        }
 
     /** Get the name of this parameter, if it has one. */
-    fun name(): String? = when (mode) {
-        is ParamMode.PosOnly -> null
-        is ParamMode.PosOrName -> mode.name
-        is ParamMode.NameOnly -> mode.name
-        is ParamMode.Args -> null
-        is ParamMode.Kwargs -> null
-    }
+    fun name(): String? =
+        when (mode) {
+            is ParamMode.PosOnly -> null
+            is ParamMode.PosOrName -> mode.name
+            is ParamMode.NameOnly -> mode.name
+            is ParamMode.Args -> null
+            is ParamMode.Kwargs -> null
+        }
 
     /** Get a display name for this parameter. */
-    fun nameDisplay(): String = when (mode) {
-        is ParamMode.PosOnly -> "_"
-        is ParamMode.PosOrName -> mode.name
-        is ParamMode.NameOnly -> mode.name
-        is ParamMode.Args -> "*args"
-        is ParamMode.Kwargs -> "**kwargs"
-    }
+    fun nameDisplay(): String =
+        when (mode) {
+            is ParamMode.PosOnly -> "_"
+            is ParamMode.PosOrName -> mode.name
+            is ParamMode.NameOnly -> mode.name
+            is ParamMode.Args -> "*args"
+            is ParamMode.Kwargs -> "**kwargs"
+        }
 
     /** Whether this parameter is required. */
-    fun isRequired(): Boolean = when (mode) {
-        is ParamMode.PosOnly -> mode.required == ParamIsRequired.Yes
-        is ParamMode.PosOrName -> mode.required == ParamIsRequired.Yes
-        is ParamMode.NameOnly -> mode.required == ParamIsRequired.Yes
-        is ParamMode.Args, is ParamMode.Kwargs -> false
-    }
+    fun isRequired(): Boolean =
+        when (mode) {
+            is ParamMode.PosOnly -> mode.required == ParamIsRequired.Yes
+            is ParamMode.PosOrName -> mode.required == ParamIsRequired.Yes
+            is ParamMode.NameOnly -> mode.required == ParamIsRequired.Yes
+            is ParamMode.Args, is ParamMode.Kwargs -> false
+        }
 
     override fun compareTo(other: Param): Int {
         val modeComp = mode.compareTo(other.mode)
@@ -165,7 +178,6 @@ class ParamSpec private constructor(
     private val argsIndex: Int?,
     private val kwargsIndex: Int?,
 ) : Comparable<ParamSpec> {
-
     companion object {
         /**
          * Create a new parameter specification from different parameter kinds in order.
@@ -222,8 +234,9 @@ class ParamSpec private constructor(
         /** Create a positional-only parameter spec. */
         fun posOnly(required: List<Ty>, optional: List<Ty> = emptyList()): ParamSpec =
             newParts(
-                posOnly = required.map { ParamIsRequired.Yes to it } +
-                    optional.map { ParamIsRequired.No to it }
+                posOnly =
+                    required.map { ParamIsRequired.Yes to it } +
+                        optional.map { ParamIsRequired.No to it },
             )
 
         /** No parameters. */
@@ -299,16 +312,18 @@ class ParamSpec private constructor(
     }
 
     /** Format with a custom rendering configuration. */
-    fun displayWith(config: TypeRenderConfig): String {
-        return fmtWithConfig(config)
-    }
+    fun displayWith(config: TypeRenderConfig): String = fmtWithConfig(config)
 
     /** Format with a custom rendering configuration. */
     fun fmtWithConfig(config: TypeRenderConfig): String {
         val split = split()
         return buildString {
             var first = true
-            fun sep() { if (!first) append(", "); first = false }
+
+            fun sep() {
+                if (!first) append(", ")
+                first = false
+            }
 
             for (p in split.posOnly) {
                 sep()
@@ -356,9 +371,11 @@ class ParamSpec private constructor(
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other !is ParamSpec) return false
-        return params == other.params && numPositional == other.numPositional &&
+        return params == other.params &&
+            numPositional == other.numPositional &&
             numPositionalOnly == other.numPositionalOnly &&
-            argsIndex == other.argsIndex && kwargsIndex == other.kwargsIndex
+            argsIndex == other.argsIndex &&
+            kwargsIndex == other.kwargsIndex
     }
 
     override fun hashCode(): Int {

@@ -1,5 +1,5 @@
 // port-lint: source src/eval/compiler/opt_ctx.rs
-package io.github.kotlinmania.starlark.eval.compiler.opt_ctx
+package io.github.kotlinmania.starlark.eval.compiler.optctx
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.
@@ -21,9 +21,9 @@ package io.github.kotlinmania.starlark.eval.compiler.opt_ctx
 
 import io.github.kotlinmania.starlark.environment.FrozenModuleData
 import io.github.kotlinmania.starlark.eval.compiler.OptimizeOnFreezeContext
+import io.github.kotlinmania.starlark.eval.runtime.Evaluator
 import io.github.kotlinmania.starlark.values.layout.heap.FrozenHeap
 import io.github.kotlinmania.starlark.values.layout.heap.Heap
-import io.github.kotlinmania.starlark.eval.runtime.Evaluator
 
 /**
  * Trait for optimization context evaluation.
@@ -33,8 +33,11 @@ import io.github.kotlinmania.starlark.eval.runtime.Evaluator
  */
 internal interface OptCtxEval {
     fun heap(): Heap
+
     fun frozenHeap(): FrozenHeap
+
     fun eval(): Evaluator?
+
     fun frozenModule(): FrozenModuleData?
 }
 
@@ -43,8 +46,11 @@ internal class OptCtxEvalForOptimizeOnFreeze(
     private val ctx: OptimizeOnFreezeContext,
 ) : OptCtxEval {
     override fun heap(): Heap = ctx.heap
+
     override fun frozenHeap(): FrozenHeap = ctx.frozenHeap
+
     override fun eval(): Evaluator? = null
+
     override fun frozenModule(): FrozenModuleData = ctx.module
 }
 
@@ -53,8 +59,11 @@ internal class OptCtxEvalForEvaluator(
     private val evaluator: Evaluator,
 ) : OptCtxEval {
     override fun heap(): Heap = evaluator.heap()
+
     override fun frozenHeap(): FrozenHeap = evaluator.frozenHeap()
+
     override fun eval(): Evaluator = evaluator
+
     override fun frozenModule(): FrozenModuleData? = null
 }
 
@@ -71,9 +80,7 @@ internal class OptCtx(
     internal val paramCount: UInt,
 ) {
     companion object {
-        fun new(eval: OptCtxEval, paramCount: UInt): OptCtx {
-            return OptCtx(eval, paramCount)
-        }
+        fun new(eval: OptCtxEval, paramCount: UInt): OptCtx = OptCtx(eval, paramCount)
     }
 
     fun heap(): Heap = eval.heap()

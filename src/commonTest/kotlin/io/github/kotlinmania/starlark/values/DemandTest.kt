@@ -20,14 +20,18 @@ import kotlin.test.assertNotNull
 import kotlin.test.assertNull
 
 class DemandTest {
-
     private interface SomeTrait {
         fun payload(): Int
     }
 
-    private class MyValue(val payload: Int) : StarlarkValue, SomeTrait {
+    private class MyValue(
+        val payload: Int,
+    ) : StarlarkValue,
+        SomeTrait {
         override val TYPE: String get() = "MyValue"
+
         override fun payload(): Int = payload
+
         override fun provide(demand: Demand) {
             demand.provideValue<SomeTrait>(this)
         }

@@ -61,6 +61,7 @@ import io.github.kotlinmania.starlark.values.FrozenRef
 // pub(crate) fn add_span_to_expr_error(
 //     e: crate::Error, span: FrameSpan, eval: &Evaluator,
 // ) -> EvalException
+
 /**
  * Attach span information to an error, converting it to an [EvalException].
  */
@@ -68,14 +69,14 @@ internal fun addSpanToExprError(
     e: Throwable,
     span: FrameSpan,
     eval: Evaluator,
-): EvalException {
-    return EvalException.newWithCallStack(e, span.span.span(), span.span.file().value) {
+): EvalException =
+    EvalException.newWithCallStack(e, span.span.span(), span.span.file().value) {
         listOf(eval.callStack.toDiagnosticFrames(span.inlinedFrames))
     }
-}
 
 // #[inline(always)]
 // pub(crate) fn expr_throw<'v, T>(...) -> Result<T, EvalException>
+
 /**
  * Convert a [Result] error to a spanned evaluation exception.
  */
@@ -83,12 +84,11 @@ internal fun <T> exprThrow(
     r: Result<T>,
     span: FrameSpan,
     eval: Evaluator,
-): T {
-    return r.getOrElse { e -> throw addSpanToExprError(e, span, eval) }
-}
+): T = r.getOrElse { e -> throw addSpanToExprError(e, span, eval) }
 
 // #[inline(always)]
 // pub(crate) fn expr_throw_starlark_result<'v, T>(...) -> Result<T, EvalException>
+
 /**
  * Convert a Starlark [Result] error to a spanned evaluation exception.
  */
@@ -96,11 +96,10 @@ internal fun <T> exprThrowStarlarkResult(
     r: Result<T>,
     span: FrameSpan,
     eval: Evaluator,
-): T {
-    return r.getOrElse { e -> throw addSpanToExprError(e, span, eval) }
-}
+): T = r.getOrElse { e -> throw addSpanToExprError(e, span, eval) }
 
 // pub(crate) struct Compiler<'v, 'a, 'e, 'x> { ... }
+
 /**
  * The expression/statement compiler.
  *
@@ -124,12 +123,8 @@ internal class Compiler(
     }
 
     // pub(crate) fn exit_scope(&mut self) -> ScopeId
-    fun exitScope(): ScopeId {
-        return locals.removeLast()
-    }
+    fun exitScope(): ScopeId = locals.removeLast()
 
     // pub(crate) fn current_scope(&self) -> &ScopeNames<'_>
-    fun currentScope(): ScopeNames {
-        return scopeData.getScope(locals.last())
-    }
+    fun currentScope(): ScopeNames = scopeData.getScope(locals.last())
 }

@@ -24,9 +24,12 @@ import kotlin.concurrent.Volatile
 /** A cheap unique identifier per CodeMap, used for profiling optimisations. */
 // In Rust this is a pointer-based identity (CodeMapId). In Kotlin we use an
 // incrementing counter so that each CodeMap instance gets a unique id.
-data class CodeMapId(val value: Long) {
+data class CodeMapId(
+    val value: Long,
+) {
     companion object {
         val EMPTY: CodeMapId = CodeMapId(0L)
+
         @Volatile
         private var nextId: Long = 1L
 
@@ -39,7 +42,6 @@ data class CodeMapId(val value: Long) {
 }
 
 /** Multiple [CodeMap]s, keyed by [CodeMapId]. */
-// pub struct CodeMaps { codemaps: HashMap<CodeMapId, CodeMap> }
 class CodeMaps {
     private val codemaps: MutableMap<CodeMapId, CodeMap> = mutableMapOf()
 
@@ -64,11 +66,9 @@ class CodeMaps {
 
 class CodeMap(
     val filename: String,
-    val source: String
+    val source: String,
 ) {
     companion object {
-        // Rust: CodeMap::empty_static()
-        // Kotlin: a single shared empty CodeMap instance.
         private val EMPTY_STATIC: CodeMap = CodeMap("", "")
 
         fun emptyStatic(): CodeMap = EMPTY_STATIC
@@ -112,13 +112,9 @@ class CodeMap(
 
     fun lineSpan(line: Int): Span = lineSpanOpt(line) ?: throw IllegalArgumentException("Line $line out of bounds")
 
-    fun sourceLine(line: Int): String {
-        return sourceSpan(lineSpan(line)).trimEnd('\r', '\n')
-    }
+    fun sourceLine(line: Int): String = sourceSpan(lineSpan(line)).trimEnd('\r', '\n')
 
-    fun sourceLineAtPos(pos: Pos): String {
-        return sourceLine(findLine(pos))
-    }
+    fun sourceLineAtPos(pos: Pos): String = sourceLine(findLine(pos))
 
     private fun findLineCol(pos: Pos): ResolvedPos {
         val line = findLine(pos)
@@ -151,7 +147,7 @@ class CodeMap(
 
 data class FileSpan(
     val file: CodeMap,
-    val span: Span
+    val span: Span,
 ) : Comparable<FileSpan> {
     fun sourceSpan(): String = file.sourceSpan(span)
 
@@ -159,10 +155,11 @@ data class FileSpan(
     fun resolveSpan(): ResolvedSpan = file.resolveSpan(span)
 
     /** Resolve the span to a [ResolvedFileSpan]. */
-    fun resolve(): ResolvedFileSpan = ResolvedFileSpan(
-        file = file.filename,
-        span = file.resolveSpan(span),
-    )
+    fun resolve(): ResolvedFileSpan =
+        ResolvedFileSpan(
+            file = file.filename,
+            span = file.resolveSpan(span),
+        )
 
     override fun compareTo(other: FileSpan): Int {
         val fc = file.filename.compareTo(other.file.filename)

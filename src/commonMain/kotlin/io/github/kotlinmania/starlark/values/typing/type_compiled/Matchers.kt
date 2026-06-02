@@ -1,5 +1,5 @@
 // port-lint: source src/values/typing/type_compiled/matchers.rs
-package io.github.kotlinmania.starlark.values.typing.type_compiled
+package io.github.kotlinmania.starlark.values.typing.typecompiled
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.
@@ -21,20 +21,20 @@ package io.github.kotlinmania.starlark.values.typing.type_compiled
 
 /** TypeMatcher implementations for runtime type checking. */
 
-import io.github.kotlinmania.starlark.values.starlark_type_id.StarlarkTypeId
+import io.github.kotlinmania.starlark.typing.TyStarlarkValue
+import io.github.kotlinmania.starlark.values.layout.Value
+import io.github.kotlinmania.starlark.values.starlarktypeid.StarlarkTypeId
+import io.github.kotlinmania.starlark.values.types.dict.FrozenDict
 import io.github.kotlinmania.starlark.values.types.dict.dictRefFromValue
 import io.github.kotlinmania.starlark.values.types.dict.iter
 import io.github.kotlinmania.starlark.values.types.int.StarlarkIntRef
-import io.github.kotlinmania.starlark.values.types.list.ListRef
 import io.github.kotlinmania.starlark.values.types.list.FrozenList
-import io.github.kotlinmania.starlark.values.types.dict.FrozenDict
+import io.github.kotlinmania.starlark.values.types.list.ListRef
 import io.github.kotlinmania.starlark.values.types.set.FrozenSet
 import io.github.kotlinmania.starlark.values.types.set.SetRef
 import io.github.kotlinmania.starlark.values.types.set.content
 import io.github.kotlinmania.starlark.values.types.tuple.Tuple
 import io.github.kotlinmania.starlark.values.types.tuple.fromValue
-import io.github.kotlinmania.starlark.values.layout.Value
-import io.github.kotlinmania.starlark.typing.TyStarlarkValue
 
 // #[derive(Clone, Copy, Dupe, Allocative, Debug)]
 // pub(crate) struct IsAny;
@@ -42,14 +42,12 @@ internal object IsAny : TypeMatcher {
     // impl TypeMatcher for IsAny
 
     // fn matches(&self, _value: Value) -> bool
-    override fun matches(@Suppress("unused") value: Value): Boolean {
-        return true
-    }
+    override fun matches(
+        @Suppress("unused") value: Value,
+    ): Boolean = true
 
     // fn is_wildcard(&self) -> bool
-    override fun isWildcard(): Boolean {
-        return true
-    }
+    override fun isWildcard(): Boolean = true
 }
 
 // #[derive(Clone, Copy, Dupe, Allocative, Debug)]
@@ -58,9 +56,9 @@ internal object IsNever : TypeMatcher {
     // impl TypeMatcher for IsNever
 
     // fn matches(&self, _value: Value) -> bool
-    override fun matches(@Suppress("unused") value: Value): Boolean {
-        return false
-    }
+    override fun matches(
+        @Suppress("unused") value: Value,
+    ): Boolean = false
 }
 
 // #[derive(Clone, Copy, Dupe, Allocative, Debug)]
@@ -69,9 +67,7 @@ internal object IsStr : TypeMatcher {
     // impl TypeMatcher for IsStr
 
     // fn matches(&self, value: Value) -> bool
-    override fun matches(value: Value): Boolean {
-        return value.unpackStr() != null
-    }
+    override fun matches(value: Value): Boolean = value.unpackStr() != null
 }
 
 // #[derive(Clone, Copy, Dupe, Allocative, Debug)]
@@ -80,9 +76,7 @@ internal object IsList : TypeMatcher {
     // impl TypeMatcher for IsList
 
     // fn matches(&self, value: Value) -> bool
-    override fun matches(value: Value): Boolean {
-        return value.starlarkTypeId() == StarlarkTypeId.of(FrozenList::class)
-    }
+    override fun matches(value: Value): Boolean = value.starlarkTypeId() == StarlarkTypeId.of(FrozenList::class)
 }
 
 // #[derive(Clone, Allocative, Debug)]
@@ -180,9 +174,7 @@ internal object IsDict : TypeMatcher {
     // impl TypeMatcher for IsDict
 
     // fn matches(&self, value: Value) -> bool
-    override fun matches(value: Value): Boolean {
-        return value.starlarkTypeId() == StarlarkTypeId.of(FrozenDict::class)
-    }
+    override fun matches(value: Value): Boolean = value.starlarkTypeId() == StarlarkTypeId.of(FrozenDict::class)
 }
 
 // #[derive(Clone, Allocative, Debug)]
@@ -206,9 +198,7 @@ internal object IsSet : TypeMatcher {
     // impl TypeMatcher for IsSet
 
     // fn matches(&self, value: Value) -> bool
-    override fun matches(value: Value): Boolean {
-        return value.starlarkTypeId() == StarlarkTypeId.of(FrozenSet::class)
-    }
+    override fun matches(value: Value): Boolean = value.starlarkTypeId() == StarlarkTypeId.of(FrozenSet::class)
 }
 
 // #[derive(Clone, Allocative, Debug)]
@@ -234,9 +224,7 @@ internal class IsAnyOfTwo(
     // impl<A: TypeMatcher, B: TypeMatcher> TypeMatcher for IsAnyOfTwo<A, B>
 
     // fn matches(&self, value: Value) -> bool
-    override fun matches(value: Value): Boolean {
-        return a.matches(value) || b.matches(value)
-    }
+    override fun matches(value: Value): Boolean = a.matches(value) || b.matches(value)
 }
 
 // #[derive(Clone, Allocative, Debug)]
@@ -247,9 +235,7 @@ internal class IsAnyOf(
     // impl TypeMatcher for IsAnyOf
 
     // fn matches(&self, value: Value) -> bool
-    override fun matches(value: Value): Boolean {
-        return matchers.any { t -> t.matches(value) }
-    }
+    override fun matches(value: Value): Boolean = matchers.any { t -> t.matches(value) }
 }
 
 // #[derive(Allocative, Clone, Copy, Dupe, Debug)]
@@ -258,9 +244,7 @@ internal object IsCallable : TypeMatcher {
     // impl TypeMatcher for IsCallable
 
     // fn matches(&self, value: Value) -> bool
-    override fun matches(value: Value): Boolean {
-        return value.vtable().hasInvoke
-    }
+    override fun matches(value: Value): Boolean = value.vtable().hasInvoke
 }
 
 // #[derive(Allocative, Clone, Copy, Dupe, Debug)]
@@ -269,9 +253,7 @@ internal object IsType : TypeMatcher {
     // impl TypeMatcher for IsType
 
     // fn matches(&self, value: Value) -> bool
-    override fun matches(value: Value): Boolean {
-        return value.vtable().hasEvalType
-    }
+    override fun matches(value: Value): Boolean = value.vtable().hasEvalType
 }
 
 // #[derive(Copy, Clone, Dupe, Debug, Allocative)]
@@ -280,9 +262,7 @@ internal object IsIterable : TypeMatcher {
     // impl TypeMatcher for IsIterable
 
     // fn matches(&self, value: Value) -> bool
-    override fun matches(value: Value): Boolean {
-        return value.vtable().hasIterate
-    }
+    override fun matches(value: Value): Boolean = value.vtable().hasIterate
 }
 
 // #[derive(Clone, Copy, Dupe, Allocative, Debug)]
@@ -291,9 +271,7 @@ internal object IsInt : TypeMatcher {
     // impl TypeMatcher for IsInt
 
     // fn matches(&self, value: Value) -> bool
-    override fun matches(value: Value): Boolean {
-        return StarlarkIntRef.unpack(value) != null
-    }
+    override fun matches(value: Value): Boolean = StarlarkIntRef.unpack(value) != null
 }
 
 // #[derive(Clone, Copy, Dupe, Allocative, Debug)]
@@ -302,9 +280,7 @@ internal object IsBool : TypeMatcher {
     // impl TypeMatcher for IsBool
 
     // fn matches(&self, value: Value) -> bool
-    override fun matches(value: Value): Boolean {
-        return value.unpackBool() != null
-    }
+    override fun matches(value: Value): Boolean = value.unpackBool() != null
 }
 
 // #[derive(Clone, Copy, Dupe, Allocative, Debug)]
@@ -313,15 +289,14 @@ internal object IsNone : TypeMatcher {
     // impl TypeMatcher for IsNone
 
     // fn matches(&self, value: Value) -> bool
-    override fun matches(value: Value): Boolean {
-        return value.isNone()
-    }
+    override fun matches(value: Value): Boolean = value.isNone()
 }
 
 // #[derive(Allocative, Debug, Clone)]
 // pub(crate) struct StarlarkTypeIdMatcher {
 //     starlark_type_id: StarlarkTypeIdAligned,
 // }
+
 /**
  * Matches a value by its Starlark type id (when available), falling back to name.
  *
@@ -335,12 +310,11 @@ internal class StarlarkTypeIdMatcher(
 ) : TypeMatcher {
     companion object {
         // pub(crate) fn new(ty: TyStarlarkValue) -> StarlarkTypeIdMatcher
-        fun new(ty: TyStarlarkValue): StarlarkTypeIdMatcher {
-            return StarlarkTypeIdMatcher(
+        fun new(ty: TyStarlarkValue): StarlarkTypeIdMatcher =
+            StarlarkTypeIdMatcher(
                 expectedTypeId = ty.starlarkTypeId(),
                 expectedTypeName = ty.asName(),
             )
-        }
     }
 
     // impl TypeMatcher for StarlarkTypeIdMatcher

@@ -1,5 +1,5 @@
 // port-lint: source src/values/typing/type_compiled/globals.rs
-package io.github.kotlinmania.starlark.values.typing.type_compiled
+package io.github.kotlinmania.starlark.values.typing.typecompiled
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.
@@ -57,8 +57,9 @@ internal fun registerEvalType(globals: GlobalsBuilder) {
         val positional = args.positional(2, eval.heap()).getOrThrow()
         val value = positional[0]
         val ty = positional[1]
-        val compiled = runCatching { TypeCompiled.new(ty, eval.heap()) }
-            .getOrElse { return@setFunction Result.failure<Value>(it) }
+        val compiled =
+            runCatching { TypeCompiled.new(ty, eval.heap()) }
+                .getOrElse { return@setFunction Result.failure<Value>(it) }
         Value.newBool(compiled.matches(value))
     }
 }

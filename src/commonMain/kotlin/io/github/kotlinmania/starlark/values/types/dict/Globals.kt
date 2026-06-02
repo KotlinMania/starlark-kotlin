@@ -19,14 +19,14 @@ package io.github.kotlinmania.starlark.values.types.dict
  * limitations under the License.
  */
 
+import io.github.kotlinmania.starlark.collections.SmallMap
 import io.github.kotlinmania.starlark.environment.GlobalsBuilder
 import io.github.kotlinmania.starlark.eval.runtime.Arguments
 import io.github.kotlinmania.starlark.eval.runtime.Evaluator
 import io.github.kotlinmania.starlark.typing.Ty
 import io.github.kotlinmania.starlark.typing.TyStarlarkValue
-import io.github.kotlinmania.starlark.values.layout.heap.Heap
 import io.github.kotlinmania.starlark.values.layout.Value
-import io.github.kotlinmania.starlark.collections.SmallMap
+import io.github.kotlinmania.starlark.values.layout.heap.Heap
 
 private fun unpackPair(pair: Value, heap: Heap): Result<Pair<Value, Value>> {
     val it = pair.iterate(heap).getOrElse { return Result.failure(it) }
@@ -41,8 +41,8 @@ private fun unpackPair(pair: Value, heap: Heap): Result<Pair<Value, Value>> {
     }
     return Result.failure(
         IllegalArgumentException(
-            "Found a non-pair element in the positional argument of dict(): ${pair.toRepr()}"
-        )
+            "Found a non-pair element in the positional argument of dict(): ${pair.toRepr()}",
+        ),
     )
 }
 
@@ -88,21 +88,22 @@ internal fun registerDict(globals: GlobalsBuilder) {
         if (pos == null) {
             kwargs
         } else {
-            val result: Dict = run {
-                val ref = dictRefFromValue(pos)
-                if (ref != null) {
-                    val d = ref.deref()
-                    d.clone().also { it.reserve(kwargs.len()) }
-                } else {
-                    val it = pos.iterate(heap).getOrThrow()
-                    val map = SmallMap.withCapacity<Value, Value>(it.sizeHint().first + kwargs.len())
-                    for (el in it) {
-                        val (k, v) = unpackPair(el, heap).getOrThrow()
-                        map.insertHashed(k.getHashed().getOrThrow(), v)
+            val result: Dict =
+                run {
+                    val ref = dictRefFromValue(pos)
+                    if (ref != null) {
+                        val d = ref.deref()
+                        d.clone().also { it.reserve(kwargs.len()) }
+                    } else {
+                        val it = pos.iterate(heap).getOrThrow()
+                        val map = SmallMap.withCapacity<Value, Value>(it.sizeHint().first + kwargs.len())
+                        for (el in it) {
+                            val (k, v) = unpackPair(el, heap).getOrThrow()
+                            map.insertHashed(k.getHashed().getOrThrow(), v)
+                        }
+                        Dict.new(map)
                     }
-                    Dict.new(map)
                 }
-            }
             for ((k, v) in kwargs.iterHashed()) {
                 result.insertHashed(k, v)
             }
@@ -111,9 +112,10 @@ internal fun registerDict(globals: GlobalsBuilder) {
     }
 }
 
-private fun DictRef.deref(): Dict = when (val ref = aref) {
-    is Either.Left -> ref.value.value
-    is Either.Right -> ref.value
-}
+private fun DictRef.deref(): Dict =
+    when (val ref = aref) {
+        is Either.Left -> ref.value.value
+        is Either.Right -> ref.value
+    }
 
 internal fun Dict.clone(): Dict = Dict(SmallMap(ArrayList(content.entries)))

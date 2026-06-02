@@ -29,13 +29,12 @@ internal class FrozenValueNotSpecial private constructor(
     // impl FrozenValueNotSpecial
 
     companion object {
-        fun new(value: FrozenValue): FrozenValueNotSpecial? {
-            return if (value.isStr() || value.unpackInlineInt() != null) {
+        fun new(value: FrozenValue): FrozenValueNotSpecial? =
+            if (value.isStr() || value.unpackInlineInt() != null) {
                 null
             } else {
                 FrozenValueNotSpecial(value)
             }
-        }
     }
 
     fun toFrozenValue(): FrozenValue = value
@@ -47,13 +46,12 @@ internal class FrozenValueNotSpecial private constructor(
         return AValueHeader.fromIndex(ptrIndex).unpack()
     }
 
-    fun equals(other: Value): Result<Boolean> {
-        return if (toValue().ptrEq(other)) {
+    fun equals(other: Value): Result<Boolean> =
+        if (toValue().ptrEq(other)) {
             Result.success(true)
         } else {
             equalsNotPtrEq(other)
         }
-    }
 
     private fun equalsNotPtrEq(other: Value): Result<Boolean> {
         val guard = stackGuard()

@@ -21,24 +21,22 @@ package io.github.kotlinmania.starlark.typing
 
 // doc(hidden)
 
-internal fun unpackArgsItemTy(ty: Ty): Ty {
-    return Ty.unions(
+internal fun unpackArgsItemTy(ty: Ty): Ty =
+    Ty.unions(
         ty.iterUnion().map { basic ->
             when (basic) {
                 is TyBasic.Tuple -> basic.tuple.itemTy()
                 else -> Ty.any()
             }
-        }
+        },
     )
-}
 
-internal fun unpackKwargsValueTy(ty: Ty): Ty {
-    return Ty.unions(
+internal fun unpackKwargsValueTy(ty: Ty): Ty =
+    Ty.unions(
         ty.iterUnion().map { basic ->
             when (basic) {
                 is TyBasic.Dict -> basic.value.toTy()
                 else -> Ty.any()
             }
-        }
+        },
     )
-}

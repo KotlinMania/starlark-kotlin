@@ -23,31 +23,36 @@ package io.github.kotlinmania.starlark.values.types.set
  * Methods for the `set` type.
  */
 
-import io.github.kotlinmania.starlark.environment.MethodsBuilder
+import io.github.kotlinmania.starlark.collections.Hashed
+import io.github.kotlinmania.starlark.collections.smallset.SmallSet
 import io.github.kotlinmania.starlark.deriverefs.NativeCallableComponents
 import io.github.kotlinmania.starlark.deriverefs.NativeCallableParamSpec
+import io.github.kotlinmania.starlark.environment.MethodsBuilder
 import io.github.kotlinmania.starlark.eval.runtime.Arguments
 import io.github.kotlinmania.starlark.eval.runtime.Evaluator
 import io.github.kotlinmania.starlark.eval.runtime.params.spec.ParametersSpec
 import io.github.kotlinmania.starlark.eval.runtime.params.spec.ParametersSpecParam
 import io.github.kotlinmania.starlark.typing.Ty
-import io.github.kotlinmania.starlark.values.types.none.NoneType
 import io.github.kotlinmania.starlark.values.ValueError
-import io.github.kotlinmania.starlark.values.layout.heap.Heap
 import io.github.kotlinmania.starlark.values.layout.FrozenValue
 import io.github.kotlinmania.starlark.values.layout.Value
-import io.github.kotlinmania.starlark.collections.Hashed
-import io.github.kotlinmania.starlark.collections.small_set.SmallSet
+import io.github.kotlinmania.starlark.values.layout.heap.Heap
 import io.github.kotlinmania.starlark.values.toValue
+import io.github.kotlinmania.starlark.values.types.none.NoneType
 
 private sealed class SetFromValue {
-    data class Set(val set: SmallSet<Value>) : SetFromValue()
-    data class Ref(val ref: SetRef) : SetFromValue()
+    data class Set(
+        val set: SmallSet<Value>,
+    ) : SetFromValue()
+
+    data class Ref(
+        val ref: SetRef,
+    ) : SetFromValue()
 
     companion object {
         fun fromValue(
             value: Value,
-            heap: Heap
+            heap: Heap,
         ): Result<SetFromValue> {
             return when (val setRef = SetRef.unpackValueOpt(value)) {
                 null -> {
@@ -62,15 +67,14 @@ private sealed class SetFromValue {
         }
     }
 
-    fun get(): SmallSet<Value> {
-        return when (this) {
+    fun get(): SmallSet<Value> =
+        when (this) {
             is Set -> this.set
             is Ref -> this.ref.content
         }
-    }
 
-    fun intoSet(): SmallSet<Value> {
-        return when (this) {
+    fun intoSet(): SmallSet<Value> =
+        when (this) {
             is Set -> this.set
             is Ref -> {
                 // Clone: create a new SmallSet with the same entries
@@ -81,15 +85,10 @@ private sealed class SetFromValue {
                 clone
             }
         }
-    }
 
-    fun isEmpty(): Boolean {
-        return get().isEmpty()
-    }
+    fun isEmpty(): Boolean = get().isEmpty()
 
-    fun containsHashed(value: Hashed<Value>): Boolean {
-        return get().containsHashed(value)
-    }
+    fun containsHashed(value: Hashed<Value>): Boolean = get().containsHashed(value)
 }
 
 /**
@@ -98,12 +97,13 @@ private sealed class SetFromValue {
  * This is the Kotlin port of the Rust `#[starlark_module]` annotated function.
  */
 internal fun setMethods(builder: MethodsBuilder) {
-    val components = NativeCallableComponents(
-        speculativeExecSafe = false,
-        rustDocstring = null,
-        paramSpec = NativeCallableParamSpec.forArguments(),
-        returnType = Ty.any(),
-    )
+    val components =
+        NativeCallableComponents(
+            speculativeExecSafe = false,
+            rustDocstring = null,
+            paramSpec = NativeCallableParamSpec.forArguments(),
+            returnType = Ty.any(),
+        )
 
     fun setMethod(
         name: String,
@@ -147,9 +147,10 @@ internal fun setMethods(builder: MethodsBuilder) {
             kwargs = false,
         ),
     ) { eval, thisValue, args ->
-        val thisSet = SetRef.unpackValueOpt(thisValue) ?: return@setMethod Result.failure(
-            IllegalArgumentException("Value is not a set")
-        )
+        val thisSet =
+            SetRef.unpackValueOpt(thisValue) ?: return@setMethod Result.failure(
+                IllegalArgumentException("Value is not a set"),
+            )
         val other = args.positional<Value>(0)
         union(thisSet, other, eval.heap()).map { it.allocValue(eval.heap()) }
     }
@@ -166,9 +167,10 @@ internal fun setMethods(builder: MethodsBuilder) {
             kwargs = false,
         ),
     ) { eval, thisValue, args ->
-        val thisSet = SetRef.unpackValueOpt(thisValue) ?: return@setMethod Result.failure(
-            IllegalArgumentException("Value is not a set")
-        )
+        val thisSet =
+            SetRef.unpackValueOpt(thisValue) ?: return@setMethod Result.failure(
+                IllegalArgumentException("Value is not a set"),
+            )
         val other = args.positional<Value>(0)
         intersection(thisSet, other, eval.heap()).map { it.allocValue(eval.heap()) }
     }
@@ -185,9 +187,10 @@ internal fun setMethods(builder: MethodsBuilder) {
             kwargs = false,
         ),
     ) { eval, thisValue, args ->
-        val thisSet = SetRef.unpackValueOpt(thisValue) ?: return@setMethod Result.failure(
-            IllegalArgumentException("Value is not a set")
-        )
+        val thisSet =
+            SetRef.unpackValueOpt(thisValue) ?: return@setMethod Result.failure(
+                IllegalArgumentException("Value is not a set"),
+            )
         val other = args.positional<Value>(0)
         symmetricDifference(thisSet, other, eval.heap()).map { it.allocValue(eval.heap()) }
     }
@@ -283,9 +286,10 @@ internal fun setMethods(builder: MethodsBuilder) {
             kwargs = false,
         ),
     ) { eval, thisValue, args ->
-        val thisSet = SetRef.unpackValueOpt(thisValue) ?: return@setMethod Result.failure(
-            IllegalArgumentException("Value is not a set")
-        )
+        val thisSet =
+            SetRef.unpackValueOpt(thisValue) ?: return@setMethod Result.failure(
+                IllegalArgumentException("Value is not a set"),
+            )
         val other = args.positional<Value>(0)
         difference(thisSet, other, eval.heap()).map { it.allocValue(eval.heap()) }
     }
@@ -302,9 +306,10 @@ internal fun setMethods(builder: MethodsBuilder) {
             kwargs = false,
         ),
     ) { eval, thisValue, args ->
-        val thisSet = SetRef.unpackValueOpt(thisValue) ?: return@setMethod Result.failure(
-            IllegalArgumentException("Value is not a set")
-        )
+        val thisSet =
+            SetRef.unpackValueOpt(thisValue) ?: return@setMethod Result.failure(
+                IllegalArgumentException("Value is not a set"),
+            )
         val other = args.positional<Value>(0)
         issuperset(thisSet, other, eval.heap()).map { it.toValue() }
     }
@@ -321,9 +326,10 @@ internal fun setMethods(builder: MethodsBuilder) {
             kwargs = false,
         ),
     ) { eval, thisValue, args ->
-        val thisSet = SetRef.unpackValueOpt(thisValue) ?: return@setMethod Result.failure(
-            IllegalArgumentException("Value is not a set")
-        )
+        val thisSet =
+            SetRef.unpackValueOpt(thisValue) ?: return@setMethod Result.failure(
+                IllegalArgumentException("Value is not a set"),
+            )
         val other = args.positional<Value>(0)
         issubset(thisSet, other, eval.heap()).map { it.toValue() }
     }
@@ -349,7 +355,7 @@ internal fun clear(thisValue: Value): Result<NoneType> {
 internal fun union(
     thisSet: SetRef,
     other: Value,
-    heap: Heap
+    heap: Heap,
 ): Result<SetData> {
     if (thisSet.content.isEmpty()) {
         val otherSet = SetFromValue.fromValue(other, heap).getOrElse { return Result.failure(it) }
@@ -382,7 +388,7 @@ internal fun union(
 internal fun intersection(
     thisSet: SetRef,
     other: Value,
-    heap: Heap
+    heap: Heap,
 ): Result<SetData> {
     val otherSet = SetFromValue.fromValue(other, heap).getOrElse { return Result.failure(it) }
     val data = SetData()
@@ -411,7 +417,7 @@ internal fun intersection(
 internal fun symmetricDifference(
     thisSet: SetRef,
     other: Value,
-    heap: Heap
+    heap: Heap,
 ): Result<SetData> {
     val otherSet = SetFromValue.fromValue(other, heap).getOrElse { return Result.failure(it) }
 
@@ -458,7 +464,7 @@ internal fun symmetricDifference(
  */
 internal fun add(
     thisValue: Value,
-    value: Value
+    value: Value,
 ): Result<NoneType> {
     val thisSet = SetMut.fromValue(thisValue).getOrElse { return Result.failure(it) }
     val hashed = value.getHashed().getOrElse { return Result.failure(it) }
@@ -479,7 +485,7 @@ internal fun add(
 internal fun update(
     thisValue: Value,
     other: Value,
-    heap: Heap
+    heap: Heap,
 ): Result<NoneType> {
     val isSelfPtr = other.ptrEq(thisValue)
     val thisSet = SetMut.fromValue(thisValue).getOrElse { return Result.failure(it) }
@@ -487,11 +493,16 @@ internal fun update(
         return Result.success(NoneType)
     }
 
-    if (thisSet.aref.data.content.isEmpty()) {
-        val otherSet = SetFromValue.fromValue(other, heap)
-            .getOrElse { return Result.failure(it) }
+    if (thisSet.aref.data.content
+            .isEmpty()
+    ) {
+        val otherSet =
+            SetFromValue
+                .fromValue(other, heap)
+                .getOrElse { return Result.failure(it) }
         val newContent = otherSet.intoSet()
-        thisSet.aref.data.content.addAll(newContent.iterHashed().asIterable())
+        thisSet.aref.data.content
+            .addAll(newContent.iterHashed().asIterable())
     } else {
         for (elem in other.iterate(heap).getOrElse { return Result.failure(it) }) {
             val hashed = elem.getHashed().getOrElse { return Result.failure(it) }
@@ -528,7 +539,7 @@ internal fun update(
  */
 internal fun remove(
     thisValue: Value,
-    value: Value
+    value: Value,
 ): Result<NoneType> {
     val set = SetMut.fromValue(thisValue).getOrElse { return Result.failure(it) }
     val hashed = value.getHashed().getOrElse { return Result.failure(it) }
@@ -565,7 +576,7 @@ internal fun remove(
  */
 internal fun discard(
     thisValue: Value,
-    value: Value
+    value: Value,
 ): Result<NoneType> {
     val set = SetMut.fromValue(thisValue).getOrElse { return Result.failure(it) }
     val hashed = value.getHashed().getOrElse { return Result.failure(it) }
@@ -619,7 +630,7 @@ internal fun pop(thisValue: Value): Result<Value> {
 internal fun difference(
     thisSet: SetRef,
     other: Value,
-    heap: Heap
+    heap: Heap,
 ): Result<SetData> {
     if (thisSet.content.isEmpty()) {
         other.iterate(heap).getOrElse { return Result.failure(it) }
@@ -658,7 +669,7 @@ internal fun difference(
 internal fun issuperset(
     thisSet: SetRef,
     other: Value,
-    heap: Heap
+    heap: Heap,
 ): Result<Boolean> {
     val otherSetRef = SetRef.unpackValueOpt(other)
     if (otherSetRef != null) {
@@ -695,7 +706,7 @@ internal fun issuperset(
 internal fun issubset(
     thisSet: SetRef,
     other: Value,
-    heap: Heap
+    heap: Heap,
 ): Result<Boolean> {
     if (thisSet.content.isEmpty()) {
         other.iterate(heap).getOrElse { return Result.failure(it) }

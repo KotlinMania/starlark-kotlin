@@ -20,9 +20,9 @@ package io.github.kotlinmania.starlark.values.types.list
  */
 
 import io.github.kotlinmania.starlark.typing.Ty
-import io.github.kotlinmania.starlark.values.layout.FrozenValue
 import io.github.kotlinmania.starlark.values.StarlarkTypeRepr
 import io.github.kotlinmania.starlark.values.UnpackValue
+import io.github.kotlinmania.starlark.values.layout.FrozenValue
 import io.github.kotlinmania.starlark.values.layout.Value
 
 /**
@@ -258,9 +258,7 @@ object FrozenListRefStarlarkTypeRepr : StarlarkTypeRepr {
 object ListRefUnpackValue : UnpackValue<ListRef> {
     override fun starlarkTypeRepr(): Ty = Ty.anyList()
 
-    override fun unpackValueImpl(value: Value): Result<ListRef?> {
-        return Result.success(ListRef.fromValue(value))
-    }
+    override fun unpackValueImpl(value: Value): Result<ListRef?> = Result.success(ListRef.fromValue(value))
 }
 
 /**
@@ -271,7 +269,5 @@ object ListRefUnpackValue : UnpackValue<ListRef> {
 object FrozenListRefUnpackValue : UnpackValue<FrozenListRef> {
     override fun starlarkTypeRepr(): Ty = Ty.anyList()
 
-    override fun unpackValueImpl(value: Value): Result<FrozenListRef?> {
-        return Result.success(FrozenListRef.fromValue(value))
-    }
+    override fun unpackValueImpl(value: Value): Result<FrozenListRef?> = Result.success(FrozenListRef.fromValue(value))
 }

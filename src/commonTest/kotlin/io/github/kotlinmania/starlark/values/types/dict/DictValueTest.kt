@@ -20,14 +20,14 @@ package io.github.kotlinmania.starlark.values.types.dict
  */
 
 import io.github.kotlinmania.starlark.assert.Assert
+import io.github.kotlinmania.starlark.collections.SmallMap
+import io.github.kotlinmania.starlark.values.layout.Value
 import io.github.kotlinmania.starlark.values.layout.heap.Heap
-import io.github.kotlinmania.starlarkmap.smallmap.SmallMap
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNull
 
 class DictValueTest {
-
     @Test
     fun testMutateDict() {
         Assert.isTrue(
@@ -48,13 +48,13 @@ b1 and b2 and b3
         Heap.temp { heap ->
             val k1 = heap.allocStr("hello").getHashed()
             val k2 = heap.allocStr("world").getHashed()
-            val sm = SmallMap.new<io.github.kotlinmania.starlark.values.layout.Value, io.github.kotlinmania.starlark.values.layout.Value>()
-            sm.insertHashed(k1.toValue(), heap.alloc(12))
-            sm.insertHashed(k2.toValue(), heap.alloc(56))
+            val sm = SmallMap.new<Value, Value>()
+            sm.insertHashed(k1.getOrThrow(), Value.testingNewInt(12))
+            sm.insertHashed(k2.getOrThrow(), Value.testingNewInt(56))
             val d = Dict.new(sm)
 
-            assertEquals(12, d.get(heap.alloc("hello")).getOrThrow()!!.unpackI32())
-            assertNull(d.get(heap.alloc("foo")).getOrThrow())
+            assertEquals(12, d.get(heap.allocStr("hello")).getOrThrow()!!.unpackI32())
+            assertNull(d.get(heap.allocStr("foo")).getOrThrow())
             assertEquals(12, d.getStr("hello")!!.unpackI32())
             assertNull(d.getStr("foo"))
         }

@@ -25,29 +25,31 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 
 class AnyComplexTest {
-
     @Test
     fun testAnyComplex() {
-        class UnfrozenData(val string: StringValue, val other: Value) : Freeze<FrozenData> {
-            override fun freeze(freezer: Freezer): Result<FrozenData> {
-                return Result.success(
+        class UnfrozenData(
+            val string: StringValue,
+            val other: Value,
+        ) : Freeze<FrozenData> {
+            override fun freeze(freezer: Freezer): Result<FrozenData> =
+                Result.success(
                     FrozenData(
                         string = string.freeze(freezer).getOrThrow(),
                         other = freezer.freeze(other).getOrThrow(),
                     ),
                 )
-            }
         }
 
         Module.withTempHeap { module ->
-            val data = module.heap().alloc(
-                StarlarkAnyComplex.new(
-                    UnfrozenData(
-                        string = module.heap().allocStr("aaa"),
-                        other = module.heap().alloc(AllocList(listOf(1, 2))),
+            val data =
+                module.heap().alloc(
+                    StarlarkAnyComplex.new(
+                        UnfrozenData(
+                            string = module.heap().allocStr("aaa"),
+                            other = module.heap().alloc(AllocList(listOf(1, 2))),
+                        ),
                     ),
-                ),
-            )
+                )
 
             assertEquals(
                 constFrozenString("aaa"),
@@ -66,5 +68,8 @@ class AnyComplexTest {
         }
     }
 
-    private class FrozenData(val string: io.github.kotlinmania.starlark.values.layout.FrozenStringValue, @Suppress("UNUSED") val other: FrozenValue)
+    private class FrozenData(
+        val string: io.github.kotlinmania.starlark.values.layout.FrozenStringValue,
+        @Suppress("UNUSED") val other: FrozenValue,
+    )
 }

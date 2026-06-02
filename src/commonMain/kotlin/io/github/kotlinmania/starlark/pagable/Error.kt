@@ -23,7 +23,9 @@ import io.github.kotlinmania.starlark.Error
 import io.github.kotlinmania.starlark.ErrorKind
 
 /** Errors that can occur during pagable serialization/deserialization. */
-sealed class PagableError(message: String) : Exception(message) {
+sealed class PagableError(
+    message: String,
+) : Exception(message) {
     /** The type was not registered in the vtable registry. */
     class TypeNotRegistered(
         val typeId: String,
@@ -31,6 +33,4 @@ sealed class PagableError(message: String) : Exception(message) {
 }
 
 // impl From<PagableError> for crate::Error
-fun PagableError.toError(): Error {
-    return Error.newKind(ErrorKind.Other(this))
-}
+fun PagableError.toError(): Error = Error.newKind(ErrorKind.Other(this))

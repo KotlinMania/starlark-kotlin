@@ -36,24 +36,33 @@ package io.github.kotlinmania.starlark.typing
 private sealed class ArcTyInner : Comparable<ArcTyInner> {
     // These are shortcuts to avoid allocations for common cases.
     data object Any : ArcTyInner()
-    data object Never : ArcTyInner()
-    data object Str : ArcTyInner()
-    data object Int : ArcTyInner()
-    data object Bool : ArcTyInner()
-    data object None : ArcTyInner()
-    /// Default implementation.
-    // Arc(Arc<Ty>),
-    data class Wrapped(val ty: Ty) : ArcTyInner()
 
-    private fun ordinal(): kotlin.Int = when (this) {
-        is Any -> 0
-        is Never -> 1
-        is Str -> 2
-        is Int -> 3
-        is Bool -> 4
-        is None -> 5
-        is Wrapped -> 6
-    }
+    data object Never : ArcTyInner()
+
+    data object Str : ArcTyInner()
+
+    data object Int : ArcTyInner()
+
+    data object Bool : ArcTyInner()
+
+    data object None : ArcTyInner()
+
+    // / Default implementation.
+    // Arc(Arc<Ty>),
+    data class Wrapped(
+        val ty: Ty,
+    ) : ArcTyInner()
+
+    private fun ordinal(): kotlin.Int =
+        when (this) {
+            is Any -> 0
+            is Never -> 1
+            is Str -> 2
+            is Int -> 3
+            is Bool -> 4
+            is None -> 5
+            is Wrapped -> 6
+        }
 
     override fun compareTo(other: ArcTyInner): kotlin.Int {
         val cmp = ordinal().compareTo(other.ordinal())
@@ -65,8 +74,8 @@ private sealed class ArcTyInner : Comparable<ArcTyInner> {
         }
     }
 
-    override fun toString(): String {
-        return when (this) {
+    override fun toString(): String =
+        when (this) {
             is Any -> Ty.any().toString()
             is Never -> Ty.never().toString()
             is Str -> Ty.string().toString()
@@ -75,19 +84,15 @@ private sealed class ArcTyInner : Comparable<ArcTyInner> {
             is None -> Ty.none().toString()
             is Wrapped -> ty.toString()
         }
-    }
 }
 
-/// Wrapper for `Ty` which is smaller than `Ty`.
+// / Wrapper for `Ty` which is smaller than `Ty`.
 // #[derive(Dupe, Clone, Eq, PartialEq, Ord, PartialOrd, Hash, derive_more::Display, Debug, Allocative)]
 // pub struct ArcTy(ArcTyInner);
 class ArcTy private constructor(
     private val inner: ArcTyInner,
 ) : Comparable<ArcTy> {
-
-    override fun compareTo(other: ArcTy): Int {
-        return inner.compareTo(other.inner)
-    }
+    override fun compareTo(other: ArcTy): Int = inner.compareTo(other.inner)
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
@@ -102,13 +107,11 @@ class ArcTy private constructor(
     // impl ArcTy
     companion object {
         // pub(crate) fn any() -> ArcTy
-        internal fun any(): ArcTy {
-            return ArcTy(ArcTyInner.Any)
-        }
+        internal fun any(): ArcTy = ArcTy(ArcTyInner.Any)
 
         // pub(crate) fn new(ty: Ty) -> ArcTy
-        internal fun new(ty: Ty): ArcTy {
-            return if (ty.isAny()) {
+        internal fun new(ty: Ty): ArcTy =
+            if (ty.isAny()) {
                 any()
             } else if (ty.isNever()) {
                 ArcTy(ArcTyInner.Never)
@@ -123,34 +126,29 @@ class ArcTy private constructor(
             } else {
                 ArcTy(ArcTyInner.Wrapped(ty))
             }
-        }
 
         // pub(crate) fn union2(a: ArcTy, b: ArcTy) -> ArcTy
-        internal fun union2(a: ArcTy, b: ArcTy): ArcTy {
-            return if (a == b) {
+        internal fun union2(a: ArcTy, b: ArcTy): ArcTy =
+            if (a == b) {
                 a
             } else {
                 new(Ty.union2(a.toTy(), b.toTy()))
             }
-        }
     }
 
     // pub(crate) fn to_ty(&self) -> Ty
-    internal fun toTy(): Ty {
-        return deref()
-    }
+    internal fun toTy(): Ty = deref()
 
     fun isAny(): Boolean = inner is ArcTyInner.Any
+
     fun isNever(): Boolean = inner is ArcTyInner.Never
 
     // pub(crate) fn display_with<'a>(&'a self, config: &'a TypeRenderConfig) -> ArcTyDisplay<'a>
-    internal fun displayWith(config: TypeRenderConfig): ArcTyDisplay {
-        return ArcTyDisplay(this, config)
-    }
+    internal fun displayWith(config: TypeRenderConfig): ArcTyDisplay = ArcTyDisplay(this, config)
 
     // impl Deref for ArcTy { type Target = Ty; fn deref(&self) -> &Ty }
-    fun deref(): Ty {
-        return when (val i = inner) {
+    fun deref(): Ty =
+        when (val i = inner) {
             is ArcTyInner.Any -> Ty.any()
             is ArcTyInner.Never -> Ty.never()
             is ArcTyInner.Str -> Ty.string()
@@ -159,7 +157,6 @@ class ArcTy private constructor(
             is ArcTyInner.None -> Ty.none()
             is ArcTyInner.Wrapped -> i.ty
         }
-    }
 }
 
 // pub(crate) struct ArcTyDisplay<'a> {
@@ -170,7 +167,5 @@ internal class ArcTyDisplay(
     private val ty: ArcTy,
     private val config: TypeRenderConfig,
 ) {
-    override fun toString(): String {
-        return ty.deref().fmtWithConfig(config)
-    }
+    override fun toString(): String = ty.deref().fmtWithConfig(config)
 }

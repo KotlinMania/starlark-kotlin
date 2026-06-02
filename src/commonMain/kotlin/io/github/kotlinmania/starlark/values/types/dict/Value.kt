@@ -19,6 +19,7 @@ package io.github.kotlinmania.starlark.values.types.dict
  * limitations under the License.
  */
 
+import io.github.kotlinmania.starlark.collections.Equivalent
 import io.github.kotlinmania.starlark.collections.Hashed
 import io.github.kotlinmania.starlark.collections.SmallMap
 import io.github.kotlinmania.starlark.environment.Methods
@@ -26,28 +27,30 @@ import io.github.kotlinmania.starlark.environment.MethodsStatic
 import io.github.kotlinmania.starlark.typing.Ty
 import io.github.kotlinmania.starlark.values.ComplexValue
 import io.github.kotlinmania.starlark.values.Freeze
-import io.github.kotlinmania.starlark.values.layout.Freezer
-import io.github.kotlinmania.starlark.values.layout.FrozenValue
 import io.github.kotlinmania.starlark.values.StarlarkValue
 import io.github.kotlinmania.starlark.values.Trace
-import io.github.kotlinmania.starlark.values.layout.heap.Tracer
-import io.github.kotlinmania.starlark.values.layout.heap.ValueHolder
 import io.github.kotlinmania.starlark.values.ValueError
 import io.github.kotlinmania.starlark.values.freezeSmallMap
+import io.github.kotlinmania.starlark.values.layout.Freezer
+import io.github.kotlinmania.starlark.values.layout.FrozenValue
 import io.github.kotlinmania.starlark.values.layout.Value
 import io.github.kotlinmania.starlark.values.layout.avalues.AllocStaticSimple
 import io.github.kotlinmania.starlark.values.layout.avalues.allocComplex
 import io.github.kotlinmania.starlark.values.layout.avalues.simple.allocSimple
 import io.github.kotlinmania.starlark.values.layout.heap.FrozenHeap
 import io.github.kotlinmania.starlark.values.layout.heap.Heap
+import io.github.kotlinmania.starlark.values.layout.heap.Tracer
+import io.github.kotlinmania.starlark.values.layout.heap.ValueHolder
 import io.github.kotlinmania.starlark.values.layout.typed.StringValue
-import io.github.kotlinmania.starlark.collections.Equivalent
 import kotlin.reflect.KClass
 
 // #[derive(Clone, Default, Trace, Debug, ProvidesStaticType, Allocative)]
 // pub(crate) struct DictGen<T>(pub(crate) T);
-data class DictGen<T>(val inner: T) : ComplexValue, Trace, Freeze<StarlarkValue> {
-
+data class DictGen<T>(
+    val inner: T,
+) : ComplexValue,
+    Trace,
+    Freeze<StarlarkValue> {
     // impl Freeze for DictGen<RefCell<Dict<'v>>>
     @Suppress("UNCHECKED_CAST")
     override fun freeze(freezer: Freezer): Result<StarlarkValue> {
@@ -67,13 +70,14 @@ data class DictGen<T>(val inner: T) : ComplexValue, Trace, Freeze<StarlarkValue>
         }
     }
 
-    override fun toString(): String = when (inner) {
-        is DictLike -> {
-            @Suppress("UNCHECKED_CAST")
-            fmtKeyedContainer("{", "}", ": ", (inner as DictLike).content().iter())
+    override fun toString(): String =
+        when (inner) {
+            is DictLike -> {
+                @Suppress("UNCHECKED_CAST")
+                fmtKeyedContainer("{", "}", ": ", (inner as DictLike).content().iter())
+            }
+            else -> super<ComplexValue>.toString()
         }
-        else -> super<ComplexValue>.toString()
-    }
 
     // --- StarlarkValue implementation (mirrors Rust's #[starlark_value] impl) ---
 
@@ -105,8 +109,11 @@ data class DictGen<T>(val inner: T) : ComplexValue, Trace, Freeze<StarlarkValue>
 
     override fun toBool(): Boolean {
         val innerVal = inner
-        return if (innerVal is DictLike) !innerVal.content().isEmpty()
-        else true
+        return if (innerVal is DictLike) {
+            !innerVal.content().isEmpty()
+        } else {
+            true
+        }
     }
 
     override fun equals(other: Value): Result<Boolean> {
@@ -120,8 +127,9 @@ data class DictGen<T>(val inner: T) : ComplexValue, Trace, Freeze<StarlarkValue>
         val innerVal = inner
         if (innerVal !is DictLike) return ValueError.unsupported(TYPE, "[]")
         val hashed = index.getHashed().getOrElse { return Result.failure(it) }
-        val v = innerVal.content().getHashedByValue(hashed)
-            ?: return Result.failure(ValueError.KeyNotFound(index.toRepr()))
+        val v =
+            innerVal.content().getHashedByValue(hashed)
+                ?: return Result.failure(ValueError.KeyNotFound(index.toRepr()))
         return Result.success(v.toValue())
     }
 
@@ -176,8 +184,9 @@ data class DictGen<T>(val inner: T) : ComplexValue, Trace, Freeze<StarlarkValue>
         val innerVal = inner
         if (innerVal !is DictLike) return ValueError.unsupportedWith(TYPE, "|", other)
 
-        val rhsDict = dictRefFromValue(other)
-            ?: return ValueError.unsupportedWith(TYPE, "|", other)
+        val rhsDict =
+            dictRefFromValue(other)
+                ?: return ValueError.unsupportedWith(TYPE, "|", other)
 
         if (innerVal.content().isEmpty()) {
             // Clone rhs and return
@@ -221,7 +230,7 @@ fun Dict.display(): String =
 // #[derive(Clone, Default, Trace, Debug, ProvidesStaticType, Allocative)]
 class Dict(
     /** The data stored by the dictionary. The keys must all be hashable values. */
-    val content: SmallMap<Value, Value>
+    val content: SmallMap<Value, Value>,
 ) : Trace {
     companion object {
         /** The result of calling `type()` on dictionaries. */
@@ -329,7 +338,7 @@ fun Dict.allocValue(heap: Heap): Value =
 // #[derive(Clone, Default, Debug, ProvidesStaticType, Allocative)]
 class FrozenDictData(
     /** The data stored by the dictionary. The keys must all be hashable values. */
-    val content: SmallMap<FrozenValue, FrozenValue>
+    val content: SmallMap<FrozenValue, FrozenValue>,
 ) {
     /** Iterate through the key/value pairs in the dictionary. */
     fun iter(): Sequence<Pair<FrozenValue, FrozenValue>> =
@@ -347,8 +356,11 @@ class FrozenDictData(
     fun starlarkTypeRepr(): Ty = Ty.dict(Ty.any(), Ty.any())
 
     fun allocFrozenValue(heap: FrozenHeap): FrozenValue =
-        if (content.isEmpty()) VALUE_EMPTY_FROZEN_DICT.toFrozenValue()
-        else heap.allocSimple(DictGen(this))
+        if (content.isEmpty()) {
+            VALUE_EMPTY_FROZEN_DICT.toFrozenValue()
+        } else {
+            heap.allocSimple(DictGen(this))
+        }
 }
 
 /** Alias is used in `StarlarkDocs` derive. */
@@ -360,7 +372,9 @@ val VALUE_EMPTY_FROZEN_DICT: AllocStaticSimple<DictGen<FrozenDictData>> =
     AllocStaticSimple.alloc(DictGen(FrozenDictData(SmallMap.new())))
 
 /** Helper type for lookups, not useful. */
-data class ValueStr(val str: String) : Equivalent<Value> {
+data class ValueStr(
+    val str: String,
+) : Equivalent<Value> {
     override fun hashCode(): Int = hashStringValue(str)
 
     override fun equals(other: Any?): Boolean {
@@ -374,27 +388,34 @@ data class ValueStr(val str: String) : Equivalent<Value> {
 
 /** Freeze implementation for DictGen<AtomicRef<Dict>> (mutable dict). */
 fun DictGen<AtomicRef<Dict>>.freezeDict(freezer: Freezer): Result<DictGen<FrozenDictData>> {
-    val frozenContent = freezeSmallMap(
-        this.inner.value.content,
-        freezer,
-        { v, f -> v.freeze(f) },
-        { v, f -> v.freeze(f) },
-    )
+    val frozenContent =
+        freezeSmallMap(
+            this.inner.value.content,
+            freezer,
+            { v, f -> v.freeze(f) },
+            { v, f -> v.freeze(f) },
+        )
     val content = frozenContent.getOrElse { return Result.failure(it) }
     return Result.success(DictGen(FrozenDictData(content)))
 }
 
 interface DictLike {
     fun content(): SmallMap<Value, Value>
+
     // These functions are unsafe for the same reason
     // StarlarkValue iterator functions are unsafe.
     fun iterStart()
+
     fun contentUnchecked(): SmallMap<Value, Value>
+
     fun iterStop()
+
     fun setAt(index: Hashed<Value>, value: Value): Result<Unit>
 }
 
-class RefCellDictLike(private val cell: AtomicRef<Dict>) : DictLike {
+class RefCellDictLike(
+    private val cell: AtomicRef<Dict>,
+) : DictLike {
     override fun content(): SmallMap<Value, Value> = cell.value.content
 
     override fun iterStart() {
@@ -407,15 +428,18 @@ class RefCellDictLike(private val cell: AtomicRef<Dict>) : DictLike {
 
     override fun contentUnchecked(): SmallMap<Value, Value> = cell.value.content
 
-    override fun setAt(index: Hashed<Value>, value: Value): Result<Unit> = try {
-        cell.value.content.insertHashed(index, value)
-        Result.success(Unit)
-    } catch (_: Exception) {
-        Result.failure(ValueError.MutationDuringIteration)
-    }
+    override fun setAt(index: Hashed<Value>, value: Value): Result<Unit> =
+        try {
+            cell.value.content.insertHashed(index, value)
+            Result.success(Unit)
+        } catch (_: Exception) {
+            Result.failure(ValueError.MutationDuringIteration)
+        }
 }
 
-class FrozenDictDataDictLike(private val data: FrozenDictData) : DictLike {
+class FrozenDictDataDictLike(
+    private val data: FrozenDictData,
+) : DictLike {
     @Suppress("UNCHECKED_CAST")
     override fun content(): SmallMap<Value, Value> =
         data.content as SmallMap<Value, Value>
@@ -437,10 +461,11 @@ fun getDictMethods(): Methods? = DICT_METHODS_STATIC.methods(::dictMethods)
 private val DICT_METHODS_STATIC = MethodsStatic()
 
 /** Helper to get Dict from a DictRef. */
-private fun getDictFromRef(ref: DictRef): Dict = when (val aref = ref.aref) {
-    is Either.Left -> aref.value.value
-    is Either.Right -> aref.value
-}
+private fun getDictFromRef(ref: DictRef): Dict =
+    when (val aref = ref.aref) {
+        is Either.Left -> aref.value.value
+        is Either.Right -> aref.value
+    }
 
 fun <T : DictLike> DictGen<T>.serialize(): Map<Value, Value> =
     inner.content().iter().toMap()
@@ -449,7 +474,7 @@ internal fun <K, V> fmtKeyedContainer(
     start: String,
     end: String,
     sep: String,
-    iter: Sequence<Pair<K, V>>
+    iter: Sequence<Pair<K, V>>,
 ): String {
     val builder = StringBuilder()
     builder.append(start)
@@ -465,8 +490,11 @@ internal fun <K, V> fmtKeyedContainer(
     return builder.toString()
 }
 
-class AtomicRef<T>(var value: T) {
+class AtomicRef<T>(
+    var value: T,
+) {
     fun borrow(): Ref<T> = Ref(value)
+
     fun tryBorrowMut(): RefMut<T>? = RefMut(value)
 }
 
@@ -475,5 +503,5 @@ internal fun hashStringValue(s: String): Int = s.hashCode()
 internal fun <K, V> equalsSmallMap(
     a: SmallMap<K, V>,
     b: Any?,
-    comparator: (V, V) -> Result<Boolean>
+    comparator: (V, V) -> Result<Boolean>,
 ): Result<Boolean> = Result.success(a == b)

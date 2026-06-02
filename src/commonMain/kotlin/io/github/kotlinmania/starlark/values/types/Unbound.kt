@@ -21,15 +21,15 @@ package io.github.kotlinmania.starlark.values.types
 
 /** Handle special "unbound" globals: methods or attributes. */
 
+import io.github.kotlinmania.starlark.eval.runtime.Arguments
+import io.github.kotlinmania.starlark.eval.runtime.Evaluator
+import io.github.kotlinmania.starlark.eval.runtime.FrameSpan
 import io.github.kotlinmania.starlark.values.FrozenRef
 import io.github.kotlinmania.starlark.values.layout.FrozenValue
-import io.github.kotlinmania.starlark.eval.runtime.Evaluator
-import io.github.kotlinmania.starlark.eval.runtime.Arguments
-import io.github.kotlinmania.starlark.eval.runtime.FrameSpan
-import io.github.kotlinmania.starlark.values.layout.heap.Heap
-import io.github.kotlinmania.starlark.values.layout.Value
 import io.github.kotlinmania.starlark.values.layout.FrozenValueTyped
+import io.github.kotlinmania.starlark.values.layout.Value
 import io.github.kotlinmania.starlark.values.layout.avalues.allocComplex
+import io.github.kotlinmania.starlark.values.layout.heap.Heap
 
 /** A value or an unbound method or unbound attribute. */
 // #[derive(Clone)]
@@ -37,31 +37,33 @@ import io.github.kotlinmania.starlark.values.layout.avalues.allocComplex
 internal sealed class UnboundValue {
     /** A method with `this` unbound. */
     // Method(FrozenValueTyped<'static, NativeMethod>)
-    class Method(val method: FrozenValueTyped<NativeMethod>) : UnboundValue()
+    class Method(
+        val method: FrozenValueTyped<NativeMethod>,
+    ) : UnboundValue()
 
     /** An attribute with `this` unbound. */
     // Attr(FrozenValueTyped<'static, NativeAttribute>)
-    class Attr(val attr: FrozenValueTyped<NativeAttribute>) : UnboundValue()
+    class Attr(
+        val attr: FrozenValueTyped<NativeAttribute>,
+    ) : UnboundValue()
 
     // impl Debug for UnboundValue
     override fun toString(): String = "MaybeUnboundValue(..)"
 
     // pub(crate) fn to_frozen_value(&self) -> FrozenValue
-    fun toFrozenValue(): FrozenValue {
-        return when (this) {
+    fun toFrozenValue(): FrozenValue =
+        when (this) {
             is Method -> method.toFrozenValue()
             is Attr -> attr.toFrozenValue()
         }
-    }
 
     /** Bind this object to given `this` value. */
     // pub(crate) fn bind<'v>(&self, this: Value<'v>, heap: Heap<'v>) -> crate::Result<Value<'v>>
-    fun bind(thisValue: Value, heap: Heap): Result<Value> {
-        return when (this) {
+    fun bind(thisValue: Value, heap: Heap): Result<Value> =
+        when (this) {
             is Method -> Result.success(heap.allocComplex(BoundMethodGen(method, thisValue.toValue())))
             is Attr -> attr.asRef().invoke(thisValue, heap)
         }
-    }
 
     // pub(crate) fn invoke_method<'v>(...)
     fun invokeMethod(
@@ -69,8 +71,8 @@ internal sealed class UnboundValue {
         span: FrozenRef<FrameSpan>,
         args: Arguments,
         eval: Evaluator,
-    ): Result<Value> {
-        return eval.withCallStack(
+    ): Result<Value> =
+        eval.withCallStack(
             toFrozenValue().toValue(),
             span,
         ) { eval ->
@@ -79,5 +81,4 @@ internal sealed class UnboundValue {
                 is Attr -> attr.asRef().invoke(thisValue, eval.heap())
             }
         }
-    }
 }

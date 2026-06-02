@@ -19,12 +19,14 @@ package io.github.kotlinmania.starlark.values.typing
  * limitations under the License.
  */
 
-import io.github.kotlinmania.starlark.values.layout.heap.Heap
 import io.github.kotlinmania.starlark.values.StarlarkValue
 import io.github.kotlinmania.starlark.values.layout.Value
-import io.github.kotlinmania.starlark.values.typing.type_compiled.TypeCompiled
+import io.github.kotlinmania.starlark.values.layout.heap.Heap
+import io.github.kotlinmania.starlark.values.typing.typecompiled.TypeCompiled
 
-private class TypingMacroRefsError(repr: String) : Exception("LHS is not a type: `$repr`")
+private class TypingMacroRefsError(
+    repr: String,
+) : Exception("LHS is not a type: `$repr`")
 
 /** Implementation of `bitOr` for [StarlarkValue] implementations which are types. */
 fun starlarkValueBitOrForType(
@@ -32,11 +34,12 @@ fun starlarkValueBitOrForType(
     other: Value,
     heap: Heap,
 ): Result<Value> {
-    val evalType = thisValue.evalType()
-        ?: run {
-            val repr = buildString { thisValue.collectRepr(this) }
-            return Result.failure(TypingMacroRefsError(repr))
-        }
+    val evalType =
+        thisValue.evalType()
+            ?: run {
+                val repr = buildString { thisValue.collectRepr(this) }
+                return Result.failure(TypingMacroRefsError(repr))
+            }
     val thisCompiled = TypeCompiled.fromTy(evalType, heap)
     val otherCompiled = TypeCompiled.new(other, heap)
     return Result.success(TypeCompiled.typeAnyOfTwo(thisCompiled, otherCompiled, heap).toInner())

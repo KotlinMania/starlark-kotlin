@@ -22,21 +22,25 @@ package io.github.kotlinmania.starlark.analysis
 import io.github.kotlinmania.starlark.codemap.CodeMap
 import io.github.kotlinmania.starlark.codemap.Spanned
 import io.github.kotlinmania.starlark.syntax.AstModule
-import io.github.kotlinmania.starlark.syntax.ast.AstExpr
-import io.github.kotlinmania.starlark.syntax.ast.AstStmt
 import io.github.kotlinmania.starlark.syntax.ast.AssignIdentP
 import io.github.kotlinmania.starlark.syntax.ast.AssignTargetP
+import io.github.kotlinmania.starlark.syntax.ast.AstExpr
+import io.github.kotlinmania.starlark.syntax.ast.AstStmt
 import io.github.kotlinmania.starlark.syntax.ast.ExprP
 import io.github.kotlinmania.starlark.syntax.ast.StmtP
 
 internal sealed class UnderscoreWarning : LintWarning {
     /** Underscore definitions should be simple. */
-    data class UnderscoreDefinition(val name: String) : UnderscoreWarning() {
+    data class UnderscoreDefinition(
+        val name: String,
+    ) : UnderscoreWarning() {
         override fun toString(): String = "Underscore definitions should be simple `$name`"
     }
 
     /** Used ignored variable. */
-    data class UsingIgnored(val name: String) : UnderscoreWarning() {
+    data class UsingIgnored(
+        val name: String,
+    ) : UnderscoreWarning() {
         override fun toString(): String = "Used ignored variable `$name`"
     }
 
@@ -44,16 +48,18 @@ internal sealed class UnderscoreWarning : LintWarning {
 
     override fun severity(): EvalSeverity = EvalSeverity.Disabled
 
-    override fun shortName(): String = when (this) {
-        is UnderscoreDefinition -> "underscore-definition"
-        is UsingIgnored -> "using-ignored"
-    }
+    override fun shortName(): String =
+        when (this) {
+            is UnderscoreDefinition -> "underscore-definition"
+            is UsingIgnored -> "using-ignored"
+        }
 
     /** Get the subject of the warning. */
-    fun about(): String = when (this) {
-        is UnderscoreDefinition -> name
-        is UsingIgnored -> name
-    }
+    fun about(): String =
+        when (this) {
+            is UnderscoreDefinition -> name
+            is UsingIgnored -> name
+        }
 }
 
 internal fun underscoreLint(module: AstModule): List<LintT<UnderscoreWarning>> {
@@ -66,14 +72,14 @@ internal fun underscoreLint(module: AstModule): List<LintT<UnderscoreWarning>> {
 // Visit immediate child statements of this AstStmt (local helper).
 private fun AstStmt.visitStmtU(visitor: (AstStmt) -> Unit) {
     when (val s = this.node) {
-        is StmtP.Statements -> s.stmts.forEach { visitor(it as AstStmt) }
+        is StmtP.Statements -> s.stmts.forEach { visitor(it) }
         is StmtP.Def<*, *> -> visitor(s.def.body as AstStmt)
-        is StmtP.If -> visitor(s.suite as AstStmt)
+        is StmtP.If -> visitor(s.suite)
         is StmtP.IfElse -> {
-            visitor(s.suite1 as AstStmt)
-            visitor(s.suite2 as AstStmt)
+            visitor(s.suite1)
+            visitor(s.suite2)
         }
-        is StmtP.For -> visitor(s.forStmt.body as AstStmt)
+        is StmtP.For -> visitor(s.forStmt.body)
         else -> {}
     }
 }
@@ -82,22 +88,23 @@ private fun AstStmt.visitStmtU(visitor: (AstStmt) -> Unit) {
 private fun AstExpr.visitExprU(visitor: (AstExpr) -> Unit) {
     when (val e = this.node) {
         is ExprP.Call -> {
-            visitor(e.expr as AstExpr)
+            visitor(e.expr)
             for (arg in e.args.args) {
-                visitor(arg.node.expr() as AstExpr)
+                visitor(arg.node.expr())
             }
         }
         is ExprP.If -> {
-            visitor(e.cond as AstExpr)
-            visitor(e.v1 as AstExpr)
-            visitor(e.v2 as AstExpr)
+            visitor(e.cond)
+            visitor(e.v1)
+            visitor(e.v2)
         }
-        is ExprP.Tuple -> e.elements.forEach { visitor(it as AstExpr) }
-        is ExprP.ListExpr -> e.elements.forEach { visitor(it as AstExpr) }
-        is ExprP.Dict -> e.elements.forEach { (k, v) ->
-            visitor(k as AstExpr)
-            visitor(v as AstExpr)
-        }
+        is ExprP.Tuple -> e.elements.forEach { visitor(it) }
+        is ExprP.ListExpr -> e.elements.forEach { visitor(it) }
+        is ExprP.Dict ->
+            e.elements.forEach { (k, v) ->
+                visitor(k)
+                visitor(v)
+            }
         is ExprP.Lambda<*, *> -> visitor(e.lambda.body as AstExpr)
         else -> {}
     }
@@ -106,22 +113,22 @@ private fun AstExpr.visitExprU(visitor: (AstExpr) -> Unit) {
 // Visit immediate child expressions of this AstStmt (local helper).
 private fun AstStmt.visitStmtExprU(visitor: (AstExpr) -> Unit) {
     when (val s = this.node) {
-        is StmtP.Expression -> visitor(s.expr as AstExpr)
-        is StmtP.Return -> (s.expr as AstExpr?)?.let(visitor)
-        is StmtP.Statements -> s.stmts.forEach { (it as AstStmt).visitStmtExprU(visitor) }
+        is StmtP.Expression -> visitor(s.expr)
+        is StmtP.Return -> s.expr?.let(visitor)
+        is StmtP.Statements -> s.stmts.forEach { it.visitStmtExprU(visitor) }
         is StmtP.Def<*, *> -> (s.def.body as AstStmt).visitStmtExprU(visitor)
         is StmtP.If -> {
-            visitor(s.cond as AstExpr)
-            (s.suite as AstStmt).visitStmtExprU(visitor)
+            visitor(s.cond)
+            s.suite.visitStmtExprU(visitor)
         }
         is StmtP.IfElse -> {
-            visitor(s.cond as AstExpr)
-            (s.suite1 as AstStmt).visitStmtExprU(visitor)
-            (s.suite2 as AstStmt).visitStmtExprU(visitor)
+            visitor(s.cond)
+            s.suite1.visitStmtExprU(visitor)
+            s.suite2.visitStmtExprU(visitor)
         }
         is StmtP.For -> {
-            visitor(s.forStmt.over as AstExpr)
-            (s.forStmt.body as AstStmt).visitStmtExprU(visitor)
+            visitor(s.forStmt.over)
+            s.forStmt.body.visitStmtExprU(visitor)
         }
         else -> {}
     }
@@ -136,13 +143,12 @@ private fun inappropriateUnderscore(
 ) {
     // Is this value allowed as an assignment to a boring identifier - just tuple of vars and var.
     // fn is_allowed(x: &AstExpr) -> bool
-    fun isAllowed(x: AstExpr): Boolean {
-        return when (val e = x.node) {
+    fun isAllowed(x: AstExpr): Boolean =
+        when (val e = x.node) {
             is ExprP.Tuple<*> -> e.elements.isNotEmpty() && e.elements.all { it.node is ExprP.Identifier<*, *> }
             is ExprP.Identifier<*, *> -> true
             else -> false
         }
-    }
 
     when (val s = x.node) {
         is StmtP.Def<*, *> -> {
@@ -154,32 +160,34 @@ private fun inappropriateUnderscore(
                         codemap,
                         (name as Spanned<*>).span,
                         UnderscoreWarning.UnderscoreDefinition(nameIdent.ident),
-                    )
+                    ),
                 )
             }
             inappropriateUnderscore(codemap, s.def.body as AstStmt, false, res)
         }
         // Stmt::Assign(assign) if !top =>
-        is StmtP.Assign<*> -> if (!top) {
-            val assign = s.assign
-            val lhsNode = (assign.lhs as Spanned<*>).node
-            if (lhsNode is AssignTargetP.Identifier<*, *>) {
-                val identSpanned = lhsNode.ident as Spanned<*>
-                val assignIdent = identSpanned.node as AssignIdentP<*, *>
-                if (assignIdent.ident.startsWith('_') && !isAllowed(assign.rhs as AstExpr)) {
-                    res.add(
-                        LintT.new(
-                            codemap,
-                            identSpanned.span,
-                            UnderscoreWarning.UnderscoreDefinition(assignIdent.ident),
+        is StmtP.Assign<*> ->
+            if (!top) {
+                val assign = s.assign
+                val lhsNode = (assign.lhs as Spanned<*>).node
+                if (lhsNode is AssignTargetP.Identifier<*, *>) {
+                    val identSpanned = lhsNode.ident as Spanned<*>
+                    val assignIdent = identSpanned.node as AssignIdentP<*, *>
+                    if (assignIdent.ident.startsWith('_') && !isAllowed(assign.rhs as AstExpr)) {
+                        res.add(
+                            LintT.new(
+                                codemap,
+                                identSpanned.span,
+                                UnderscoreWarning.UnderscoreDefinition(assignIdent.ident),
+                            ),
                         )
-                    )
+                    }
                 }
             }
-        }
-        else -> x.visitStmtU { child ->
-            inappropriateUnderscore(codemap, child, top, res)
-        }
+        else ->
+            x.visitStmtU { child ->
+                inappropriateUnderscore(codemap, child, top, res)
+            }
     }
 }
 
@@ -194,6 +202,7 @@ private fun useIgnored(
         when (val s = x.node) {
             is StmtP.Assign<*> -> {
                 val lhsNode = (s.assign.lhs as Spanned<*>).node
+
                 fun visitLvalue(target: Any?) {
                     when (target) {
                         is AssignTargetP.Tuple<*> -> target.elements.forEach { visitLvalue((it as Spanned<*>).node) }
@@ -208,6 +217,7 @@ private fun useIgnored(
             }
             is StmtP.AssignModify<*> -> {
                 val lhsNode = (s.lhs as Spanned<*>).node
+
                 fun visitLvalue(target: Any?) {
                     when (target) {
                         is AssignTargetP.Tuple<*> -> target.elements.forEach { visitLvalue((it as Spanned<*>).node) }
@@ -235,9 +245,7 @@ private fun useIgnored(
     }
 
     // fn is_ignored(x: &str) -> bool
-    fun isIgnored(name: String): Boolean {
-        return name.startsWith('_') && !(name.startsWith("__") && name.endsWith("__"))
-    }
+    fun isIgnored(name: String): Boolean = name.startsWith('_') && !(name.startsWith("__") && name.endsWith("__"))
 
     // fn check_expr(codemap: &CodeMap, x: &AstExpr, roots: &HashSet<&str>, res: &mut Vec<LintT<UnderscoreWarning>>)
     fun checkExpr(
@@ -249,6 +257,7 @@ private fun useIgnored(
         when (val e = x.node) {
             is ExprP.Identifier<*, *> -> {
                 val identSpanned = e.ident as Spanned<*>
+
                 @Suppress("UNCHECKED_CAST")
                 val ident = (identSpanned.node as io.github.kotlinmania.starlark.syntax.ast.IdentP<*, *>).ident
                 if (isIgnored(ident) && ident !in roots) {
@@ -257,7 +266,7 @@ private fun useIgnored(
                             codemap,
                             identSpanned.span,
                             UnderscoreWarning.UsingIgnored(ident),
-                        )
+                        ),
                     )
                 }
             }

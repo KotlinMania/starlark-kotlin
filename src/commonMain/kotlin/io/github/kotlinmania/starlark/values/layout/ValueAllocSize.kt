@@ -28,28 +28,23 @@ import io.github.kotlinmania.starlark.values.layout.heap.arena.MIN_ALLOC
 data class ValueAllocSize(
     private val size: AlignedSize,
 ) : Comparable<ValueAllocSize> {
-
-    override fun compareTo(other: ValueAllocSize): Int {
-        return size.compareTo(other.size)
-    }
+    override fun compareTo(other: ValueAllocSize): Int = size.compareTo(other.size)
 
     // impl ValueAllocSize
 
     companion object {
         // pub(crate) fn try_new(size: AlignedSize) -> Option<ValueAllocSize>
-        fun tryNew(size: AlignedSize): ValueAllocSize? {
-            return if (size < MIN_ALLOC) {
+        fun tryNew(size: AlignedSize): ValueAllocSize? =
+            if (size < MIN_ALLOC) {
                 null
             } else {
                 ValueAllocSize(size)
             }
-        }
 
         // pub(crate) fn new(size: AlignedSize) -> ValueAllocSize
-        fun new(size: AlignedSize): ValueAllocSize {
-            return tryNew(size)
+        fun new(size: AlignedSize): ValueAllocSize =
+            tryNew(size)
                 ?: error("$size is too small for a value (minimum is $MIN_ALLOC)")
-        }
     }
 
     // pub(crate) fn layout(self) -> Layout

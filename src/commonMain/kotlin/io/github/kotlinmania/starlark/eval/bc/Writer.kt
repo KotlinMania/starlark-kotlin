@@ -21,7 +21,6 @@ package io.github.kotlinmania.starlark.eval.bc
 
 /** Bytecode writer. */
 
-import kotlin.math.max
 import io.github.kotlinmania.starlark.eval.compiler.MaybeNot
 import io.github.kotlinmania.starlark.eval.runtime.FrameSpan
 import io.github.kotlinmania.starlark.eval.runtime.LocalCapturedSlotId
@@ -29,6 +28,7 @@ import io.github.kotlinmania.starlark.eval.runtime.LocalSlotId
 import io.github.kotlinmania.starlark.values.layout.FrozenValue
 import io.github.kotlinmania.starlark.values.layout.heap.FrozenHeap
 import io.github.kotlinmania.starlark.values.layout.typed.FrozenStringValue
+import kotlin.math.max
 
 // --- BcStmtLoc ---
 
@@ -227,17 +227,13 @@ internal class BcWriter(
         instrName: String,
         slowArg: BcInstrSlowArg,
         arg: Any,
-    ): Pair<BcAddr, Int> {
-        return doWriteGenericExplicit(instrName, slowArg, arg)
-    }
+    ): Pair<BcAddr, Int> = doWriteGenericExplicit(instrName, slowArg, arg)
 
     private fun writeInstrRetArg(
         instrName: String,
         span: FrameSpan,
         arg: Any,
-    ): Pair<BcAddr, Int> {
-        return writeInstrRetArgExplicit(instrName, BcInstrSlowArg(span), arg)
-    }
+    ): Pair<BcAddr, Int> = writeInstrRetArgExplicit(instrName, BcInstrSlowArg(span), arg)
 
     fun writeInstrExplicit(
         instrName: String,
@@ -376,22 +372,24 @@ internal class BcWriter(
         val forLoop = forLoops.last()
         val jumpBack = ip().offsetFrom(forLoop.innerAddr).neg()
         val loopVariable = forLoop.loopVariable
-        val (addr, argIndex) = writeInstrRetArg(
-            "InstrContinue",
-            span,
-            listOf(forLoop.iter, loopDepth, loopVariable, jumpBack, BcAddrOffset.FORWARD),
-        )
+        val (addr, argIndex) =
+            writeInstrRetArg(
+                "InstrContinue",
+                span,
+                listOf(forLoop.iter, loopDepth, loopVariable, jumpBack, BcAddrOffset.FORWARD),
+            )
         val endPatch = instrs.addrToPatch(addr, argIndex)
         forLoops.last().endAddrsToPatch.add(endPatch)
     }
 
     fun writeBreak(span: FrameSpan) {
         val forLoop = forLoops.last()
-        val (addr, argIndex) = writeInstrRetArg(
-            "InstrBreak",
-            span,
-            forLoop.iter to BcAddrOffset.FORWARD,
-        )
+        val (addr, argIndex) =
+            writeInstrRetArg(
+                "InstrBreak",
+                span,
+                forLoop.iter to BcAddrOffset.FORWARD,
+            )
         val endPatch = instrs.addrToPatch(addr, argIndex)
         forLoops.last().endAddrsToPatch.add(endPatch)
     }
@@ -410,18 +408,21 @@ internal class BcWriter(
             val saved = bc.saveDefinitelyAssigned()
 
             val loopDepth = LoopDepth(bc.forLoops.size)
-            val (addr, argIndex) = bc.writeInstrRetArg(
-                "InstrIter",
-                span,
-                listOf(over, loopDepth, iter.toOut(), loopVariable, BcAddrOffset.FORWARD),
-            )
+            val (addr, argIndex) =
+                bc.writeInstrRetArg(
+                    "InstrIter",
+                    span,
+                    listOf(over, loopDepth, iter.toOut(), loopVariable, BcAddrOffset.FORWARD),
+                )
             val endPatch = bc.instrs.addrToPatch(addr, argIndex)
-            bc.forLoops.add(BcWriterForLoop(
-                innerAddr = bc.ip(),
-                endAddrsToPatch = mutableListOf(endPatch),
-                loopVariable = loopVariable,
-                iter = iter.toIn(),
-            ))
+            bc.forLoops.add(
+                BcWriterForLoop(
+                    innerAddr = bc.ip(),
+                    endAddrsToPatch = mutableListOf(endPatch),
+                    loopVariable = loopVariable,
+                    iter = iter.toIn(),
+                ),
+            )
             bc.maxLoopDepth = maxOf(bc.maxLoopDepth, LoopDepth(bc.forLoops.size))
             body(bc)
             bc.writeContinue(span)
@@ -473,9 +474,7 @@ internal class BcWriter(
         definitelyAssigned.markDefinitelyAssigned(local)
     }
 
-    fun saveDefinitelyAssigned(): BcDefinitelyAssigned {
-        return definitelyAssigned.copy()
-    }
+    fun saveDefinitelyAssigned(): BcDefinitelyAssigned = definitelyAssigned.copy()
 
     fun restoreDefinitelyAssigned(saved: BcDefinitelyAssigned) {
         saved.assertSmallerThan(definitelyAssigned)
@@ -497,10 +496,11 @@ internal class BcWriter(
 
     /** Allocate several slots for the duration of callback run. */
     fun <R> allocSlots(count: Int, k: (BcSlotRange, BcWriter) -> R): R {
-        val slots = BcSlotRange(
-            start = BcSlot((localCount() + stackSize).toUInt()),
-            end = BcSlot((localCount() + stackSize + count).toUInt()),
-        )
+        val slots =
+            BcSlotRange(
+                start = BcSlot((localCount() + stackSize).toUInt()),
+                end = BcSlot((localCount() + stackSize + count).toUInt()),
+            )
         stackAdd(count)
         val r = k(slots, this)
         stackSub(count)
@@ -509,9 +509,7 @@ internal class BcWriter(
 
     /** Allocate several slots as [BcSlotsN], wrapping [allocSlots]. */
     // pub(crate) fn alloc_slots_c<const N: usize, R>(&mut self, k: impl FnOnce(BcSlotsN<N>, &mut BcWriter) -> R) -> R
-    fun <R> allocSlotsC(count: Int, k: (BcSlotsN, BcWriter) -> R): R {
-        return allocSlots(count) { slots, bc -> k(BcSlotsN.fromRange(count, slots), bc) }
-    }
+    fun <R> allocSlotsC(count: Int, k: (BcSlotsN, BcWriter) -> R): R = allocSlots(count) { slots, bc -> k(BcSlotsN.fromRange(count, slots), bc) }
 
     /** Allocate several slots for typical compilation of several expressions. */
     fun <K, R> allocSlotsForExprs(
@@ -532,14 +530,15 @@ internal class BcWriter(
             expr(end, item, this)
             end = BcSlot(end.index + 1.toUInt())
         }
-        val range = if (end.index == start.index) {
-            // This is not really necessary, empty range is equally valid
-            // with any starting point, but this makes bytecode output
-            // (in particular, in golden tests) more readable.
-            BcSlotInRange.default()
-        } else {
-            BcSlotRange(start, end).toIn()
-        }
+        val range =
+            if (end.index == start.index) {
+                // This is not really necessary, empty range is equally valid
+                // with any starting point, but this makes bytecode output
+                // (in particular, in golden tests) more readable.
+                BcSlotInRange.default()
+            } else {
+                BcSlotRange(start, end).toIn()
+            }
         val r = k(range, this)
         stackSub((end.index - start.index).toInt())
         return r

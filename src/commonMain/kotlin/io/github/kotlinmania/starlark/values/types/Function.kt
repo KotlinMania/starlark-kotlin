@@ -27,6 +27,9 @@ import io.github.kotlinmania.starlark.docs.DocProperty
 import io.github.kotlinmania.starlark.docs.DocString
 import io.github.kotlinmania.starlark.docs.DocStringKind
 import io.github.kotlinmania.starlark.docs.fromDocstring
+import io.github.kotlinmania.starlark.eval.runtime.Arguments
+import io.github.kotlinmania.starlark.eval.runtime.Evaluator
+import io.github.kotlinmania.starlark.eval.runtime.params.spec.ParametersSpec
 import io.github.kotlinmania.starlark.typing.ArcTy
 import io.github.kotlinmania.starlark.typing.Ty
 import io.github.kotlinmania.starlark.typing.TyBasic
@@ -35,26 +38,25 @@ import io.github.kotlinmania.starlark.values.AllocFrozenValue
 import io.github.kotlinmania.starlark.values.AllocValue
 import io.github.kotlinmania.starlark.values.ComplexValue
 import io.github.kotlinmania.starlark.values.Freeze
-import io.github.kotlinmania.starlark.values.layout.Freezer
-import io.github.kotlinmania.starlark.values.layout.heap.FrozenHeap
-import io.github.kotlinmania.starlark.values.layout.FrozenValue
-import io.github.kotlinmania.starlark.values.StarlarkValue
 import io.github.kotlinmania.starlark.values.StarlarkTypeRepr
+import io.github.kotlinmania.starlark.values.StarlarkValue
 import io.github.kotlinmania.starlark.values.ValueError
-import io.github.kotlinmania.starlark.values.types.ellipsis.Ellipsis
-import io.github.kotlinmania.starlark.values.typing.type_compiled.TypeCompiled
-import io.github.kotlinmania.starlark.values.layout.ValueLike
-import io.github.kotlinmania.starlark.eval.runtime.Evaluator
-import io.github.kotlinmania.starlark.eval.runtime.Arguments
-import io.github.kotlinmania.starlark.eval.runtime.params.spec.ParametersSpec
-import io.github.kotlinmania.starlark.values.layout.heap.Heap
-import io.github.kotlinmania.starlark.values.layout.Value
+import io.github.kotlinmania.starlark.values.layout.Freezer
+import io.github.kotlinmania.starlark.values.layout.FrozenValue
 import io.github.kotlinmania.starlark.values.layout.FrozenValueTyped
+import io.github.kotlinmania.starlark.values.layout.Value
+import io.github.kotlinmania.starlark.values.layout.ValueLike
 import io.github.kotlinmania.starlark.values.layout.avalues.simple.allocSimple
+import io.github.kotlinmania.starlark.values.layout.heap.FrozenHeap
+import io.github.kotlinmania.starlark.values.layout.heap.Heap
+import io.github.kotlinmania.starlark.values.types.ellipsis.Ellipsis
+import io.github.kotlinmania.starlark.values.typing.typecompiled.TypeCompiled
 
 // #[derive(Debug, thiserror::Error)]
 // enum FunctionError
-internal sealed class FunctionError(message: String) : Exception(message) {
+internal sealed class FunctionError(
+    message: String,
+) : Exception(message) {
     // #[error("`tuple[]` is implemented only for `tuple[T, ...]`")]
     // TupleOnlyEllipsis
     class TupleOnlyEllipsis : FunctionError("`tuple[]` is implemented only for `tuple[T, ...]`")
@@ -69,9 +71,7 @@ const val FUNCTION_TYPE: String = "function"
 internal object StarlarkFunction : StarlarkTypeRepr {
     // impl StarlarkTypeRepr for StarlarkFunction
     // fn starlark_type_repr() -> Ty
-    override fun starlarkTypeRepr(): Ty {
-        return Ty.anyCallable()
-    }
+    override fun starlarkTypeRepr(): Ty = Ty.anyCallable()
 }
 
 // #[derive(Debug, Allocative, Clone, Copy, Dupe)]
@@ -95,9 +95,7 @@ internal class NativeFunc(
     val parametersSpec: ParametersSpec<FrozenValue>,
 ) {
     // pub(crate) fn invoke<'v>(&self, eval: &mut Evaluator<'v, '_, '_>, args: &Arguments<'v, '_>) -> crate::Result<Value<'v>>
-    fun invoke(eval: Evaluator, args: Arguments): Result<Value> {
-        return function(eval, parametersSpec, args)
-    }
+    fun invoke(eval: Evaluator, args: Arguments): Result<Value> = function(eval, parametersSpec, args)
 }
 
 /**
@@ -117,8 +115,9 @@ internal class NativeFunction(
     val speculativeExecSafe: Boolean,
     val docs: DocItem,
     val specialBuiltinFunction: SpecialBuiltinFunction?,
-) : StarlarkValue, AllocFrozenValue, AllocValue {
-
+) : StarlarkValue,
+    AllocFrozenValue,
+    AllocValue {
     // #[starlark_value(type = FUNCTION_TYPE)]
     override val TYPE: String get() = FUNCTION_TYPE
     override val HAS_invoke: Boolean get() = true
@@ -130,19 +129,13 @@ internal class NativeFunction(
     override fun toString(): String = name
 
     // impl AllocFrozenValue for NativeFunction
-    override fun allocFrozenValue(heap: FrozenHeap): FrozenValue {
-        return heap.allocSimple(this)
-    }
+    override fun allocFrozenValue(heap: FrozenHeap): FrozenValue = heap.allocSimple(this)
 
     // impl AllocValue for NativeFunction
-    override fun allocValue(heap: Heap): Value {
-        return heap.allocSimple(this)
-    }
+    override fun allocValue(heap: Heap): Value = heap.allocSimple(this)
 
     // fn invoke(&self, _me: Value<'v>, args: &Arguments<'v, '_>, eval: &mut Evaluator<'v, '_, '_>) -> crate::Result<Value<'v>>
-    override fun invoke(me: Value, args: Arguments, eval: Evaluator): Result<Value> {
-        return function.invoke(eval, args)
-    }
+    override fun invoke(me: Value, args: Arguments, eval: Evaluator): Result<Value> = function.invoke(eval, args)
 
     // fn get_attr(&self, attribute: &str, heap: Heap<'v>) -> Option<Value<'v>>
     override fun getAttr(attribute: String, heap: Heap): Value? {
@@ -157,18 +150,15 @@ internal class NativeFunction(
     override fun evalType(): Ty? = asType
 
     // fn has_attr(&self, _attribute: &str, _heap: Heap<'v>) -> bool
-    override fun hasAttr(attribute: String, heap: Heap): Boolean {
-        return false
-    }
+    override fun hasAttr(attribute: String, heap: Heap): Boolean = false
 
     // fn dir_attr(&self) -> Vec<String>
-    override fun dirAttr(): kotlin.collections.List<String> {
-        return if (asType != null) {
+    override fun dirAttr(): kotlin.collections.List<String> =
+        if (asType != null) {
             listOf("type")
         } else {
             emptyList()
         }
-    }
 
     // fn documentation(&self) -> DocItem
     override fun documentation(): DocItem = docs
@@ -203,10 +193,11 @@ internal class NativeFunction(
                 val item = runCatching { TypeCompiled.new(index0, heap) }.getOrElse { return Result.failure(it) }
                 if (index1.downcastRef<Ellipsis>() != null) {
                     Result.success(
-                        TypeCompiled.fromTy(
-                            Ty.basic(TyBasic.Tuple(TyTuple.Of(ArcTy.new(item.asTy())))),
-                            heap,
-                        ).toInner(),
+                        TypeCompiled
+                            .fromTy(
+                                Ty.basic(TyBasic.Tuple(TyTuple.Of(ArcTy.new(item.asTy())))),
+                                heap,
+                            ).toInner(),
                     )
                 } else {
                     Result.failure(FunctionError.TupleOnlyEllipsis())
@@ -229,9 +220,7 @@ internal class NativeMeth(
     val parametersSpec: ParametersSpec<FrozenValue>,
 ) {
     // pub(crate) fn invoke<'v>(&self, eval: &mut Evaluator<'v, '_, '_>, this: Value<'v>, args: &Arguments<'v, '_>) -> crate::Result<Value<'v>>
-    fun invoke(eval: Evaluator, thisValue: Value, args: Arguments): Result<Value> {
-        return function(eval, thisValue, parametersSpec, args)
-    }
+    fun invoke(eval: Evaluator, thisValue: Value, args: Arguments): Result<Value> = function(eval, thisValue, parametersSpec, args)
 }
 
 // #[derive(Derivative, Display, NoSerialize, ProvidesStaticType, Allocative)]
@@ -280,9 +269,7 @@ internal class NativeAttribute(
     override fun toString(): String = "Attribute"
 
     // pub(crate) fn invoke<'v>(&self, this: Value<'v>, heap: Heap<'v>) -> crate::Result<Value<'v>>
-    fun invoke(thisValue: Value, heap: Heap): Result<Value> {
-        return callable(data, thisValue, heap)
-    }
+    fun invoke(thisValue: Value, heap: Heap): Result<Value> = callable(data, thisValue, heap)
 
     // fn documentation(&self) -> DocItem
     override fun documentation(): DocItem {
@@ -298,8 +285,8 @@ internal class NativeAttribute(
 internal class BoundMethodGen<V>(
     val method: FrozenValueTyped<NativeMethod>,
     val thisValue: V,
-) : ComplexValue, Freeze<BoundMethodGen<FrozenValue>> {
-
+) : ComplexValue,
+    Freeze<BoundMethodGen<FrozenValue>> {
     // starlark_complex_value!(pub(crate) BoundMethod)
     // Generated type aliases:
     //   pub(crate) type BoundMethod<'v> = BoundMethodGen<Value<'v>>;
@@ -318,17 +305,16 @@ internal class BoundMethodGen<V>(
     // pub(crate) fn new(this: V, method: FrozenValueTyped<'static, NativeMethod>) -> Self
 
     /** Convert thisValue to a Value, regardless of whether V is Value or FrozenValue. */
-    private fun thisAsValue(): Value = when (val v = thisValue) {
-        is Value -> v
-        is FrozenValue -> v.toValue()
-        is ValueLike -> v.toValue()
-        else -> error("BoundMethodGen: unexpected thisValue type: ${v?.let { it::class }}")
-    }
+    private fun thisAsValue(): Value =
+        when (val v = thisValue) {
+            is Value -> v
+            is FrozenValue -> v.toValue()
+            is ValueLike -> v.toValue()
+            else -> error("BoundMethodGen: unexpected thisValue type: ${v?.let { it::class }}")
+        }
 
     // fn invoke(&self, _me: Value<'v>, args: &Arguments<'v, '_>, eval: &mut Evaluator<'v, '_, '_>) -> crate::Result<Value<'v>>
-    override fun invoke(me: Value, args: Arguments, eval: Evaluator): Result<Value> {
-        return method.asRef().function.invoke(eval, thisAsValue(), args)
-    }
+    override fun invoke(me: Value, args: Arguments, eval: Evaluator): Result<Value> = method.asRef().function.invoke(eval, thisAsValue(), args)
 
     // fn documentation(&self) -> DocItem
     override fun documentation(): DocItem = method.asRef().documentation()

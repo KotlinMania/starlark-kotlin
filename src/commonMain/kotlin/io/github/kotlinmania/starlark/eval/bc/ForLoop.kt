@@ -21,20 +21,23 @@ package io.github.kotlinmania.starlark.eval.bc
 
 // use dupe::Dupe;
 
-/// Depth of the loop. For example,
-///
-/// ```text
-/// def foo():
-///   for i in range(10): # depth 0
-///     for j in range(20): # depth 1
-///       pass
-/// ```
+// / Depth of the loop. For example,
+// /
+// / ```text
+// / def foo():
+// /   for i in range(10): # depth 0
+// /     for j in range(20): # depth 1
+// /       pass
+// / ```
 // #[derive(
 //     Default, Debug, Copy, Clone, Dupe, derive_more::Display,
 //     Eq, PartialEq, Ord, PartialOrd
 // )]
 // pub(crate) struct LoopDepth(pub(crate) u32);
-data class LoopDepth(val depth: Int = 0) : Comparable<LoopDepth> {
+data class LoopDepth(
+    val depth: Int = 0,
+) : Comparable<LoopDepth> {
     override fun compareTo(other: LoopDepth): Int = depth.compareTo(other.depth)
+
     override fun toString(): String = depth.toString()
 }

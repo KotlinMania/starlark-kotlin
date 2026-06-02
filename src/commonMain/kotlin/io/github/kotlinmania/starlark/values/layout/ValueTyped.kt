@@ -24,21 +24,21 @@ package io.github.kotlinmania.starlark.values.layout
  *  - typed/String.kt (string)
  */
 
+import io.github.kotlinmania.starlark.collections.Hashed
+import io.github.kotlinmania.starlark.collections.StarlarkHashValue
 import io.github.kotlinmania.starlark.typing.Ty
-import io.github.kotlinmania.starlark.values.layout.heap.FrozenHeap
 import io.github.kotlinmania.starlark.values.FrozenRef
 import io.github.kotlinmania.starlark.values.StarlarkValue
 import io.github.kotlinmania.starlark.values.ValueOfUncheckedGeneric
-import io.github.kotlinmania.starlark.values.layout.typed.FrozenStringValue
-import io.github.kotlinmania.starlark.values.layout.typed.StringValue
-import io.github.kotlinmania.starlark.values.layout.typed.StarlarkStr
 import io.github.kotlinmania.starlark.values.layout.heap.AValueRepr
+import io.github.kotlinmania.starlark.values.layout.heap.FrozenHeap
 import io.github.kotlinmania.starlark.values.layout.heap.Heap
 import io.github.kotlinmania.starlark.values.layout.heap.Tracer
 import io.github.kotlinmania.starlark.values.layout.heap.ValueHolder
+import io.github.kotlinmania.starlark.values.layout.typed.FrozenStringValue
+import io.github.kotlinmania.starlark.values.layout.typed.StarlarkStr
+import io.github.kotlinmania.starlark.values.layout.typed.StringValue
 import io.github.kotlinmania.starlark.values.types.int.PointerI32
-import io.github.kotlinmania.starlark.collections.Hashed
-import io.github.kotlinmania.starlark.collections.StarlarkHashValue
 
 /** [Value] wrapper which asserts contained value is of type `<T>`. */
 // pub struct ValueTyped<'v, T: StarlarkValue<'v>>(Value<'v>, marker::PhantomData<T>)
@@ -83,11 +83,12 @@ class ValueTyped<T : StarlarkValue>(
     // pub fn hashed(self) -> crate::Result<Hashed<Self>>
     fun hashed(): Result<Hashed<ValueTyped<T>>> {
         val s = toValue().unpackStarlarkStr()
-        val hash: StarlarkHashValue = if (s != null) {
-            s.getHash().getOrElse { return Result.failure(it) }
-        } else {
-            toValue().getHash().getOrElse { return Result.failure(it) }
-        }
+        val hash: StarlarkHashValue =
+            if (s != null) {
+                s.getHash().getOrElse { return Result.failure(it) }
+            } else {
+                toValue().getHash().getOrElse { return Result.failure(it) }
+            }
         return Result.success(Hashed.newUnchecked(hash, this))
     }
 
@@ -161,7 +162,11 @@ class FrozenValueTyped<T : StarlarkValue>(
     /** Get the reference to the pointed value. */
     // pub fn as_ref(self) -> &'v T
     @Suppress("UNCHECKED_CAST")
-    fun asRef(): T = frozenValue.toValue().getRef().value.ptr as T
+    fun asRef(): T =
+        frozenValue
+            .toValue()
+            .getRef()
+            .value.ptr as T
 
     // pub(crate) fn as_frozen_ref(self) -> FrozenRef<'v, T>
     internal fun asFrozenRef(): FrozenRef<T> = FrozenRef.new(asRef())
@@ -242,7 +247,9 @@ fun <T : StarlarkValue> ValueTyped<T>.trace(tracer: Tracer) {
  * Frozen values do not need tracing.
  */
 // unsafe impl<'v, 'f, T: StarlarkValue<'f>> Trace<'v> for FrozenValueTyped<'f, T>
-fun <T : StarlarkValue> FrozenValueTyped<T>.trace(@Suppress("UNUSED_PARAMETER") tracer: Tracer) {
+fun <T : StarlarkValue> FrozenValueTyped<T>.trace(
+    @Suppress("UNUSED_PARAMETER") tracer: Tracer,
+) {
     // Nothing to do: frozen values are immutable and not subject to GC forwarding.
 }
 
@@ -291,8 +298,8 @@ internal inline fun <reified T : StarlarkValue> unpackFrozenValueTyped(value: Va
         // Value is of the right type but not frozen
         return Result.failure(
             IllegalArgumentException(
-                "Expected frozen value of type `${T::class.simpleName}`, got unfrozen: `${value.toStringForTypeError()}`"
-            )
+                "Expected frozen value of type `${T::class.simpleName}`, got unfrozen: `${value.toStringForTypeError()}`",
+            ),
         )
     }
     return Result.success(null)
@@ -305,17 +312,15 @@ internal inline fun <reified T : StarlarkValue> unpackFrozenValueTyped(value: Va
  * while Rust's StarlarkValue does.
  */
 @Suppress("UNCHECKED_CAST")
-internal fun valueOfUncheckedFromValue(value: Value): ValueOfUncheckedGeneric<Value, *> {
-    return ValueOfUncheckedGeneric.new<Value, io.github.kotlinmania.starlark.values.StarlarkTypeRepr>(value)
+internal fun valueOfUncheckedFromValue(value: Value): ValueOfUncheckedGeneric<Value, *> =
+    ValueOfUncheckedGeneric.new<Value, io.github.kotlinmania.starlark.values.StarlarkTypeRepr>(value)
         as ValueOfUncheckedGeneric<Value, *>
-}
 
 /**
  * Helper to create [ValueOfUncheckedGeneric] from a [FrozenValue] without requiring
  * the phantom type parameter to satisfy [StarlarkTypeRepr].
  */
 @Suppress("UNCHECKED_CAST")
-internal fun frozenValueOfUncheckedFromFrozenValue(value: FrozenValue): ValueOfUncheckedGeneric<FrozenValue, *> {
-    return ValueOfUncheckedGeneric.new<FrozenValue, io.github.kotlinmania.starlark.values.StarlarkTypeRepr>(value)
+internal fun frozenValueOfUncheckedFromFrozenValue(value: FrozenValue): ValueOfUncheckedGeneric<FrozenValue, *> =
+    ValueOfUncheckedGeneric.new<FrozenValue, io.github.kotlinmania.starlark.values.StarlarkTypeRepr>(value)
         as ValueOfUncheckedGeneric<FrozenValue, *>
-}

@@ -11,4 +11,3 @@ class Box<T>(
 ) {
     fun asMut(): T = value
 }
-

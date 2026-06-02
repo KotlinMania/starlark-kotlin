@@ -26,7 +26,9 @@ import kotlin.reflect.KClass
 /** Address relative to bytecode start. */
 // #[derive(Eq, PartialEq, Copy, Clone, Dupe, Debug, PartialOrd, Ord, Display, Hash, Default)]
 // pub(crate) struct BcAddr(pub(crate) u32);
-data class BcAddr(val value: UInt) : Comparable<BcAddr> {
+data class BcAddr(
+    val value: UInt,
+) : Comparable<BcAddr> {
     constructor() : this(0u)
 
     override fun toString(): String = "@$value"
@@ -42,14 +44,10 @@ data class BcAddr(val value: UInt) : Comparable<BcAddr> {
     }
 
     // pub(crate) fn offset(self, offset: BcAddrOffset) -> BcAddr
-    fun offset(offset: BcAddrOffset): BcAddr {
-        return BcAddr(this.value + offset.value)
-    }
+    fun offset(offset: BcAddrOffset): BcAddr = BcAddr(this.value + offset.value)
 
     // pub(crate) fn offset_neg(self, offset: BcAddrOffsetNeg) -> BcAddr
-    fun offsetNeg(offset: BcAddrOffsetNeg): BcAddr {
-        return BcAddr(this.value - offset.value)
-    }
+    fun offsetNeg(offset: BcAddrOffsetNeg): BcAddr = BcAddr(this.value - offset.value)
 
     // impl Sub<u32> for BcAddr
     operator fun minus(rhs: UInt): BcAddr {
@@ -58,9 +56,7 @@ data class BcAddr(val value: UInt) : Comparable<BcAddr> {
     }
 
     // impl Add<u32> for BcAddr
-    operator fun plus(rhs: UInt): BcAddr {
-        return BcAddr(this.value + rhs)
-    }
+    operator fun plus(rhs: UInt): BcAddr = BcAddr(this.value + rhs)
 
     // impl AddAssign<u32> for BcAddr
     // Note: BcAddr is immutable in Kotlin (data class), so no += operator.
@@ -82,20 +78,18 @@ data class BcPtrRange(
 ) {
     companion object {
         // pub(crate) fn for_slice(slice: &[u64]) -> BcPtrRange
-        fun forSlice(slice: LongArray): BcPtrRange {
-            return BcPtrRange(
+        fun forSlice(slice: LongArray): BcPtrRange =
+            BcPtrRange(
                 start = 0,
                 len = slice.size * Long.SIZE_BYTES,
             )
-        }
 
         /** Overload for list-based instruction buffers (used by BcInstrs). */
-        fun forSlice(slice: List<Any>): BcPtrRange {
-            return BcPtrRange(
+        fun forSlice(slice: List<Any>): BcPtrRange =
+            BcPtrRange(
                 start = 0,
                 len = slice.size,
             )
-        }
     }
 
     // pub(crate) fn assert_in_range(&self, ptr: *const u8)
@@ -105,9 +99,7 @@ data class BcPtrRange(
     }
 
     // fn end(&self) -> *const u8
-    fun end(): Int {
-        return start + len
-    }
+    fun end(): Int = start + len
 }
 
 /**
@@ -136,44 +128,38 @@ data class BcPtrAddr(
 
         /** Create a pointer for the beginning of the slice. */
         // pub(crate) fn for_slice_start(slice: &'b [u64]) -> BcPtrAddr<'b>
-        fun forSliceStart(slice: LongArray): BcPtrAddr {
-            return new(
+        fun forSliceStart(slice: LongArray): BcPtrAddr =
+            new(
                 0,
                 IfDebug.new(BcPtrRange.forSlice(slice)),
             )
-        }
 
         /** Create a pointer for the end of the slice. */
         // pub(crate) fn for_slice_end(slice: &'b [u64]) -> BcPtrAddr<'b>
-        fun forSliceEnd(slice: LongArray): BcPtrAddr {
-            return new(
+        fun forSliceEnd(slice: LongArray): BcPtrAddr =
+            new(
                 slice.size * Long.SIZE_BYTES,
                 IfDebug.new(BcPtrRange.forSlice(slice)),
             )
-        }
 
         /** Overload for list-based instruction buffers (used by BcInstrs). */
-        fun forSliceStart(slice: List<Any>): BcPtrAddr {
-            return BcPtrAddr(
+        fun forSliceStart(slice: List<Any>): BcPtrAddr =
+            BcPtrAddr(
                 0,
                 IfDebug.new(BcPtrRange.forSlice(slice)),
             )
-        }
 
         /** Overload for list-based instruction buffers (used by BcInstrs). */
-        fun forSliceEnd(slice: List<Any>): BcPtrAddr {
-            return BcPtrAddr(
+        fun forSliceEnd(slice: List<Any>): BcPtrAddr =
+            BcPtrAddr(
                 slice.size,
                 IfDebug.new(BcPtrRange.forSlice(slice)),
             )
-        }
     }
 
     /** Distance from current ptr to the end of instructions. */
     // fn remaining_if_debug(self) -> usize
-    private fun remainingIfDebug(): Int {
-        return range.getRefIfDebug().end() - offset
-    }
+    private fun remainingIfDebug(): Int = range.getRefIfDebug().end() - offset
 
     // pub(crate) fn get_instr<I: BcInstr>(self) -> &'b BcInstrRepr<I>
     fun <I : BcInstr> getInstr(instrClass: KClass<I>, instrs: Any): BcInstrRepr<I> {
@@ -187,13 +173,12 @@ data class BcPtrAddr(
     }
 
     // pub(crate) fn get_instr_checked<I: BcInstr>(self) -> Option<&'b BcInstrRepr<I>>
-    fun <I : BcInstr> getInstrChecked(instrClass: KClass<I>, instrs: Any): BcInstrRepr<I>? {
-        return if (getOpcode(instrs) == BcOpcode.forInstr(instrClass)) {
+    fun <I : BcInstr> getInstrChecked(instrClass: KClass<I>, instrs: Any): BcInstrRepr<I>? =
+        if (getOpcode(instrs) == BcOpcode.forInstr(instrClass)) {
             getInstr(instrClass, instrs)
         } else {
             null
         }
-    }
 
     // pub(crate) fn get_opcode(self) -> BcOpcode
     fun getOpcode(instrs: Any): BcOpcode {
@@ -210,45 +195,33 @@ data class BcPtrAddr(
     }
 
     // fn sub_usize(self, offset: usize) -> BcPtrAddr<'b>
-    private fun subInt(offset: Int): BcPtrAddr {
-        return new(this.offset - offset, this.range)
-    }
+    private fun subInt(offset: Int): BcPtrAddr = new(this.offset - offset, this.range)
 
     // pub(crate) fn sub(self, start: BcAddr) -> BcPtrAddr<'b>
-    fun sub(start: BcAddr): BcPtrAddr {
-        return subInt(start.value.toInt())
-    }
+    fun sub(start: BcAddr): BcPtrAddr = subInt(start.value.toInt())
 
     // pub(crate) fn offset(self, addr: BcAddr) -> BcPtrAddr<'b>
-    fun offset(addr: BcAddr): BcPtrAddr {
-        return add(addr.value.toInt())
-    }
+    fun offset(addr: BcAddr): BcPtrAddr = add(addr.value.toInt())
 
     // pub(crate) fn add_rel(self, rel: BcAddrOffset) -> BcPtrAddr<'b>
-    fun addRel(rel: BcAddrOffset): BcPtrAddr {
-        return add(rel.value.toInt())
-    }
+    fun addRel(rel: BcAddrOffset): BcPtrAddr = add(rel.value.toInt())
 
     // pub(crate) fn add_rel_neg(self, rel: BcAddrOffsetNeg) -> BcPtrAddr<'b>
-    fun addRelNeg(rel: BcAddrOffsetNeg): BcPtrAddr {
-        return subInt(rel.value.toInt())
-    }
+    fun addRelNeg(rel: BcAddrOffsetNeg): BcPtrAddr = subInt(rel.value.toInt())
 
     // pub(crate) fn add(self, offset: usize) -> BcPtrAddr<'b>
-    fun add(offset: Int): BcPtrAddr {
-        return new(this.offset + offset, this.range)
-    }
+    fun add(offset: Int): BcPtrAddr = new(this.offset + offset, this.range)
 
     // pub(crate) fn add_instr<I: BcInstr>(self) -> BcPtrAddr<'b>
-    fun <I : BcInstr> addInstr(instrClass: KClass<I>): BcPtrAddr {
-        return addRel(BcAddrOffset.forInstr(instrClass))
-    }
+    fun <I : BcInstr> addInstr(instrClass: KClass<I>): BcPtrAddr = addRel(BcAddrOffset.forInstr(instrClass))
 }
 
 /** Difference between addresses. */
 // #[derive(Eq, PartialEq, Copy, Clone, Dupe, Debug, PartialOrd, Ord, Display)]
 // pub(crate) struct BcAddrOffset(pub(crate) u32);
-data class BcAddrOffset(val value: UInt) : Comparable<BcAddrOffset> {
+data class BcAddrOffset(
+    val value: UInt,
+) : Comparable<BcAddrOffset> {
     override fun toString(): String = value.toString()
 
     override fun compareTo(other: BcAddrOffset): Int = value.compareTo(other.value)
@@ -267,15 +240,15 @@ data class BcAddrOffset(val value: UInt) : Comparable<BcAddrOffset> {
     }
 
     // pub(crate) fn neg(self) -> BcAddrOffsetNeg
-    fun neg(): BcAddrOffsetNeg {
-        return BcAddrOffsetNeg(this.value)
-    }
+    fun neg(): BcAddrOffsetNeg = BcAddrOffsetNeg(this.value)
 }
 
 /** Negative difference between addresses. */
 // #[derive(Eq, PartialEq, Copy, Clone, Dupe, Debug, PartialOrd, Ord, Display)]
 // pub(crate) struct BcAddrOffsetNeg(pub(crate) u32);
-data class BcAddrOffsetNeg(val value: UInt) : Comparable<BcAddrOffsetNeg> {
+data class BcAddrOffsetNeg(
+    val value: UInt,
+) : Comparable<BcAddrOffsetNeg> {
     override fun toString(): String = value.toString()
 
     override fun compareTo(other: BcAddrOffsetNeg): Int = value.compareTo(other.value)

@@ -23,9 +23,9 @@ package io.github.kotlinmania.starlark.values.types.record
 
 import io.github.kotlinmania.starlark.collections.SmallMap
 import io.github.kotlinmania.starlark.environment.GlobalsBuilder
-import io.github.kotlinmania.starlark.values.types.record.record_type.RecordTypeGen
-import io.github.kotlinmania.starlark.values.typing.type_compiled.TypeCompiled
 import io.github.kotlinmania.starlark.values.layout.Value
+import io.github.kotlinmania.starlark.values.types.record.recordtype.RecordTypeGen
+import io.github.kotlinmania.starlark.values.typing.typecompiled.TypeCompiled
 
 // #[starlark_module]
 // pub(crate) fn register_record(builder: &mut GlobalsBuilder)
@@ -78,11 +78,12 @@ internal fun registerRecord(builder: GlobalsBuilder) {
         for ((k, v) in kwargs.iter()) {
             val key = k.asStr()
             val value = v
-            val field = Field.fromValue(value)
-                ?: Field.new(
-                    runCatching { TypeCompiled.new(value, eval.heap()) }.getOrElse { return@setFunction Result.failure<Value>(it) },
-                    null,
-                )
+            val field =
+                Field.fromValue(value)
+                    ?: Field.new(
+                        runCatching { TypeCompiled.new(value, eval.heap()) }.getOrElse { return@setFunction Result.failure<Value>(it) },
+                        null,
+                    )
             mp.insert(key, field)
         }
         Result.success(RecordTypeGen.new(mp))
@@ -104,10 +105,12 @@ internal fun registerRecord(builder: GlobalsBuilder) {
         val typ = positionalArgs[0]
         val default: Value? = positionalArgs.getOrNull(1)
         // We compile the type even if we don't have a default to raise the error sooner
-        val compiled = runCatching { TypeCompiled.new(typ, eval.heap()) }
-            .getOrElse { return@setFunction Result.failure<Value>(it) }
+        val compiled =
+            runCatching { TypeCompiled.new(typ, eval.heap()) }
+                .getOrElse { return@setFunction Result.failure<Value>(it) }
         if (default != null) {
-            compiled.checkType(default, "default")
+            compiled
+                .checkType(default, "default")
                 .getOrElse { return@setFunction Result.failure<Value>(it) }
         }
         Result.success(Field.new(compiled, default))

@@ -49,21 +49,23 @@ private fun wrapTrimmed(s: String, width: Int): String {
 
 /** There have been bugs around line endings in the textwrap crate. Just trim the line endings. */
 // fn indent_trimmed(s: &str, prefix: &str) -> String
-private fun indentTrimmed(s: String, prefix: String): String {
-    return s.lines().joinToString("\n") { line ->
-        if (line.isBlank()) line else "$prefix$line"
-    }.trimEnd()
-}
+private fun indentTrimmed(s: String, prefix: String): String =
+    s
+        .lines()
+        .joinToString("\n") { line ->
+            if (line.isBlank()) line else "$prefix$line"
+        }.trimEnd()
 
 // impl DocString { fn render_as_code }
 
 /** Render this docstring as a "starlark" docstring. */
 // fn render_as_code(&self) -> String
 fun DocString.renderAsCode(): String {
-    val s = when (val d = this.details) {
-        null -> this.summary
-        else -> "${this.summary}\n\n$d"
-    }
+    val s =
+        when (val d = this.details) {
+            null -> this.summary
+            else -> "${this.summary}\n\n$d"
+        }
     return wrapTrimmed(s, 80)
 }
 
@@ -72,9 +74,7 @@ fun DocString.renderAsCode(): String {
  * a common convention in starlark docstrings.
  */
 // fn render_as_quoted_code(&self) -> String
-fun DocString.renderAsQuotedCode(): String {
-    return "\"\"\"\n${renderAsCode()}\n\"\"\""
-}
+fun DocString.renderAsQuotedCode(): String = "\"\"\"\n${renderAsCode()}\n\"\"\""
 
 // impl DocModule { pub fn render_as_code }
 
@@ -84,10 +84,11 @@ fun DocModule.renderAsCode(): String {
     for ((k, v) in members) {
         val member = v.tryAsMemberWithCollapsedObject().getOrNull() ?: continue
         res += "\n"
-        res += when (member) {
-            is DocMember.Property -> member.property.renderAsCode(k)
-            is DocMember.Function -> member.function.renderAsCode(k)
-        }
+        res +=
+            when (member) {
+                is DocMember.Property -> member.property.renderAsCode(k)
+                is DocMember.Function -> member.function.renderAsCode(k)
+            }
         res += "\n"
     }
     return res
@@ -103,14 +104,18 @@ private fun DocFunction.starlarkDocstring(): String? {
         docs += mainDocs
     }
 
-    val argsIndentationCount = this.params.docParams()
-        .map { it.name.length + 2 }
-        .maxOrNull() ?: 0
+    val argsIndentationCount =
+        this.params
+            .docParams()
+            .map { it.name.length + 2 }
+            .maxOrNull() ?: 0
     val argsIndentation = " ".repeat(argsIndentationCount)
 
-    val argsDocs = this.params.docParams()
-        .mapNotNull { it.starlarkDocstring(argsIndentation) }
-        .joinToString("\n")
+    val argsDocs =
+        this.params
+            .docParams()
+            .mapNotNull { it.starlarkDocstring(argsIndentation) }
+            .joinToString("\n")
     if (argsDocs.isNotEmpty()) {
         val indented = indentTrimmed(argsDocs, "    ")
         docs += "\n\nArgs:\n$indented"
@@ -136,19 +141,21 @@ private fun DocFunction.starlarkDocstring(): String? {
 fun DocFunction.renderAsCode(name: String): String {
     val paramsOneLine = this.params.renderCode(null, TypeRenderConfig.Default)
 
-    val params = if (paramsOneLine.length > 60) {
-        "(\n${this.params.renderCode("    ", TypeRenderConfig.Default)})"
-    } else {
-        "($paramsOneLine)"
-    }
+    val params =
+        if (paramsOneLine.length > 60) {
+            "(\n${this.params.renderCode("    ", TypeRenderConfig.Default)})"
+        } else {
+            "($paramsOneLine)"
+        }
     val docstring = starlarkDocstring()?.let { "$it\n" } ?: ""
-    val ret = if (this.ret.typ != Ty.any()) {
-        " -> ${this.ret.typ}"
-    } else {
-        ""
-    }
+    val ret =
+        if (this.ret.typ != Ty.any()) {
+            " -> ${this.ret.typ}"
+        } else {
+            ""
+        }
 
-    return "def $name$params$ret:\n${docstring}    pass"
+    return "def $name$params$ret:\n$docstring    pass"
 }
 
 // impl DocParam
@@ -223,9 +230,7 @@ private fun fmtParam(p: DocParam, renderConfig: TypeRenderConfig): String {
 // impl DocReturn
 
 // fn starlark_docstring(&self) -> Option<String>
-private fun DocReturn.starlarkDocstring(): String? {
-    return this.docs?.renderAsCode()
-}
+private fun DocReturn.starlarkDocstring(): String? = this.docs?.renderAsCode()
 
 // impl DocProperty
 
@@ -245,29 +250,34 @@ fun DocProperty.renderAsCode(name: String): String {
 
 // fn render_as_code(&self, name: &str) -> String
 fun DocType.renderAsCode(name: String): String {
-    val summary = this.docs?.let {
-        var s = it.renderAsQuotedCode()
-        s += "\n"
-        s
-    } ?: ""
+    val summary =
+        this.docs?.let {
+            var s = it.renderAsQuotedCode()
+            s += "\n"
+            s
+        } ?: ""
 
-    val memberDocs = this.members.iter()
-        .map { (memberName, member) ->
-            when (member) {
-                is DocMember.Property -> member.property.renderAsCode(memberName)
-                is DocMember.Function -> member.function.renderAsCode("_$memberName")
-            }
+    val memberDocs =
+        this.members
+            .iter()
+            .map { (memberName, member) ->
+                when (member) {
+                    is DocMember.Property -> member.property.renderAsCode(memberName)
+                    is DocMember.Function -> member.function.renderAsCode("_$memberName")
+                }
+            }.joinToString("\n\n")
+
+    val exportedStructMembers =
+        this.members
+            .iter()
+            .map { (memberName, _) -> "    $memberName = _$memberName," }
+            .joinToString("\n")
+    val exportedStruct =
+        if (exportedStructMembers.isNotEmpty()) {
+            "$summary$name = struct(\n$exportedStructMembers\n)"
+        } else {
+            ""
         }
-        .joinToString("\n\n")
-
-    val exportedStructMembers = this.members.iter()
-        .map { (memberName, _) -> "    $memberName = _$memberName," }
-        .joinToString("\n")
-    val exportedStruct = if (exportedStructMembers.isNotEmpty()) {
-        "$summary$name = struct(\n$exportedStructMembers\n)"
-    } else {
-        ""
-    }
 
     return "$memberDocs\n\n$exportedStruct".trim()
 }
@@ -275,13 +285,13 @@ fun DocType.renderAsCode(name: String): String {
 // impl DocItem
 
 // pub fn render_as_code(&self, name: &str) -> String
-fun DocItem.renderAsCode(name: String): String {
-    return when (this) {
+fun DocItem.renderAsCode(name: String): String =
+    when (this) {
         is DocItem.Module -> this.module.renderAsCode()
         is DocItem.Type -> this.type.renderAsCode(name)
-        is DocItem.Member -> when (val m = this.member) {
-            is DocMember.Function -> m.function.renderAsCode(name)
-            is DocMember.Property -> m.property.renderAsCode(name)
-        }
+        is DocItem.Member ->
+            when (val m = this.member) {
+                is DocMember.Function -> m.function.renderAsCode(name)
+                is DocMember.Property -> m.property.renderAsCode(name)
+            }
     }
-}

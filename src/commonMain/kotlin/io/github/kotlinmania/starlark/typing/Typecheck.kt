@@ -32,12 +32,12 @@ import io.github.kotlinmania.starlark.eval.compiler.scope.CstStmt
 import io.github.kotlinmania.starlark.eval.compiler.scope.ScopeResolverGlobals
 import io.github.kotlinmania.starlark.eval.compiler.topLevelStmtsMut
 import io.github.kotlinmania.starlark.syntax.AstModule
-import io.github.kotlinmania.starlark.syntax.dialect.Dialect
 import io.github.kotlinmania.starlark.syntax.ast.StmtP
 import io.github.kotlinmania.starlark.syntax.ast.Visibility
+import io.github.kotlinmania.starlark.syntax.dialect.Dialect
 import io.github.kotlinmania.starlark.typing.oracle.TypingOracleCtx
-import io.github.kotlinmania.starlark.values.layout.heap.FrozenHeap
 import io.github.kotlinmania.starlark.values.FrozenRef
+import io.github.kotlinmania.starlark.values.layout.heap.FrozenHeap
 
 // Things which are None in the map have type void - they are never constructed
 internal fun solveBindings(
@@ -56,13 +56,14 @@ internal fun solveBindings(
     var changed = false
     val errors = mutableListOf<TypingError>()
     val approximations = mutableListOf<Approximation>()
-    val ctx = TypingContext(
-        oracle = oracle,
-        errors = errors,
-        approximations = approximations,
-        types = types,
-        moduleVarTypes = moduleVarTypes,
-    )
+    val ctx =
+        TypingContext(
+            oracle = oracle,
+            errors = errors,
+            approximations = approximations,
+            types = types,
+            moduleVarTypes = moduleVarTypes,
+        )
     val iterations = 100
     for (iteration in 0 until iterations) {
         changed = false
@@ -83,28 +84,32 @@ internal fun solveBindings(
         }
     }
     if (changed) {
-        ctx.approximations.add(Approximation.new(
-            "Fixed point didn't converge",
-            iterations,
-        ))
+        ctx.approximations.add(
+            Approximation.new(
+                "Fixed point didn't converge",
+                iterations,
+            ),
+        )
     }
     // Make sure we check every expression, looking for failures
     for (x in bindings.check) {
         ctx.expressionType(x).getOrThrow()
     }
     for ((span, e, require) in bindings.checkType) {
-        val ty = if (e == null) {
-            Ty.none()
-        } else {
-            ctx.expressionType(e).getOrThrow()
-        }
-        ctx.validateType(
-            Spanned(
-                node = ty,
-                span = span,
-            ),
-            require,
-        ).getOrThrow()
+        val ty =
+            if (e == null) {
+                Ty.none()
+            } else {
+                ctx.expressionType(e).getOrThrow()
+            }
+        ctx
+            .validateType(
+                Spanned(
+                    node = ty,
+                    span = span,
+                ),
+                require,
+            ).getOrThrow()
     }
     return Triple(
         ctx.errors.toList(),
@@ -124,24 +129,23 @@ class TypeMap(
         for ((_, entry) in bindings.entries.sortedBy { it.key.id }) {
             val (name, span, ty) = entry
             sb.appendLine(
-                "$name (${FileSpan(file = codemap, span = span)}) = $ty"
+                "$name (${FileSpan(file = codemap, span = span)}) = $ty",
             )
         }
         return sb.toString()
     }
 
-    internal fun findBindingsByName(name: String): List<Ty> {
-        return bindings.entries
+    internal fun findBindingsByName(name: String): List<Ty> =
+        bindings.entries
             .sortedBy { it.key.id }
             .filter { (_, entry) -> entry.first == name }
             .map { (_, entry) -> entry.third }
-    }
 
-    internal fun findFirstBinding(): Ty? {
-        return bindings.entries
+    internal fun findFirstBinding(): Ty? =
+        bindings.entries
             .minByOrNull { it.key.id }
-            ?.value?.third
-    }
+            ?.value
+            ?.third
 }
 
 /** Typecheck a module. */
@@ -168,17 +172,19 @@ fun AstModule.typecheck(
     val (codemap, statement, dialect, _) = this.intoParts()
     val names = MutableNames()
     val frozenHeap = FrozenHeap()
-    val (scopeErrors, moduleScopes) = ModuleScopes.checkModule(
-        module = names,
-        frozenHeap = frozenHeap,
-        loads = loads,
-        stmt = statement,
-        globals = ScopeResolverGlobals(
-            globals = FrozenRef.new(globals),
-        ),
-        codemap = FrozenRef.new(codemap),
-        dialect = Dialect.AllOptionsInternal,
-    )
+    val (scopeErrors, moduleScopes) =
+        ModuleScopes.checkModule(
+            module = names,
+            frozenHeap = frozenHeap,
+            loads = loads,
+            stmt = statement,
+            globals =
+                ScopeResolverGlobals(
+                    globals = FrozenRef.new(globals),
+                ),
+            codemap = FrozenRef.new(codemap),
+            dialect = Dialect.AllOptionsInternal,
+        )
     val cst = moduleScopes.cst
     val scopeData = moduleScopes.scopeData
     val scopeErrorsMapped = scopeErrors.map { TypingError.fromEvalException(it) }
@@ -188,24 +194,26 @@ fun AstModule.typecheck(
     val oracleCtx = TypingOracleCtx(codemap = codemap)
 
     val approximations = mutableListOf<Approximation>()
-    val fillTypesResult = try {
-        fillTypesForLintTypechecker(
-            module = cstStmts,
-            ctx = oracleCtx,
-            moduleScopeData = scopeData,
-            approximations = approximations,
-        )
-    } catch (e: InternalError) {
-        return TypecheckResult(
-            errors = listOf(e),
-            typeMap = TypeMap(
-                codemap = codemap,
-                bindings = linkedMapOf(),
-            ),
-            `interface` = Interface.empty(),
-            approximations = emptyList(),
-        )
-    }
+    val fillTypesResult =
+        try {
+            fillTypesForLintTypechecker(
+                module = cstStmts,
+                ctx = oracleCtx,
+                moduleScopeData = scopeData,
+                approximations = approximations,
+            )
+        } catch (e: InternalError) {
+            return TypecheckResult(
+                errors = listOf(e),
+                typeMap =
+                    TypeMap(
+                        codemap = codemap,
+                        bindings = linkedMapOf(),
+                    ),
+                `interface` = Interface.empty(),
+                approximations = emptyList(),
+            )
+        }
     val (fillTypesErrors, moduleVarTypes) = fillTypesResult
 
     val typemap = linkedMapOf<BindingId, Triple<String, Span, Ty>>()
@@ -213,37 +221,41 @@ fun AstModule.typecheck(
 
     for (top in cstStmts) {
         if (top.node is StmtP.Def<*, *>) {
-            val bindingsCollect = try {
-                BindingsCollect.collectOne(
-                    x = top,
-                    typecheckMode = TypecheckMode.Lint,
-                    codemap = codemap,
-                    approximations = approximations,
-                )
-            } catch (e: InternalError) {
-                return TypecheckResult(
-                    errors = listOf(e),
-                    typeMap = TypeMap(
+            val bindingsCollect =
+                try {
+                    BindingsCollect.collectOne(
+                        x = top,
+                        typecheckMode = TypecheckMode.Lint,
                         codemap = codemap,
-                        bindings = linkedMapOf(),
-                    ),
-                    `interface` = Interface.empty(),
-                    approximations = emptyList(),
-                )
-            }
-            val (solveErrors, types, solveApproximations) = try {
-                solveBindings(bindingsCollect.bindings, oracleCtx, moduleVarTypes)
-            } catch (e: InternalError) {
-                return TypecheckResult(
-                    errors = listOf(e),
-                    typeMap = TypeMap(
-                        codemap = codemap,
-                        bindings = linkedMapOf(),
-                    ),
-                    `interface` = Interface.empty(),
-                    approximations = emptyList(),
-                )
-            }
+                        approximations = approximations,
+                    )
+                } catch (e: InternalError) {
+                    return TypecheckResult(
+                        errors = listOf(e),
+                        typeMap =
+                            TypeMap(
+                                codemap = codemap,
+                                bindings = linkedMapOf(),
+                            ),
+                        `interface` = Interface.empty(),
+                        approximations = emptyList(),
+                    )
+                }
+            val (solveErrors, types, solveApproximations) =
+                try {
+                    solveBindings(bindingsCollect.bindings, oracleCtx, moduleVarTypes)
+                } catch (e: InternalError) {
+                    return TypecheckResult(
+                        errors = listOf(e),
+                        typeMap =
+                            TypeMap(
+                                codemap = codemap,
+                                bindings = linkedMapOf(),
+                            ),
+                        `interface` = Interface.empty(),
+                        approximations = emptyList(),
+                    )
+                }
 
             allSolveErrors.addAll(solveErrors)
             approximations.addAll(solveApproximations)
@@ -251,22 +263,25 @@ fun AstModule.typecheck(
             for ((id, ty) in types) {
                 val binding = scopeData.getBinding(id)
                 val name = binding.name.asStr()
-                val span = when (binding.source) {
-                    is BindingSource.Source -> binding.source.span
-                    is BindingSource.FromModule -> Span.DEFAULT
-                }
+                val span =
+                    when (binding.source) {
+                        is BindingSource.Source -> binding.source.span
+                        is BindingSource.FromModule -> Span.DEFAULT
+                    }
                 typemap[id] = Triple(name, span, ty)
             }
         }
     }
 
-    val typeMap = TypeMap(
-        bindings = typemap,
-        codemap = codemap,
-    )
+    val typeMap =
+        TypeMap(
+            bindings = typemap,
+            codemap = codemap,
+        )
 
-    val errors = (scopeErrorsMapped + fillTypesErrors + allSolveErrors)
-        .map { it.intoError() }
+    val errors =
+        (scopeErrorsMapped + fillTypesErrors + allSolveErrors)
+            .map { it.intoError() }
 
     val res = mutableMapOf<String, Ty>()
     for ((name, moduleSlotId, vis) in names.allNamesSlotsAndVisibilities()) {

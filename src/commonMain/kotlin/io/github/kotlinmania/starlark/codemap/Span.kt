@@ -19,67 +19,41 @@ package io.github.kotlinmania.starlark.codemap
  * limitations under the License.
  */
 
-// use std::cmp;
-// use std::cmp::Ordering;
-// use std::fmt;
-// use std::fmt::Debug;
-// use std::fmt::Display;
-// use std::ops::Add;
-// use std::ops::AddAssign;
-// use std::ops::Sub;
-
 import kotlin.math.max
 import kotlin.math.min
 
-/// A small, `Copy`, value representing a position in a `CodeMap`'s file.
-// #[derive(Copy, Clone, Dupe, Hash, Eq, PartialEq, PartialOrd, Ord, Debug, Default, Allocative)]
-// pub struct Pos(u32);
-data class Pos(val value: Int) : Comparable<Pos> {
-    // impl Add<u32> for Pos
-    // impl Sub<u32> for Pos
+// / A small, `Copy`, value representing a position in a `CodeMap`'s file.
+data class Pos(
+    val value: Int,
+) : Comparable<Pos> {
     operator fun plus(other: Int): Pos = Pos(value + other)
+
     operator fun minus(other: Int): Pos = Pos(value - other)
+
     operator fun minus(other: Pos): Int = value - other.value
 
     override fun compareTo(other: Pos): Int = value.compareTo(other.value)
 }
 
-/// A range of text within a CodeMap.
-// #[derive(Copy, Dupe, Clone, Hash, Eq, PartialEq, Ord, PartialOrd, Debug, Default, Allocative)]
-// pub struct Span {
+// / A range of text within a CodeMap.
 data class Span(
-    /// The position in the codemap representing the first byte of the span.
-    // begin: Pos,
     val begin: Pos,
-    /// The position after the last byte of the span.
-    // end: Pos,
-    val end: Pos
+    val end: Pos,
 ) : Comparable<Span> {
     init {
         require(begin <= end) { "Span end must be >= begin" }
     }
 
-    // impl Span
-
-    /// Create a span that encloses both `self` and `other`.
-    // pub fn merge(self, other: Span) -> Span
-    fun merge(other: Span): Span {
-        return Span(
+    fun merge(other: Span): Span =
+        Span(
             begin = Pos(min(begin.value, other.begin.value)),
-            end = Pos(max(end.value, other.end.value))
+            end = Pos(max(end.value, other.end.value)),
         )
-    }
 
-    /// Empty span in the end of this span.
-    // pub fn end_span(self) -> Span
     fun endSpan(): Span = Span(end, end)
 
-    /// Determines whether a `pos` is within this span.
-    // pub fn contains(self, pos: Pos) -> bool
     fun contains(pos: Pos): Boolean = begin <= pos && pos <= end
 
-    /// Determines whether a `span` intersects with this span.
-    // pub fn intersects(self, span: Span) -> bool
     fun intersects(span: Span): Boolean =
         contains(span.begin) || contains(span.end) || span.contains(begin)
 
@@ -92,7 +66,6 @@ data class Span(
     companion object {
         val DEFAULT = Span(Pos(0), Pos(0))
 
-        // pub fn merge_all(spans: impl Iterator<Item = Span>) -> Span
         fun mergeAll(spans: Iterator<Span>): Span {
             if (!spans.hasNext()) return DEFAULT
             var result = spans.next()
@@ -104,28 +77,19 @@ data class Span(
     }
 }
 
-/// Associate a Span with a value of arbitrary type (e.g. an AST node).
-// #[derive(Clone, Copy, Dupe, PartialEq, Eq, Hash, Debug)]
-// pub struct Spanned<T> {
 data class Spanned<out T>(
-    /// Data in the node.
+    // / Data in the node.
     val node: T,
-    val span: Span
+    val span: Span,
 ) {
-    // impl<T> Spanned<T>
-    /// Apply the function to the node, keep the span.
-    // pub fn map<U>(self, f: impl FnOnce(T) -> U) -> Spanned<U>
-    fun <U> map(f: (T) -> U): Spanned<U> {
-        return Spanned(f(node), span)
-    }
+    fun <U> map(f: (T) -> U): Spanned<U> = Spanned(f(node), span)
 }
-
 
 data class ResolvedPos(
     /** The line number within the file (0-indexed). */
     val line: Int,
     /** The column within the line (0-indexed in characters). */
-    val column: Int
+    val column: Int,
 ) : Comparable<ResolvedPos> {
     override fun toString(): String = "${line + 1}:${column + 1}"
 
@@ -138,7 +102,7 @@ data class ResolvedPos(
 
 data class ResolvedSpan(
     val begin: ResolvedPos,
-    val end: ResolvedPos
+    val end: ResolvedPos,
 ) {
     override fun toString(): String {
         val singleLine = begin.line == end.line
@@ -151,27 +115,26 @@ data class ResolvedSpan(
         }
     }
 
-    fun contains(pos: ResolvedPos): Boolean {
-        return (begin.line < pos.line || (begin.line == pos.line && begin.column <= pos.column)) &&
-               (end.line > pos.line || (end.line == pos.line && end.column >= pos.column))
-    }
+    fun contains(pos: ResolvedPos): Boolean =
+        (begin.line < pos.line || (begin.line == pos.line && begin.column <= pos.column)) &&
+            (end.line > pos.line || (end.line == pos.line && end.column >= pos.column))
 }
 
 data class ResolvedFileLine(
     val file: String,
-    val line: Int
+    val line: Int,
 ) {
     override fun toString(): String = "$file:${line + 1}"
 }
 
 data class ResolvedFileSpan(
     val file: String,
-    val span: ResolvedSpan
+    val span: ResolvedSpan,
 ) : Comparable<ResolvedFileSpan> {
     fun beginFileLine() = ResolvedFileLine(file, span.begin.line)
 
     override fun toString(): String = "$file:$span"
-    
+
     override fun compareTo(other: ResolvedFileSpan): Int {
         val fc = file.compareTo(other.file)
         if (fc != 0) return fc

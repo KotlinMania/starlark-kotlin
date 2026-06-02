@@ -26,7 +26,6 @@ class UnpackTuple<T>(
     /** Unpacked items. */
     val items: MutableList<T>,
 ) : Iterable<T> {
-
     // impl Default for UnpackTuple<T>
     constructor() : this(mutableListOf())
 

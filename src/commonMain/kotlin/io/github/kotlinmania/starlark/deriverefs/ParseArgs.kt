@@ -19,16 +19,16 @@ package io.github.kotlinmania.starlark.deriverefs
  * limitations under the License.
  */
 
+import io.github.kotlinmania.starlark.collections.SmallMap
 import io.github.kotlinmania.starlark.eval.runtime.Arguments
 import io.github.kotlinmania.starlark.eval.runtime.params.spec.ParametersSpec
 import io.github.kotlinmania.starlark.values.UnpackValue
+import io.github.kotlinmania.starlark.values.ValueError
 import io.github.kotlinmania.starlark.values.layout.FrozenValue
 import io.github.kotlinmania.starlark.values.layout.Value
 import io.github.kotlinmania.starlark.values.layout.heap.Heap
 import io.github.kotlinmania.starlark.values.types.dict.Dict
 import io.github.kotlinmania.starlark.values.types.dict.allocValue
-import io.github.kotlinmania.starlark.values.ValueError
-import io.github.kotlinmania.starlark.collections.SmallMap
 
 /**
  * Collect `N` arguments.
@@ -39,9 +39,7 @@ fun parseSignature(
     parser: ParametersSpec<FrozenValue>,
     args: Arguments,
     heap: Heap,
-): Result<List<Value?>> {
-    return Result.success(parser.collectInto(parser.len(), args, heap))
-}
+): Result<List<Value?>> = Result.success(parser.collectInto(parser.len(), args, heap))
 
 /** Parse positional-only arguments, required and optional. */
 fun parsePositional(
@@ -60,17 +58,17 @@ fun parsePositionalKwargsAlloc(
     requiredCount: Int,
     optionalCount: Int,
 ): Result<Triple<List<Value>, List<Value?>, Value>> {
-    val (required, optional) = args.optional(requiredCount, optionalCount, heap)
-        .getOrElse { return Result.failure(it) }
+    val (required, optional) =
+        args
+            .optional(requiredCount, optionalCount, heap)
+            .getOrElse { return Result.failure(it) }
     val namesMap = args.namesMap().getOrElse { return Result.failure(it) }
     val kwargs = Dict.new(namesMap as SmallMap<Value, Value>).allocValue(heap)
     return Result.success(Triple(required, optional, kwargs))
 }
 
 /** Utility for checking a `this` parameter matches what you expect. */
-fun <T> checkThis(unpack: UnpackValue<T>, thisValue: Value): Result<T> {
-    return Result.success(unpack.unpackNamedParam(thisValue, "this"))
-}
+fun <T> checkThis(unpack: UnpackValue<T>, thisValue: Value): Result<T> = Result.success(unpack.unpackNamedParam(thisValue, "this"))
 
 /** Utility for checking a required parameter matches what you expect. */
 fun <T> checkRequired(unpack: UnpackValue<T>, name: String, x: Value?): Result<T> {
@@ -95,6 +93,4 @@ fun <T> checkDefaulted(
 }
 
 /** We already know the parameter is set, so we just unpack it. */
-fun <T> checkUnpack(unpack: UnpackValue<T>, name: String, x: Value): Result<T> {
-    return Result.success(unpack.unpackNamedParam(x, name))
-}
+fun <T> checkUnpack(unpack: UnpackValue<T>, name: String, x: Value): Result<T> = Result.success(unpack.unpackNamedParam(x, name))

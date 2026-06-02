@@ -1,13 +1,13 @@
 // port-lint: source src/values/types/string/dot_format.rs
 package io.github.kotlinmania.starlark.values.types.string
 
-import io.github.kotlinmania.starlark.values.layout.Value
-import io.github.kotlinmania.starlark.values.layout.typed.StringValue
-import io.github.kotlinmania.starlark.values.layout.heap.Heap
-import io.github.kotlinmania.starlark.values.layout.avalues.str_.allocStrConcat3
-import io.github.kotlinmania.starlark.values.ValueError
-import io.github.kotlinmania.starlark.values.types.dict.Dict
 import io.github.kotlinmania.starlark.collections.StringPool
+import io.github.kotlinmania.starlark.values.ValueError
+import io.github.kotlinmania.starlark.values.layout.Value
+import io.github.kotlinmania.starlark.values.layout.avalues.str.allocStrConcat3
+import io.github.kotlinmania.starlark.values.layout.heap.Heap
+import io.github.kotlinmania.starlark.values.layout.typed.StringValue
+import io.github.kotlinmania.starlark.values.types.dict.Dict
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.
@@ -70,9 +70,9 @@ internal fun formatOne(
     before: String,
     arg: Value,
     after: String,
-    heap: Heap
-): StringValue {
-    return when (val argStr = StringValue.new(arg)) {
+    heap: Heap,
+): StringValue =
+    when (val argStr = StringValue.new(arg)) {
         null -> {
             val result = StringBuilder(before.length + after.length + 10)
             result.append(before)
@@ -82,7 +82,6 @@ internal fun formatOne(
         }
         else -> heap.allocStrConcat3(before, argStr.toString(), after)
     }
-}
 
 /**
  * The format string can either have explicit indices,
@@ -95,13 +94,15 @@ private class FormatArgs<T : Iterator<Value>>(
     private var iterator: T,
     private var args: MutableList<Value> = mutableListOf(),
     private var byIndex: Boolean = false,
-    private var byOrder: Boolean = false
+    private var byOrder: Boolean = false,
 ) {
-    fun nextOrdered(): Result<Value> {
-        return if (byIndex) {
-            Result.failure(IllegalArgumentException(
-                "Cannot mix manual field specification and automatic field numbering in format string"
-            ))
+    fun nextOrdered(): Result<Value> =
+        if (byIndex) {
+            Result.failure(
+                IllegalArgumentException(
+                    "Cannot mix manual field specification and automatic field numbering in format string",
+                ),
+            )
         } else {
             byOrder = true
             if (iterator.hasNext()) {
@@ -110,13 +111,14 @@ private class FormatArgs<T : Iterator<Value>>(
                 Result.failure(IllegalArgumentException("Not enough parameters in format string"))
             }
         }
-    }
 
-    fun byIndex(index: Int): Result<Value> {
-        return if (byOrder) {
-            Result.failure(IllegalArgumentException(
-                "Cannot mix manual field specification and automatic field numbering in format string"
-            ))
+    fun byIndex(index: Int): Result<Value> =
+        if (byOrder) {
+            Result.failure(
+                IllegalArgumentException(
+                    "Cannot mix manual field specification and automatic field numbering in format string",
+                ),
+            )
         } else {
             if (!byIndex) {
                 args.addAll(iterator.asSequence())
@@ -128,7 +130,6 @@ private class FormatArgs<T : Iterator<Value>>(
                 Result.failure(ValueError.IndexOutOfBound(index))
             }
         }
-    }
 }
 
 internal fun format(
@@ -136,63 +137,68 @@ internal fun format(
     args: Iterator<Value>,
     kwargs: Dict,
     stringPool: StringPool,
-    heap: Heap
-): Result<StringValue> = runCatching {
-    val parser = FormatParser(thisString)
-    val result = stringPool.alloc()
-    val formatArgs = FormatArgs(args)
+    heap: Heap,
+): Result<StringValue> =
+    runCatching {
+        val parser = FormatParser(thisString)
+        val result = stringPool.alloc()
+        val formatArgs = FormatArgs(args)
 
-    while (true) {
-        val token = parser.next().getOrThrow() ?: break
-        when (token) {
-            is FormatToken.Text -> result.append(token.text)
-            is FormatToken.Escape -> result.append(token.escape.asStr())
-            is FormatToken.Capture -> {
-                formatCapture(token.capture, token.conv, formatArgs, kwargs, result).getOrThrow()
+        while (true) {
+            val token = parser.next().getOrThrow() ?: break
+            when (token) {
+                is FormatToken.Text -> result.append(token.text)
+                is FormatToken.Escape -> result.append(token.escape.asStr())
+                is FormatToken.Capture -> {
+                    formatCapture(token.capture, token.conv, formatArgs, kwargs, result).getOrThrow()
+                }
             }
         }
-    }
 
-    val r = StringValue.newUnchecked(heap.allocStr(result.toString()))
-    stringPool.release(result)
-    r
-}
+        val r = StringValue.newUnchecked(heap.allocStr(result.toString()))
+        stringPool.release(result)
+        r
+    }
 
 private fun <T : Iterator<Value>> formatCapture(
     field: String,
     conv: FormatConv,
     args: FormatArgs<T>,
     kwargs: Dict,
-    result: StringBuilder
-): Result<Unit> = runCatching {
-    val convS: (Value, StringBuilder) -> Unit = { x, r -> x.collectStr(r) }
-    val convR: (Value, StringBuilder) -> Unit = { x, r -> x.collectRepr(r) }
-    val convFn: (Value, StringBuilder) -> Unit = when (conv) {
-        FormatConv.Str -> convS
-        FormatConv.Repr -> convR
-    }
+    result: StringBuilder,
+): Result<Unit> =
+    runCatching {
+        val convS: (Value, StringBuilder) -> Unit = { x, r -> x.collectStr(r) }
+        val convR: (Value, StringBuilder) -> Unit = { x, r -> x.collectRepr(r) }
+        val convFn: (Value, StringBuilder) -> Unit =
+            when (conv) {
+                FormatConv.Str -> convS
+                FormatConv.Repr -> convR
+            }
 
-    when {
-        field.isEmpty() -> {
-            convFn(args.nextOrdered().getOrThrow(), result)
-        }
-        field.all { it.isDigit() } -> {
-            val i = field.toIntOrNull() ?: throw IllegalArgumentException(
-                "Error parsing `$field` as a format string index"
-            )
-            convFn(args.byIndex(i).getOrThrow(), result)
-        }
-        else -> {
-            val invalidChar = field.firstOrNull { c ->
-                c in listOf('.', ',', '[', ']')
+        when {
+            field.isEmpty() -> {
+                convFn(args.nextOrdered().getOrThrow(), result)
             }
-            if (invalidChar != null) {
-                throw IllegalArgumentException(
-                    "Invalid character '$invalidChar' inside replacement field"
-                )
+            field.all { it.isDigit() } -> {
+                val i =
+                    field.toIntOrNull() ?: throw IllegalArgumentException(
+                        "Error parsing `$field` as a format string index",
+                    )
+                convFn(args.byIndex(i).getOrThrow(), result)
             }
-            val v = kwargs.getStr(field) ?: throw ValueError.KeyNotFound(field)
-            convFn(v, result)
+            else -> {
+                val invalidChar =
+                    field.firstOrNull { c ->
+                        c in listOf('.', ',', '[', ']')
+                    }
+                if (invalidChar != null) {
+                    throw IllegalArgumentException(
+                        "Invalid character '$invalidChar' inside replacement field",
+                    )
+                }
+                val v = kwargs.getStr(field) ?: throw ValueError.KeyNotFound(field)
+                convFn(v, result)
+            }
         }
     }
-}

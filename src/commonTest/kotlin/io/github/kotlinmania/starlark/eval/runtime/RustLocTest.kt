@@ -20,11 +20,8 @@ import kotlin.test.Test
 import kotlin.test.assertTrue
 
 class RustLocTest {
-
     private fun rustLocGlobals(globals: GlobalsBuilder) {
-        fun invoke(f: Value, eval: Evaluator): Result<Value> {
-            return f.invokeWithLoc(rustLoc(), Arguments.default(), eval)
-        }
+        fun invoke(f: Value, eval: Evaluator): Result<Value> = f.invokeWithLoc(rustLoc(), Arguments.default(), eval)
         globals.setFunction("invoke") { args, eval ->
             invoke(args.positional<Value>(0), eval)
         }
@@ -39,7 +36,8 @@ class RustLocTest {
         // Stack trace should contain invocation in `invoke`.
         assertTrue(
             // Make test compatible with Windows.
-            errStr.replace('\\', '/')
+            errStr
+                .replace('\\', '/')
                 .contains("src/eval/runtime/rust_loc.rs"),
             "output: $errStr",
         )

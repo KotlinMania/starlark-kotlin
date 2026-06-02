@@ -31,6 +31,7 @@ package io.github.kotlinmania.starlark.eval.bc
 // --- Drop support ---
 
 // impl BcOpcode { unsafe fn drop_in_place(self, ptr: BcPtrAddr) }
+
 /**
  * Drop instruction at given address.
  *
@@ -49,6 +50,7 @@ private fun BcOpcode.dropInPlace(ptr: BcPtrAddr) {
 }
 
 // unsafe fn drop_instrs(instrs: &[u64])
+
 /**
  * Invoke drop for instructions in the buffer.
  *
@@ -69,6 +71,7 @@ private fun dropInstrs(instrs: List<Any>) {
 // --- Static empty instructions ---
 
 // fn empty_instrs() -> &'static [u64]
+
 /**
  * Statically allocate a valid instruction buffer micro-optimization.
  *
@@ -106,6 +109,7 @@ private fun emptyInstrs(): List<Any> {
 // --- BcInstrs ---
 
 // pub(crate) struct BcInstrs
+
 /**
  * Bytecode instructions container.
  *
@@ -145,17 +149,18 @@ class BcInstrs private constructor(
         //     instrs: Either<Box<[u64]>, &'static [u64]>,
         //     stmt_locs: BcStatementLocations,
         // ) -> Self
+
         /** Create [BcInstrs] from an instruction buffer and statement locations. */
-        fun forInstrs(instrs: List<Any>, stmtLocs: BcStatementLocations): BcInstrs {
-            return BcInstrs(instrs, stmtLocs)
-        }
+        fun forInstrs(instrs: List<Any>, stmtLocs: BcStatementLocations): BcInstrs = BcInstrs(instrs, stmtLocs)
     }
 
     // pub(crate) fn start_ptr(&self) -> BcPtrAddr<'_>
+
     /** Get a pointer to the start of the instruction buffer. */
     fun startPtr(): BcPtrAddr = BcPtrAddr.forSliceStart(instrs)
 
     // pub(crate) fn end(&self) -> BcAddr
+
     /**
      * Get the end address of the instruction buffer.
      *
@@ -165,11 +170,13 @@ class BcInstrs private constructor(
     fun end(): BcAddr = BcAddr(instrs.size.toUInt())
 
     // pub(crate) fn end_ptr(&self) -> BcPtrAddr<'_>
+
     /** Get a pointer to the end of the instruction buffer. */
     fun endPtr(): BcPtrAddr = startPtr().offset(end())
 
     // #[cfg(test)]
     // pub(crate) fn opcodes(&self) -> Vec<BcOpcode>
+
     /**
      * Get all opcodes in the instruction buffer.
      *
@@ -189,6 +196,7 @@ class BcInstrs private constructor(
     }
 
     // fn iter(&self) -> impl Iterator<Item = (BcPtrAddr<'_>, BcAddr)>
+
     /**
      * Iterate over all instructions, yielding `(ptr, ip)` pairs.
      *
@@ -212,6 +220,7 @@ class BcInstrs private constructor(
     }
 
     // fn end_arg(&self) -> Option<&BcInstrEndArg>
+
     /**
      * Find the [BcInstrEndArg] from the `End` instruction, if present.
      *
@@ -227,6 +236,7 @@ class BcInstrs private constructor(
     }
 
     // pub(crate) fn fmt_impl(&self, f: &mut dyn Write, newline: bool) -> fmt::Result
+
     /**
      * Format the instructions for display.
      *
@@ -235,12 +245,13 @@ class BcInstrs private constructor(
      */
     internal fun fmtImpl(sb: StringBuilder, newline: Boolean) {
         val endArg = endArg()
-        val ipPad = if (newline) {
-            val maxIp = iter().maxOfOrNull { (_, ip) -> ip.value } ?: 0u
-            maxIp.toString().length
-        } else {
-            0
-        }
+        val ipPad =
+            if (newline) {
+                val maxIp = iter().maxOfOrNull { (_, ip) -> ip.value } ?: 0u
+                maxIp.toString().length
+            } else {
+                0
+            }
 
         val loopEnds = mutableListOf<BcAddr>()
         val jumpTargets = mutableSetOf<BcAddr>()
@@ -260,7 +271,7 @@ class BcInstrs private constructor(
                 if (stmtAt != null) {
                     val (loc, _) = stmtAt
                     sb.appendLine(
-                        "${" ".repeat(loopPadCount)} ${" ".repeat(ipPad)}  # ${loc.span}"
+                        "${" ".repeat(loopPadCount)} ${" ".repeat(ipPad)}  # ${loc.span}",
                     )
                 }
             } else {
@@ -300,6 +311,7 @@ class BcInstrs private constructor(
     }
 
     // pub(crate) fn dump_debug(&self) -> String
+
     /** Dump instructions in debug (multiline) format. */
     internal fun dumpDebug(): String {
         val sb = StringBuilder()
@@ -426,6 +438,7 @@ class BcInstrs private constructor(
 // --- PatchAddr ---
 
 // pub(crate) struct PatchAddr
+
 /**
  * Address to be patched later with the actual target address.
  *
@@ -442,6 +455,7 @@ class PatchAddr(
 // --- BcInstrsWriter ---
 
 // pub(crate) struct BcInstrsWriter
+
 /**
  * Raw instructions writer.
  *
@@ -471,6 +485,7 @@ class BcInstrsWriter {
     fun instrsSize(): Int = instrs.size
 
     // fn instrs_len_bytes(&self) -> usize
+
     /**
      * Length of instructions buffer.
      *
@@ -480,6 +495,7 @@ class BcInstrsWriter {
     private fun instrsLenBytes(): Int = instrs.size
 
     // pub(crate) fn ip(&self) -> BcAddr
+
     /**
      * Current instruction pointer (address of next instruction to be written).
      *
@@ -488,6 +504,7 @@ class BcInstrsWriter {
     fun ip(): BcAddr = BcAddr(instrsLenBytes().toUInt())
 
     // pub(crate) fn write<I: BcInstr>(&mut self, arg: I::Arg) -> (BcAddr, *const I::Arg)
+
     /**
      * Write an instruction with the given header and argument.
      *
@@ -513,6 +530,7 @@ class BcInstrsWriter {
     }
 
     // pub(crate) fn addr_to_patch(&self, instr_start: BcAddr, addr: *const BcAddrOffset) -> PatchAddr
+
     /**
      * Create a [PatchAddr] for a forward jump that needs to be patched later.
      *
@@ -534,6 +552,7 @@ class BcInstrsWriter {
     }
 
     // pub(crate) fn patch_addr(&mut self, addr: PatchAddr)
+
     /**
      * Patch a previously written forward jump address with the current IP.
      *
@@ -553,27 +572,29 @@ class BcInstrsWriter {
         if (index >= instrs.size) return
         val newOffset = ip().offsetFrom(addr.instrStart)
         val existing = instrs[index]
-        instrs[index] = when (existing) {
-            is BcAddrOffset -> {
-                check(existing == BcAddrOffset.FORWARD) { "Expected FORWARD, got $existing" }
-                newOffset
+        instrs[index] =
+            when (existing) {
+                is BcAddrOffset -> {
+                    check(existing == BcAddrOffset.FORWARD) { "Expected FORWARD, got $existing" }
+                    newOffset
+                }
+                is Pair<*, *> -> {
+                    check(existing.second == BcAddrOffset.FORWARD) { "Expected FORWARD in Pair.second, got ${existing.second}" }
+                    Pair(existing.first, newOffset)
+                }
+                is List<*> -> {
+                    val mutable = existing.toMutableList()
+                    val fwdIndex = mutable.indexOfLast { it == BcAddrOffset.FORWARD }
+                    check(fwdIndex >= 0) { "Expected FORWARD in List, got $existing" }
+                    mutable[fwdIndex] = newOffset
+                    mutable
+                }
+                else -> error("patchAddr: unexpected arg type: ${existing!!::class.simpleName}")
             }
-            is Pair<*, *> -> {
-                check(existing.second == BcAddrOffset.FORWARD) { "Expected FORWARD in Pair.second, got ${existing.second}" }
-                Pair(existing.first, newOffset)
-            }
-            is List<*> -> {
-                val mutable = existing.toMutableList()
-                val fwdIndex = mutable.indexOfLast { it == BcAddrOffset.FORWARD }
-                check(fwdIndex >= 0) { "Expected FORWARD in List, got $existing" }
-                mutable[fwdIndex] = newOffset
-                mutable
-            }
-            else -> error("patchAddr: unexpected arg type: ${existing!!::class.simpleName}")
-        }
     }
 
     // pub(crate) fn finish(mut self, slow_args, stmt_locs, local_names) -> BcInstrs
+
     /**
      * Finish writing instructions.
      *
@@ -599,7 +620,9 @@ class BcInstrsWriter {
             BcInstrEndArg(
                 endAddr = ip(),
                 slowArgs = slowArgs,
-                localNames = io.github.kotlinmania.starlark.values.FrozenRef.new(localNames),
+                localNames =
+                    io.github.kotlinmania.starlark.values.FrozenRef
+                        .new(localNames),
             ),
         )
         // let instrs = mem::take(&mut self.instrs);

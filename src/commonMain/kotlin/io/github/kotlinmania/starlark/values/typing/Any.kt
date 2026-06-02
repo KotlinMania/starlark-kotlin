@@ -21,15 +21,16 @@ package io.github.kotlinmania.starlark.values.typing
 
 import io.github.kotlinmania.starlark.typing.Ty
 import io.github.kotlinmania.starlark.values.AllocFrozenValue
-import io.github.kotlinmania.starlark.values.layout.heap.FrozenHeap
-import io.github.kotlinmania.starlark.values.layout.FrozenValue
 import io.github.kotlinmania.starlark.values.StarlarkValue
+import io.github.kotlinmania.starlark.values.layout.FrozenValue
 import io.github.kotlinmania.starlark.values.layout.avalues.simple.allocSimple
+import io.github.kotlinmania.starlark.values.layout.heap.FrozenHeap
 
 // #[derive(Debug, Display, Allocative, ProvidesStaticType, NoSerialize)]
 // pub(crate) struct TypingAny
-internal class TypingAny : StarlarkValue, AllocFrozenValue {
-
+internal class TypingAny :
+    StarlarkValue,
+    AllocFrozenValue {
     // #[starlark_value(type = "typing.Any")]
     override val TYPE: String get() = Companion.TYPE
     override val HAS_eval_type: Boolean get() = true
@@ -45,12 +46,8 @@ internal class TypingAny : StarlarkValue, AllocFrozenValue {
     override fun starlarkTypeRepr(): Ty = Ty.any()
 
     // fn eval_type(&self) -> Option<Ty>
-    override fun evalType(): Ty? {
-        return Ty.any()
-    }
+    override fun evalType(): Ty? = Ty.any()
 
     // impl AllocFrozenValue for TypingAny
-    override fun allocFrozenValue(heap: FrozenHeap): FrozenValue {
-        return heap.allocSimple(this)
-    }
+    override fun allocFrozenValue(heap: FrozenHeap): FrozenValue = heap.allocSimple(this)
 }

@@ -23,25 +23,29 @@ import io.github.kotlinmania.starlark.environment.Globals
 import io.github.kotlinmania.starlark.environment.Module
 import io.github.kotlinmania.starlark.eval.evalModule
 import io.github.kotlinmania.starlark.eval.runtime.Evaluator
-import io.github.kotlinmania.starlark.syntax.dialect.Dialect
 import io.github.kotlinmania.starlark.syntax.AstModule
+import io.github.kotlinmania.starlark.syntax.dialect.Dialect
 
 // fn run_arbitrary_starlark_err(content: &str) -> starlark::Result<String>
 private fun runArbitraryStarlarkErr(content: String): Result<String> {
-    val ast = AstModule.parse("hello_world.star", content, Dialect.Standard)
-        .getOrElse { return Result.failure(it) }
+    val ast =
+        AstModule
+            .parse("hello_world.star", content, Dialect.Standard)
+            .getOrElse { return Result.failure(it) }
     val globals = Globals.standard()
     return Module.withTempHeap { module ->
         val eval = Evaluator(module)
-        val value = eval.evalModule(ast, globals)
-            .getOrElse { return@withTempHeap Result.failure(it) }
+        val value =
+            eval
+                .evalModule(ast, globals)
+                .getOrElse { return@withTempHeap Result.failure(it) }
         Result.success(value.toString())
     }
 }
 
 // fn run_arbitrary_starlark(content: &str) -> String
-private fun runArbitraryStarlark(content: String): String {
-    return when (val result = runArbitraryStarlarkErr(content)) {
+private fun runArbitraryStarlark(content: String): String =
+    when (val result = runArbitraryStarlarkErr(content)) {
         else -> {
             if (result.isSuccess) {
                 result.getOrThrow()
@@ -59,9 +63,9 @@ private fun runArbitraryStarlark(content: String): String {
             }
         }
     }
-}
 
 // fuzz_target!(|content: &str| { ... });
+
 /** Entry point for fuzz testing. Call with arbitrary string content. */
 fun fuzzTarget(content: String) {
     @Suppress("UNUSED_VARIABLE")

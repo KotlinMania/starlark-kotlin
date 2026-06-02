@@ -23,6 +23,4 @@ import io.github.kotlinmania.starlark.typing.Ty
 
 // impl StarlarkTypeRepr for Boolean
 // Kotlin: Boolean type repr delegates to StarlarkBool.
-internal fun boolStarlarkTypeRepr(): Ty {
-    return Ty.bool()
-}
+internal fun boolStarlarkTypeRepr(): Ty = Ty.bool()

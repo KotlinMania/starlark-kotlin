@@ -20,18 +20,18 @@ package io.github.kotlinmania.starlark.values.types.structs
  * limitations under the License.
  */
 
+import io.github.kotlinmania.starlark.collections.SmallMap
 import io.github.kotlinmania.starlark.typing.Ty
-import io.github.kotlinmania.starlark.values.AllocFrozenValue
-import io.github.kotlinmania.starlark.values.AllocValue
-import io.github.kotlinmania.starlark.values.layout.heap.FrozenHeap
-import io.github.kotlinmania.starlark.values.layout.FrozenValue
-import io.github.kotlinmania.starlark.values.StarlarkTypeRepr
-import io.github.kotlinmania.starlark.values.AllocStringValue
 import io.github.kotlinmania.starlark.values.AllocFrozenStringValue
-import io.github.kotlinmania.starlark.values.layout.heap.Heap
+import io.github.kotlinmania.starlark.values.AllocFrozenValue
+import io.github.kotlinmania.starlark.values.AllocStringValue
+import io.github.kotlinmania.starlark.values.AllocValue
+import io.github.kotlinmania.starlark.values.StarlarkTypeRepr
+import io.github.kotlinmania.starlark.values.layout.FrozenValue
 import io.github.kotlinmania.starlark.values.layout.Value
 import io.github.kotlinmania.starlark.values.layout.avalues.simple.allocSimple
-import io.github.kotlinmania.starlark.collections.SmallMap
+import io.github.kotlinmania.starlark.values.layout.heap.FrozenHeap
+import io.github.kotlinmania.starlark.values.layout.heap.Heap
 
 /**
  * Utility to allocate a struct on a heap.
@@ -54,7 +54,9 @@ import io.github.kotlinmania.starlark.collections.SmallMap
  * # }
  * ```
  */
-data class AllocStruct<S>(val value: S) {
+data class AllocStruct<S>(
+    val value: S,
+) {
     companion object {
         /**
          * Allocate an empty struct.

@@ -29,24 +29,26 @@ import io.github.kotlinmania.starlark.eval.compiler.scope.CstStmt
 import io.github.kotlinmania.starlark.eval.compiler.scope.CstTypeExpr
 import io.github.kotlinmania.starlark.eval.compiler.scope.CstTypeExprPayload
 import io.github.kotlinmania.starlark.eval.runtime.FrameSpan
-import io.github.kotlinmania.starlark.eval.runtime.frozen_file_span.FrozenFileSpan
+import io.github.kotlinmania.starlark.eval.runtime.frozenfilespan.FrozenFileSpan
 import io.github.kotlinmania.starlark.syntax.ast.AstPayload
 import io.github.kotlinmania.starlark.syntax.ast.AstTypeExprP
 import io.github.kotlinmania.starlark.syntax.ast.ParameterP
 import io.github.kotlinmania.starlark.syntax.ast.StmtP
-import io.github.kotlinmania.starlark.syntax.type_expr.TypeExprUnpackP
-import io.github.kotlinmania.starlark.syntax.type_expr.TypePathP
+import io.github.kotlinmania.starlark.syntax.typeexpr.TypeExprUnpackP
+import io.github.kotlinmania.starlark.syntax.typeexpr.TypePathP
 import io.github.kotlinmania.starlark.typing.EvalException
 import io.github.kotlinmania.starlark.typing.StarlarkError
 import io.github.kotlinmania.starlark.typing.Ty
 import io.github.kotlinmania.starlark.values.layout.Value
 import io.github.kotlinmania.starlark.values.types.ellipsis.Ellipsis
 import io.github.kotlinmania.starlark.values.types.list.allocList
-import io.github.kotlinmania.starlark.values.typing.type_compiled.TypeCompiled
+import io.github.kotlinmania.starlark.values.typing.typecompiled.TypeCompiled
 
 // #[derive(Debug, thiserror::Error)]
 // enum TypesError
-private sealed class TypesError(message: String) : Exception(message) {
+private sealed class TypesError(
+    message: String,
+) : Exception(message) {
     // #[error("Identifier is not resolved (internal error)")]
     class UnresolvedIdentifier : TypesError("Identifier is not resolved (internal error)")
 
@@ -54,7 +56,9 @@ private sealed class TypesError(message: String) : Exception(message) {
     class LocalIdentifier : TypesError("Identifier is resolve as local variable (internal error)")
 
     // #[error("Module variable is not set: `{0}`")]
-    class ModuleVariableNotSet(val name: String) : TypesError("Module variable is not set: `$name`")
+    class ModuleVariableNotSet(
+        val name: String,
+    ) : TypesError("Module variable is not set: `$name`")
 
     // #[error("Type payload not set (internal error)")]
     class TypePayloadNotSet : TypesError("Type payload not set (internal error)")
@@ -82,6 +86,7 @@ internal fun Compiler.exprForType(
     }
     if (expr == null) return null
     val span = FrameSpan.new(FrozenFileSpan.new(codemap, expr.span))
+
     @Suppress("UNCHECKED_CAST")
     val payload = expr.node.payload as? CstTypeExprPayload
     val ty = payload?.compilerTy
@@ -89,11 +94,12 @@ internal fun Compiler.exprForType(
         // This is unreachable. But unfortunately we do not return error here.
         // Still make an error in panic to produce nice panic message.
         error(
-            EvalException.newAnyhow(
-                TypesError.TypePayloadNotSet(),
-                expr.span,
-                codemap.value,
-            ).toString()
+            EvalException
+                .newAnyhow(
+                    TypesError.TypePayloadNotSet(),
+                    expr.span,
+                    codemap.value,
+                ).toString(),
         )
     }
     val typeValue = TypeCompiled.fromTy(ty, eval.heap())
@@ -116,22 +122,22 @@ internal fun Compiler.exprForType(
 private fun Compiler.allocValueForType(
     value: Value,
     span: Span,
-): TypeCompiled {
-    return try {
+): TypeCompiled =
+    try {
         TypeCompiled.new(value, eval.heap())
     } catch (e: Exception) {
         throw EvalException.newAnyhow(e, span, codemap.value)
     }
-}
 
 // fn eval_ident_in_type_expr(&mut self, ident: &CstIdent) -> Result<Value<'v>, EvalException>
 private fun Compiler.evalIdentInTypeExpr(ident: CstIdent): Value {
-    val identPayload = ident.node.payload
-        ?: throw EvalException.newAnyhow(
-            TypesError.UnresolvedIdentifier(),
-            ident.span,
-            codemap.value,
-        )
+    val identPayload =
+        ident.node.payload
+            ?: throw EvalException.newAnyhow(
+                TypesError.UnresolvedIdentifier(),
+                ident.span,
+                codemap.value,
+            )
     return when (identPayload) {
         is ResolvedIdent.Slot -> {
             when (val slot = identPayload.slot) {
@@ -164,9 +170,10 @@ private fun Compiler.evalIdentInTypeExpr(ident: CstIdent): Value {
 private fun Compiler.evalPath(path: TypePathP<CstPayload, CstIdentPayload>): Value {
     var value = evalIdentInTypeExpr(path.first)
     for (step in path.rem) {
-        value = value.getAttrError(step.node, eval.heap()).getOrElse { e ->
-            throw EvalException.newAnyhow(e, step.span, codemap.value)
-        }
+        value =
+            value.getAttrError(step.node, eval.heap()).getOrElse { e ->
+                throw EvalException.newAnyhow(e, step.span, codemap.value)
+            }
     }
     return value
 }
@@ -193,8 +200,8 @@ private fun Compiler.evalExprAsType(
 // ) -> Result<Value<'v>, EvalException>
 private fun Compiler.evalExpr(
     expr: Spanned<TypeExprUnpackP<CstPayload, CstIdentPayload>>,
-): Value {
-    return when (val node = expr.node) {
+): Value =
+    when (val node = expr.node) {
         is TypeExprUnpackP.Ellipsis -> Ellipsis.newValue().toValue()
         is TypeExprUnpackP.List -> {
             val values = node.items.map { item -> evalExpr(item) }
@@ -203,8 +210,8 @@ private fun Compiler.evalExpr(
         is TypeExprUnpackP.Path -> evalPath(node.path)
         is TypeExprUnpackP.Index -> {
             val a = evalIdentInTypeExpr(node.ident)
-            if (Constants.get().fnList?.let { a.ptrEq(it.value.toValue()) } != true
-                && Constants.get().fnSet?.let { a.ptrEq(it.value.toValue()) } != true
+            if (Constants.get().fnList?.let { a.ptrEq(it.value.toValue()) } != true &&
+                Constants.get().fnSet?.let { a.ptrEq(it.value.toValue()) } != true
             ) {
                 throw EvalException.newAnyhow(
                     TypesError.TypeIndexOnNonList(),
@@ -219,9 +226,9 @@ private fun Compiler.evalExpr(
         }
         is TypeExprUnpackP.Index2 -> {
             val a = evalPath(node.path.node)
-            if (Constants.get().fnDict?.let { a.ptrEq(it.value.toValue()) } == true
-                || Constants.get().fnTuple?.let { a.ptrEq(it.value.toValue()) } == true
-                || Constants.get().typingCallable?.let { a.ptrEq(it.value.toValue()) } == true
+            if (Constants.get().fnDict?.let { a.ptrEq(it.value.toValue()) } == true ||
+                Constants.get().fnTuple?.let { a.ptrEq(it.value.toValue()) } == true ||
+                Constants.get().typingCallable?.let { a.ptrEq(it.value.toValue()) } == true
             ) {
                 val i0 = evalExpr(node.i0)
                 val i1 = evalExpr(node.i1)
@@ -245,7 +252,6 @@ private fun Compiler.evalExpr(
             TypeCompiled.fromTy(Ty.tuple(xs), eval.heap()).toInner()
         }
     }
-}
 
 // fn populate_types_in_type_expr(
 //     &mut self,

@@ -84,4 +84,3 @@ class Vec2<A, B> private constructor(
 
     fun iter(): Sequence<Pair<A, B>> = a.indices.asSequence().map { i -> Pair(a[i], b[i]) }
 }
-

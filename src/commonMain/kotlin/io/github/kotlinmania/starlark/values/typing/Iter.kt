@@ -19,13 +19,13 @@ package io.github.kotlinmania.starlark.values.typing
  * limitations under the License.
  */
 
-import io.github.kotlinmania.starlark.values.AllocFrozenValue
-import io.github.kotlinmania.starlark.values.layout.heap.FrozenHeap
-import io.github.kotlinmania.starlark.values.layout.FrozenValue
-import io.github.kotlinmania.starlark.values.StarlarkValue
-import io.github.kotlinmania.starlark.values.layout.avalues.AllocStaticSimple
-import io.github.kotlinmania.starlark.values.StarlarkTypeRepr
 import io.github.kotlinmania.starlark.typing.Ty
+import io.github.kotlinmania.starlark.values.AllocFrozenValue
+import io.github.kotlinmania.starlark.values.StarlarkTypeRepr
+import io.github.kotlinmania.starlark.values.StarlarkValue
+import io.github.kotlinmania.starlark.values.layout.FrozenValue
+import io.github.kotlinmania.starlark.values.layout.avalues.AllocStaticSimple
+import io.github.kotlinmania.starlark.values.layout.heap.FrozenHeap
 
 /** `StarlarkTypeRepr` for iterable types. */
 // pub struct StarlarkIter<T: StarlarkTypeRepr>(PhantomData<T>, NonInstantiable)
@@ -34,15 +34,15 @@ class StarlarkIter<T : StarlarkTypeRepr> private constructor() {
     companion object {
         // impl<T: StarlarkTypeRepr> StarlarkTypeRepr for StarlarkIter<T>
         // fn starlark_type_repr() -> Ty
-        fun starlarkTypeRepr(inner: Ty): Ty {
-            return Ty.iter(inner)
-        }
+        fun starlarkTypeRepr(inner: Ty): Ty = Ty.iter(inner)
     }
 }
 
 // #[derive(Debug, Display, Allocative, ProvidesStaticType, NoSerialize)]
 // pub(crate) struct TypingIterable;
-internal class TypingIterable : StarlarkValue, AllocFrozenValue {
+internal class TypingIterable :
+    StarlarkValue,
+    AllocFrozenValue {
     // #[starlark_value(type = "typing.Iterable")]
     override val TYPE: String get() = TYPE_NAME
     override val HAS_eval_type: Boolean get() = true
@@ -56,9 +56,9 @@ internal class TypingIterable : StarlarkValue, AllocFrozenValue {
 
     // impl AllocFrozenValue for TypingIterable
     // fn alloc_frozen_value(self, _heap: &FrozenHeap) -> FrozenValue
-    override fun allocFrozenValue(@Suppress("unused") heap: FrozenHeap): FrozenValue {
-        return ANY.toFrozenValue()
-    }
+    override fun allocFrozenValue(
+        @Suppress("unused") heap: FrozenHeap,
+    ): FrozenValue = ANY.toFrozenValue()
 
     companion object {
         const val TYPE_NAME: String = "typing.Iterable"

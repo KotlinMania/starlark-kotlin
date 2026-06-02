@@ -26,7 +26,6 @@ package io.github.kotlinmania.starlark.collections
  * These structures use vector-backed storage if there are only a few elements, and an index for
  * larger collections. The API mirrors standard collections.
  *
- * In this Kotlin port, the collection types live in `io.github.kotlinmania.starlarkmap.*` and are
+ * In this Kotlin port, the collection types live in `io.github.kotlinmania.starlark.collections.*` and are
  * imported by users directly rather than re-exported here.
  */
-

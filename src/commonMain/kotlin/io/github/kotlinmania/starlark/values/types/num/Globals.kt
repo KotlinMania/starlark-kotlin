@@ -39,12 +39,14 @@ internal fun registerNum(globals: GlobalsBuilder) {
     /** Take the absolute value of an int. */
     globals.setFunction("abs") { args: Arguments, eval: Evaluator ->
         val v = args.positional<Value>(0)
-        val x = NumRef.unpackValue(v).getOrThrow()
-            ?: throw IllegalArgumentException("abs() requires a numeric argument")
-        val result: Num = when (x) {
-            is NumRef.Int -> Num.Int(x.value.abs())
-            is NumRef.Float -> Num.Float(kotlin.math.abs(x.value.value))
-        }
+        val x =
+            NumRef.unpackValue(v).getOrThrow()
+                ?: throw IllegalArgumentException("abs() requires a numeric argument")
+        val result: Num =
+            when (x) {
+                is NumRef.Int -> Num.Int(x.value.abs())
+                is NumRef.Float -> Num.Float(kotlin.math.abs(x.value.value))
+            }
         result.allocValue(eval.heap())
     }
 }

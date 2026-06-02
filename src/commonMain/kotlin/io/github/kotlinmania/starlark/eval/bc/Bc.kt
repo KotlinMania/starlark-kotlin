@@ -1,5 +1,6 @@
 // port-lint: source src/eval/bc.rs
 @file:Suppress("unused")
+
 package io.github.kotlinmania.starlark.eval.bc
 
 /*
@@ -20,7 +21,7 @@ package io.github.kotlinmania.starlark.eval.bc
  * limitations under the License.
  */
 
-/// Bytecode interpreter.
+// / Bytecode interpreter.
 
 // pub(crate) mod addr;
 // pub(crate) mod bytecode;

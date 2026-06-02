@@ -31,18 +31,15 @@ package io.github.kotlinmania.starlark.values.layout
 
 import io.github.kotlinmania.starlark.values.layout.heap.AValueHeader
 
-/// Allocations in Starlark are word-aligned, and this type represents the size of an allocation.
+// / Allocations in Starlark are word-aligned, and this type represents the size of an allocation.
 // #[derive(Copy, Clone, Dupe, Default, Debug, Eq, PartialEq, Ord, PartialOrd, Hash, Allocative, derive_more::Display)]
 // #[repr(transparent)]
 data class AlignedSize(
-    /// Starlark only supports objects smaller than 1<<32.
+    // / Starlark only supports objects smaller than 1<<32.
     // bytes: u32
     val bytes: UInt,
 ) : Comparable<AlignedSize> {
-
-    override fun compareTo(other: AlignedSize): Int {
-        return bytes.compareTo(other.bytes)
-    }
+    override fun compareTo(other: AlignedSize): Int = bytes.compareTo(other.bytes)
 
     override fun toString(): String = bytes.toString()
 
@@ -156,9 +153,7 @@ private fun UInt.checkedAdd(other: UInt): UInt? {
     return if (result < this) null else result
 }
 
-private fun UInt.checkedSub(other: UInt): UInt? {
-    return if (this < other) null else this - other
-}
+private fun UInt.checkedSub(other: UInt): UInt? = if (this < other) null else this - other
 
 private fun UInt.checkedMul(other: UInt): UInt? {
     if (other == 0u) return 0u

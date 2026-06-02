@@ -19,9 +19,9 @@ package io.github.kotlinmania.starlark.values.types.record
  * limitations under the License.
  */
 
+import io.github.kotlinmania.starlark.eval.runtime.params.spec.ParametersSpec
 import io.github.kotlinmania.starlark.typing.Ty
 import io.github.kotlinmania.starlark.values.layout.FrozenValue
-import io.github.kotlinmania.starlark.eval.runtime.params.spec.ParametersSpec
 
 /**
  * Data associated with a record type for typechecking.

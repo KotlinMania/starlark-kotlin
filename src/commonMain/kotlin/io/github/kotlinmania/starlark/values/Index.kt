@@ -4,7 +4,6 @@ package io.github.kotlinmania.starlark.values
 import io.github.kotlinmania.starlark.values.layout.Value
 import io.github.kotlinmania.starlark.values.types.bigint.unpackInt
 
-
 /*
  * Copyright 2018 The Starlark in Rust Authors.
  * Copyright (c) Facebook, Inc. and its affiliates.
@@ -34,7 +33,7 @@ private fun unpackIntErr(v: Value): Result<Int> {
         Result.success(i)
     } else {
         Result.failure(
-            ValueError.IncorrectParameterType
+            ValueError.IncorrectParameterType,
         )
     }
 }
@@ -77,15 +76,16 @@ private fun convertIndexAux(
 // pub(crate) fn convert_index(v: Value, len: i32) -> crate::Result<i32>
 internal fun convertIndex(v: Value, len: Int): Result<Int> {
     val x = unpackIntErr(v).getOrElse { return Result.failure(it) }
-    val i = if (x < 0) {
-        val added = len.toLong() + x.toLong()
-        if (added < Int.MIN_VALUE || added > Int.MAX_VALUE) {
-            return Result.failure(ValueError.IntegerOverflow)
+    val i =
+        if (x < 0) {
+            val added = len.toLong() + x.toLong()
+            if (added < Int.MIN_VALUE || added > Int.MAX_VALUE) {
+                return Result.failure(ValueError.IntegerOverflow)
+            }
+            added.toInt()
+        } else {
+            x
         }
-        added.toInt()
-    } else {
-        x
-    }
     return if (i < 0 || i >= len) {
         Result.failure(ValueError.IndexOutOfBound(i))
     } else {
@@ -107,21 +107,24 @@ internal fun convertSliceIndices(
     stop: Value?,
     stride: Value?,
 ): Result<Triple<Int, Int, Int>> {
-    val strideVal = when {
-        stride == null -> 1
-        stride.isNone() -> 1
-        else -> unpackIntErr(stride).getOrElse { return Result.failure(it) }
-    }
+    val strideVal =
+        when {
+            stride == null -> 1
+            stride.isNone() -> 1
+            else -> unpackIntErr(stride).getOrElse { return Result.failure(it) }
+        }
     return when (strideVal) {
         0 -> Result.failure(ValueError.IndexOutOfBound(0))
         else -> {
             val defStart = if (strideVal < 0) len - 1 else 0
             val defEnd = if (strideVal < 0) -1 else len
             val clamp = if (strideVal < 0) -1 else 0
-            val s1 = convertIndexAux(len, start, defStart, clamp, len + clamp)
-                .getOrElse { return Result.failure(it) }
-            val s2 = convertIndexAux(len, stop, defEnd, clamp, len + clamp)
-                .getOrElse { return Result.failure(it) }
+            val s1 =
+                convertIndexAux(len, start, defStart, clamp, len + clamp)
+                    .getOrElse { return Result.failure(it) }
+            val s2 =
+                convertIndexAux(len, stop, defEnd, clamp, len + clamp)
+                    .getOrElse { return Result.failure(it) }
             Result.success(Triple(s1, s2, strideVal))
         }
     }
@@ -134,8 +137,9 @@ internal fun <T> applySlice(
     stop: Value?,
     stride: Value?,
 ): Result<List<T>> {
-    val (startIdx, stopIdx, strideVal) = convertSliceIndices(xs.size, start, stop, stride)
-        .getOrElse { return Result.failure(it) }
+    val (startIdx, stopIdx, strideVal) =
+        convertSliceIndices(xs.size, start, stop, stride)
+            .getOrElse { return Result.failure(it) }
     if (strideVal == 1) {
         return if (startIdx >= stopIdx) {
             Result.success(emptyList())
@@ -144,11 +148,12 @@ internal fun <T> applySlice(
         }
     }
 
-    val (adjStart, adjStop) = if (strideVal < 0) {
-        Pair(stopIdx + 1, startIdx + 1)
-    } else {
-        Pair(startIdx, stopIdx)
-    }
+    val (adjStart, adjStop) =
+        if (strideVal < 0) {
+            Pair(stopIdx + 1, startIdx + 1)
+        } else {
+            Pair(startIdx, stopIdx)
+        }
     if (adjStart >= adjStop) {
         return Result.success(emptyList())
     }
@@ -161,9 +166,10 @@ internal fun <T> applySlice(
         sub.reverse()
     }
     val astride = kotlin.math.abs(strideVal)
-    val res = sub.filterIndexed { index, _ ->
-        index % astride == 0
-    }
+    val res =
+        sub.filterIndexed { index, _ ->
+            index % astride == 0
+        }
     return Result.success(res)
 }
 

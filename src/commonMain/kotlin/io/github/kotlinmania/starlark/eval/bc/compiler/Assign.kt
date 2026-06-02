@@ -25,8 +25,10 @@ import io.github.kotlinmania.starlark.collections.symbol.Symbol
 import io.github.kotlinmania.starlark.eval.bc.BcSlotIn
 import io.github.kotlinmania.starlark.eval.bc.BcSlotOut
 import io.github.kotlinmania.starlark.eval.bc.BcWriter
-import io.github.kotlinmania.starlark.eval.bc.compiler.writeNExprs
+import io.github.kotlinmania.starlark.eval.bc.compiler.markDefinitelyAssignedAfter
+import io.github.kotlinmania.starlark.eval.bc.compiler.writeBc
 import io.github.kotlinmania.starlark.eval.bc.compiler.writeBcCb
+import io.github.kotlinmania.starlark.eval.bc.compiler.writeNExprs
 import io.github.kotlinmania.starlark.eval.compiler.AssignCompiledValue
 import io.github.kotlinmania.starlark.eval.compiler.IrSpanned
 import io.github.kotlinmania.starlark.eval.compiler.asLocalNonCaptured
@@ -97,9 +99,14 @@ internal fun IrSpanned<AssignCompiledValue>.writeBc(value: BcSlotIn, bc: BcWrite
             // (x, y, z) = ...
             // ```
             // so we can avoid using intermediate register.
-            val allLocal = n.elements.mapNotNull { x ->
-                x.node.asLocalNonCaptured()?.toBcSlot()?.toOut()
-            }.takeIf { it.size == n.elements.size }
+            val allLocal =
+                n.elements
+                    .mapNotNull { x ->
+                        x.node
+                            .asLocalNonCaptured()
+                            ?.toBcSlot()
+                            ?.toOut()
+                    }.takeIf { it.size == n.elements.size }
 
             if (allLocal != null) {
                 val args = bc.heap.allocAnySlice(allLocal)

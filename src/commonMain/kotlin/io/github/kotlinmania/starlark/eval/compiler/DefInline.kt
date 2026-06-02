@@ -2,12 +2,12 @@
 package io.github.kotlinmania.starlark.eval.compiler
 
 import io.github.kotlinmania.starlark.eval.compiler.args.ArgsCompiledValue
+import io.github.kotlinmania.starlark.eval.compiler.definline.localasvalue.LocalAsValue
+import io.github.kotlinmania.starlark.eval.compiler.optctx.OptCtx
 import io.github.kotlinmania.starlark.eval.runtime.FrameSpan
 import io.github.kotlinmania.starlark.values.layout.FrozenValue
-import io.github.kotlinmania.starlark.values.layout.typed.FrozenStringValue
 import io.github.kotlinmania.starlark.values.layout.FrozenValueTyped
-import io.github.kotlinmania.starlark.eval.compiler.opt_ctx.OptCtx
-import io.github.kotlinmania.starlark.eval.compiler.def_inline.local_as_value.LocalAsValue
+import io.github.kotlinmania.starlark.values.layout.typed.FrozenStringValue
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.
@@ -32,10 +32,14 @@ import io.github.kotlinmania.starlark.eval.compiler.def_inline.local_as_value.Lo
 /** Function body suitable for inlining. */
 internal sealed class InlineDefBody {
     /** Function body is `return type(x) == "y"`. */
-    class ReturnTypeIs(val type: FrozenStringValue) : InlineDefBody()
+    class ReturnTypeIs(
+        val type: FrozenStringValue,
+    ) : InlineDefBody()
 
     /** Any expression which can be safely inlined. */
-    class ReturnSafeToInlineExpr(val expr: IrSpanned<ExprCompiled>) : InlineDefBody()
+    class ReturnSafeToInlineExpr(
+        val expr: IrSpanned<ExprCompiled>,
+    ) : InlineDefBody()
 }
 
 /** If a statement is `return type(x) == "y"` where `x` is a first slot. */
@@ -56,13 +60,12 @@ private class IsSafeToInlineExpr(
     /** How many expressions we visited already. */
     private var counter: Int = 0
 
-    fun isSafeToInlineOptExpr(expr: IrSpanned<ExprCompiled>?): Boolean {
-        return if (expr != null) {
+    fun isSafeToInlineOptExpr(expr: IrSpanned<ExprCompiled>?): Boolean =
+        if (expr != null) {
             isSafeToInlineExpr(expr.node)
         } else {
             true
         }
-    }
 
     /** Expression which has no access to locals or globals. */
     fun isSafeToInlineExpr(expr: ExprCompiled): Boolean {
@@ -75,32 +78,35 @@ private class IsSafeToInlineExpr(
             is ExprCompiled.ValueExpr -> true
             is ExprCompiled.LocalCaptured,
             is ExprCompiled.Module,
-            is ExprCompiled.Def -> false
+            is ExprCompiled.Def,
+            -> false
             is ExprCompiled.Local -> {
                 // `l >= paramCount` should be unreachable, but it is safer this way.
                 expr.slot.index < paramCount.toUInt()
             }
             is ExprCompiled.Call -> {
-                isSafeToInlineExpr(expr.call.node.function.node)
-                    && expr.call.node.args.argExprs().all { isSafeToInlineExpr(it.node) }
+                isSafeToInlineExpr(expr.call.node.function.node) &&
+                    expr.call.node.args
+                        .argExprs()
+                        .all { isSafeToInlineExpr(it.node) }
             }
             is ExprCompiled.Compr -> {
                 false
             }
             is ExprCompiled.Slice -> {
-                isSafeToInlineExpr(expr.obj.node)
-                    && isSafeToInlineOptExpr(expr.start)
-                    && isSafeToInlineOptExpr(expr.stop)
-                    && isSafeToInlineOptExpr(expr.step)
+                isSafeToInlineExpr(expr.obj.node) &&
+                    isSafeToInlineOptExpr(expr.start) &&
+                    isSafeToInlineOptExpr(expr.stop) &&
+                    isSafeToInlineOptExpr(expr.step)
             }
             is ExprCompiled.Builtin2Expr -> {
-                isSafeToInlineExpr(expr.lhs.node)
-                    && isSafeToInlineExpr(expr.rhs.node)
+                isSafeToInlineExpr(expr.lhs.node) &&
+                    isSafeToInlineExpr(expr.rhs.node)
             }
             is ExprCompiled.Index2 -> {
-                isSafeToInlineExpr(expr.obj.node)
-                    && isSafeToInlineExpr(expr.index0.node)
-                    && isSafeToInlineExpr(expr.index1.node)
+                isSafeToInlineExpr(expr.obj.node) &&
+                    isSafeToInlineExpr(expr.index0.node) &&
+                    isSafeToInlineExpr(expr.index1.node)
             }
             is ExprCompiled.Builtin1Expr -> {
                 isSafeToInlineExpr(expr.expr.node)
@@ -117,17 +123,17 @@ private class IsSafeToInlineExpr(
                 }
             }
             is ExprCompiled.If -> {
-                isSafeToInlineExpr(expr.cond.node)
-                    && isSafeToInlineExpr(expr.thenBranch.node)
-                    && isSafeToInlineExpr(expr.elseBranch.node)
+                isSafeToInlineExpr(expr.cond.node) &&
+                    isSafeToInlineExpr(expr.thenBranch.node) &&
+                    isSafeToInlineExpr(expr.elseBranch.node)
             }
             is ExprCompiled.LogicalBinOp -> {
-                isSafeToInlineExpr(expr.lhs.node)
-                    && isSafeToInlineExpr(expr.rhs.node)
+                isSafeToInlineExpr(expr.lhs.node) &&
+                    isSafeToInlineExpr(expr.rhs.node)
             }
             is ExprCompiled.Seq -> {
-                isSafeToInlineExpr(expr.first.node)
-                    && isSafeToInlineExpr(expr.second.node)
+                isSafeToInlineExpr(expr.first.node) &&
+                    isSafeToInlineExpr(expr.second.node)
             }
         }
     }
@@ -188,16 +194,13 @@ internal class InlineDefCallSite(
 ) {
     fun inlineOpt(
         expr: IrSpanned<ExprCompiled>?,
-    ): IrSpanned<ExprCompiled>? {
-        return when (expr) {
+    ): IrSpanned<ExprCompiled>? =
+        when (expr) {
             null -> null
             else -> inline(expr)
         }
-    }
 
-    fun inlineArgs(args: ArgsCompiledValue): ArgsCompiledValue {
-        return args.mapExprs<CannotInline> { inline(it) }
-    }
+    fun inlineArgs(args: ArgsCompiledValue): ArgsCompiledValue = args.mapExprs<CannotInline> { inline(it) }
 
     fun inlineCall(
         call: IrSpanned<CallCompiled>,
@@ -220,11 +223,12 @@ internal class InlineDefCallSite(
             is ExprCompiled.Local -> {
                 val value = slots[node.slot.index.toInt()]
                 val localAsValue = FrozenValueTyped.new<LocalAsValue>(value)
-                val inlinedExpr = if (localAsValue != null) {
-                    ExprCompiled.Local(localAsValue.asRef().local)
-                } else {
-                    ExprCompiled.ValueExpr(value)
-                }
+                val inlinedExpr =
+                    if (localAsValue != null) {
+                        ExprCompiled.Local(localAsValue.asRef().local)
+                    } else {
+                        ExprCompiled.ValueExpr(value)
+                    }
                 IrSpanned(span, inlinedExpr)
             }
             is ExprCompiled.If -> {
@@ -283,7 +287,8 @@ internal class InlineDefCallSite(
             is ExprCompiled.LocalCaptured,
             is ExprCompiled.Module,
             is ExprCompiled.Compr,
-            is ExprCompiled.Def -> throw CannotInline()
+            is ExprCompiled.Def,
+            -> throw CannotInline()
         }
     }
 }

@@ -19,13 +19,13 @@ package io.github.kotlinmania.starlark.values.layout.heap.profile
  * limitations under the License.
  */
 
-import io.github.kotlinmania.starlark.eval.runtime.profile.csv.CsvWriter
-import io.github.kotlinmania.starlark.eval.runtime.SmallDuration
-import io.github.kotlinmania.starlark.values.layout.heap.profile.alloc_counts.AllocCounts
-import io.github.kotlinmania.starlark.values.layout.heap.profile.string_index.StringId
-import io.github.kotlinmania.starlark.values.layout.heap.profile.string_index.StringIndex
-import io.github.kotlinmania.starlark.syntax.dialect.Dialect
 import io.github.kotlinmania.starlark.eval.evalModule
+import io.github.kotlinmania.starlark.eval.runtime.SmallDuration
+import io.github.kotlinmania.starlark.eval.runtime.profile.csv.CsvWriter
+import io.github.kotlinmania.starlark.syntax.dialect.Dialect
+import io.github.kotlinmania.starlark.values.layout.heap.profile.alloccounts.AllocCounts
+import io.github.kotlinmania.starlark.values.layout.heap.profile.stringindex.StringId
+import io.github.kotlinmania.starlark.values.layout.heap.profile.stringindex.StringIndex
 
 /** Information relating to a function. */
 // #[derive(Default, Debug, Clone)]
@@ -137,7 +137,9 @@ internal class HeapSummaryByFunction(
         // Add a totals column
         val totals = totals()
         val columns: MutableList<Pair<String, AllocCounts>> =
-            totals.allocations.entries.map { (k, v) -> k to v }.toMutableList()
+            totals.allocations.entries
+                .map { (k, v) -> k to v }
+                .toMutableList()
 
         columns.sortByDescending { it.second.count }
 
@@ -145,26 +147,30 @@ internal class HeapSummaryByFunction(
         infoList.sortByDescending { it.second.time.nanos }
 
         val totalsStr = "TOTALS"
-        val rows = listOf(Triple(totalsStr, totals, true)) +
-            infoList.map { (k, v) -> Triple(k, v, false) }
+        val rows =
+            listOf(Triple(totalsStr, totals, true)) +
+                infoList.map { (k, v) -> Triple(k, v, false) }
 
-        val csv = CsvWriter(
-            listOf(
-                "Function",
-                "Time(s)",
-                "TimeRec(s)",
-                "Calls",
-                "Callers",
-                "TopCaller",
-                "TopCallerCount",
-                "Allocs",
-                "AllocBytes",
-            ) + columns.map { it.first },
-        )
+        val csv =
+            CsvWriter(
+                listOf(
+                    "Function",
+                    "Time(s)",
+                    "TimeRec(s)",
+                    "Calls",
+                    "Callers",
+                    "TopCaller",
+                    "TopCallerCount",
+                    "Allocs",
+                    "AllocBytes",
+                ) + columns.map { it.first },
+            )
         for ((rowname, rowInfo, _) in rows) {
             val blank = ""
-            val callers = rowInfo.callers.maxByOrNull { it.value }
-                ?.let { it.key to it.value } ?: (blank to 0)
+            val callers =
+                rowInfo.callers
+                    .maxByOrNull { it.value }
+                    ?.let { it.key to it.value } ?: (blank to 0)
             check(rowInfo.calls % 2 == 0) {
                 "we enter calls twice, for drop and non_drop"
             }
@@ -195,34 +201,41 @@ internal class HeapSummaryByFunction(
 // #[test]
 // fn drop_non_drop()
 internal fun dropNonDrop() {
-    val ast = io.github.kotlinmania.starlark.syntax.AstModule.parse(
-        "x.star",
-        """
+    val ast =
+        io.github.kotlinmania.starlark.syntax.AstModule
+            .parse(
+                "x.star",
+                """
 _ignore = {1: 2}       # allocate a dict in drop
 _ignore = str([1])     # allocate a string in non_drop
-        """.trimIndent(),
-        Dialect.AllOptionsInternal,
-    ).getOrThrow()
+                """.trimIndent(),
+                Dialect.AllOptionsInternal,
+            ).getOrThrow()
 
-    val globals = io.github.kotlinmania.starlark.environment.Globals.standard()
-    io.github.kotlinmania.starlark.environment.Module.withTempHeap { module ->
-        val eval = io.github.kotlinmania.starlark.eval.runtime.Evaluator(module)
-        eval.enableProfile(io.github.kotlinmania.starlark.eval.runtime.profile.mode.ProfileMode.HeapSummaryAllocated)
+    val globals =
+        io.github.kotlinmania.starlark.environment.Globals
+            .standard()
+    io.github.kotlinmania.starlark.environment.Module
+        .withTempHeap { module ->
+            val eval =
+                io.github.kotlinmania.starlark.eval.runtime
+                    .Evaluator(module)
+            eval.enableProfile(io.github.kotlinmania.starlark.eval.runtime.profile.mode.ProfileMode.HeapSummaryAllocated)
 
-        eval.evalModule(ast, globals).getOrThrow()
+            eval.evalModule(ast, globals).getOrThrow()
 
-        val stacks = AggregateHeapProfileInfo.collect(eval.heap(), null)
+            val stacks = AggregateHeapProfileInfo.collect(eval.heap(), null)
 
-        val info = HeapSummaryByFunction.init(stacks)
+            val info = HeapSummaryByFunction.init(stacks)
 
-        // Run the assertions.
-        info.genCsv()
+            // Run the assertions.
+            info.genCsv()
 
-        val total = FuncInfo.merge(info.info().map { it.second })
-        // from non-drop heap
-        check(total.allocations["string"]!!.count == 1)
-        // from drop heap
-        check(total.allocations["dict"]!!.count == 1)
-        Result.success(Unit)
-    }.getOrThrow()
+            val total = FuncInfo.merge(info.info().map { it.second })
+            // from non-drop heap
+            check(total.allocations["string"]!!.count == 1)
+            // from drop heap
+            check(total.allocations["dict"]!!.count == 1)
+            Result.success(Unit)
+        }.getOrThrow()
 }

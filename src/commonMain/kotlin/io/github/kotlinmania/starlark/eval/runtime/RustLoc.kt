@@ -1,5 +1,5 @@
 // port-lint: source src/eval/runtime/rust_loc.rs
-package io.github.kotlinmania.starlark.eval.runtime.rust_loc
+package io.github.kotlinmania.starlark.eval.runtime.rustloc
 
 /*
  * Copyright 2018 The Starlark in Rust Authors.
@@ -22,9 +22,9 @@ package io.github.kotlinmania.starlark.eval.runtime.rust_loc
 import io.github.kotlinmania.starlark.codemap.CodeMap
 import io.github.kotlinmania.starlark.codemap.Pos
 import io.github.kotlinmania.starlark.codemap.Span
-import io.github.kotlinmania.starlark.eval.runtime.frozen_file_span.FrozenFileSpan
-import io.github.kotlinmania.starlark.values.FrozenRef
 import io.github.kotlinmania.starlark.eval.runtime.FrameSpan
+import io.github.kotlinmania.starlark.eval.runtime.frozenfilespan.FrozenFileSpan
+import io.github.kotlinmania.starlark.values.FrozenRef
 
 /** Source text used by native code locations, matching Rust's `NativeCodeMap::SOURCE`. */
 private const val NATIVE_SOURCE = "<native>"
@@ -40,10 +40,11 @@ internal fun rustLoc(file: String, line: Int, column: Int = 0): FrozenRef<FrameS
     // NativeCodeMap in Rust stores filename + resolved position and produces
     // a CodeMap with source "<native>". We replicate that directly.
     val codeMap = CodeMap("$file:$line:$column", NATIVE_SOURCE)
-    val frozenFileSpan = FrozenFileSpan.newUnchecked(
-        FrozenRef.new(codeMap),
-        NATIVE_FULL_SPAN,
-    )
+    val frozenFileSpan =
+        FrozenFileSpan.newUnchecked(
+            FrozenRef.new(codeMap),
+            NATIVE_FULL_SPAN,
+        )
     val frameSpan = FrameSpan.new(frozenFileSpan)
     return FrozenRef.new(frameSpan)
 }

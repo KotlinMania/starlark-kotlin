@@ -25,12 +25,12 @@ import io.github.kotlinmania.starlark.codemap.ResolvedFileSpan
 import io.github.kotlinmania.starlark.codemap.Span
 import io.github.kotlinmania.starlark.codemap.Spanned
 import io.github.kotlinmania.starlark.syntax.AstModule
+import io.github.kotlinmania.starlark.syntax.ast.AssignIdentP
 import io.github.kotlinmania.starlark.syntax.ast.AstExpr
 import io.github.kotlinmania.starlark.syntax.ast.AstLiteral
 import io.github.kotlinmania.starlark.syntax.ast.AstPayload
 import io.github.kotlinmania.starlark.syntax.ast.AstStmt
 import io.github.kotlinmania.starlark.syntax.ast.AstTypeExpr
-import io.github.kotlinmania.starlark.syntax.ast.AssignIdentP
 import io.github.kotlinmania.starlark.syntax.ast.ExprP
 import io.github.kotlinmania.starlark.syntax.ast.IdentP
 import io.github.kotlinmania.starlark.syntax.ast.StmtP
@@ -56,15 +56,14 @@ class LintT<T>(
     val problem: T,
 ) {
     companion object {
-        fun <T> new(codemap: CodeMap, span: Span, problem: T): LintT<T> {
-            return LintT(codemap.fileSpan(span), problem)
-        }
+        fun <T> new(codemap: CodeMap, span: Span, problem: T): LintT<T> = LintT(codemap.fileSpan(span), problem)
     }
 }
 
 /** Marker interface for lint warning types. */
 interface LintWarning {
     fun severity(): EvalSeverity
+
     fun shortName(): String
 }
 
@@ -103,10 +102,11 @@ private fun AstExpr.visitExpr(visitor: (AstExpr) -> Unit) {
         }
         is ExprP.Tuple -> e.elements.forEach { visitor(it) }
         is ExprP.ListExpr -> e.elements.forEach { visitor(it) }
-        is ExprP.Dict -> e.elements.forEach { (k, v) ->
-            visitor(k)
-            visitor(v)
-        }
+        is ExprP.Dict ->
+            e.elements.forEach { (k, v) ->
+                visitor(k)
+                visitor(v)
+            }
         is ExprP.Lambda<*, *> -> visitor(e.lambda.body as AstExpr)
         else -> {}
     }
@@ -138,7 +138,9 @@ sealed class FlowIssue : LintWarning {
     }
 
     /** Unreachable statement. */
-    data class Unreachable(val stmt: String) : FlowIssue() {
+    data class Unreachable(
+        val stmt: String,
+    ) : FlowIssue() {
         override fun toString(): String = "Unreachable statement `$stmt`"
     }
 
@@ -162,16 +164,15 @@ sealed class FlowIssue : LintWarning {
         override fun toString(): String = "Statement has no effect"
     }
 
-    override fun severity(): EvalSeverity {
-        return when (this) {
+    override fun severity(): EvalSeverity =
+        when (this) {
             // Sometimes people add these to make flow clearer
             is RedundantContinue, is RedundantReturn -> EvalSeverity.Disabled
             else -> EvalSeverity.Warning
         }
-    }
 
-    override fun shortName(): String {
-        return when (this) {
+    override fun shortName(): String =
+        when (this) {
             is MissingReturnExpression -> "missing-return-expression"
             is MissingReturn -> "missing-return"
             is Unreachable -> "unreachable"
@@ -180,16 +181,14 @@ sealed class FlowIssue : LintWarning {
             is MisplacedLoad -> "misplaced-load"
             is NoEffect -> "no-effect"
         }
-    }
 
-    fun about(): String {
-        return when (this) {
+    fun about(): String =
+        when (this) {
             is MissingReturnExpression -> name
             is MissingReturn -> name
             is Unreachable -> stmt
             else -> error("Should not be used on such issues")
         }
-    }
 }
 
 // ---------------------------------------------------------------------------
@@ -227,8 +226,8 @@ private fun isFail(x: AstExpr): Boolean {
 // hasEffect
 // ---------------------------------------------------------------------------
 
-private fun hasEffect(x: AstExpr): Boolean {
-    return when (val e = x.node) {
+private fun hasEffect(x: AstExpr): Boolean =
+    when (val e = x.node) {
         is ExprP.Literal -> {
             // String literals have the "effect" of providing documentation
             e.literal is AstLiteral.String
@@ -241,7 +240,6 @@ private fun hasEffect(x: AstExpr): Boolean {
         }
         else -> true
     }
-}
 
 // ---------------------------------------------------------------------------
 // finalReturn
@@ -281,9 +279,7 @@ private fun requireReturnExpression(retType: AstTypeExpr?): Span? {
 // ---------------------------------------------------------------------------
 
 /** Extract the identifier string from a [Spanned] wrapping an [AssignIdentP]. */
-private fun defName(spanned: Spanned<AssignIdentP<out AstPayload, *>>): String {
-    return spanned.node.ident
-}
+private fun defName(spanned: Spanned<AssignIdentP<out AstPayload, *>>): String = spanned.node.ident
 
 // ---------------------------------------------------------------------------
 // checkStmt
@@ -297,8 +293,9 @@ private fun checkStmt(codemap: CodeMap, x: AstStmt, res: MutableList<LintT<FlowI
             val rets = returns(body)
 
             // Do I require my return statements to have an expression
-            val requireExpression = requireReturnExpression(def.returnType as AstTypeExpr?)
-                ?: rets.firstOrNull { it.second != null }?.first
+            val requireExpression =
+                requireReturnExpression(def.returnType as AstTypeExpr?)
+                    ?: rets.firstOrNull { it.second != null }?.first
             if (requireExpression != null) {
                 if (!finalReturn(body)) {
                     res.add(
@@ -310,7 +307,7 @@ private fun checkStmt(codemap: CodeMap, x: AstStmt, res: MutableList<LintT<FlowI
                                 defName(def.name).trimEnd(),
                                 codemap.fileSpan(requireExpression).resolve(),
                             ),
-                        )
+                        ),
                     )
                 }
                 for ((span, ret) in rets) {
@@ -324,7 +321,7 @@ private fun checkStmt(codemap: CodeMap, x: AstStmt, res: MutableList<LintT<FlowI
                                     codemap.fileSpan(x.span).resolve(),
                                     codemap.fileSpan(requireExpression).resolve(),
                                 ),
-                            )
+                            ),
                         )
                     }
                 }
@@ -368,7 +365,7 @@ private fun reachable(codemap: CodeMap, x: AstStmt, res: MutableList<LintT<FlowI
                                 codemap,
                                 nxt.span,
                                 FlowIssue.Unreachable(nxt.node.toString().trim()),
-                            )
+                            ),
                         )
                     }
                     // All the remaining statements are totally unreachable, but we declared
@@ -404,15 +401,18 @@ private fun reachable(codemap: CodeMap, x: AstStmt, res: MutableList<LintT<FlowI
 private fun redundant(codemap: CodeMap, x: AstStmt, res: MutableList<LintT<FlowIssue>>) {
     fun check(isLoop: Boolean, codemap: CodeMap, x: AstStmt, res: MutableList<LintT<FlowIssue>>) {
         when (val s = x.node) {
-            is StmtP.Continue -> if (isLoop) {
-                res.add(LintT.new(codemap, x.span, FlowIssue.RedundantContinue))
-            }
-            is StmtP.Return -> if (s.expr == null && !isLoop) {
-                res.add(LintT.new(codemap, x.span, FlowIssue.RedundantReturn))
-            }
-            is StmtP.Statements -> if (s.stmts.isNotEmpty()) {
-                check(isLoop, codemap, s.stmts.last(), res)
-            }
+            is StmtP.Continue ->
+                if (isLoop) {
+                    res.add(LintT.new(codemap, x.span, FlowIssue.RedundantContinue))
+                }
+            is StmtP.Return ->
+                if (s.expr == null && !isLoop) {
+                    res.add(LintT.new(codemap, x.span, FlowIssue.RedundantReturn))
+                }
+            is StmtP.Statements ->
+                if (s.stmts.isNotEmpty()) {
+                    check(isLoop, codemap, s.stmts.last(), res)
+                }
             is StmtP.If -> check(isLoop, codemap, s.suite, res)
             is StmtP.IfElse -> {
                 check(isLoop, codemap, s.suite1, res)
@@ -485,9 +485,10 @@ private fun misplacedLoad(codemap: CodeMap, x: AstStmt, res: MutableList<LintT<F
 
 private fun noEffect(codemap: CodeMap, x: AstStmt, res: MutableList<LintT<FlowIssue>>) {
     when (val s = x.node) {
-        is StmtP.Expression -> if (!hasEffect(s.expr)) {
-            res.add(LintT.new(codemap, s.expr.span, FlowIssue.NoEffect))
-        }
+        is StmtP.Expression ->
+            if (!hasEffect(s.expr)) {
+                res.add(LintT.new(codemap, s.expr.span, FlowIssue.NoEffect))
+            }
         else -> x.visitStmt { noEffect(codemap, it, res) }
     }
 }

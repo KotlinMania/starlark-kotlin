@@ -1,5 +1,5 @@
 // port-lint: source src/values/layout/heap/profile/alloc_counts.rs
-package io.github.kotlinmania.starlark.values.layout.heap.profile.alloc_counts
+package io.github.kotlinmania.starlark.values.layout.heap.profile.alloccounts
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.
@@ -26,7 +26,7 @@ package io.github.kotlinmania.starlark.values.layout.heap.profile.alloc_counts
 // use allocative::Allocative;
 // use dupe::Dupe;
 
-/// Allocations counters.
+// / Allocations counters.
 // #[derive(Default, Copy, Clone, Dupe, Debug, Allocative)]
 // pub(crate) struct AllocCounts {
 //     pub(crate) bytes: usize,
@@ -36,7 +36,6 @@ data class AllocCounts(
     var bytes: Long = 0,
     var count: Int = 0,
 ) {
-
     // impl AllocCounts
 
     // #[cfg(test)]
@@ -56,12 +55,11 @@ data class AllocCounts(
     // impl Add for AllocCounts
     // type Output = AllocCounts;
     // fn add(self, other: AllocCounts) -> AllocCounts
-    operator fun plus(other: AllocCounts): AllocCounts {
-        return AllocCounts(
+    operator fun plus(other: AllocCounts): AllocCounts =
+        AllocCounts(
             bytes = bytes + other.bytes,
             count = count + other.count,
         )
-    }
 
     companion object {
         fun default(): AllocCounts = AllocCounts()
@@ -71,6 +69,4 @@ data class AllocCounts(
 // impl<'a> Sum<&'a AllocCounts> for AllocCounts
 // fn sum<I>(iter: I) -> AllocCounts
 // where I: Iterator<Item = &'a AllocCounts>
-fun Iterable<AllocCounts>.sum(): AllocCounts {
-    return fold(AllocCounts.default()) { acc, x -> acc + x }
-}
+fun Iterable<AllocCounts>.sum(): AllocCounts = fold(AllocCounts.default()) { acc, x -> acc + x }

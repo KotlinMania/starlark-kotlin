@@ -26,6 +26,7 @@ package io.github.kotlinmania.starlark.environment
  * all values from this environment become immutable.
  */
 
+import io.github.kotlinmania.starlark.EnvironmentError
 import io.github.kotlinmania.starlark.collections.Hashed
 import io.github.kotlinmania.starlark.collections.SmallMap
 import io.github.kotlinmania.starlark.docs.DocItem
@@ -33,42 +34,43 @@ import io.github.kotlinmania.starlark.docs.DocModule
 import io.github.kotlinmania.starlark.docs.DocString
 import io.github.kotlinmania.starlark.docs.DocStringKind
 import io.github.kotlinmania.starlark.docs.fromDocstring
-import io.github.kotlinmania.starlark.eval.runtime.profile.heap.RetainedHeapProfileMode
-import io.github.kotlinmania.starlark.values.layout.heap.FrozenHeap
-import io.github.kotlinmania.starlark.values.layout.heap.FrozenHeapRef
-import io.github.kotlinmania.starlark.values.FrozenRef
-import io.github.kotlinmania.starlark.values.layout.FrozenValue
-import kotlin.time.Duration
-import kotlin.time.TimeSource
-import io.github.kotlinmania.starlark.values.layout.typed.FrozenStringValue
-import io.github.kotlinmania.starlark.values.owned.OwnedFrozenValue
-import io.github.kotlinmania.starlark.values.layout.heap.profile.RetainedHeapProfile
+import io.github.kotlinmania.starlark.errors.didYouMean
+import io.github.kotlinmania.starlark.eval.compiler.postFreeze
 import io.github.kotlinmania.starlark.eval.runtime.profile.data.ProfileData
-import io.github.kotlinmania.starlark.values.layout.heap.profile.AggregateHeapProfileInfo
-import io.github.kotlinmania.starlark.values.layout.heap.HeapKind
-import io.github.kotlinmania.starlark.values.layout.heap.FrozenHeapName
-import io.github.kotlinmania.starlark.values.layout.heap.Heap
+import io.github.kotlinmania.starlark.eval.runtime.profile.heap.RetainedHeapProfileMode
+import io.github.kotlinmania.starlark.syntax.ast.Visibility
+import io.github.kotlinmania.starlark.values.FrozenRef
 import io.github.kotlinmania.starlark.values.layout.Freezer
+import io.github.kotlinmania.starlark.values.layout.FrozenValue
 import io.github.kotlinmania.starlark.values.layout.Value
+import io.github.kotlinmania.starlark.values.layout.heap.FrozenHeap
+import io.github.kotlinmania.starlark.values.layout.heap.FrozenHeapName
+import io.github.kotlinmania.starlark.values.layout.heap.FrozenHeapRef
+import io.github.kotlinmania.starlark.values.layout.heap.Heap
+import io.github.kotlinmania.starlark.values.layout.heap.HeapKind
 import io.github.kotlinmania.starlark.values.layout.heap.Tracer
 import io.github.kotlinmania.starlark.values.layout.heap.ValueHolder
-import io.github.kotlinmania.starlark.syntax.ast.Visibility
-import io.github.kotlinmania.starlark.eval.compiler.postFreeze
-import io.github.kotlinmania.starlark.errors.didYouMean
-import io.github.kotlinmania.starlark.EnvironmentError
+import io.github.kotlinmania.starlark.values.layout.heap.profile.AggregateHeapProfileInfo
+import io.github.kotlinmania.starlark.values.layout.heap.profile.RetainedHeapProfile
+import io.github.kotlinmania.starlark.values.layout.typed.FrozenStringValue
+import io.github.kotlinmania.starlark.values.owned.OwnedFrozenValue
+import kotlin.time.Duration
+import kotlin.time.TimeSource
 
 /**
  * #[derive(Debug, thiserror::Error)]
  * enum ModuleError
  */
-sealed class ModuleError(message: String) : Exception(message) {
+sealed class ModuleError(
+    message: String,
+) : Exception(message) {
     /** #[error("Retained memory profiling is not enabled")] */
-    class RetainedMemoryProfileNotEnabled :
-        ModuleError("Retained memory profiling is not enabled")
+    class RetainedMemoryProfileNotEnabled : ModuleError("Retained memory profiling is not enabled")
 
     /** #[error("Extra value already set to a value of type `{}`", .0)] */
-    class ExtraValueAlreadySet(val typeName: String) :
-        ModuleError("Extra value already set to a value of type `$typeName`")
+    class ExtraValueAlreadySet(
+        val typeName: String,
+    ) : ModuleError("Extra value already set to a value of type `$typeName`")
 }
 
 /**
@@ -96,8 +98,8 @@ class FrozenModule internal constructor(
      * pub fn from_globals(globals: &Globals) -> Result<FrozenModule>
      */
     companion object {
-        fun fromGlobals(globals: Globals): Result<FrozenModule> {
-            return Module.withTempHeap { module ->
+        fun fromGlobals(globals: Globals): Result<FrozenModule> =
+            Module.withTempHeap { module ->
                 module.frozenHeap().addReference(globals.heap())
 
                 for ((name, value) in globals.iter()) {
@@ -110,7 +112,6 @@ class FrozenModule internal constructor(
 
                 module.freeze()
             }
-        }
     }
 
     /** fn get_any_visibility_option(&self, name: &str) -> Option<(OwnedFrozenValue, Visibility)> */
@@ -125,21 +126,20 @@ class FrozenModule internal constructor(
      *
      * pub fn get_any_visibility(&self, name: &str) -> anyhow::Result<(OwnedFrozenValue, Visibility)>
      */
-    fun getAnyVisibility(name: String): Result<Pair<OwnedFrozenValue, Visibility>> {
-        return getAnyVisibilityOption(name)?.let { Result.success(it) }
+    fun getAnyVisibility(name: String): Result<Pair<OwnedFrozenValue, Visibility>> =
+        getAnyVisibilityOption(name)?.let { Result.success(it) }
             ?: run {
                 val better = didYouMean(name, names().map { it.asStr() }.toList())
                 if (better != null) {
                     Result.failure(
-                        EnvironmentError.ModuleHasNoSymbolDidYouMean(name, better)
+                        EnvironmentError.ModuleHasNoSymbolDidYouMean(name, better),
                     )
                 } else {
                     Result.failure(
-                        EnvironmentError.ModuleHasNoSymbol(name)
+                        EnvironmentError.ModuleHasNoSymbol(name),
                     )
                 }
             }
-    }
 
     /**
      * Get the value of the exported variable [name].
@@ -148,17 +148,18 @@ class FrozenModule internal constructor(
      *
      * pub fn get_option(&self, name: &str) -> anyhow::Result<Option<OwnedFrozenValue>>
      */
-    fun getOption(name: String): Result<OwnedFrozenValue?> {
-        return when (val entry = getAnyVisibilityOption(name)) {
+    fun getOption(name: String): Result<OwnedFrozenValue?> =
+        when (val entry = getAnyVisibilityOption(name)) {
             null -> Result.success(null)
-            else -> when (entry.second) {
-                Visibility.Private -> Result.failure(
-                    EnvironmentError.ModuleSymbolIsNotExported(name)
-                )
-                Visibility.Public -> Result.success(entry.first)
-            }
+            else ->
+                when (entry.second) {
+                    Visibility.Private ->
+                        Result.failure(
+                            EnvironmentError.ModuleSymbolIsNotExported(name),
+                        )
+                    Visibility.Public -> Result.success(entry.first)
+                }
         }
-    }
 
     /**
      * Get the value of the exported variable [name].
@@ -166,14 +167,13 @@ class FrozenModule internal constructor(
      *
      * pub fn get(&self, name: &str) -> anyhow::Result<OwnedFrozenValue>
      */
-    fun get(name: String): Result<OwnedFrozenValue> {
-        return getAnyVisibility(name).mapCatching { (value, vis) ->
+    fun get(name: String): Result<OwnedFrozenValue> =
+        getAnyVisibility(name).mapCatching { (value, vis) ->
             when (vis) {
                 Visibility.Private -> throw EnvironmentError.ModuleSymbolIsNotExported(name)
                 Visibility.Public -> value
             }
         }
-    }
 
     /**
      * Iterate through all the names defined in this module.
@@ -181,32 +181,24 @@ class FrozenModule internal constructor(
      *
      * pub fn names(&self) -> impl Iterator<Item = FrozenStringValue>
      */
-    fun names(): Sequence<FrozenStringValue> {
-        return module.value.names()
-    }
+    fun names(): Sequence<FrozenStringValue> = module.value.names()
 
     /**
      * Obtain the [FrozenHeapRef] which owns the storage of all values defined in this module.
      *
      * pub fn frozen_heap(&self) -> &FrozenHeapRef
      */
-    fun frozenHeap(): FrozenHeapRef {
-        return heap
-    }
+    fun frozenHeap(): FrozenHeapRef = heap
 
     /**
      * Print out some approximation of the module definitions.
      *
      * pub fn describe(&self) -> String
      */
-    fun describe(): String {
-        return module.value.describe()
-    }
+    fun describe(): String = module.value.describe()
 
     /** pub(crate) fn all_items(&self) -> impl Iterator<Item = (FrozenStringValue, FrozenValue)> */
-    internal fun allItems(): Sequence<Pair<FrozenStringValue, FrozenValue>> {
-        return module.value.allItems()
-    }
+    internal fun allItems(): Sequence<Pair<FrozenStringValue, FrozenValue>> = module.value.allItems()
 
     /**
      * The documentation for the module, and all of its top level values.
@@ -233,30 +225,25 @@ class FrozenModule internal constructor(
      *
      * pub fn heap_profile(&self) -> anyhow::Result<ProfileData>
      */
-    fun heapProfile(): Result<ProfileData> {
-        return when (val p = module.value.heapProfile) {
+    fun heapProfile(): Result<ProfileData> =
+        when (val p = module.value.heapProfile) {
             null -> Result.failure(ModuleError.RetainedMemoryProfileNotEnabled())
             else -> Result.success(p.toProfile())
         }
-    }
 
     /**
      * `extra_value` field from `Module`, frozen.
      *
      * pub fn extra_value(&self) -> Option<FrozenValue>
      */
-    fun extraValue(): FrozenValue? {
-        return _extraValue
-    }
+    fun extraValue(): FrozenValue? = _extraValue
 
     /**
      * `extra_value` field from `Module`, frozen.
      *
      * pub fn owned_extra_value(&self) -> Option<OwnedFrozenValue>
      */
-    fun ownedExtraValue(): OwnedFrozenValue? {
-        return _extraValue?.let { OwnedFrozenValue(heap, it) }
-    }
+    fun ownedExtraValue(): OwnedFrozenValue? = _extraValue?.let { OwnedFrozenValue(heap, it) }
 }
 
 /** pub(crate) struct FrozenModuleData */
@@ -268,37 +255,32 @@ internal class FrozenModuleData(
     val heapProfile: RetainedHeapProfile?,
 ) {
     /** fn names(&self) -> impl Iterator<Item = FrozenStringValue> */
-    fun names(): Sequence<FrozenStringValue> {
-        return names.symbols().map { it.first }
-    }
+    fun names(): Sequence<FrozenStringValue> = names.symbols().map { it.first }
 
     /** fn describe(&self) -> String */
-    fun describe(): String {
-        return items()
+    fun describe(): String =
+        items()
             .map { (name, value) -> value.toValue().describe(name.asStr()) }
             .joinToString("\n")
-    }
 
     /** fn items(&self) -> impl Iterator<Item = (FrozenStringValue, FrozenValue)> */
-    private fun items(): Sequence<Pair<FrozenStringValue, FrozenValue>> {
-        return names.symbols()
+    private fun items(): Sequence<Pair<FrozenStringValue, FrozenValue>> =
+        names
+            .symbols()
             .mapNotNull { (name, slot) ->
                 slots.getSlot(slot)?.let { name to it }
             }
-    }
 
     /** fn all_items(&self) -> impl Iterator<Item = (FrozenStringValue, FrozenValue)> */
-    fun allItems(): Sequence<Pair<FrozenStringValue, FrozenValue>> {
-        return names.allSymbols()
+    fun allItems(): Sequence<Pair<FrozenStringValue, FrozenValue>> =
+        names
+            .allSymbols()
             .mapNotNull { (name, slot) ->
                 slots.getSlot(slot)?.let { name to it }
             }
-    }
 
     /** pub(crate) fn get_slot(&self, slot: ModuleSlotId) -> Option<FrozenValue> */
-    internal fun getSlot(slot: ModuleSlotId): FrozenValue? {
-        return slots.getSlot(slot)
-    }
+    internal fun getSlot(slot: ModuleSlotId): FrozenValue? = slots.getSlot(slot)
 
     /**
      * Try and go back from a slot to a name.
@@ -316,9 +298,7 @@ internal class FrozenModuleData(
     }
 
     /** fn documentation(&self) -> Option<DocString> */
-    fun documentation(): DocString? {
-        return docstring?.let { DocString.fromDocstring(DocStringKind.Starlark, it) }
-    }
+    fun documentation(): DocString? = docstring?.let { DocString.fromDocstring(DocStringKind.Starlark, it) }
 }
 
 /**
@@ -351,44 +331,38 @@ class Module internal constructor(
          *
          * pub fn with_temp_heap<R, F>(f: F) -> R
          */
-        fun <R> withTempHeap(f: (Module) -> R): R {
-            return Heap.temp { h ->
+        fun <R> withTempHeap(f: (Module) -> R): R =
+            Heap.temp { h ->
                 h.allowGc()
                 f(withHeap(h))
             }
-        }
 
         /**
          * Like [withTempHeap], but async (suspend).
          *
          * pub async fn with_temp_heap_async<R, F>(f: F) -> R
          */
-        suspend fun <R> withTempHeapAsync(f: suspend (Module) -> R): R {
-            return Heap.temp { h ->
+        suspend fun <R> withTempHeapAsync(f: suspend (Module) -> R): R =
+            Heap.temp { h ->
                 h.allowGc()
                 // Note: suspend lambdas require kotlinx.coroutines runBlocking in some contexts
                 @Suppress("UNCHECKED_CAST")
                 (f as (Module) -> R)(withHeap(h))
             }
-        }
 
         /**
          * Create a new module environment with no contents that will use the provided heap.
          *
          * pub(crate) fn with_heap(heap: Heap<'v>) -> Self
          */
-        internal fun withHeap(heap: Heap): Module {
-            return Module(heap = heap)
-        }
+        internal fun withHeap(heap: Heap): Module = Module(heap = heap)
 
         /**
          * Symbols starting with underscore are considered private.
          *
          * pub(crate) fn default_visibility(symbol: &str) -> Visibility
          */
-        internal fun defaultVisibility(symbol: String): Visibility {
-            return if (symbol.startsWith('_')) Visibility.Private else Visibility.Public
-        }
+        internal fun defaultVisibility(symbol: String): Visibility = if (symbol.startsWith('_')) Visibility.Private else Visibility.Public
     }
 
     /** pub(crate) fn enable_retained_heap_profile(&self, mode: RetainedHeapProfileMode) */
@@ -401,18 +375,14 @@ class Module internal constructor(
      *
      * pub fn heap(&self) -> Heap<'v>
      */
-    fun heap(): Heap {
-        return heap
-    }
+    fun heap(): Heap = heap
 
     /**
      * Get the frozen heap on which frozen values are allocated by this module.
      *
      * pub fn frozen_heap(&self) -> &FrozenHeap
      */
-    fun frozenHeap(): FrozenHeap {
-        return frozenHeap
-    }
+    fun frozenHeap(): FrozenHeap = frozenHeap
 
     /**
      * Iterate through all the names defined in this module.
@@ -420,36 +390,28 @@ class Module internal constructor(
      *
      * pub fn names(&self) -> impl Iterator<Item = FrozenStringValue>
      */
-    fun names(): Sequence<FrozenStringValue> {
-        return names.allNamesAndVisibilities()
+    fun names(): Sequence<FrozenStringValue> =
+        names
+            .allNamesAndVisibilities()
             .asSequence()
             .filter { (_, vis) -> vis == Visibility.Public }
             .map { (name, _) -> name }
-    }
 
     /** pub(crate) fn values_by_slot_id(&self) -> Vec<(ModuleSlotId, Value<'v>)> */
-    internal fun valuesBySlotId(): List<Pair<ModuleSlotId, Value>> {
-        return slots().valuesBySlotId()
-    }
+    internal fun valuesBySlotId(): List<Pair<ModuleSlotId, Value>> = slots().valuesBySlotId()
 
     /**
      * Iterate through all the names defined in this module, including those that are private.
      *
      * pub fn names_and_visibilities(&self) -> impl Iterator<Item = (FrozenStringValue, Visibility)>
      */
-    fun namesAndVisibilities(): List<Pair<FrozenStringValue, Visibility>> {
-        return names.allNamesAndVisibilities()
-    }
+    fun namesAndVisibilities(): List<Pair<FrozenStringValue, Visibility>> = names.allNamesAndVisibilities()
 
     /** pub(crate) fn mutable_names(&self) -> &MutableNames */
-    internal fun mutableNames(): MutableNames {
-        return names
-    }
+    internal fun mutableNames(): MutableNames = names
 
     /** pub(crate) fn slots(&self) -> &MutableSlots<'v> */
-    internal fun slots(): MutableSlots {
-        return slots
-    }
+    internal fun slots(): MutableSlots = slots
 
     /**
      * Get value, exported or private by name.
@@ -468,32 +430,27 @@ class Module internal constructor(
      *
      * pub fn get(&self, name: &str) -> Option<Value<'v>>
      */
-    fun get(name: String): Value? {
-        return getAnyVisibility(Hashed.new(name))?.let { (v, vis) ->
+    fun get(name: String): Value? =
+        getAnyVisibility(Hashed.new(name))?.let { (v, vis) ->
             when (vis) {
                 Visibility.Private -> null
                 Visibility.Public -> v
             }
         }
-    }
 
     /**
      * Freeze the environment, all its value will become immutable afterwards.
      *
      * pub fn freeze(self) -> Result<FrozenModule>
      */
-    fun freeze(): Result<FrozenModule> {
-        return freezeImpl(null)
-    }
+    fun freeze(): Result<FrozenModule> = freezeImpl(null)
 
     /**
      * Freeze the environment and assign a name to the contained frozen heap.
      *
      * pub fn freeze_and_name(self, name: FrozenHeapName) -> Result<FrozenModule>
      */
-    fun freezeAndName(name: FrozenHeapName): Result<FrozenModule> {
-        return freezeImpl(name)
-    }
+    fun freezeAndName(name: FrozenHeapName): Result<FrozenModule> = freezeImpl(name)
 
     /** fn freeze_impl(self, name: Option<FrozenHeapName>) -> Result<FrozenModule> */
     private fun freezeImpl(name: FrozenHeapName?): Result<FrozenModule> {
@@ -503,22 +460,25 @@ class Module internal constructor(
             frozenHeap.addReference(r)
         }
         val frozenSlots = slots.freeze(freezer).getOrElse { return Result.failure(it) }
-        val extraValue = _extraValue?.let { v ->
-            freezer.freeze(v).getOrElse { return Result.failure(it) }
-        }
-        val stacks = heapProfileOnFreeze?.let { mode ->
-            val heapProfile = AggregateHeapProfileInfo.collect(heap, HeapKind.Frozen)
-            RetainedHeapProfile(
-                info = heapProfile,
-                mode = mode,
+        val extraValue =
+            _extraValue?.let { v ->
+                freezer.freeze(v).getOrElse { return Result.failure(it) }
+            }
+        val stacks =
+            heapProfileOnFreeze?.let { mode ->
+                val heapProfile = AggregateHeapProfileInfo.collect(heap, HeapKind.Frozen)
+                RetainedHeapProfile(
+                    info = heapProfile,
+                    mode = mode,
+                )
+            }
+        val rest =
+            FrozenModuleData(
+                names = names.freeze(),
+                slots = frozenSlots,
+                docstring = docstring,
+                heapProfile = stacks,
             )
-        }
-        val rest = FrozenModuleData(
-            names = names.freeze(),
-            slots = frozenSlots,
-            docstring = docstring,
-            heapProfile = stacks,
-        )
         val frozenModuleRef = FrozenRef(rest)
         for (frozenDef in freezer.frozenDefs) {
             frozenDef.value.postFreeze(frozenModuleRef, heap, freezer.heap)
@@ -530,7 +490,7 @@ class Module internal constructor(
                 module = frozenModuleRef,
                 _extraValue = extraValue,
                 evalDuration = start.elapsedNow() + _evalDuration,
-            )
+            ),
         )
     }
 
@@ -579,17 +539,19 @@ class Module internal constructor(
     internal fun loadSymbol(module: FrozenModule, symbol: String): Result<Value> {
         if (defaultVisibility(symbol) != Visibility.Public) {
             return Result.failure(
-                EnvironmentError.CannotImportPrivateSymbol(symbol)
+                EnvironmentError.CannotImportPrivateSymbol(symbol),
             )
         }
-        val (value, vis) = module.getAnyVisibility(symbol).getOrElse {
-            return Result.failure(it)
-        }
+        val (value, vis) =
+            module.getAnyVisibility(symbol).getOrElse {
+                return Result.failure(it)
+            }
         return when (vis) {
             Visibility.Public -> Result.success(heap().accessOwnedFrozenValue(value))
-            Visibility.Private -> Result.failure(
-                EnvironmentError.ModuleSymbolIsNotExported(symbol)
-            )
+            Visibility.Private ->
+                Result.failure(
+                    EnvironmentError.ModuleSymbolIsNotExported(symbol),
+                )
         }
     }
 
@@ -641,7 +603,7 @@ class Module internal constructor(
         val existing = extraValue()
         if (existing != null) {
             return Result.failure(
-                ModuleError.ExtraValueAlreadySet(existing.getType())
+                ModuleError.ExtraValueAlreadySet(existing.getType()),
             )
         }
         setExtraValue(v)
@@ -653,7 +615,5 @@ class Module internal constructor(
      *
      * pub fn extra_value(&self) -> Option<Value<'v>>
      */
-    fun extraValue(): Value? {
-        return _extraValue
-    }
+    fun extraValue(): Value? = _extraValue
 }

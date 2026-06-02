@@ -36,18 +36,24 @@ import io.github.kotlinmania.starlark.values.layout.Value
 sealed class InstrControl {
     /** Go to address. */
     // Next(BcPtrAddr<'b>)
-    data class Next(val ip: BcPtrAddr) : InstrControl()
+    data class Next(
+        val ip: BcPtrAddr,
+    ) : InstrControl()
 
     /** Return from the function. */
     // Return(Value<'v>)
-    data class Return(val value: Value) : InstrControl()
+    data class Return(
+        val value: Value,
+    ) : InstrControl()
 
     /**
      * Error. This can be either any error or diagnostics.
      * If it is the former, error span will be added from instruction metadata.
      */
     // Err(crate::Error)
-    data class Err(val error: StarlarkError) : InstrControl()
+    data class Err(
+        val error: StarlarkError,
+    ) : InstrControl()
 }
 
 /**

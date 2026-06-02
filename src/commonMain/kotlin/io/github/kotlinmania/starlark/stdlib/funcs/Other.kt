@@ -27,8 +27,8 @@ package io.github.kotlinmania.starlark.stdlib.funcs.other
 import io.github.kotlinmania.starlark.environment.GlobalsBuilder
 import io.github.kotlinmania.starlark.eval.runtime.Evaluator
 import io.github.kotlinmania.starlark.values.ValueError
-import io.github.kotlinmania.starlark.values.layout.avalues.allocTuple
 import io.github.kotlinmania.starlark.values.layout.Value
+import io.github.kotlinmania.starlark.values.layout.avalues.allocTuple
 import io.github.kotlinmania.starlark.values.layout.heap.Heap
 import io.github.kotlinmania.starlark.values.layout.typed.FrozenStringValue
 import io.github.kotlinmania.starlark.values.types.bigint.allocValue
@@ -66,7 +66,9 @@ private fun fail(args: List<Value>): Nothing {
  *
  * Corresponds to Rust's `ErrorKind::Fail(anyhow::Error::msg(s))`.
  */
-class StarlarkFailError(message: String) : RuntimeException(message)
+class StarlarkFailError(
+    message: String,
+) : RuntimeException(message)
 
 /**
  * [any](https://github.com/bazelbuild/starlark/blob/master/spec.md#any):
@@ -141,9 +143,7 @@ private fun all(x: Value, heap: Heap): Boolean {
  * @return A list of attribute names.
  */
 // fn dir(x: Value) -> anyhow::Result<Vec<String>>
-private fun dir(x: Value): List<String> {
-    return x.dirAttr()
-}
+private fun dir(x: Value): List<String> = x.dirAttr()
 
 /**
  * [enumerate](https://github.com/bazelbuild/starlark/blob/master/spec.md#enumerate):
@@ -227,9 +227,7 @@ private fun getattr(a: Value, attr: String, default: Value?, heap: Heap): Value 
  * @return `true` if the attribute exists, `false` otherwise.
  */
 // fn hasattr<'v>(a: Value<'v>, attr: &str, heap: Heap<'v>) -> anyhow::Result<bool>
-private fun hasattr(a: Value, attr: String, heap: Heap): Boolean {
-    return a.hasAttr(attr, heap)
-}
+private fun hasattr(a: Value, attr: String, heap: Heap): Boolean = a.hasAttr(attr, heap)
 
 /**
  * [hash](https://github.com/bazelbuild/starlark/blob/master/spec.md#hash):
@@ -303,9 +301,7 @@ private fun hash(a: String): Int {
  * @return The number of elements.
  */
 // fn len(a: Value) -> starlark::Result<i32>
-private fun len(a: Value): Int {
-    return a.length().getOrThrow()
-}
+private fun len(a: Value): Int = a.length().getOrThrow()
 
 /**
  * [reversed](https://github.com/bazelbuild/starlark/blob/master/spec.md#reversed):
@@ -368,28 +364,32 @@ private fun reversed(a: Value, heap: Heap): Value {
 private fun sorted(x: Value, key: Value?, reverse: Boolean, eval: Evaluator): Value {
     val heap = eval.heap()
     val it = x.iterate(heap).getOrThrow()
-    val pairs: MutableList<Pair<Value, Value>> = if (key == null) {
-        it.asSequence().map { v -> Pair(v, v) }.toMutableList()
-    } else {
-        val v = mutableListOf<Pair<Value, Value>>()
-        for (el in it) {
-            v.add(Pair(el, key.invokePos(listOf(el), eval).getOrThrow()))
+    val pairs: MutableList<Pair<Value, Value>> =
+        if (key == null) {
+            it.asSequence().map { v -> Pair(v, v) }.toMutableList()
+        } else {
+            val v = mutableListOf<Pair<Value, Value>>()
+            for (el in it) {
+                v.add(Pair(el, key.invokePos(listOf(el), eval).getOrThrow()))
+            }
+            v
         }
-        v
-    }
 
     var compareOk: Exception? = null
 
-    pairs.sortWith(Comparator { a, b ->
-        val ordOrErr = try {
-            val cmp = a.second.compare(b.second).getOrThrow()
-            if (reverse) -cmp else cmp
-        } catch (e: Exception) {
-            compareOk = e
-            0 // does not matter
-        }
-        ordOrErr
-    })
+    pairs.sortWith(
+        Comparator { a, b ->
+            val ordOrErr =
+                try {
+                    val cmp = a.second.compare(b.second).getOrThrow()
+                    if (reverse) -cmp else cmp
+                } catch (e: Exception) {
+                    compareOk = e
+                    0 // does not matter
+                }
+            ordOrErr
+        },
+    )
 
     if (compareOk != null) {
         throw compareOk!!
@@ -414,12 +414,11 @@ private fun sorted(x: Value, key: Value?, reverse: Boolean, eval: Evaluator): Va
  * @return A frozen string value containing the type name.
  */
 // fn r#type<'v>(a: Value) -> anyhow::Result<FrozenStringValue>
-private fun type(a: Value): FrozenStringValue {
-    return a.getTypeValue()
-}
+private fun type(a: Value): FrozenStringValue = a.getTypeValue()
 
 // #[starlark_module]
 // pub(crate) fn register_other(builder: &mut GlobalsBuilder)
+
 /**
  * Register the standard functions (`fail`, `any`, `all`, `dir`, `enumerate`,
  * `getattr`, `hasattr`, `hash`, `len`, `reversed`, `sorted`, `type`) with

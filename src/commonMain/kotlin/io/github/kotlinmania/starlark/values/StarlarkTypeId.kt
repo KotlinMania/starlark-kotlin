@@ -1,5 +1,5 @@
 // port-lint: source src/values/starlark_type_id.rs
-package io.github.kotlinmania.starlark.values.starlark_type_id
+package io.github.kotlinmania.starlark.values.starlarktypeid
 
 /*
  * Copyright 2018 The Starlark in Rust Authors.
@@ -33,17 +33,11 @@ data class StarlarkTypeId(
     private val typeId: ConstTypeId,
 ) {
     companion object {
-        fun fromTypeId(typeId: ConstTypeId): StarlarkTypeId {
-            return StarlarkTypeId(typeId)
-        }
+        fun fromTypeId(typeId: ConstTypeId): StarlarkTypeId = StarlarkTypeId(typeId)
 
-        fun of(klass: KClass<*>): StarlarkTypeId {
-            return StarlarkTypeId(ConstTypeId.of(klass))
-        }
+        fun of(klass: KClass<*>): StarlarkTypeId = StarlarkTypeId(ConstTypeId.of(klass))
 
-        fun ofCanonical(klass: KClass<*>): StarlarkTypeId {
-            return StarlarkTypeId(ConstTypeId.of(klass))
-        }
+        fun ofCanonical(klass: KClass<*>): StarlarkTypeId = StarlarkTypeId(ConstTypeId.of(klass))
     }
 }
 
@@ -58,9 +52,7 @@ data class StarlarkTypeIdAligned(
     private val starlarkTypeId: StarlarkTypeId,
 ) {
     companion object {
-        fun new(starlarkTypeId: StarlarkTypeId): StarlarkTypeIdAligned {
-            return StarlarkTypeIdAligned(starlarkTypeId)
-        }
+        fun new(starlarkTypeId: StarlarkTypeId): StarlarkTypeIdAligned = StarlarkTypeIdAligned(starlarkTypeId)
     }
 
     fun get(): StarlarkTypeId = starlarkTypeId

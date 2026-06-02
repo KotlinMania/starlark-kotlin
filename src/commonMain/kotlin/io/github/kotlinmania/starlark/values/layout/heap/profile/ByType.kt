@@ -19,8 +19,8 @@ package io.github.kotlinmania.starlark.values.layout.heap.profile
  * limitations under the License.
  */
 
-import io.github.kotlinmania.starlark.values.layout.heap.profile.alloc_counts.AllocCounts
-import io.github.kotlinmania.starlark.values.layout.heap.profile.alloc_counts.sum
+import io.github.kotlinmania.starlark.values.layout.heap.profile.alloccounts.AllocCounts
+import io.github.kotlinmania.starlark.values.layout.heap.profile.alloccounts.sum
 
 /**
  * Information about the data stored on a heap. Accessible through
@@ -48,15 +48,11 @@ class HeapSummary(
     }
 
     // pub(crate) fn total(&self) -> AllocCounts
-    internal fun total(): AllocCounts {
-        return summary.values().toList().sum()
-    }
+    internal fun total(): AllocCounts = summary.values().toList().sum()
 
     /** Total number of bytes allocated. */
     // pub fn total_allocated_bytes(&self) -> usize
-    fun totalAllocatedBytes(): Long {
-        return total().bytes
-    }
+    fun totalAllocatedBytes(): Long = total().bytes
 
     // pub(crate) fn add(&mut self, t: &'static str, s: AllocCounts)
     internal fun add(t: String, s: AllocCounts) {

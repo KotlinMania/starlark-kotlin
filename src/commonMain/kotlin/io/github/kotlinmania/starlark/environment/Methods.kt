@@ -19,10 +19,11 @@ package io.github.kotlinmania.starlark.environment
  * limitations under the License.
  */
 
-import io.github.kotlinmania.starlark.deriverefs.NativeCallableComponents
 import io.github.kotlinmania.starlark.collections.Hashed
-import io.github.kotlinmania.starlark.collections.symbol.SymbolMap
+import io.github.kotlinmania.starlark.collections.SmallMap
 import io.github.kotlinmania.starlark.collections.symbol.Symbol
+import io.github.kotlinmania.starlark.collections.symbol.SymbolMap
+import io.github.kotlinmania.starlark.deriverefs.NativeCallableComponents
 import io.github.kotlinmania.starlark.docs.DocFunction
 import io.github.kotlinmania.starlark.docs.DocItem
 import io.github.kotlinmania.starlark.docs.DocMember
@@ -31,19 +32,18 @@ import io.github.kotlinmania.starlark.eval.runtime.Arguments
 import io.github.kotlinmania.starlark.eval.runtime.Evaluator
 import io.github.kotlinmania.starlark.eval.runtime.params.spec.ParametersSpec
 import io.github.kotlinmania.starlark.typing.Ty
-import io.github.kotlinmania.starlark.collections.SmallMap
 import io.github.kotlinmania.starlark.values.AllocFrozenValue
-import io.github.kotlinmania.starlark.values.layout.heap.FrozenHeap
-import io.github.kotlinmania.starlark.values.layout.heap.FrozenHeapRef
 import io.github.kotlinmania.starlark.values.layout.FrozenValue
 import io.github.kotlinmania.starlark.values.layout.Value
+import io.github.kotlinmania.starlark.values.layout.avalues.simple.allocSimpleTypedStatic
+import io.github.kotlinmania.starlark.values.layout.heap.FrozenHeap
+import io.github.kotlinmania.starlark.values.layout.heap.FrozenHeapRef
 import io.github.kotlinmania.starlark.values.layout.heap.Heap
 import io.github.kotlinmania.starlark.values.types.NativeAttribute
 import io.github.kotlinmania.starlark.values.types.NativeMeth
 import io.github.kotlinmania.starlark.values.types.NativeMethFn
 import io.github.kotlinmania.starlark.values.types.NativeMethod
 import io.github.kotlinmania.starlark.values.types.UnboundValue
-import io.github.kotlinmania.starlark.values.layout.avalues.simple.allocSimpleTypedStatic
 import kotlin.concurrent.Volatile
 
 /**
@@ -60,10 +60,7 @@ class Methods internal constructor(
     internal val members: SymbolMap<UnboundValue>,
     internal val docstring: String?,
 ) {
-
-    internal fun get(name: String): Value? {
-        return members.getStr(name)?.toFrozenValue()?.toValue()
-    }
+    internal fun get(name: String): Value? = members.getStr(name)?.toFrozenValue()?.toValue()
 
     /**
      * Gets the type of the member.
@@ -71,36 +68,28 @@ class Methods internal constructor(
      * In the case of an attribute, this is the type the attribute evaluates to, while in the case
      * of a method, this is the `TyCallable`.
      */
-    internal fun getTy(name: String): Ty? {
-        return when (val member = members.getStr(name)) {
+    internal fun getTy(name: String): Ty? =
+        when (val member = members.getStr(name)) {
             null -> null
             is UnboundValue.Attr -> member.attr.asRef().typ
             is UnboundValue.Method -> member.method.asRef().ty
         }
-    }
 
-    internal fun getHashed(name: Hashed<String>): UnboundValue? {
-        return members.getHashedStr(name)
-    }
+    internal fun getHashed(name: Hashed<String>): UnboundValue? = members.getHashedStr(name)
 
-    internal fun getFrozenSymbol(name: Symbol): UnboundValue? {
-        return members.get(name)
-    }
+    internal fun getFrozenSymbol(name: Symbol): UnboundValue? = members.get(name)
 
-    internal fun names(): List<String> {
-        return members.keys().map { it.asStr() }
-    }
+    internal fun names(): List<String> = members.keys().map { it.asStr() }
 
-    internal fun members(): Iterator<Pair<String, FrozenValue>> {
-        return members.iter().map { (k, v) -> Pair(k.asStr(), v.toFrozenValue()) }.iterator()
-    }
+    internal fun members(): Iterator<Pair<String, FrozenValue>> = members.iter().map { (k, v) -> Pair(k.asStr(), v.toFrozenValue()) }.iterator()
 
     /** Fetch the documentation. */
     fun documentation(ty: Ty): DocType {
-        val (docs, memberDocs) = commonDocumentation(
-            docstring,
-            members.iter().map { (n, v) -> Pair(n.asStr(), v.toFrozenValue()) },
-        )
+        val (docs, memberDocs) =
+            commonDocumentation(
+                docstring,
+                members.iter().map { (n, v) -> Pair(n.asStr(), v.toFrozenValue()) },
+            )
 
         val membersMap = SmallMap.new<String, DocMember>()
         for ((n, item) in memberDocs.iter()) {
@@ -120,9 +109,7 @@ class Methods internal constructor(
 
     companion object {
         /** Create an empty [Methods], with no functions in scope. */
-        fun new(): Methods {
-            return MethodsBuilder.new().build()
-        }
+        fun new(): Methods = MethodsBuilder.new().build()
     }
 }
 
@@ -144,26 +131,23 @@ class MethodsBuilder private constructor(
     /** The raw docstring for the main object. */
     internal var docstring: String?,
 ) {
-
     companion object {
         /** Create an empty [MethodsBuilder], with no functions in scope. */
-        fun new(): MethodsBuilder {
-            return MethodsBuilder(
+        fun new(): MethodsBuilder =
+            MethodsBuilder(
                 heap = FrozenHeap.new(),
                 members = SymbolMap(),
                 docstring = null,
             )
-        }
     }
 
     /** Called at the end to build a [Methods]. */
-    fun build(): Methods {
-        return Methods(
+    fun build(): Methods =
+        Methods(
             heap = heap.intoRef(),
             members = members,
             docstring = docstring,
         )
-    }
 
     /** A fluent API for modifying [MethodsBuilder] and returning the result. */
     fun with(f: (MethodsBuilder) -> Unit): MethodsBuilder {
@@ -185,14 +169,18 @@ class MethodsBuilder private constructor(
         val frozenValue = heap.alloc(value)
         members.insert(
             name,
-            UnboundValue.Attr(heap.allocSimpleTypedStatic(NativeAttribute(
-                speculativeExecSafe = true,
-                docstring = docstring,
-                typ = value.starlarkTypeRepr(),
-                data = frozenValue,
-                // Safety: Set to `Some` immediately above
-                callable = { v, _, _ -> Result.success(v!!.toValue()) },
-            ))),
+            UnboundValue.Attr(
+                heap.allocSimpleTypedStatic(
+                    NativeAttribute(
+                        speculativeExecSafe = true,
+                        docstring = docstring,
+                        typ = value.starlarkTypeRepr(),
+                        data = frozenValue,
+                        // Safety: Set to `Some` immediately above
+                        callable = { v, _, _ -> Result.success(v!!.toValue()) },
+                    ),
+                ),
+            ),
         )
     }
 
@@ -207,13 +195,17 @@ class MethodsBuilder private constructor(
     ) {
         members.insert(
             name,
-            UnboundValue.Attr(heap.allocSimpleTypedStatic(NativeAttribute(
-                speculativeExecSafe = speculativeExecSafe,
-                docstring = docstring,
-                typ = typ,
-                data = null,
-                callable = f,
-            ))),
+            UnboundValue.Attr(
+                heap.allocSimpleTypedStatic(
+                    NativeAttribute(
+                        speculativeExecSafe = speculativeExecSafe,
+                        docstring = docstring,
+                        typ = typ,
+                        data = null,
+                        callable = f,
+                    ),
+                ),
+            ),
         )
     }
 
@@ -228,13 +220,17 @@ class MethodsBuilder private constructor(
 
         members.insert(
             name,
-            UnboundValue.Method(heap.allocSimpleTypedStatic(NativeMethod(
-                function = NativeMeth(f, sig),
-                name = name,
-                speculativeExecSafe = components.speculativeExecSafe,
-                docs = components.intoDocs(null),
-                ty = ty,
-            ))),
+            UnboundValue.Method(
+                heap.allocSimpleTypedStatic(
+                    NativeMethod(
+                        function = NativeMeth(f, sig),
+                        name = name,
+                        speculativeExecSafe = components.speculativeExecSafe,
+                        docs = components.intoDocs(null),
+                        ty = ty,
+                    ),
+                ),
+            ),
         )
     }
 
@@ -252,13 +248,17 @@ class MethodsBuilder private constructor(
         val ty = Ty.any()
         members.insert(
             name,
-            UnboundValue.Method(heap.allocSimpleTypedStatic(NativeMethod(
-                function = NativeMeth(nativeMethFn, sig),
-                name = name,
-                speculativeExecSafe = false,
-                docs = DocItem.Member(DocMember.Function(DocFunction())),
-                ty = ty,
-            ))),
+            UnboundValue.Method(
+                heap.allocSimpleTypedStatic(
+                    NativeMethod(
+                        function = NativeMeth(nativeMethFn, sig),
+                        name = name,
+                        speculativeExecSafe = false,
+                        docs = DocItem.Member(DocMember.Function(DocFunction())),
+                        ty = ty,
+                    ),
+                ),
+            ),
         )
     }
 
@@ -281,9 +281,7 @@ class MethodsBuilder private constructor(
     }
 
     /** Allocate a value using the same underlying heap as the [MethodsBuilder]. */
-    fun alloc(value: AllocFrozenValue): FrozenValue {
-        return value.allocFrozenValue(heap)
-    }
+    fun alloc(value: AllocFrozenValue): FrozenValue = value.allocFrozenValue(heap)
 }
 
 /**
@@ -304,7 +302,6 @@ class MethodsBuilder private constructor(
  * ```
  */
 class MethodsStatic {
-
     /** Create a new [MethodsStatic]. */
     constructor()
 

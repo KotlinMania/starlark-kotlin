@@ -40,40 +40,47 @@ package io.github.kotlinmania.starlark.values.types.dict
 // use crate::values::type_repr::StarlarkTypeRepr;
 // use crate::values::types::dict::dict_type::DictType;
 
+import io.github.kotlinmania.starlark.collections.SmallMap
 import io.github.kotlinmania.starlark.typing.Ty
+import io.github.kotlinmania.starlark.values.StarlarkTypeRepr
 import io.github.kotlinmania.starlark.values.UnpackValue
 import io.github.kotlinmania.starlark.values.ValueError
-import io.github.kotlinmania.starlark.values.layout.Value
-import io.github.kotlinmania.starlark.values.StarlarkTypeRepr
 import io.github.kotlinmania.starlark.values.layout.FrozenValue
-import io.github.kotlinmania.starlark.collections.SmallMap
+import io.github.kotlinmania.starlark.values.layout.Value
 
 sealed class Either<out L, out R> {
-    data class Left<out L>(val value: L) : Either<L, Nothing>()
-    data class Right<out R>(val value: R) : Either<Nothing, R>()
+    data class Left<out L>(
+        val value: L,
+    ) : Either<L, Nothing>()
+
+    data class Right<out R>(
+        val value: R,
+    ) : Either<Nothing, R>()
 }
 
-/// Borrowed `Dict`.
+// / Borrowed `Dict`.
 // pub struct DictRef<'v> {
 //     pub(crate) aref: Either<Ref<'v, Dict<'v>>, &'v Dict<'v>>,
 // }
 class DictRef internal constructor(
-    internal val aref: Either<Ref<Dict>, Dict>
+    internal val aref: Either<Ref<Dict>, Dict>,
 )
 
 // impl<'v> Clone for DictRef<'v>
 //     fn clone(&self) -> Self
-fun DictRef.clone(): DictRef = when (val ref = this.aref) {
-    is Either.Left -> DictRef(Either.Left(ref.value.clone()))
-    is Either.Right -> DictRef(Either.Right(ref.value))
-}
+fun DictRef.clone(): DictRef =
+    when (val ref = this.aref) {
+        is Either.Left -> DictRef(Either.Left(ref.value.clone()))
+        is Either.Right -> DictRef(Either.Right(ref.value))
+    }
 
 // impl<'v> DictRef<'v>
-/// Downcast the value to a dict.
+// / Downcast the value to a dict.
 // pub fn from_value(x: Value<'v>) -> Option<DictRef<'v>>
 fun dictRefFromValue(x: Value): DictRef? =
     if (x.unpackFrozen() != null) {
-        x.downcastRef<DictGen<FrozenDictData>>()
+        x
+            .downcastRef<DictGen<FrozenDictData>>()
             ?.let { DictRef(Either.Right(Dict(it.inner.content as SmallMap<Value, Value>))) }
     } else {
         val ptr = x.downcastRef<DictGen<AtomicRef<Dict>>>() ?: return null
@@ -84,36 +91,43 @@ fun dictRefFromValue(x: Value): DictRef? =
 //     type Target = Dict<'v>;
 //     fn deref(&self) -> &Self::Target
 // }
-operator fun DictRef.getValue(thisRef: Any?, property: Any?): Dict = when (val ref = aref) {
-    is Either.Left -> ref.value.value
-    is Either.Right -> ref.value
-}
+operator fun DictRef.getValue(thisRef: Any?, property: Any?): Dict =
+    when (val ref = aref) {
+        is Either.Left -> ref.value.value
+        is Either.Right -> ref.value
+    }
 
 /** Iterate over key/value pairs, mirroring Rust's `Deref<Target = Dict>` on DictRef. */
-fun DictRef.iter(): Sequence<Pair<Value, Value>> = when (val ref = aref) {
-    is Either.Left -> ref.value.value.iter()
-    is Either.Right -> ref.value.iter()
-}
+fun DictRef.iter(): Sequence<Pair<Value, Value>> =
+    when (val ref = aref) {
+        is Either.Left -> ref.value.value.iter()
+        is Either.Right -> ref.value.iter()
+    }
 
-/// Mutably borrowed `Dict`.
+// / Mutably borrowed `Dict`.
 // pub struct DictMut<'v> {
 //     pub aref: RefMut<'v, Dict<'v>>,
 // }
 class DictMut(
-    /// Mutable reference to the dict
-    val aref: RefMut<Dict>
+    // / Mutable reference to the dict
+    val aref: RefMut<Dict>,
 )
 
 // impl<'v> DictMut<'v>
-/// Downcast the value to a mutable dict reference.
+// / Downcast the value to a mutable dict reference.
 // #[inline]
 // pub fn from_value(x: Value<'v>) -> anyhow::Result<DictMut<'v>>
 fun dictMutFromValue(x: Value): Result<DictMut> {
-    class NotDictError(typeName: String) : Exception("Value is not dict, value type: `$typeName`")
+    class NotDictError(
+        typeName: String,
+    ) : Exception("Value is not dict, value type: `$typeName`")
 
     fun error(x: Value): Throwable =
-        if (x.downcastRef<DictGen<FrozenDictData>>() != null) ValueError.CannotMutateImmutableValue
-        else NotDictError(x.getType())
+        if (x.downcastRef<DictGen<FrozenDictData>>() != null) {
+            ValueError.CannotMutateImmutableValue
+        } else {
+            NotDictError(x.getType())
+        }
 
     val ptr = x.downcastRef<DictGen<AtomicRef<Dict>>>() ?: return Result.failure(error(x))
     return when (val borrowed = ptr.inner.tryBorrowMut()) {
@@ -122,26 +136,26 @@ fun dictMutFromValue(x: Value): Result<DictMut> {
     }
 }
 
-/// Reference to frozen `Dict`.
+// / Reference to frozen `Dict`.
 // pub struct FrozenDictRef {
 //     dict: &'static FrozenDictData,
 // }
 class FrozenDictRef internal constructor(
-    private val dict: FrozenDictData
+    private val dict: FrozenDictData,
 ) {
     // impl FrozenDictRef
     companion object {
-        /// Downcast to frozen dict.
+        // / Downcast to frozen dict.
         // pub fn from_frozen_value(x: FrozenValue) -> Option<FrozenDictRef>
         fun fromFrozenValue(x: FrozenValue): FrozenDictRef? =
             x.downcastRef<DictGen<FrozenDictData>>()?.let { FrozenDictRef(it.inner) }
     }
 
-    /// Get value by a string key.
+    // / Get value by a string key.
     // pub fn get_str(&self, key: &str) -> Option<FrozenValue>
     fun getStr(key: String): FrozenValue? = dict.getStr(key)
 
-    /// Iterate over dict entries.
+    // / Iterate over dict entries.
     // pub fn iter(&self) -> impl ExactSizeIterator<Item = (FrozenValue, FrozenValue)> + use<>
     fun iter(): Sequence<Pair<FrozenValue, FrozenValue>> = dict.iter()
 }
@@ -163,8 +177,12 @@ object DictRefUnpackValue : UnpackValue<DictRef> {
         Result.success(dictRefFromValue(value))
 }
 
-class Ref<T>(val value: T) {
+class Ref<T>(
+    val value: T,
+) {
     fun clone(): Ref<T> = Ref(value)
 }
 
-class RefMut<T>(val value: T)
+class RefMut<T>(
+    val value: T,
+)

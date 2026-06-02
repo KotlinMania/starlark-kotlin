@@ -1,17 +1,17 @@
 // port-lint: source src/analysis/dubious.rs
 package io.github.kotlinmania.starlark.analysis
 
+import io.github.kotlinmania.starlark.codemap.CodeMap
+import io.github.kotlinmania.starlark.codemap.FileSpan
+import io.github.kotlinmania.starlark.codemap.Span
+import io.github.kotlinmania.starlark.syntax.AstModule
+import io.github.kotlinmania.starlark.syntax.ast.AstExpr
+import io.github.kotlinmania.starlark.syntax.ast.AstLiteral
+import io.github.kotlinmania.starlark.syntax.ast.AstStmt
 import io.github.kotlinmania.starlark.syntax.ast.ExprP
 import io.github.kotlinmania.starlark.syntax.ast.StmtP
 import io.github.kotlinmania.starlark.values.types.int.StarlarkInt
 import io.github.kotlinmania.starlark.values.types.num.NumRef
-import io.github.kotlinmania.starlark.syntax.ast.AstLiteral
-import io.github.kotlinmania.starlark.syntax.ast.AstStmt
-import io.github.kotlinmania.starlark.syntax.ast.AstExpr
-import io.github.kotlinmania.starlark.codemap.FileSpan
-import io.github.kotlinmania.starlark.codemap.CodeMap
-import io.github.kotlinmania.starlark.codemap.Span
-import io.github.kotlinmania.starlark.syntax.AstModule
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.
@@ -35,77 +35,96 @@ import io.github.kotlinmania.starlark.syntax.AstModule
 
 sealed class Dubious : LintWarning {
     /** Duplicate dictionary key `{key}`, also used at {span} */
-    class DuplicateKey(val key: String, val span: FileSpan) : Dubious() {
+    class DuplicateKey(
+        val key: String,
+        val span: FileSpan,
+    ) : Dubious() {
         override fun toString(): String = "Duplicate dictionary key `$key`, also used at $span"
     }
 
     /** Variable `{name}` will either do nothing or fail if uninitialised */
-    class IdentifierAsStatement(val name: String) : Dubious() {
+    class IdentifierAsStatement(
+        val name: String,
+    ) : Dubious() {
         override fun toString(): String = "Variable `$name` will either do nothing or fail if uninitialised"
     }
 
     override fun severity(): EvalSeverity = EvalSeverity.Warning
 
-    override fun shortName(): String = when (this) {
-        is DuplicateKey -> "duplicate-key"
-        is IdentifierAsStatement -> "ident-as-statement"
-    }
+    override fun shortName(): String =
+        when (this) {
+            is DuplicateKey -> "duplicate-key"
+            is IdentifierAsStatement -> "ident-as-statement"
+        }
 
-    fun about(): String = when (this) {
-        is DuplicateKey -> key
-        is IdentifierAsStatement -> name
-    }
+    fun about(): String =
+        when (this) {
+            is DuplicateKey -> key
+            is IdentifierAsStatement -> name
+        }
 }
 
 // Helper sealed class for duplicate dictionary key detection.
 // Cannot be local because Kotlin does not support sealed local classes.
 private sealed class DubiousKey {
-    class IntKey(val value: StarlarkInt) : DubiousKey() {
+    class IntKey(
+        val value: StarlarkInt,
+    ) : DubiousKey() {
         override fun equals(other: Any?): Boolean = other is IntKey && value == other.value
+
         override fun hashCode(): kotlin.Int = value.hashCode()
     }
 
-    class FloatKey(val bits: Long) : DubiousKey() {
+    class FloatKey(
+        val bits: Long,
+    ) : DubiousKey() {
         override fun equals(other: Any?): Boolean = other is FloatKey && bits == other.bits
+
         override fun hashCode(): kotlin.Int = bits.hashCode()
     }
 
-    class StringKey(val value: String) : DubiousKey() {
+    class StringKey(
+        val value: String,
+    ) : DubiousKey() {
         override fun equals(other: Any?): Boolean = other is StringKey && value == other.value
+
         override fun hashCode(): kotlin.Int = value.hashCode()
     }
 
-    class IdentifierKey(val value: String) : DubiousKey() {
+    class IdentifierKey(
+        val value: String,
+    ) : DubiousKey() {
         override fun equals(other: Any?): Boolean = other is IdentifierKey && value == other.value
+
         override fun hashCode(): kotlin.Int = value.hashCode()
     }
 }
 
 @Suppress("UNCHECKED_CAST")
-private fun toKey(x: AstExpr): Pair<DubiousKey, Span>? {
-    return when (val node = x.node) {
-        is ExprP.Literal -> when (val lit = node.literal) {
-            is AstLiteral.Int -> DubiousKey.IntKey(StarlarkInt.from(lit.value.node)) to lit.value.span
-            is AstLiteral.Float -> {
-                val n = NumRef.from(lit.value.node)
-                val asInt = n.asInt()
-                if (asInt != null) {
-                    // make an integer float always collide with other ints
-                    DubiousKey.IntKey(StarlarkInt.from(asInt)) to lit.value.span
-                } else {
-                    // use bits representation of float to be able to always compare them for equality
-                    // First normalise -0.0
-                    val v = if (lit.value.node == 0.0) 0.0 else lit.value.node
-                    DubiousKey.FloatKey(v.toBits()) to lit.value.span
+private fun toKey(x: AstExpr): Pair<DubiousKey, Span>? =
+    when (val node = x.node) {
+        is ExprP.Literal ->
+            when (val lit = node.literal) {
+                is AstLiteral.Int -> DubiousKey.IntKey(StarlarkInt.from(lit.value.node)) to lit.value.span
+                is AstLiteral.Float -> {
+                    val n = NumRef.from(lit.value.node)
+                    val asInt = n.asInt()
+                    if (asInt != null) {
+                        // make an integer float always collide with other ints
+                        DubiousKey.IntKey(StarlarkInt.from(asInt)) to lit.value.span
+                    } else {
+                        // use bits representation of float to be able to always compare them for equality
+                        // First normalise -0.0
+                        val v = if (lit.value.node == 0.0) 0.0 else lit.value.node
+                        DubiousKey.FloatKey(v.toBits()) to lit.value.span
+                    }
                 }
+                is AstLiteral.String -> DubiousKey.StringKey(lit.value.node) to lit.value.span
+                is AstLiteral.Ellipsis -> null
             }
-            is AstLiteral.String -> DubiousKey.StringKey(lit.value.node) to lit.value.span
-            is AstLiteral.Ellipsis -> null
-        }
         is ExprP.Identifier<*, *> -> DubiousKey.IdentifierKey(node.ident.node.ident) to node.ident.span
         else -> null
     }
-}
 
 // Go implementation of Starlark disallows duplicate top-level assignments,
 // it's likely that will become Starlark standard sooner or later, so check now.
@@ -126,8 +145,8 @@ internal fun duplicateDictionaryKey(module: AstModule, res: MutableList<LintT<Du
                                 LintT.new(
                                     codemap,
                                     old,
-                                    Dubious.DuplicateKey(key.toString(), codemap.fileSpan(pos))
-                                )
+                                    Dubious.DuplicateKey(key.toString(), codemap.fileSpan(pos)),
+                                ),
                             )
                         }
                     }
@@ -147,16 +166,18 @@ internal fun duplicateDictionaryKey(module: AstModule, res: MutableList<LintT<Du
 internal fun identifierAsStatement(module: AstModule, res: MutableList<LintT<Dubious>>) {
     fun stmt(x: AstStmt, codemap: CodeMap, results: MutableList<LintT<Dubious>>) {
         when (val node = x.node) {
-            is StmtP.Expression<*> -> when (val exprNode = (node.expr as AstExpr).node) {
-                is ExprP.Identifier<*, *> -> results.add(
-                    LintT.new(
-                        codemap,
-                        exprNode.ident.span,
-                        Dubious.IdentifierAsStatement(exprNode.ident.node.ident)
-                    )
-                )
-                else -> {}
-            }
+            is StmtP.Expression<*> ->
+                when (val exprNode = (node.expr as AstExpr).node) {
+                    is ExprP.Identifier<*, *> ->
+                        results.add(
+                            LintT.new(
+                                codemap,
+                                exprNode.ident.span,
+                                Dubious.IdentifierAsStatement(exprNode.ident.node.ident),
+                            ),
+                        )
+                    else -> {}
+                }
             else -> x.visitStmtChildren { child -> stmt(child, codemap, results) }
         }
     }

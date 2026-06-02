@@ -38,7 +38,6 @@ import io.github.kotlinmania.starlark.values.layout.Value
 class ListType<T : StarlarkTypeRepr> private constructor(
     private val elementRepr: Ty,
 ) : StarlarkTypeRepr {
-
     override fun starlarkTypeRepr(): Ty = Ty.list(elementRepr)
 
     companion object {

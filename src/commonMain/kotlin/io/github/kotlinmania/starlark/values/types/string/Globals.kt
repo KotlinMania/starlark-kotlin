@@ -1,11 +1,10 @@
 // port-lint: source src/values/types/string/globals.rs
 package io.github.kotlinmania.starlark.values.types.string
 import io.github.kotlinmania.starlark.environment.GlobalsBuilder
-
 import io.github.kotlinmania.starlark.eval.runtime.Evaluator
 import io.github.kotlinmania.starlark.values.layout.Value
 import io.github.kotlinmania.starlark.values.layout.typed.StringValue
-
+import io.github.kotlinmania.starlark.values.types.bigint.allocValue
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.
@@ -25,7 +24,6 @@ import io.github.kotlinmania.starlark.values.layout.typed.StringValue
  * limitations under the License.
  */
 
-
 /**
  * Register string-related global functions.
  *
@@ -37,9 +35,10 @@ internal fun registerStr(globals: GlobalsBuilder) {
     // chr(i): returns a string encoding a codepoint
     globals.setFunction("chr") { callArgs, eval ->
         val a: Value = callArgs.positional(0)
-        val i = a.unpackI32() ?: throw IllegalArgumentException(
-            "chr() argument must be an integer, got ${a.getType()}"
-        )
+        val i =
+            a.unpackI32() ?: throw IllegalArgumentException(
+                "chr() argument must be an integer, got ${a.getType()}",
+            )
         val c = chr(i).getOrThrow()
         eval.heap().allocStr(c.toString())
     }
@@ -47,8 +46,9 @@ internal fun registerStr(globals: GlobalsBuilder) {
     // ord(s): returns the codepoint of a character
     globals.setFunction("ord") { callArgs, eval ->
         val a: Value = callArgs.positional(0)
-        val sv = StringValue.new(a)
-            ?: throw IllegalArgumentException("ord: expected a string argument")
+        val sv =
+            StringValue.new(a)
+                ?: throw IllegalArgumentException("ord: expected a string argument")
         val result = ord(sv).getOrThrow()
         result.allocValue(eval.heap())
     }
@@ -90,7 +90,7 @@ internal fun registerStr(globals: GlobalsBuilder) {
 internal fun chr(i: Int): Result<Char> {
     if (i < 0) {
         return Result.failure(
-            IllegalArgumentException("chr() parameter value negative integer $i")
+            IllegalArgumentException("chr() parameter value negative integer $i"),
         )
     }
 
@@ -103,15 +103,15 @@ internal fun chr(i: Int): Result<Char> {
         } else {
             Result.failure(
                 IllegalArgumentException(
-                    "chr() parameter value is 0x${cp.toString(16)} which is not a valid UTF-8 codepoint"
-                )
+                    "chr() parameter value is 0x${cp.toString(16)} which is not a valid UTF-8 codepoint",
+                ),
             )
         }
     } catch (e: IllegalArgumentException) {
         Result.failure(
             IllegalArgumentException(
-                "chr() parameter value is 0x${cp.toString(16)} which is not a valid UTF-8 codepoint"
-            )
+                "chr() parameter value is 0x${cp.toString(16)} which is not a valid UTF-8 codepoint",
+            ),
         )
     }
 }
@@ -147,15 +147,15 @@ internal fun ord(a: StringValue): Result<Int> {
         } else {
             Result.failure(
                 IllegalArgumentException(
-                    "ord(): ${a.toValue().toRepr()} is not a single character string"
-                )
+                    "ord(): ${a.toValue().toRepr()} is not a single character string",
+                ),
             )
         }
     } else {
         Result.failure(
             IllegalArgumentException(
-                "ord(): ${a.toValue().toRepr()} is not a single character string"
-            )
+                "ord(): ${a.toValue().toRepr()} is not a single character string",
+            ),
         )
     }
 }

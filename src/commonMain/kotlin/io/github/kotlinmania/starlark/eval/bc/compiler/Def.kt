@@ -23,14 +23,15 @@ package io.github.kotlinmania.starlark.eval.bc.compiler.def
 
 import io.github.kotlinmania.starlark.eval.bc.BcSlotOut
 import io.github.kotlinmania.starlark.eval.bc.BcWriter
-import io.github.kotlinmania.starlark.eval.compiler.IrSpanned
+import io.github.kotlinmania.starlark.eval.bc.InstrDefData
+import io.github.kotlinmania.starlark.eval.bc.compiler.writeBc
 import io.github.kotlinmania.starlark.eval.compiler.DefCompiled
+import io.github.kotlinmania.starlark.eval.compiler.ExprCompiled
+import io.github.kotlinmania.starlark.eval.compiler.IrSpanned
 import io.github.kotlinmania.starlark.eval.compiler.ParameterCompiled
 import io.github.kotlinmania.starlark.eval.compiler.ParametersCompiled
-import io.github.kotlinmania.starlark.eval.runtime.FrameSpan
-import io.github.kotlinmania.starlark.eval.bc.InstrDefData
-import io.github.kotlinmania.starlark.eval.compiler.ExprCompiled
 import io.github.kotlinmania.starlark.eval.compiler.mapExpr
+import io.github.kotlinmania.starlark.eval.runtime.FrameSpan
 
 // impl DefCompiled
 
@@ -53,27 +54,30 @@ internal fun DefCompiled.writeBc(span: FrameSpan, target: BcSlotOut, bc: BcWrite
     bc.allocSlots(howManySlotsWeNeed, fun(slots, bc2) {
         val slotsIter = slots.iter().iterator()
         var valueCount = 0
-        val mappedParams = paramList.map { p: IrSpanned<ParameterCompiled<IrSpanned<ExprCompiled>>> ->
-            p.map { pc: ParameterCompiled<IrSpanned<ExprCompiled>> ->
-                pc.mapExpr { e: IrSpanned<ExprCompiled> ->
-                    e.writeBc(slotsIter.next().toOut(), bc2)
-                    val idx = valueCount
-                    valueCount += 1
-                    idx
+        val mappedParams =
+            paramList.map { p: IrSpanned<ParameterCompiled<IrSpanned<ExprCompiled>>> ->
+                p.map { pc: ParameterCompiled<IrSpanned<ExprCompiled>> ->
+                    pc.mapExpr { e: IrSpanned<ExprCompiled> ->
+                        e.writeBc(slotsIter.next().toOut(), bc2)
+                        val idx = valueCount
+                        valueCount += 1
+                        idx
+                    }
                 }
             }
-        }
 
-        val compiledParams = ParametersCompiled(
-            params = mappedParams,
-            indices = indices,
-        )
-        val instrDefData = InstrDefData(
-            functionName = functionName,
-            params = compiledParams,
-            returnType = this.returnType,
-            info = this.info,
-        )
+        val compiledParams =
+            ParametersCompiled(
+                params = mappedParams,
+                indices = indices,
+            )
+        val instrDefData =
+            InstrDefData(
+                functionName = functionName,
+                params = compiledParams,
+                returnType = this.returnType,
+                info = this.info,
+            )
 
         check(!slotsIter.hasNext())
 

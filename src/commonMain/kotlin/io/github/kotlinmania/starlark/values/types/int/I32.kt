@@ -36,8 +36,8 @@ package io.github.kotlinmania.starlark.values.types.int
 // use crate::values::types::int::int_or_big::StarlarkIntRef;
 
 import io.github.kotlinmania.starlark.typing.Ty
-import io.github.kotlinmania.starlark.values.layout.Value
 import io.github.kotlinmania.starlark.values.layout.IntegerTooBigError
+import io.github.kotlinmania.starlark.values.layout.Value
 
 // impl<'v> AllocValue<'v> for i32
 // impl AllocFrozenValue for i32
@@ -73,10 +73,12 @@ fun unpackValueI32(value: Value): Result<Int?> {
     // Slow path: check if it's a bigger int (error) or not an int at all (null)
     val int = StarlarkIntRef.unpack(value)
     if (int != null) {
-        return Result.failure(IntegerTooBigError(
-            value = int.toString(),
-            integerType = "Int"
-        ))
+        return Result.failure(
+            IntegerTooBigError(
+                value = int.toString(),
+                integerType = "Int",
+            ),
+        )
     }
     return Result.success(null)
 }

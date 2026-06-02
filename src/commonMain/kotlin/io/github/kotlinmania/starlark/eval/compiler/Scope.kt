@@ -35,42 +35,42 @@ import io.github.kotlinmania.starlark.environment.Module
 import io.github.kotlinmania.starlark.environment.ModuleSlotId
 import io.github.kotlinmania.starlark.environment.MutableNames
 import io.github.kotlinmania.starlark.errors.didYouMean
-import io.github.kotlinmania.starlark.typing.InternalError
+import io.github.kotlinmania.starlark.eval.compiler.scope.CstAssignIdent
 import io.github.kotlinmania.starlark.eval.compiler.scope.CstAssignTarget
 import io.github.kotlinmania.starlark.eval.compiler.scope.CstExpr
 import io.github.kotlinmania.starlark.eval.compiler.scope.CstIdent
-import io.github.kotlinmania.starlark.eval.compiler.scope.CstAssignIdent
 import io.github.kotlinmania.starlark.eval.compiler.scope.CstParameter
 import io.github.kotlinmania.starlark.eval.compiler.scope.CstPayload
 import io.github.kotlinmania.starlark.eval.compiler.scope.CstStmt
 import io.github.kotlinmania.starlark.eval.compiler.scope.CstTypeExpr
+import io.github.kotlinmania.starlark.eval.compiler.scope.CstTypeExprPayload
 import io.github.kotlinmania.starlark.eval.compiler.scope.ScopeResolverGlobals
 import io.github.kotlinmania.starlark.eval.runtime.LocalSlotIdCapturedOrNot
-import io.github.kotlinmania.starlark.syntax.ast.AstAssignIdentP
-import io.github.kotlinmania.starlark.syntax.ast.AstStmt
 import io.github.kotlinmania.starlark.syntax.ast.AssignIdentP
 import io.github.kotlinmania.starlark.syntax.ast.AssignTargetP
+import io.github.kotlinmania.starlark.syntax.ast.AstAssignIdentP
+import io.github.kotlinmania.starlark.syntax.ast.AstStmt
 import io.github.kotlinmania.starlark.syntax.ast.ClauseP
 import io.github.kotlinmania.starlark.syntax.ast.DefP
 import io.github.kotlinmania.starlark.syntax.ast.ExprP
 import io.github.kotlinmania.starlark.syntax.ast.ForClauseP
 import io.github.kotlinmania.starlark.syntax.ast.ForP
-import io.github.kotlinmania.starlark.syntax.ast.LambdaP
 import io.github.kotlinmania.starlark.syntax.ast.IdentP
+import io.github.kotlinmania.starlark.syntax.ast.LambdaP
 import io.github.kotlinmania.starlark.syntax.ast.LoadArgP
 import io.github.kotlinmania.starlark.syntax.ast.LoadP
 import io.github.kotlinmania.starlark.syntax.ast.ParameterP
 import io.github.kotlinmania.starlark.syntax.ast.StmtP
 import io.github.kotlinmania.starlark.syntax.ast.TypeExprP
-import io.github.kotlinmania.starlark.eval.compiler.scope.CstTypeExprPayload
 import io.github.kotlinmania.starlark.syntax.ast.Visibility
 import io.github.kotlinmania.starlark.syntax.dialect.Dialect
 import io.github.kotlinmania.starlark.typing.EvalException
 import io.github.kotlinmania.starlark.typing.Interface
+import io.github.kotlinmania.starlark.typing.InternalError
 import io.github.kotlinmania.starlark.typing.StarlarkError
-import io.github.kotlinmania.starlark.values.layout.heap.FrozenHeap
 import io.github.kotlinmania.starlark.values.FrozenRef
 import io.github.kotlinmania.starlark.values.layout.FrozenValue
+import io.github.kotlinmania.starlark.values.layout.heap.FrozenHeap
 import io.github.kotlinmania.starlark.values.layout.typed.FrozenStringValue
 
 // ---------------------------------------------------------------------------
@@ -79,8 +79,13 @@ import io.github.kotlinmania.starlark.values.layout.typed.FrozenStringValue
 
 /** VisitMut — mutable visitor over CST children. */
 internal sealed class VisitMut {
-    class Stmt(val stmt: CstStmt) : VisitMut()
-    class Expr(val expr: CstExpr) : VisitMut()
+    class Stmt(
+        val stmt: CstStmt,
+    ) : VisitMut()
+
+    class Expr(
+        val expr: CstExpr,
+    ) : VisitMut()
 }
 
 /**
@@ -89,6 +94,7 @@ internal sealed class VisitMut {
  */
 internal fun topLevelStmtsMut(top: CstStmt): MutableList<CstStmt> {
     val result = mutableListOf<CstStmt>()
+
     fun flatten(stmt: CstStmt) {
         when (val node = stmt.node) {
             is StmtP.Statements<*> -> {
@@ -211,7 +217,7 @@ private fun mapPayloadsExpr(
     when (val node = expr.node) {
         is ExprP.Identifier<*, *> -> {
             val identP = node.ident as Spanned<IdentP<CstPayload, Any?>>
-            identP.node.payload = null  // map_ident: () -> None
+            identP.node.payload = null // map_ident: () -> None
         }
         is ExprP.Lambda<*, *> -> {
             val lambdaP = node.lambda as LambdaP<CstPayload, Any?>
@@ -281,7 +287,7 @@ private fun mapPayloadsAssignTarget(
 
 @Suppress("UNCHECKED_CAST")
 private fun mapPayloadsAssignIdent(ident: Spanned<AssignIdentP<CstPayload, Any?>>) {
-    ident.node.payload = null  // map_ident_assign: () -> None
+    ident.node.payload = null // map_ident_assign: () -> None
 }
 
 @Suppress("UNCHECKED_CAST")
@@ -290,7 +296,7 @@ private fun mapPayloadsTypeExpr(
     scopeData: ModuleScopeData,
     loads: Map<String, Interface>,
 ) {
-    typeExpr.node.payload = CstTypeExprPayload()  // map_type_expr: () -> default
+    typeExpr.node.payload = CstTypeExprPayload() // map_type_expr: () -> default
     mapPayloadsExpr(typeExpr.node.expr as CstExpr, scopeData, loads)
 }
 
@@ -315,11 +321,12 @@ private fun mapPayloadsClause(
     loads: Map<String, Interface>,
 ) {
     when (clause) {
-        is ClauseP.For<*> -> mapPayloadsForClause(
-            clause.forClause as ForClauseP<CstPayload>,
-            scopeData,
-            loads,
-        )
+        is ClauseP.For<*> ->
+            mapPayloadsForClause(
+                clause.forClause as ForClauseP<CstPayload>,
+                scopeData,
+                loads,
+            )
         is ClauseP.If<*> -> mapPayloadsExpr(clause.cond as CstExpr, scopeData, loads)
     }
 }
@@ -404,7 +411,8 @@ internal fun CstStmt.visitChildrenMut(f: (VisitMut) -> Unit) {
         is StmtP.Load<*, *> -> { /* no children */ }
         is StmtP.Break<*>,
         is StmtP.Continue<*>,
-        is StmtP.Pass<*> -> { /* no children */ }
+        is StmtP.Pass<*>,
+        -> { /* no children */ }
     }
 }
 
@@ -519,7 +527,8 @@ internal fun CstExpr.visitExprChildrenMut(f: (CstExpr) -> Unit) {
         is ExprP.Dict<*> -> {
             @Suppress("UNCHECKED_CAST")
             for ((k, v) in node.elements as List<Pair<CstExpr, CstExpr>>) {
-                f(k); f(v)
+                f(k)
+                f(v)
             }
         }
         is ExprP.ListComprehension<*> -> {
@@ -544,14 +553,15 @@ internal fun CstExpr.visitExprChildrenMut(f: (CstExpr) -> Unit) {
             val lambdaP = node.lambda
             @Suppress("UNCHECKED_CAST")
             for (p in lambdaP.params as List<Spanned<ParameterP<CstPayload>>>) {
-            p.node.visitParameterExprChildrenMut(f)
+                p.node.visitParameterExprChildrenMut(f)
             }
             @Suppress("UNCHECKED_CAST")
             f(lambdaP.body as CstExpr)
         }
         is ExprP.Identifier<*, *>,
         is ExprP.Literal<*>,
-        is ExprP.FString<*> -> { /* no expr children */ }
+        is ExprP.FString<*>,
+        -> { /* no expr children */ }
         is ExprP.Index2<*> -> {
             @Suppress("UNCHECKED_CAST")
             f(node.expr as CstExpr)
@@ -627,8 +637,8 @@ internal fun ParameterP<CstPayload>.visitParameterExprChildrenMut(f: (CstExpr) -
  * Extension: split a ParameterP into (name?, type?, default?).
  * Port of `ParameterP::split_mut`.
  */
-internal fun ParameterP<CstPayload>.splitMut(): Triple<AstAssignIdentP<CstPayload, *>?, Spanned<TypeExprP<CstPayload, *>>?, CstExpr?> {
-    return when (this) {
+internal fun ParameterP<CstPayload>.splitMut(): Triple<AstAssignIdentP<CstPayload, *>?, Spanned<TypeExprP<CstPayload, *>>?, CstExpr?> =
+    when (this) {
         is ParameterP.Normal<*> -> {
             @Suppress("UNCHECKED_CAST")
             Triple(
@@ -654,9 +664,9 @@ internal fun ParameterP<CstPayload>.splitMut(): Triple<AstAssignIdentP<CstPayloa
             )
         }
         is ParameterP.NoArgs<*>,
-        is ParameterP.Slash<*> -> Triple(null, null, null)
+        is ParameterP.Slash<*>,
+        -> Triple(null, null, null)
     }
-}
 
 /** Extension: visit expr children of a ForClauseP. */
 internal fun ForClauseP<CstPayload>.visitExprChildrenMut(f: (CstExpr) -> Unit) {
@@ -681,13 +691,24 @@ internal fun ClauseP<CstPayload>.visitExprChildrenMut(f: (CstExpr) -> Unit) {
 
 // #[derive(Debug, thiserror::Error)]
 // enum ScopeError
-internal sealed class ScopeError(message: String) : StarlarkError(message) {
+internal sealed class ScopeError(
+    message: String,
+) : StarlarkError(message) {
     // #[error("Variable `{0}` not found")]
-    class VariableNotFound(val name: String) : ScopeError("Variable `$name` not found")
+    class VariableNotFound(
+        val name: String,
+    ) : ScopeError("Variable `$name` not found")
+
     // #[error("Variable `{0}` not found, did you mean `{1}`?")]
-    class VariableNotFoundDidYouMean(val name: String, val suggestion: String) : ScopeError("Variable `$name` not found, did you mean `$suggestion`?")
+    class VariableNotFoundDidYouMean(
+        val name: String,
+        val suggestion: String,
+    ) : ScopeError("Variable `$name` not found, did you mean `$suggestion`?")
+
     // #[error("Identifiers in type expressions can only refer globals or builtins: `{0}`")]
-    class TypeExpressionGlobalOrBuiltin(val name: String) : ScopeError("Identifiers in type expressions can only refer globals or builtins: `$name`")
+    class TypeExpressionGlobalOrBuiltin(
+        val name: String,
+    ) : ScopeError("Identifiers in type expressions can only refer globals or builtins: `$name`")
 }
 
 /** All scopes and bindings in a module. */
@@ -755,12 +776,13 @@ internal class ModuleScopeBuilder(
 
             val existingModuleNamesAndVisibilities = module.allNamesAndVisibilities()
             for ((name, vis) in existingModuleNamesAndVisibilities) {
-                val (bindingId, _) = scopeData.newBinding(
-                    name,
-                    BindingSource.FromModule,
-                    vis,
-                    AssignCount.AtMostOnce,
-                )
+                val (bindingId, _) =
+                    scopeData.newBinding(
+                        name,
+                        BindingSource.FromModule,
+                        vis,
+                        AssignCount.AtMostOnce,
+                    )
                 localBindings[name] = bindingId
             }
 
@@ -793,18 +815,19 @@ internal class ModuleScopeBuilder(
                     codemap.value,
                 )
             }
-            val scope = ModuleScopeBuilder(
-                scopeData = scopeData,
-                frozenHeap = frozenHeap,
-                module = module,
-                moduleBindings = moduleBindings,
-                locals = mutableListOf(scopeId),
-                unscopes = mutableListOf(),
-                codemap = codemap,
-                globals = globals,
-                errors = mutableListOf(),
-                topLevelStmtCount = topLevelStmts.size,
-            )
+            val scope =
+                ModuleScopeBuilder(
+                    scopeData = scopeData,
+                    frozenHeap = frozenHeap,
+                    module = module,
+                    moduleBindings = moduleBindings,
+                    locals = mutableListOf(scopeId),
+                    unscopes = mutableListOf(),
+                    codemap = codemap,
+                    globals = globals,
+                    errors = mutableListOf(),
+                    topLevelStmtCount = topLevelStmts.size,
+                )
             for (s in topLevelStmts) {
                 scope.resolveIdents(s)
             }
@@ -833,12 +856,13 @@ internal class ModuleScopeBuilder(
             for (p in paramIdents) {
                 val name = frozenHeap.allocStrIntern(p.node.ident)
                 // Subtle invariant: the slots for the params must be ordered and at the beginning
-                val (bindingId, _) = scopeData.newBinding(
-                    name,
-                    BindingSource.Source(p.span),
-                    Visibility.Public,
-                    AssignCount.AtMostOnce,
-                )
+                val (bindingId, _) =
+                    scopeData.newBinding(
+                        name,
+                        BindingSource.Source(p.span),
+                        Visibility.Public,
+                        AssignCount.AtMostOnce,
+                    )
                 @Suppress("UNCHECKED_CAST")
                 (p.node as AssignIdentP<CstPayload, BindingId?>).payload = bindingId
                 check(localBindings.put(name, bindingId) == null)
@@ -885,20 +909,22 @@ internal class ModuleScopeBuilder(
 
             code.visitChildrenMut { visit ->
                 when (visit) {
-                    is VisitMut.Expr -> collectDefinesRecursivelyInExpr(
-                        scopeData,
-                        visit.expr,
-                        frozenHeap,
-                        dialect,
-                        codemap,
-                    )
-                    is VisitMut.Stmt -> collectDefinesRecursively(
-                        scopeData,
-                        visit.stmt,
-                        frozenHeap,
-                        dialect,
-                        codemap,
-                    )
+                    is VisitMut.Expr ->
+                        collectDefinesRecursivelyInExpr(
+                            scopeData,
+                            visit.expr,
+                            frozenHeap,
+                            dialect,
+                            codemap,
+                        )
+                    is VisitMut.Stmt ->
+                        collectDefinesRecursively(
+                            scopeData,
+                            visit.stmt,
+                            frozenHeap,
+                            dialect,
+                            codemap,
+                        )
                 }
             }
         }
@@ -988,6 +1014,7 @@ internal class ModuleScopeBuilder(
                 }
                 is StmtP.Load<*, *> -> {
                     val vis = if (dialect.enableLoadReexport) Visibility.Public else Visibility.Private
+
                     @Suppress("UNCHECKED_CAST")
                     val loadP = node.loadStmt as io.github.kotlinmania.starlark.syntax.ast.LoadP<CstPayload, *>
                     for (loadArg in loadP.args) {
@@ -1046,16 +1073,18 @@ internal class ModuleScopeBuilder(
                 prevBinding.assignCount = AssignCount.Any
                 assign.node.payload = existing
             } else {
-                val assignCount = when (inLoop) {
-                    InLoop.Yes -> AssignCount.Any
-                    InLoop.No -> AssignCount.AtMostOnce
-                }
-                val (newBindingId, _) = scopeData.newBinding(
-                    name,
-                    BindingSource.Source(span),
-                    effectiveVis,
-                    assignCount,
-                )
+                val assignCount =
+                    when (inLoop) {
+                        InLoop.Yes -> AssignCount.Any
+                        InLoop.No -> AssignCount.AtMostOnce
+                    }
+                val (newBindingId, _) =
+                    scopeData.newBinding(
+                        name,
+                        BindingSource.Source(span),
+                        effectiveVis,
+                        assignCount,
+                    )
                 result[name] = newBindingId
                 assign.node.payload = newBindingId
             }
@@ -1120,12 +1149,13 @@ internal class ModuleScopeBuilder(
                 }
                 resolveIdentsInExpr(assignP.rhs)
             }
-            else -> code.visitChildrenMut { visit ->
-                when (visit) {
-                    is VisitMut.Stmt -> resolveIdents(visit.stmt)
-                    is VisitMut.Expr -> resolveIdentsInExpr(visit.expr)
+            else ->
+                code.visitChildrenMut { visit ->
+                    when (visit) {
+                        is VisitMut.Stmt -> resolveIdents(visit.stmt)
+                        is VisitMut.Expr -> resolveIdentsInExpr(visit.expr)
+                    }
                 }
-            }
         }
     }
 
@@ -1223,10 +1253,11 @@ internal class ModuleScopeBuilder(
     // fn variable_not_found_err(&self, ident: &CstIdent) -> EvalException
     fun variableNotFoundErr(ident: CstIdent): EvalException {
         val variants = currentScopeAllVisibleNamesForDidYouMean() ?: emptyList()
-        val better = didYouMean(
-            ident.node.ident,
-            variants,
-        )
+        val better =
+            didYouMean(
+                ident.node.ident,
+                variants,
+            )
         return EvalException.new(
             if (better != null) {
                 ScopeError.VariableNotFoundDidYouMean(ident.node.ident, better)
@@ -1242,39 +1273,42 @@ internal class ModuleScopeBuilder(
     fun resolveIdent(scope: ResolveIdentScope, ident: CstIdent) {
         check(ident.node.payload == null) { "resolveIdent: ident '${ident.node.ident}' already has payload=${ident.node.payload}" }
         val name = frozenHeap.allocStrIntern(ident.node.ident)
-        val resolved: ResolvedIdent = when (val found = getName(name)) {
-            null -> {
-                // Must be a global, since we know all variables
-                val v = globals.getGlobal(ident.node.ident)
-                if (v == null) {
-                    errors.add(variableNotFoundErr(ident))
-                    return
-                }
-                ResolvedIdent.Global(v)
-            }
-            else -> {
-                val (slot, bindingId) = found
-                ResolvedIdent.Slot(slot, bindingId)
-            }
-        }
-        when (scope) {
-            ResolveIdentScope.Any -> { /* no extra check */ }
-            ResolveIdentScope.GlobalForTypeExpression -> when (resolved) {
-                is ResolvedIdent.Slot -> when (resolved.slot) {
-                    is Slot.Local -> {
-                        errors.add(
-                            EvalException.new(
-                                ScopeError.TypeExpressionGlobalOrBuiltin(ident.node.ident),
-                                ident.span,
-                                codemap.value,
-                            )
-                        )
+        val resolved: ResolvedIdent =
+            when (val found = getName(name)) {
+                null -> {
+                    // Must be a global, since we know all variables
+                    val v = globals.getGlobal(ident.node.ident)
+                    if (v == null) {
+                        errors.add(variableNotFoundErr(ident))
                         return
                     }
-                    is Slot.Module -> { /* ok */ }
+                    ResolvedIdent.Global(v)
                 }
-                is ResolvedIdent.Global -> { /* ok */ }
+                else -> {
+                    val (slot, bindingId) = found
+                    ResolvedIdent.Slot(slot, bindingId)
+                }
             }
+        when (scope) {
+            ResolveIdentScope.Any -> { /* no extra check */ }
+            ResolveIdentScope.GlobalForTypeExpression ->
+                when (resolved) {
+                    is ResolvedIdent.Slot ->
+                        when (resolved.slot) {
+                            is Slot.Local -> {
+                                errors.add(
+                                    EvalException.new(
+                                        ScopeError.TypeExpressionGlobalOrBuiltin(ident.node.ident),
+                                        ident.span,
+                                        codemap.value,
+                                    ),
+                                )
+                                return
+                            }
+                            is Slot.Module -> { /* ok */ }
+                        }
+                    is ResolvedIdent.Global -> { /* ok */ }
+                }
         }
         ident.node.payload = resolved
     }
@@ -1352,11 +1386,12 @@ internal class ModuleScopeBuilder(
             )
         }
         for ((name, bindingId) in localBindings) {
-            val slot = scopeData.mutScope(scopeId).addScoped(
-                name,
-                bindingId,
-                unscopes.last(),
-            )
+            val slot =
+                scopeData.mutScope(scopeId).addScoped(
+                    name,
+                    bindingId,
+                    unscopes.last(),
+                )
             val binding = scopeData.mutBinding(bindingId)
             binding.initSlot(Slot.Local(slot), codemap.value)
         }
@@ -1438,15 +1473,16 @@ internal class ModuleScopes(
             codemap: FrozenRef<CodeMap>,
             dialect: Dialect,
         ): Pair<List<EvalException>, ModuleScopes> {
-            val (cst, scope) = ModuleScopeBuilder.enterModule(
-                module,
-                frozenHeap,
-                loads,
-                stmt,
-                globals,
-                codemap,
-                dialect,
-            )
+            val (cst, scope) =
+                ModuleScopeBuilder.enterModule(
+                    module,
+                    frozenHeap,
+                    loads,
+                    stmt,
+                    globals,
+                    codemap,
+                    dialect,
+                )
             val topLevelStmtCount = scope.topLevelStmtCount
             val errors = scope.errors.toList()
             scope.errors.clear()
@@ -1501,9 +1537,7 @@ internal class ScopeNames(
     }
 
     // pub(crate) fn param_count(&self) -> u32
-    fun paramCount(): Int {
-        return paramCount ?: error("param_count must be set during analysis")
-    }
+    fun paramCount(): Int = paramCount ?: error("param_count must be set during analysis")
 
     // fn copy_parent(...)
     fun copyParent(
@@ -1543,14 +1577,15 @@ internal class ScopeNames(
     ): LocalSlotIdCapturedOrNot {
         val slot = nextSlot(name)
         val existing = mp[name]
-        val undo: Pair<LocalSlotIdCapturedOrNot, BindingId>? = if (existing != null) {
-            val old = existing
-            mp[name] = Pair(slot, bindingId)
-            old
-        } else {
-            mp[name] = Pair(slot, bindingId)
-            null
-        }
+        val undo: Pair<LocalSlotIdCapturedOrNot, BindingId>? =
+            if (existing != null) {
+                val old = existing
+                mp[name] = Pair(slot, bindingId)
+                old
+            } else {
+                mp[name] = Pair(slot, bindingId)
+                null
+            }
         check(unscope.bindings.put(name, UnscopeBinding(undo)) == null)
         return slot
     }
@@ -1568,18 +1603,21 @@ internal class ScopeNames(
     }
 
     // fn get_name(&self, name: FrozenStringValue) -> Option<(LocalSlotIdCapturedOrNot, BindingId)>
-    fun getName(name: FrozenStringValue): Pair<LocalSlotIdCapturedOrNot, BindingId>? {
-        return mp[name]
-    }
+    fun getName(name: FrozenStringValue): Pair<LocalSlotIdCapturedOrNot, BindingId>? = mp[name]
 }
 
 // #[derive(Copy, Clone, Dupe, Debug)]
 // pub(crate) enum Slot
 internal sealed class Slot {
     /** Top-level module scope. */
-    data class Module(val id: ModuleSlotId) : Slot()
+    data class Module(
+        val id: ModuleSlotId,
+    ) : Slot()
+
     /** Local scope, always mutable. */
-    data class Local(val id: LocalSlotIdCapturedOrNot) : Slot()
+    data class Local(
+        val id: LocalSlotIdCapturedOrNot,
+    ) : Slot()
 }
 
 // #[derive(Clone, Copy, Dupe)]
@@ -1587,6 +1625,7 @@ internal sealed class Slot {
 internal enum class ResolveIdentScope {
     /** Resolving normal identifier. */
     Any,
+
     /** Resolving identifier in type expression. */
     GlobalForTypeExpression,
 }
@@ -1597,6 +1636,7 @@ internal enum class ResolveIdentScope {
 internal enum class InLoop {
     /** Current statement has an enclosing loop in the current scope. */
     Yes,
+
     /** Current statement has no enclosing loop in the current scope. */
     No,
 }
@@ -1664,6 +1704,7 @@ internal class ModuleScopeData(
 internal enum class AssignCount {
     /** Variable is assigned at most once during the execution of the scope. */
     AtMostOnce,
+
     /** Variable may be assigned more than once during execution of the scope. */
     Any,
 }
@@ -1680,7 +1721,10 @@ internal enum class Captured {
 // pub(crate) enum BindingSource
 internal sealed class BindingSource {
     /** Variable is defined in the source of the module. */
-    data class Source(val span: Span) : BindingSource()
+    data class Source(
+        val span: Span,
+    ) : BindingSource()
+
     /** Variable came from `Module`, not defined in the source file. */
     data object FromModule : BindingSource()
 }
@@ -1708,20 +1752,20 @@ internal class Binding(
     var captured: Captured = Captured.No,
 ) {
     // fn span(&self) -> Span
-    fun span(): Span = when (source) {
-        is BindingSource.Source -> source.span
-        is BindingSource.FromModule -> Span.DEFAULT
-    }
+    fun span(): Span =
+        when (source) {
+            is BindingSource.Source -> source.span
+            is BindingSource.FromModule -> Span.DEFAULT
+        }
 
     /** Get resolved slot after analysis is completed. */
     // pub(crate) fn resolved_slot(&self, codemap: &CodeMap) -> Result<Slot, InternalError>
-    fun resolvedSlot(codemap: CodeMap): Slot {
-        return slot ?: throw InternalError.msg(
+    fun resolvedSlot(codemap: CodeMap): Slot =
+        slot ?: throw InternalError.msg(
             "slot is not resolved",
             span(),
             codemap,
         )
-    }
 
     /** Initialize the slot during analysis. */
     // pub(crate) fn init_slot(&mut self, slot: Slot, codemap: &CodeMap) -> Result<(), InternalError>
@@ -1740,14 +1784,18 @@ internal class Binding(
 /** Id of a binding within current module. */
 // #[derive(Copy, Clone, Dupe, Debug, Hash, PartialEq, Eq, Ord, PartialOrd)]
 // pub(crate) struct BindingId(usize)
-data class BindingId(val id: Int) : Comparable<BindingId> {
+data class BindingId(
+    val id: Int,
+) : Comparable<BindingId> {
     override fun compareTo(other: BindingId): Int = id.compareTo(other.id)
 }
 
 /** Id of a scope within current module. */
 // #[derive(Copy, Clone, Dupe, Debug, Eq, PartialEq)]
 // pub(crate) struct ScopeId(usize)
-internal data class ScopeId(val id: Int) {
+internal data class ScopeId(
+    val id: Int,
+) {
     companion object {
         // pub(crate) fn module() -> ScopeId
         fun module(): ScopeId = ScopeId(0)
@@ -1757,6 +1805,12 @@ internal data class ScopeId(val id: Int) {
 // #[derive(Debug, Clone, Dupe, Copy)]
 // pub(crate) enum ResolvedIdent
 internal sealed class ResolvedIdent {
-    data class Slot(val slot: io.github.kotlinmania.starlark.eval.compiler.Slot, val bindingId: BindingId) : ResolvedIdent()
-    data class Global(val value: FrozenValue) : ResolvedIdent()
+    data class Slot(
+        val slot: io.github.kotlinmania.starlark.eval.compiler.Slot,
+        val bindingId: BindingId,
+    ) : ResolvedIdent()
+
+    data class Global(
+        val value: FrozenValue,
+    ) : ResolvedIdent()
 }

@@ -21,11 +21,11 @@ package io.github.kotlinmania.starlark.eval.runtime.profile
 
 /** Bytecode profiler. */
 
+import io.github.kotlinmania.starlark.eval.bc.BcOpcode
 import io.github.kotlinmania.starlark.eval.runtime.profile.csv.CsvWriter
+import io.github.kotlinmania.starlark.eval.runtime.profile.data.ProfileData
 import io.github.kotlinmania.starlark.eval.runtime.profile.data.ProfileDataImpl
 import io.github.kotlinmania.starlark.eval.runtime.profile.mode.ProfileMode
-import io.github.kotlinmania.starlark.eval.runtime.profile.data.ProfileData
-import io.github.kotlinmania.starlark.eval.bc.BcOpcode
 import kotlin.math.roundToLong
 
 // Format a Double to 3 decimal places (KMP-safe, no String.format)
@@ -33,8 +33,11 @@ private fun formatF3(value: Double): String {
     val rounded = (value * 1000.0).roundToLong()
     val intPart = rounded / 1000
     val fracPart = kotlin.math.abs(rounded % 1000)
-    return if (value < 0) "-${kotlin.math.abs(intPart)}.${fracPart.toString().padStart(3, '0')}"
-    else "$intPart.${fracPart.toString().padStart(3, '0')}"
+    return if (value < 0) {
+        "-${kotlin.math.abs(intPart)}.${fracPart.toString().padStart(3, '0')}"
+    } else {
+        "$intPart.${fracPart.toString().padStart(3, '0')}"
+    }
 }
 
 // pub(crate) struct BcProfilerType
@@ -113,9 +116,11 @@ internal class BcProfileData(
 
     // pub(crate) fn gen_csv(&self) -> String
     fun genCsv(): String {
-        val sorted = byInstr.mapIndexed { i, st ->
-            Pair(BcOpcode.byNumber(i.toUInt())!!, st)
-        }.sortedByDescending { it.second.count }
+        val sorted =
+            byInstr
+                .mapIndexed { i, st ->
+                    Pair(BcOpcode.byNumber(i.toUInt())!!, st)
+                }.sortedByDescending { it.second.count }
 
         val total = BcInstrStat()
         for ((_, st) in sorted) {
@@ -173,15 +178,18 @@ internal class BcPairsProfileData(
 
     // pub(crate) fn gen_csv(&self) -> String
     fun genCsv(): String {
-        val sorted = byInstr.entries
-            .map { (opcodes, stat) -> Pair(opcodes, stat) }
-            .sortedWith(compareByDescending<Pair<Pair<BcOpcode, BcOpcode>, BcInstrPairsStat>> {
-                it.second.count
-            }.thenBy {
-                it.first.first.ordinal
-            }.thenBy {
-                it.first.second.ordinal
-            })
+        val sorted =
+            byInstr.entries
+                .map { (opcodes, stat) -> Pair(opcodes, stat) }
+                .sortedWith(
+                    compareByDescending<Pair<Pair<BcOpcode, BcOpcode>, BcInstrPairsStat>> {
+                        it.second.count
+                    }.thenBy {
+                        it.first.first.ordinal
+                    }.thenBy {
+                        it.first.second.ordinal
+                    },
+                )
 
         val countTotal = sorted.sumOf { it.second.count }
         val csv = CsvWriter(listOf("Opcode[0]", "Opcode[1]", "Count", "Count / Total"))
@@ -218,8 +226,14 @@ internal class BcPairsProfileData(
 
 // enum BcProfileDataMode
 internal sealed class BcProfileDataMode {
-    data class Bc(val data: BcProfileData) : BcProfileDataMode()
-    data class BcPairs(val data: BcPairsProfileData) : BcProfileDataMode()
+    data class Bc(
+        val data: BcProfileData,
+    ) : BcProfileDataMode()
+
+    data class BcPairs(
+        val data: BcPairsProfileData,
+    ) : BcProfileDataMode()
+
     data object Disabled : BcProfileDataMode()
 }
 
@@ -243,20 +257,22 @@ internal class BcProfile(
     }
 
     // pub(crate) fn enabled(&self) -> bool
-    fun enabled(): Boolean = when (data) {
-        is BcProfileDataMode.Bc -> true
-        is BcProfileDataMode.BcPairs -> true
-        is BcProfileDataMode.Disabled -> false
-    }
+    fun enabled(): Boolean =
+        when (data) {
+            is BcProfileDataMode.Bc -> true
+            is BcProfileDataMode.BcPairs -> true
+            is BcProfileDataMode.Disabled -> false
+        }
 
     // pub(crate) fn gen_bc_profile(&mut self) -> crate::Result<ProfileData>
     fun genBcProfile(): ProfileData {
         val prev = data
         data = BcProfileDataMode.Disabled
         return when (prev) {
-            is BcProfileDataMode.Bc -> ProfileData(
-                profile = ProfileDataImpl.Bc(prev.data),
-            )
+            is BcProfileDataMode.Bc ->
+                ProfileData(
+                    profile = ProfileDataImpl.Bc(prev.data),
+                )
             else -> throw BcProfileError.BcProfilingNotEnabled
         }
     }
@@ -266,9 +282,10 @@ internal class BcProfile(
         val prev = data
         data = BcProfileDataMode.Disabled
         return when (prev) {
-            is BcProfileDataMode.BcPairs -> ProfileData(
-                profile = ProfileDataImpl.BcPairs(prev.data),
-            )
+            is BcProfileDataMode.BcPairs ->
+                ProfileData(
+                    profile = ProfileDataImpl.BcPairs(prev.data),
+                )
             else -> throw BcProfileError.BcProfilingNotEnabled
         }
     }

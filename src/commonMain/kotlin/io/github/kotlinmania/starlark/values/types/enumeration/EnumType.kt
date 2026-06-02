@@ -1,5 +1,5 @@
 // port-lint: source src/values/types/enumeration/enum_type.rs
-package io.github.kotlinmania.starlark.values.types.enumeration.enum_type
+package io.github.kotlinmania.starlark.values.types.enumeration.enumtype
 
 /*
  * Copyright 2018 The Starlark in Rust Authors.
@@ -36,9 +36,9 @@ import io.github.kotlinmania.starlark.typing.TyUserIndex
 import io.github.kotlinmania.starlark.typing.TyUserParams
 import io.github.kotlinmania.starlark.values.AllocValue
 import io.github.kotlinmania.starlark.values.Freeze
-import io.github.kotlinmania.starlark.values.layout.Freezer
 import io.github.kotlinmania.starlark.values.StarlarkValue
 import io.github.kotlinmania.starlark.values.convertIndex
+import io.github.kotlinmania.starlark.values.layout.Freezer
 import io.github.kotlinmania.starlark.values.layout.Value
 import io.github.kotlinmania.starlark.values.layout.ValueTyped
 import io.github.kotlinmania.starlark.values.layout.avalues.allocListIter
@@ -49,16 +49,21 @@ import io.github.kotlinmania.starlark.values.types.TypeInstanceId
 import io.github.kotlinmania.starlark.values.types.dict.ValueStr
 import io.github.kotlinmania.starlark.values.types.enumeration.EnumTypeMatcher
 import io.github.kotlinmania.starlark.values.types.enumeration.TyEnumData
-import io.github.kotlinmania.starlark.values.types.enumeration.value.EnumValueGen
 import io.github.kotlinmania.starlark.values.types.enumeration.value.EnumValue
-import io.github.kotlinmania.starlark.values.typing.type_compiled.TypeMatcherFactory
+import io.github.kotlinmania.starlark.values.types.enumeration.value.EnumValueGen
+import io.github.kotlinmania.starlark.values.typing.typecompiled.TypeMatcherFactory
 
-private sealed class EnumError(message: String) : Exception(message) {
-    class DuplicateEnumValue(value: String) :
-        EnumError("enum values must all be distinct, but repeated `$value`")
+private sealed class EnumError(
+    message: String,
+) : Exception(message) {
+    class DuplicateEnumValue(
+        value: String,
+    ) : EnumError("enum values must all be distinct, but repeated `$value`")
 
-    class InvalidElement(element: String, enumType: String) :
-        EnumError("Unknown enum element `$element`, given to `$enumType`")
+    class InvalidElement(
+        element: String,
+        enumType: String,
+    ) : EnumError("Unknown enum element `$element`, given to `$enumType`")
 }
 
 /**
@@ -74,8 +79,9 @@ class EnumTypeGen internal constructor(
     // The value is a value of type EnumValue
     private val elements: SmallMap<Value, Value>,
     private val frozen: Boolean,
-) : StarlarkValue, AllocValue, Freeze<EnumTypeGen> {
-
+) : StarlarkValue,
+    AllocValue,
+    Freeze<EnumTypeGen> {
     override val TYPE: String get() = FUNCTION_TYPE
     override val HAS_invoke: Boolean get() = true
     override val HAS_eval_type: Boolean get() = true
@@ -83,15 +89,11 @@ class EnumTypeGen internal constructor(
 
     private var tyEnumDataInitialized: Boolean = tyEnumData != null
 
-    override fun allocValue(heap: Heap): Value {
-        return heap.allocSimple(this)
-    }
+    override fun allocValue(heap: Heap): Value = heap.allocSimple(this)
 
     override fun starlarkTypeRepr(): Ty = Ty.any()
 
-    override fun toString(): String {
-        return "enum(${elements().keys().joinToString(", ")})"
-    }
+    override fun toString(): String = "enum(${elements().keys().joinToString(", ")})"
 
     override fun freeze(freezer: Freezer): Result<EnumTypeGen> {
         val frozenElements = SmallMap.new<Value, Value>()
@@ -103,12 +105,14 @@ class EnumTypeGen internal constructor(
             val newHashedKey = Hashed.newUnchecked(hashedKey.hash(), frozenKey.getOrThrow().toValue())
             frozenElements.insertHashedUniqueUnchecked(newHashedKey, frozenVal.getOrThrow().toValue())
         }
-        return Result.success(EnumTypeGen(
-            id = id,
-            tyEnumData = tyEnumData,
-            elements = frozenElements,
-            frozen = true,
-        ))
+        return Result.success(
+            EnumTypeGen(
+                id = id,
+                tyEnumData = tyEnumData,
+                elements = frozenElements,
+                frozen = true,
+            ),
+        )
     }
 
     internal fun getOrInitTy(f: () -> TyEnumData) {
@@ -139,13 +143,9 @@ class EnumTypeGen internal constructor(
         return Result.success(construct(v))
     }
 
-    override fun getAttr(attribute: String, heap: Heap): Value? {
-        return elements().get(ValueStr(attribute))
-    }
+    override fun getAttr(attribute: String, heap: Heap): Value? = elements().get(ValueStr(attribute))
 
-    override fun dirAttr(): List<String> {
-        return elements().keys().map { it.unpackStr()!! }.toList()
-    }
+    override fun dirAttr(): List<String> = elements().keys().map { it.unpackStr()!! }.toList()
 
     override fun length(): Result<Int> = Result.success(elements().len())
 
@@ -168,64 +168,66 @@ class EnumTypeGen internal constructor(
 
     override fun iterStop() {}
 
-    override fun getMethods(): Methods? {
-        return enumTypeMethodsStatic.methods(::enumTypeMethods)
-    }
+    override fun getMethods(): Methods? = enumTypeMethodsStatic.methods(::enumTypeMethods)
 
-    override fun evalType(): Ty? {
-        return tyEnumData()?.tyEnumValue
-    }
+    override fun evalType(): Ty? = tyEnumData()?.tyEnumValue
 
-    override fun typecheckerTy(): Ty? {
-        return tyEnumData()?.tyEnumType
-    }
+    override fun typecheckerTy(): Ty? = tyEnumData()?.tyEnumType
 
     override fun exportAs(variableName: String, eval: Evaluator): Result<Unit> {
         getOrInitTy {
-            val tyEnumValue = Ty.custom(
-                TyUser.new(
-                    variableName,
-                    TyStarlarkValue.new("enum"),
-                    id,
-                    TyUserParams(
-                        matcher = TypeMatcherFactory.new(EnumTypeMatcher(id = id)),
-                    ),
-                ).getOrThrow()
-            )
+            val tyEnumValue =
+                Ty.custom(
+                    TyUser
+                        .new(
+                            variableName,
+                            TyStarlarkValue.new("enum"),
+                            id,
+                            TyUserParams(
+                                matcher = TypeMatcherFactory.new(EnumTypeMatcher(id = id)),
+                            ),
+                        ).getOrThrow(),
+                )
 
             // The unwrap here is safe because the new() method requires the elements be
             // of type StringValue<'v>
-            val fieldsMap = linkedMapOf<String, Ty>().apply {
-                for (key in elements().keys()) {
-                    put(key.unpackStr()!!, tyEnumValue)
+            val fieldsMap =
+                linkedMapOf<String, Ty>().apply {
+                    for (key in elements().keys()) {
+                        put(key.unpackStr()!!, tyEnumValue)
+                    }
                 }
-            }
 
-            val tyEnumType = Ty.custom(
-                TyUser.new(
-                    "enum[$variableName]",
-                    TyStarlarkValue.new("function"),
-                    TypeInstanceId.gen(),
-                    TyUserParams(
-                        fields = TyUserFields(
-                            known = fieldsMap,
-                            unknown = false,
-                        ),
-                        index = TyUserIndex(
-                            index = Ty.int(),
-                            result = tyEnumValue,
-                        ),
-                        iterItem = tyEnumValue,
-                        callable = TyCallable.new(
-                            ParamSpec.posOnly(
-                                listOf(Ty.any()),
-                                emptyList(),
+            val tyEnumType =
+                Ty.custom(
+                    TyUser
+                        .new(
+                            "enum[$variableName]",
+                            TyStarlarkValue.new("function"),
+                            TypeInstanceId.gen(),
+                            TyUserParams(
+                                fields =
+                                    TyUserFields(
+                                        known = fieldsMap,
+                                        unknown = false,
+                                    ),
+                                index =
+                                    TyUserIndex(
+                                        index = Ty.int(),
+                                        result = tyEnumValue,
+                                    ),
+                                iterItem = tyEnumValue,
+                                callable =
+                                    TyCallable.new(
+                                        ParamSpec.posOnly(
+                                            listOf(Ty.any()),
+                                            emptyList(),
+                                        ),
+                                        tyEnumValue,
+                                    ),
                             ),
-                            tyEnumValue,
-                        ),
-                    ),
-                ).getOrThrow()
-            )
+                        ).getOrThrow(),
+                )
             TyEnumData(
                 name = variableName,
                 id = id,
@@ -243,23 +245,25 @@ class EnumTypeGen internal constructor(
             val id = TypeInstanceId.gen()
             val elemMap = SmallMap.new<Value, Value>()
 
-            val typ = EnumTypeGen(
-                id = id,
-                tyEnumData = null,
-                elements = elemMap,
-                frozen = false,
-            )
+            val typ =
+                EnumTypeGen(
+                    id = id,
+                    tyEnumData = null,
+                    elements = elemMap,
+                    frozen = false,
+                )
             val typValue = heap.allocTyped(typ)
 
             for ((i, x) in elements.withIndex()) {
-                val v = heap.allocSimple(
-                    EnumValueGen(
-                        id = id,
-                        typ = typValue.toValue(),
-                        index = i,
-                        value = x.toValue(),
+                val v =
+                    heap.allocSimple(
+                        EnumValueGen(
+                            id = id,
+                            typ = typValue.toValue(),
+                            index = i,
+                            value = x.toValue(),
+                        ),
                     )
-                )
                 val hashed = x.toValue().getHashed().getOrThrow()
                 if (elemMap.insertHashed(hashed, v) != null) {
                     throw EnumError.DuplicateEnumValue(x.toString())
@@ -273,6 +277,7 @@ class EnumTypeGen internal constructor(
 
 /** Unfrozen enum type. */
 typealias EnumType = EnumTypeGen
+
 /** Frozen enum type. */
 typealias FrozenEnumType = EnumTypeGen
 

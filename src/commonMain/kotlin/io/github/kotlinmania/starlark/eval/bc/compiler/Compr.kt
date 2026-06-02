@@ -26,16 +26,18 @@ package io.github.kotlinmania.starlark.eval.bc.compiler.compr
  * including nested for-loops and if-clauses within comprehension expressions.
  */
 
+import io.github.kotlinmania.starlark.eval.bc.BcSlotOut
+import io.github.kotlinmania.starlark.eval.bc.BcWriter
+import io.github.kotlinmania.starlark.eval.bc.compiler.markDefinitelyAssignedAfter
+import io.github.kotlinmania.starlark.eval.bc.compiler.writeBc
 import io.github.kotlinmania.starlark.eval.bc.compiler.writeBcCb
 import io.github.kotlinmania.starlark.eval.bc.compiler.writeFor
 import io.github.kotlinmania.starlark.eval.bc.compiler.writeIfThen
 import io.github.kotlinmania.starlark.eval.bc.compiler.writeNExprs
-import io.github.kotlinmania.starlark.eval.bc.BcSlotOut
-import io.github.kotlinmania.starlark.eval.bc.BcWriter
-import io.github.kotlinmania.starlark.eval.runtime.FrameSpan
 import io.github.kotlinmania.starlark.eval.compiler.ClauseCompiled
 import io.github.kotlinmania.starlark.eval.compiler.ComprCompiled
 import io.github.kotlinmania.starlark.eval.compiler.MaybeNot
+import io.github.kotlinmania.starlark.eval.runtime.FrameSpan
 
 /**
  * Compiles a single comprehension clause to bytecode.
@@ -86,7 +88,10 @@ internal fun ClauseCompiled.writeBc(
 internal fun ComprCompiled.markDefinitelyAssignedAfter(bc: BcWriter) {
     val clauses = this.clauses()
     // We know that first loop argument is executed, and we don't know anything else.
-    clauses.splitLast().first.over.markDefinitelyAssignedAfter(bc)
+    clauses
+        .splitLast()
+        .first.over
+        .markDefinitelyAssignedAfter(bc)
 }
 
 /**

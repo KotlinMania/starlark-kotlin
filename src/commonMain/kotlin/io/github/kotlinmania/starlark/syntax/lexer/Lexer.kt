@@ -29,17 +29,41 @@ import io.github.kotlinmania.starlark.typing.StarlarkError
 // type Lexeme = Result<(usize, Token, usize), EvalException>
 typealias Lexeme = Triple<Int, Token, Int>
 
-sealed class LexemeError(val message: String) {
+sealed class LexemeError(
+    val message: String,
+) {
     data object Indentation : LexemeError("Parse error: incorrect indentation")
-    data class InvalidInput(val input: String) : LexemeError("Parse error: invalid input `$input`")
+
+    data class InvalidInput(
+        val input: String,
+    ) : LexemeError("Parse error: invalid input `$input`")
+
     data object InvalidTab : LexemeError("Parse error: tabs are not allowed")
+
     data object UnfinishedStringLiteral : LexemeError("Parse error: unfinished string literal")
-    data class InvalidEscapeSequence(val seq: String) : LexemeError("Parse error: invalid string escape sequence `$seq`")
+
+    data class InvalidEscapeSequence(
+        val seq: String,
+    ) : LexemeError("Parse error: invalid string escape sequence `$seq`")
+
     data object EmptyEscapeSequence : LexemeError("Parse error: missing string escape sequence, only saw `\\`")
-    data class ReservedKeyword(val keyword: String) : LexemeError("Parse error: cannot use reserved keyword `$keyword`")
-    data class StartsZero(val literal: String) : LexemeError("Parse error: integer cannot have leading 0, got `$literal`")
-    data class IntParse(val literal: String) : LexemeError("Parse error: failed to parse integer: `$literal`")
-    data class CannotParse(val literal: String, val base: Int) : LexemeError("Cannot parse `$literal` as an integer in base $base")
+
+    data class ReservedKeyword(
+        val keyword: String,
+    ) : LexemeError("Parse error: cannot use reserved keyword `$keyword`")
+
+    data class StartsZero(
+        val literal: String,
+    ) : LexemeError("Parse error: integer cannot have leading 0, got `$literal`")
+
+    data class IntParse(
+        val literal: String,
+    ) : LexemeError("Parse error: failed to parse integer: `$literal`")
+
+    data class CannotParse(
+        val literal: String,
+        val base: Int,
+    ) : LexemeError("Cannot parse `$literal` as an integer in base $base")
 }
 
 class Lexer(
@@ -58,17 +82,14 @@ class Lexer(
         calculateIndent()
     }
 
-    private fun errSpan(msg: LexemeError, start: Int, end: Int): EvalException {
-        return EvalException.new(
+    private fun errSpan(msg: LexemeError, start: Int, end: Int): EvalException =
+        EvalException.new(
             StarlarkError(msg.message),
             Span(Pos(start), Pos(end)),
-            codemap
+            codemap,
         )
-    }
 
-    private fun errPos(msg: LexemeError, pos: Int): EvalException {
-        return errSpan(msg, pos, pos)
-    }
+    private fun errPos(msg: LexemeError, pos: Int): EvalException = errSpan(msg, pos, pos)
 
     // --- Character scanning helpers ---
 
@@ -98,16 +119,25 @@ class Lexer(
         var indentStart = pos
         loop@ while (pos < source.length) {
             when (source[pos]) {
-                ' ' -> { spaces++; pos++ }
-                '\t' -> { tabs++; pos++ }
+                ' ' -> {
+                    spaces++
+                    pos++
+                }
+                '\t' -> {
+                    tabs++
+                    pos++
+                }
                 '\n' -> {
                     // Blank line: don't consume the newline itself
                     return
                 }
-                '\r' -> { pos++ }
+                '\r' -> {
+                    pos++
+                }
                 '#' -> {
                     // Comment-only line: skip to newline
-                    spaces = 0; tabs = 0
+                    spaces = 0
+                    tabs = 0
                     val commentStart = pos
                     pos++ // skip '#'
                     while (pos < source.length && source[pos] != '\n') pos++
@@ -142,8 +172,9 @@ class Lexer(
             indentLevels.removeLast()
             while (true) {
                 val current = indentLevels.lastOrNull() ?: 0
-                if (current == indent) break
-                else if (current > indent) {
+                if (current == indent) {
+                    break
+                } else if (current > indent) {
                     dedents++
                     indentLevels.removeLast()
                 } else {
@@ -225,7 +256,7 @@ class Lexer(
         stringStart: Int,
         triple: Boolean,
         raw: Boolean,
-        quoteChar: Char
+        quoteChar: Char,
     ): Pair<String, Int> {
         val afterQuote = pos
         if (triple) {
@@ -272,7 +303,8 @@ class Lexer(
             if (c == quoteChar) {
                 if (triple) {
                     if (chars.peek() == quoteChar && chars.peekAt(1) == quoteChar) {
-                        chars.next(); chars.next()
+                        chars.next()
+                        chars.next()
                         // Remove the 2 extra quote chars we accumulated before matching triple
                         if (res.length >= 2) {
                             res.setLength(res.length - 2)
@@ -304,10 +336,13 @@ class Lexer(
                         if (!escape(chars, res)) {
                             val bad = source.substring(escapeStart, chars.pos)
                             throw errSpan(
-                                if (bad.isEmpty()) LexemeError.EmptyEscapeSequence
-                                else LexemeError.InvalidEscapeSequence(bad),
+                                if (bad.isEmpty()) {
+                                    LexemeError.EmptyEscapeSequence
+                                } else {
+                                    LexemeError.InvalidEscapeSequence(bad)
+                                },
                                 stringStart + escapeStart,
-                                stringStart + chars.pos
+                                stringStart + chars.pos,
                             )
                         }
                     }
@@ -336,8 +371,12 @@ class Lexer(
         while (pos < source.length && source[pos] == ' ') pos++
 
         // Skip escaped newlines
-        while (pos < source.length && startsWith("\\\n")) { pos += 2 }
-        while (pos < source.length && startsWith("\\\r\n")) { pos += 3 }
+        while (pos < source.length && startsWith("\\\n")) {
+            pos += 2
+        }
+        while (pos < source.length && startsWith("\\\r\n")) {
+            pos += 3
+        }
 
         if (pos >= source.length) return null
 
@@ -437,63 +476,154 @@ class Lexer(
             ';' -> Triple(start, Token.Semicolon, pos)
             ':' -> Triple(start, Token.Colon, pos)
             '~' -> Triple(start, Token.Tilde, pos)
-            '(' -> { parens++; Triple(start, Token.OpeningRound, pos) }
-            ')' -> { parens--; Triple(start, Token.ClosingRound, pos) }
-            '[' -> { parens++; Triple(start, Token.OpeningSquare, pos) }
-            ']' -> { parens--; Triple(start, Token.ClosingSquare, pos) }
-            '{' -> { parens++; Triple(start, Token.OpeningCurly, pos) }
-            '}' -> { parens--; Triple(start, Token.ClosingCurly, pos) }
-            '+' -> if (peek() == '=') { pos++; Triple(start, Token.PlusEqual, pos) }
-                   else Triple(start, Token.Plus, pos)
-            '-' -> when (peek()) {
-                '=' -> { pos++; Triple(start, Token.MinusEqual, pos) }
-                '>' -> { pos++; Triple(start, Token.MinusGreater, pos) }
-                else -> Triple(start, Token.Minus, pos)
+            '(' -> {
+                parens++
+                Triple(start, Token.OpeningRound, pos)
             }
-            '*' -> when (peek()) {
-                '*' -> { pos++; Triple(start, Token.StarStar, pos) }
-                '=' -> { pos++; Triple(start, Token.StarEqual, pos) }
-                else -> Triple(start, Token.Star, pos)
+            ')' -> {
+                parens--
+                Triple(start, Token.ClosingRound, pos)
             }
-            '/' -> when (peek()) {
-                '/' -> {
+            '[' -> {
+                parens++
+                Triple(start, Token.OpeningSquare, pos)
+            }
+            ']' -> {
+                parens--
+                Triple(start, Token.ClosingSquare, pos)
+            }
+            '{' -> {
+                parens++
+                Triple(start, Token.OpeningCurly, pos)
+            }
+            '}' -> {
+                parens--
+                Triple(start, Token.ClosingCurly, pos)
+            }
+            '+' ->
+                if (peek() == '=') {
                     pos++
-                    if (peek() == '=') { pos++; Triple(start, Token.SlashSlashEqual, pos) }
-                    else Triple(start, Token.SlashSlash, pos)
+                    Triple(start, Token.PlusEqual, pos)
+                } else {
+                    Triple(start, Token.Plus, pos)
                 }
-                '=' -> { pos++; Triple(start, Token.SlashEqual, pos) }
-                else -> Triple(start, Token.Slash, pos)
-            }
-            '%' -> if (peek() == '=') { pos++; Triple(start, Token.PercentEqual, pos) }
-                   else Triple(start, Token.Percent, pos)
-            '=' -> if (peek() == '=') { pos++; Triple(start, Token.EqualEqual, pos) }
-                   else Triple(start, Token.Equal, pos)
-            '!' -> if (peek() == '=') { pos++; Triple(start, Token.BangEqual, pos) }
-                   else throw errSpan(LexemeError.InvalidInput("!"), start, pos)
-            '<' -> when (peek()) {
-                '=' -> { pos++; Triple(start, Token.LessEqual, pos) }
-                '<' -> {
+            '-' ->
+                when (peek()) {
+                    '=' -> {
+                        pos++
+                        Triple(start, Token.MinusEqual, pos)
+                    }
+                    '>' -> {
+                        pos++
+                        Triple(start, Token.MinusGreater, pos)
+                    }
+                    else -> Triple(start, Token.Minus, pos)
+                }
+            '*' ->
+                when (peek()) {
+                    '*' -> {
+                        pos++
+                        Triple(start, Token.StarStar, pos)
+                    }
+                    '=' -> {
+                        pos++
+                        Triple(start, Token.StarEqual, pos)
+                    }
+                    else -> Triple(start, Token.Star, pos)
+                }
+            '/' ->
+                when (peek()) {
+                    '/' -> {
+                        pos++
+                        if (peek() == '=') {
+                            pos++
+                            Triple(start, Token.SlashSlashEqual, pos)
+                        } else {
+                            Triple(start, Token.SlashSlash, pos)
+                        }
+                    }
+                    '=' -> {
+                        pos++
+                        Triple(start, Token.SlashEqual, pos)
+                    }
+                    else -> Triple(start, Token.Slash, pos)
+                }
+            '%' ->
+                if (peek() == '=') {
                     pos++
-                    if (peek() == '=') { pos++; Triple(start, Token.LessLessEqual, pos) }
-                    else Triple(start, Token.LessLess, pos)
+                    Triple(start, Token.PercentEqual, pos)
+                } else {
+                    Triple(start, Token.Percent, pos)
                 }
-                else -> Triple(start, Token.LessThan, pos)
-            }
-            '>' -> when (peek()) {
-                '=' -> { pos++; Triple(start, Token.GreaterEqual, pos) }
-                '>' -> {
+            '=' ->
+                if (peek() == '=') {
                     pos++
-                    if (peek() == '=') { pos++; Triple(start, Token.GreaterGreaterEqual, pos) }
-                    else Triple(start, Token.GreaterGreater, pos)
+                    Triple(start, Token.EqualEqual, pos)
+                } else {
+                    Triple(start, Token.Equal, pos)
                 }
-                else -> Triple(start, Token.GreaterThan, pos)
-            }
-            '&' -> if (peek() == '=') { pos++; Triple(start, Token.AmpersandEqual, pos) }
-                   else Triple(start, Token.Ampersand, pos)
-            '|' -> if (peek() == '=') { pos++; Triple(start, Token.PipeEqual, pos) }
-                   else Triple(start, Token.Pipe, pos)
-            '^' -> if (peek() == '=') { pos++; Triple(start, Token.CaretEqual, pos) }
-                   else Triple(start, Token.Caret, pos)
+            '!' ->
+                if (peek() == '=') {
+                    pos++
+                    Triple(start, Token.BangEqual, pos)
+                } else {
+                    throw errSpan(LexemeError.InvalidInput("!"), start, pos)
+                }
+            '<' ->
+                when (peek()) {
+                    '=' -> {
+                        pos++
+                        Triple(start, Token.LessEqual, pos)
+                    }
+                    '<' -> {
+                        pos++
+                        if (peek() == '=') {
+                            pos++
+                            Triple(start, Token.LessLessEqual, pos)
+                        } else {
+                            Triple(start, Token.LessLess, pos)
+                        }
+                    }
+                    else -> Triple(start, Token.LessThan, pos)
+                }
+            '>' ->
+                when (peek()) {
+                    '=' -> {
+                        pos++
+                        Triple(start, Token.GreaterEqual, pos)
+                    }
+                    '>' -> {
+                        pos++
+                        if (peek() == '=') {
+                            pos++
+                            Triple(start, Token.GreaterGreaterEqual, pos)
+                        } else {
+                            Triple(start, Token.GreaterGreater, pos)
+                        }
+                    }
+                    else -> Triple(start, Token.GreaterThan, pos)
+                }
+            '&' ->
+                if (peek() == '=') {
+                    pos++
+                    Triple(start, Token.AmpersandEqual, pos)
+                } else {
+                    Triple(start, Token.Ampersand, pos)
+                }
+            '|' ->
+                if (peek() == '=') {
+                    pos++
+                    Triple(start, Token.PipeEqual, pos)
+                } else {
+                    Triple(start, Token.Pipe, pos)
+                }
+            '^' ->
+                if (peek() == '=') {
+                    pos++
+                    Triple(start, Token.CaretEqual, pos)
+                } else {
+                    Triple(start, Token.Caret, pos)
+                }
             '.' -> {
                 if (peek() == '.' && peekAt(1) == '.') {
                     pos += 2
@@ -514,21 +644,21 @@ class Lexer(
                     pos += 2
                     val digitStart = pos
                     while (pos < source.length && source[pos].isHexDigit()) pos++
-                    if (pos == digitStart) throw errSpan(LexemeError.IntParse("0${source[pos-1]}"), start, pos)
+                    if (pos == digitStart) throw errSpan(LexemeError.IntParse("0${source[pos - 1]}"), start, pos)
                     return parseInt(source.substring(digitStart, pos), start, pos, 16)
                 }
                 'o', 'O' -> {
                     pos += 2
                     val digitStart = pos
                     while (pos < source.length && source[pos] in '0'..'7') pos++
-                    if (pos == digitStart) throw errSpan(LexemeError.IntParse("0${source[pos-1]}"), start, pos)
+                    if (pos == digitStart) throw errSpan(LexemeError.IntParse("0${source[pos - 1]}"), start, pos)
                     return parseInt(source.substring(digitStart, pos), start, pos, 8)
                 }
                 'b', 'B' -> {
                     pos += 2
                     val digitStart = pos
                     while (pos < source.length && source[pos] in '0'..'1') pos++
-                    if (pos == digitStart) throw errSpan(LexemeError.IntParse("0${source[pos-1]}"), start, pos)
+                    if (pos == digitStart) throw errSpan(LexemeError.IntParse("0${source[pos - 1]}"), start, pos)
                     return parseInt(source.substring(digitStart, pos), start, pos, 2)
                 }
             }
@@ -643,7 +773,10 @@ class Lexer(
 }
 
 /** Helper for character-by-character iteration with position tracking and unnext. */
-private class CharIteratorWithPos(private val source: String, startPos: Int) {
+private class CharIteratorWithPos(
+    private val source: String,
+    startPos: Int,
+) {
     var pos: Int = startPos
         private set
 

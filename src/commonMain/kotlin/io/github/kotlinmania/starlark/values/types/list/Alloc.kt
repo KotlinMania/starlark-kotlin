@@ -22,11 +22,11 @@ package io.github.kotlinmania.starlark.values.types.list
 import io.github.kotlinmania.starlark.typing.Ty
 import io.github.kotlinmania.starlark.values.AllocFrozenValue
 import io.github.kotlinmania.starlark.values.AllocValue
-import io.github.kotlinmania.starlark.values.layout.heap.FrozenHeap
-import io.github.kotlinmania.starlark.values.layout.FrozenValue
 import io.github.kotlinmania.starlark.values.StarlarkTypeRepr
+import io.github.kotlinmania.starlark.values.layout.FrozenValue
 import io.github.kotlinmania.starlark.values.layout.Value
 import io.github.kotlinmania.starlark.values.layout.avalues.allocListIter
+import io.github.kotlinmania.starlark.values.layout.heap.FrozenHeap
 import io.github.kotlinmania.starlark.values.layout.heap.Heap
 
 /**
@@ -47,7 +47,9 @@ import io.github.kotlinmania.starlark.values.layout.heap.Heap
  * @param L The type of the backing iterable.
  * @property items The items to allocate into the new list.
  */
-class AllocList<L>(val items: L) {
+class AllocList<L>(
+    val items: L,
+) {
     /**
      * Companion holding the [EMPTY] constant.
      *

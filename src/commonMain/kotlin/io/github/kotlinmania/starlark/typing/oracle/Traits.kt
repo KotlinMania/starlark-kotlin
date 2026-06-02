@@ -22,13 +22,18 @@ package io.github.kotlinmania.starlark.typing.oracle
 /**
  * Unary operator for typechecker.
  */
-enum class TypingUnOp(private val symbol: String) {
+enum class TypingUnOp(
+    private val symbol: String,
+) {
     /** `+`. */
     PLUS("+"),
+
     /** `-`. */
     MINUS("-"),
+
     /** `~`. */
-    BIT_NOT("~");
+    BIT_NOT("~"),
+    ;
 
     override fun toString(): String = symbol
 }
@@ -36,40 +41,53 @@ enum class TypingUnOp(private val symbol: String) {
 /**
  * Binary operator for typechecker.
  */
-enum class TypingBinOp(private val symbol: String) {
+enum class TypingBinOp(
+    private val symbol: String,
+) {
     /** `+`. */
     ADD("+"),
+
     /** `-`. */
     SUB("-"),
+
     /** `/`. */
     DIV("/"),
+
     /** `//`. */
     FLOOR_DIV("/"),
+
     /** `*`. */
     MUL("*"),
+
     /** `%`. */
     PERCENT("%"),
+
     /** `y in x`. */
     IN("in"),
+
     /** `|`. */
     BIT_OR("|"),
+
     /** `^`. */
     BIT_XOR("^"),
+
     /** `&`. */
     BIT_AND("&"),
+
     /** `<`. */
     LESS("<"),
+
     /** `<<`. */
     LEFT_SHIFT("<<"),
+
     /** `>>`. */
-    RIGHT_SHIFT(">>");
+    RIGHT_SHIFT(">>"),
+    ;
 
     override fun toString(): String = symbol
 
     /**
      * Result type is always `bool`.
      */
-    fun alwaysBool(): Boolean {
-        return this == IN || this == LESS
-    }
+    fun alwaysBool(): Boolean = this == IN || this == LESS
 }

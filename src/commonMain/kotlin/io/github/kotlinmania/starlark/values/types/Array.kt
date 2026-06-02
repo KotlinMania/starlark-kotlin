@@ -26,11 +26,11 @@ package io.github.kotlinmania.starlark.values.types.array
  */
 
 import io.github.kotlinmania.starlark.values.StarlarkValue
+import io.github.kotlinmania.starlark.values.layout.FrozenValueTyped
+import io.github.kotlinmania.starlark.values.layout.Value
 import io.github.kotlinmania.starlark.values.layout.avalues.AllocStaticSimple
 import io.github.kotlinmania.starlark.values.layout.heap.Heap
-import io.github.kotlinmania.starlark.values.layout.Value
 import io.github.kotlinmania.starlark.values.types.list.displayList
-import io.github.kotlinmania.starlark.values.layout.FrozenValueTyped
 
 /**
  * Fixed-capacity list.
@@ -200,14 +200,10 @@ internal class Array(
     // Kotlin: handled by StarlarkValue infrastructure.
 
     // fn length(&self) -> crate::Result<i32>
-    override fun length(): Result<Int> {
-        return Result.success(len())
-    }
+    override fun length(): Result<Int> = Result.success(len())
 
     // unsafe fn iter_next(&self, index: usize, _heap: Heap<'v>) -> Option<Value<'v>>
-    override fun iterNext(index: Int, heap: Heap): Value? {
-        return content.getOrNull(index)
-    }
+    override fun iterNext(index: Int, heap: Heap): Value? = content.getOrNull(index)
 
     // unsafe fn iter_stop(&self)
     override fun iterStop() {

@@ -25,8 +25,8 @@ import io.github.kotlinmania.starlark.docs.DocItem
 import io.github.kotlinmania.starlark.docs.DocModule
 import io.github.kotlinmania.starlark.typing.Ty
 import io.github.kotlinmania.starlark.util.ArcStr
-import io.github.kotlinmania.starlark.values.layout.FrozenValue
 import io.github.kotlinmania.starlark.values.StarlarkValue
+import io.github.kotlinmania.starlark.values.layout.FrozenValue
 import io.github.kotlinmania.starlark.values.layout.Value
 import io.github.kotlinmania.starlark.values.layout.heap.Heap
 
@@ -37,9 +37,8 @@ data class MaybeDocHiddenValue<V>(
 
 /** The return value of `namespace()` */
 data class NamespaceGen<V>(
-    val fields: SmallMap<String, MaybeDocHiddenValue<V>>
+    val fields: SmallMap<String, MaybeDocHiddenValue<V>>,
 ) : StarlarkValue {
-
     override val TYPE: String get() = "namespace"
 
     companion object {
@@ -83,41 +82,49 @@ data class NamespaceGen<V>(
         val members = SmallMap.new<String, DocItem>()
         for ((k, v) in fields.iter()) {
             if (!v.docHidden) {
-                val value = when (val raw = v.value) {
-                    is Value -> raw
-                    is FrozenValue -> raw.toValue()
-                    else -> continue
-                }
+                val value =
+                    when (val raw = v.value) {
+                        is Value -> raw
+                        is FrozenValue -> raw.toValue()
+                        else -> continue
+                    }
                 members.insert(k, value.documentation())
             }
         }
-        return DocItem.Module(DocModule(
-            docs = null,
-            members = members,
-        ))
+        return DocItem.Module(
+            DocModule(
+                docs = null,
+                members = members,
+            ),
+        )
     }
 
     override fun getTypeStarlarkRepr(): Ty =
-        Ty.custom(TyNamespace(
-            fields = emptyMap(),
-            extra = true,
-        ))
+        Ty.custom(
+            TyNamespace(
+                fields = emptyMap(),
+                extra = true,
+            ),
+        )
 
     @Suppress("UNCHECKED_CAST")
     override fun typecheckerTy(): Ty? {
         val result = mutableMapOf<ArcStr, Ty>()
         for ((name, mdv) in fields.iter()) {
-            val value = when (val raw = mdv.value) {
-                is Value -> raw
-                is FrozenValue -> raw.toValue()
-                else -> continue
-            }
+            val value =
+                when (val raw = mdv.value) {
+                    is Value -> raw
+                    is FrozenValue -> raw.toValue()
+                    else -> continue
+                }
             result[ArcStr.from(name)] = Ty.ofValue(value)
         }
-        return Ty.custom(TyNamespace(
-            fields = result,
-            extra = false,
-        ))
+        return Ty.custom(
+            TyNamespace(
+                fields = result,
+                extra = false,
+            ),
+        )
     }
 
     fun serialize(): Map<String, V> =

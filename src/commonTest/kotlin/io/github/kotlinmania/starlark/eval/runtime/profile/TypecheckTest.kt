@@ -25,11 +25,12 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 
 class TypecheckTest {
-
     @Test
     fun testTypecheckProfile() {
         io.github.kotlinmania.starlark.environment.Module.withTempHeap { module ->
-            val eval = io.github.kotlinmania.starlark.eval.runtime.Evaluator(module)
+            val eval =
+                io.github.kotlinmania.starlark.eval.runtime
+                    .Evaluator(module)
             val program = """
 def f(s: str):
     return int(s)
@@ -40,13 +41,20 @@ def g():
 
 g()
 """
-            val ast = io.github.kotlinmania.starlark.syntax.AstModule.parse(
-                "test.star",
-                program,
-                io.github.kotlinmania.starlark.syntax.dialect.Dialect.AllOptionsInternal,
-            ).getOrThrow()
+            val ast =
+                io.github.kotlinmania.starlark.syntax.AstModule
+                    .parse(
+                        "test.star",
+                        program,
+                        io.github.kotlinmania.starlark.syntax.dialect.Dialect.AllOptionsInternal,
+                    ).getOrThrow()
             eval.enableProfile(io.github.kotlinmania.starlark.eval.runtime.profile.mode.ProfileMode.Typecheck).getOrThrow()
-            eval.evalModule(ast, io.github.kotlinmania.starlark.environment.Globals.standard()).getOrThrow()
+            eval
+                .evalModule(
+                    ast,
+                    io.github.kotlinmania.starlark.environment.Globals
+                        .standard(),
+                ).getOrThrow()
             val profile = eval.genProfile().getOrThrow()
             // Check the profile contains typecheck data; structural assertion only.
             profile.profileMode().toString()
@@ -55,27 +63,33 @@ g()
 
     @Test
     fun testTypecheckProfileMerge() {
-        val a = TypecheckProfileData(
-            byFunction = mapOf(
-                ArcStr.from("a") to SmallDuration.fromMillis(10UL),
-                ArcStr.from("b") to SmallDuration.fromMillis(20UL),
-            ),
-        )
-        val b = TypecheckProfileData(
-            byFunction = mapOf(
-                ArcStr.from("b") to SmallDuration.fromMillis(300UL),
-                ArcStr.from("c") to SmallDuration.fromMillis(400UL),
-            ),
-        )
+        val a =
+            TypecheckProfileData(
+                byFunction =
+                    mapOf(
+                        ArcStr.from("a") to SmallDuration.fromMillis(10UL),
+                        ArcStr.from("b") to SmallDuration.fromMillis(20UL),
+                    ),
+            )
+        val b =
+            TypecheckProfileData(
+                byFunction =
+                    mapOf(
+                        ArcStr.from("b") to SmallDuration.fromMillis(300UL),
+                        ArcStr.from("c") to SmallDuration.fromMillis(400UL),
+                    ),
+            )
         val merged = TypecheckProfilerType.mergeProfilesImpl(listOf(a, b)).getOrThrow()
 
-        val expected = TypecheckProfileData(
-            byFunction = mapOf(
-                ArcStr.from("a") to SmallDuration.fromMillis(10UL),
-                ArcStr.from("b") to SmallDuration.fromMillis(320UL),
-                ArcStr.from("c") to SmallDuration.fromMillis(400UL),
-            ),
-        )
+        val expected =
+            TypecheckProfileData(
+                byFunction =
+                    mapOf(
+                        ArcStr.from("a") to SmallDuration.fromMillis(10UL),
+                        ArcStr.from("b") to SmallDuration.fromMillis(320UL),
+                        ArcStr.from("c") to SmallDuration.fromMillis(400UL),
+                    ),
+            )
         assertEquals(expected, merged)
     }
 }

@@ -19,10 +19,10 @@ package io.github.kotlinmania.starlark.eval.runtime
  * limitations under the License.
  */
 
-import io.github.kotlinmania.starlark.values.layout.heap.FrozenHeap
+import io.github.kotlinmania.starlark.Frame
 import io.github.kotlinmania.starlark.values.FrozenRef
 import io.github.kotlinmania.starlark.values.layout.FrozenValue
-import io.github.kotlinmania.starlark.Frame
+import io.github.kotlinmania.starlark.values.layout.heap.FrozenHeap
 import io.github.kotlinmania.starlark.values.types.allocAny
 
 /**
@@ -42,10 +42,12 @@ data class InlinedFrame(
      */
     // pub(crate) fn extend_frames(&self, frames: &mut Vec<Frame>)
     fun extendFrames(frames: MutableList<Frame>) {
-        frames.add(Frame(
-            name = funValue.toValue().nameForCallStack(),
-            location = span.span.toFileSpan(),
-        ))
+        frames.add(
+            Frame(
+                name = funValue.toValue().nameForCallStack(),
+                location = span.span.toFileSpan(),
+            ),
+        )
         span.inlinedFrames.extendFrames(frames)
     }
 }
@@ -89,21 +91,29 @@ data class InlinedFrames(
         funValue: FrozenValue,
         spanAlloc: InlinedFrameAlloc,
     ) {
-        frames = spanAlloc.allocFrame(InlinedFrame(
-            span = FrameSpan(
-                span = span.span,
-                inlinedFrames = this.copy(),
-            ),
-            funValue = funValue,
-        ))
-        for (f in span.inlinedFrames.toInlinedFrames().reversed()) {
-            frames = spanAlloc.allocFrame(InlinedFrame(
-                span = FrameSpan(
-                    span = f.value.span.span,
-                    inlinedFrames = this.copy(),
+        frames =
+            spanAlloc.allocFrame(
+                InlinedFrame(
+                    span =
+                        FrameSpan(
+                            span = span.span,
+                            inlinedFrames = this.copy(),
+                        ),
+                    funValue = funValue,
                 ),
-                funValue = f.value.funValue,
-            ))
+            )
+        for (f in span.inlinedFrames.toInlinedFrames().reversed()) {
+            frames =
+                spanAlloc.allocFrame(
+                    InlinedFrame(
+                        span =
+                            FrameSpan(
+                                span = f.value.span.span,
+                                inlinedFrames = this.copy(),
+                            ),
+                        funValue = f.value.funValue,
+                    ),
+                )
         }
     }
 }

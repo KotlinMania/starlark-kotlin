@@ -30,51 +30,60 @@ internal enum class NumTy {
 }
 
 private sealed class NumRhsTy {
-    data class Num(val value: NumTy) : NumRhsTy()
+    data class Num(
+        val value: NumTy,
+    ) : NumRhsTy()
+
     data object Any : NumRhsTy()
 }
 
-private fun intOrFloat(): Ty {
-    return Ty.union2(Ty.int(), Ty.float())
-}
+private fun intOrFloat(): Ty = Ty.union2(Ty.int(), Ty.float())
 
 /** Group of operators sharing the typing behavior. */
 private enum class BinOpClass {
     /** If any operand is a float, the result is a float. */
     Add,
+
     /** Result is always a float. */
     Div,
+
     /** Only supported for integers. */
     BitAnd,
+
     /** Not supported. */
     In,
+
     /** Supported. */
     Less,
 }
 
 internal fun typecheckNumBinOp(lhs: NumTy, op: TypingBinOp, rhs: TyBasic): Ty? {
-    val rhsTy = when {
-        rhs == TyBasic.Any -> NumRhsTy.Any
-        rhs == TyBasic.int() -> NumRhsTy.Num(NumTy.Int)
-        rhs == TyBasic.float() -> NumRhsTy.Num(NumTy.Float)
-        else -> return null
-    }
+    val rhsTy =
+        when {
+            rhs == TyBasic.Any -> NumRhsTy.Any
+            rhs == TyBasic.int() -> NumRhsTy.Num(NumTy.Int)
+            rhs == TyBasic.float() -> NumRhsTy.Num(NumTy.Float)
+            else -> return null
+        }
 
-    val opClass = when (op) {
-        TypingBinOp.ADD,
-        TypingBinOp.SUB,
-        TypingBinOp.MUL,
-        TypingBinOp.FLOOR_DIV,
-        TypingBinOp.PERCENT -> BinOpClass.Add
-        TypingBinOp.DIV -> BinOpClass.Div
-        TypingBinOp.BIT_OR,
-        TypingBinOp.BIT_XOR,
-        TypingBinOp.BIT_AND,
-        TypingBinOp.LEFT_SHIFT,
-        TypingBinOp.RIGHT_SHIFT -> BinOpClass.BitAnd
-        TypingBinOp.IN -> BinOpClass.In
-        TypingBinOp.LESS -> BinOpClass.Less
-    }
+    val opClass =
+        when (op) {
+            TypingBinOp.ADD,
+            TypingBinOp.SUB,
+            TypingBinOp.MUL,
+            TypingBinOp.FLOOR_DIV,
+            TypingBinOp.PERCENT,
+            -> BinOpClass.Add
+            TypingBinOp.DIV -> BinOpClass.Div
+            TypingBinOp.BIT_OR,
+            TypingBinOp.BIT_XOR,
+            TypingBinOp.BIT_AND,
+            TypingBinOp.LEFT_SHIFT,
+            TypingBinOp.RIGHT_SHIFT,
+            -> BinOpClass.BitAnd
+            TypingBinOp.IN -> BinOpClass.In
+            TypingBinOp.LESS -> BinOpClass.Less
+        }
 
     return when {
         opClass == BinOpClass.In -> null

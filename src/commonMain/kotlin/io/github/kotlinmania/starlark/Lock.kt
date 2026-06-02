@@ -7,6 +7,7 @@ package io.github.kotlinmania.starlark
  */
 expect class ReentrantLock() {
     fun lock()
+
     fun unlock()
 }
 

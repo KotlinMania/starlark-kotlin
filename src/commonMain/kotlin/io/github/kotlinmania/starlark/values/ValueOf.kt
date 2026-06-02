@@ -1,5 +1,5 @@
 // port-lint: source src/values/value_of.rs
-package io.github.kotlinmania.starlark.values.value_of
+package io.github.kotlinmania.starlark.values.valueof
 
 /*
  * Copyright 2018 The Starlark in Rust Authors.
@@ -23,8 +23,8 @@ import io.github.kotlinmania.starlark.typing.Ty
 import io.github.kotlinmania.starlark.values.AllocValue
 import io.github.kotlinmania.starlark.values.StarlarkTypeRepr
 import io.github.kotlinmania.starlark.values.ValueOfUncheckedGeneric
-import io.github.kotlinmania.starlark.values.layout.heap.Heap
 import io.github.kotlinmania.starlark.values.layout.Value
+import io.github.kotlinmania.starlark.values.layout.heap.Heap
 
 /**
  * A wrapper that keeps the original value on the heap for use elsewhere,
@@ -37,13 +37,11 @@ class ValueOf<T>(
     val value: Value,
     /** The value that was unpacked. */
     val typed: T,
-) : StarlarkTypeRepr, AllocValue {
-
+) : StarlarkTypeRepr,
+    AllocValue {
     /** Convert to `ValueOfUnchecked`. */
     @Suppress("UNCHECKED_CAST")
-    fun asUnchecked(): ValueOfUncheckedGeneric<Value, StarlarkTypeRepr> {
-        return ValueOfUncheckedGeneric.new(value)
-    }
+    fun asUnchecked(): ValueOfUncheckedGeneric<Value, StarlarkTypeRepr> = ValueOfUncheckedGeneric.new(value)
 
     override fun starlarkTypeRepr(): Ty {
         val t = typed
@@ -62,15 +60,16 @@ class ValueOf<T>(
         @Suppress("UNCHECKED_CAST")
         @PublishedApi
         internal inline fun <reified T : Any> unpackValueImpl(value: Value): ValueOf<T>? {
-            val typed: T = when (T::class) {
-                Int::class -> value.unpackI32() as? T ?: return null
-                Boolean::class -> value.unpackBool() as? T ?: return null
-                String::class -> value.unpackStr() as? T ?: return null
-                else -> {
-                    val underlying: Any = value.getUnderlyingPtr()
-                    underlying as? T ?: return null
+            val typed: T =
+                when (T::class) {
+                    Int::class -> value.unpackI32() as? T ?: return null
+                    Boolean::class -> value.unpackBool() as? T ?: return null
+                    String::class -> value.unpackStr() as? T ?: return null
+                    else -> {
+                        val underlying: Any = value.getUnderlyingPtr()
+                        underlying as? T ?: return null
+                    }
                 }
-            }
             return ValueOf(value, typed)
         }
     }

@@ -19,7 +19,7 @@ package io.github.kotlinmania.starlark.eval.compiler
  * limitations under the License.
  */
 
-import io.github.kotlinmania.starlark.values.typing.type_compiled.TypeCompiled
+import io.github.kotlinmania.starlark.values.typing.typecompiled.TypeCompiled
 
 /** IR expression in type position. */
 internal class TypeExprCompiled(
@@ -28,9 +28,7 @@ internal class TypeExprCompiled(
     // impl TypeExprCompiled
 
     companion object {
-        fun newExpr(expr: IrSpanned<ExprCompiled>): TypeExprCompiled {
-            return TypeExprCompiled(expr)
-        }
+        fun newExpr(expr: IrSpanned<ExprCompiled>): TypeExprCompiled = TypeExprCompiled(expr)
     }
 
     /** True if type is known to match any type. */

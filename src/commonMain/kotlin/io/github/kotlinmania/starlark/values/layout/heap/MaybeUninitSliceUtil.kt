@@ -1,5 +1,5 @@
 // port-lint: source src/values/layout/heap/maybe_uninit_slice_util.rs
-package io.github.kotlinmania.starlark.values.layout.heap.maybe_uninit_slice_util
+package io.github.kotlinmania.starlark.values.layout.heap.maybeuninitsliceutil
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.

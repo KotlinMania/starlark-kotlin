@@ -21,29 +21,31 @@ package io.github.kotlinmania.starlark.values.layout.avalues
 
 import io.github.kotlinmania.starlark.eval.compiler.DefGen
 import io.github.kotlinmania.starlark.values.ComplexValue
-import io.github.kotlinmania.starlark.values.layout.FrozenValue
+import io.github.kotlinmania.starlark.values.Freeze
+import io.github.kotlinmania.starlark.values.FrozenRef
 import io.github.kotlinmania.starlark.values.StarlarkValue
 import io.github.kotlinmania.starlark.values.Trace
-import io.github.kotlinmania.starlark.values.layout.Freezer
+import io.github.kotlinmania.starlark.values.freezeerror.FreezeError
 import io.github.kotlinmania.starlark.values.layout.AValue
 import io.github.kotlinmania.starlark.values.layout.AValueImpl
 import io.github.kotlinmania.starlark.values.layout.AlignedSize
-import io.github.kotlinmania.starlark.values.layout.ValueAllocSize
-import io.github.kotlinmania.starlark.values.freeze_error.FreezeError
-import io.github.kotlinmania.starlark.values.layout.heap.Heap
+import io.github.kotlinmania.starlark.values.layout.Freezer
+import io.github.kotlinmania.starlark.values.layout.FrozenValue
 import io.github.kotlinmania.starlark.values.layout.Value
+import io.github.kotlinmania.starlark.values.layout.ValueAllocSize
+import io.github.kotlinmania.starlark.values.layout.heap.Heap
 import io.github.kotlinmania.starlark.values.layout.heap.Tracer
-import io.github.kotlinmania.starlark.values.Freeze
-import io.github.kotlinmania.starlark.values.FrozenRef
-import io.github.kotlinmania.starlark.values.layout.tryFreezeDirectly
 import io.github.kotlinmania.starlark.values.layout.heapCopyImpl
+import io.github.kotlinmania.starlark.values.layout.tryFreezeDirectly
 
 // #[derive(Debug, thiserror::Error)]
 // enum AValueError
 private sealed class AValueError : Exception() {
     // #[error("Value of type `{0}` cannot be frozen")]
     // CannotBeFrozen(&'static str),
-    class CannotBeFrozen(val typeName: String) : AValueError() {
+    class CannotBeFrozen(
+        val typeName: String,
+    ) : AValueError() {
         override val message: String get() = "Value of type `$typeName` cannot be frozen"
     }
 }
@@ -99,9 +101,7 @@ internal class AValueComplex(
     }
 
     // unsafe fn heap_copy(me: *mut AValueRepr<Self::StarlarkValue>, tracer: &Tracer<'v>) -> Value<'v>
-    override fun heapCopy(tracer: Tracer): Value {
-        return heapCopyImpl(value, tracer) { v, t -> (v as Trace).trace(t) }
-    }
+    override fun heapCopy(tracer: Tracer): Value = heapCopyImpl(value, tracer) { v, t -> (v as Trace).trace(t) }
 
     override fun unpack(): StarlarkValue = value
 }
@@ -127,16 +127,13 @@ internal class AValueComplexNoFreeze(
     override fun allocSizeForExtraLen(extraLen: Int): ValueAllocSize = ValueAllocSize(AlignedSize(0u))
 
     // unsafe fn heap_freeze(...) -> Result<FrozenValue>
-    override fun heapFreeze(freezer: Freezer): Result<FrozenValue> {
-        return Result.failure(
-            FreezeError(AValueError.CannotBeFrozen(value::class.simpleName ?: "unknown").message)
+    override fun heapFreeze(freezer: Freezer): Result<FrozenValue> =
+        Result.failure(
+            FreezeError(AValueError.CannotBeFrozen(value::class.simpleName ?: "unknown").message),
         )
-    }
 
     // unsafe fn heap_copy(me: *mut AValueRepr<Self::StarlarkValue>, tracer: &Tracer<'v>) -> Value<'v>
-    override fun heapCopy(tracer: Tracer): Value {
-        return heapCopyImpl(value, tracer) { v, t -> (v as Trace).trace(t) }
-    }
+    override fun heapCopy(tracer: Tracer): Value = heapCopyImpl(value, tracer) { v, t -> (v as Trace).trace(t) }
 
     override fun unpack(): StarlarkValue = value
 }

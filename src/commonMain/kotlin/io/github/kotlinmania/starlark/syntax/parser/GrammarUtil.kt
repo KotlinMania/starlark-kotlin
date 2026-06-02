@@ -25,20 +25,22 @@ import io.github.kotlinmania.starlark.codemap.CodeMap
 import io.github.kotlinmania.starlark.codemap.Pos
 import io.github.kotlinmania.starlark.codemap.Span
 import io.github.kotlinmania.starlark.codemap.Spanned
-import io.github.kotlinmania.starlark.typing.EvalException
 import io.github.kotlinmania.starlark.syntax.ast.*
 import io.github.kotlinmania.starlark.syntax.dialect.DialectTypes
 import io.github.kotlinmania.starlark.syntax.lexer.TokenFString
 import io.github.kotlinmania.starlark.syntax.state.ParserState
-import io.github.kotlinmania.starlark.syntax.type_expr.TypeExprUnpackP
+import io.github.kotlinmania.starlark.syntax.typeexpr.TypeExprUnpackP
 import io.github.kotlinmania.starlark.typing.CallArgsUnpack
+import io.github.kotlinmania.starlark.typing.EvalException
 import io.github.kotlinmania.starlark.values.types.string.FormatConv
 import io.github.kotlinmania.starlark.values.types.string.FormatParser
 import io.github.kotlinmania.starlark.values.types.string.FormatToken
 
 // #[derive(Debug, thiserror::Error)]
 // enum GrammarUtilError
-private enum class GrammarUtilError(val message: String) {
+private enum class GrammarUtilError(
+    val message: String,
+) {
     InvalidLhs("left-hand-side of assignment must take the form `a`, `a.b` or `a[b]`"),
     InvalidModifyLhs("left-hand-side of modifying assignment cannot be a list or tuple"),
     TypeAnnotationOnAssignOp("type annotations not allowed on augmented assignments"),
@@ -48,48 +50,54 @@ private enum class GrammarUtilError(val message: String) {
 
 // #[derive(thiserror::Error, Debug)]
 // enum DialectError
-private enum class DialectError(val message: String) {
+private enum class DialectError(
+    val message: String,
+) {
     Types("type annotations are not allowed in this dialect"),
 }
 
 object GrammarUtil {
     /** Ensure we produce normalised Statements, rather than singleton Statements. */
     // pub fn statements(mut xs: Vec<AstStmt>, begin: usize, end: usize) -> AstStmt
-    fun statements(xs: List<AstStmt>, begin: Int, end: Int): AstStmt {
-        return if (xs.size == 1) {
+    fun statements(xs: List<AstStmt>, begin: Int, end: Int): AstStmt =
+        if (xs.size == 1) {
             xs[0]
         } else {
             StmtP.Statements<AstNoPayload>(xs).ast(begin, end)
         }
-    }
 
     // pub fn check_assign(codemap: &CodeMap, x: AstExpr) -> Result<AstAssignTarget, EvalException>
     fun checkAssign(codemap: CodeMap, x: AstExpr): AstAssignTarget {
-        val node: AssignTargetP<AstNoPayload> = when (val expr = x.node) {
-            is ExprP.Tuple -> AssignTargetP.Tuple(
-                expr.elements.map { checkAssign(codemap, it) }
-            )
-            is ExprP.ListExpr -> AssignTargetP.Tuple(
-                expr.elements.map { checkAssign(codemap, it) }
-            )
-            is ExprP.Dot -> AssignTargetP.Dot(expr.expr, expr.field)
-            is ExprP.Index -> AssignTargetP.Index(expr.expr, expr.index)
-            is ExprP.Identifier<*, *> -> {
-                @Suppress("UNCHECKED_CAST")
-                val ident = expr.ident as AstIdent
-                AssignTargetP.Identifier(ident.map { s ->
-                    AssignIdentP<AstNoPayload, Unit>(
-                        ident = s.ident,
-                        payload = Unit
+        val node: AssignTargetP<AstNoPayload> =
+            when (val expr = x.node) {
+                is ExprP.Tuple ->
+                    AssignTargetP.Tuple(
+                        expr.elements.map { checkAssign(codemap, it) },
                     )
-                })
+                is ExprP.ListExpr ->
+                    AssignTargetP.Tuple(
+                        expr.elements.map { checkAssign(codemap, it) },
+                    )
+                is ExprP.Dot -> AssignTargetP.Dot(expr.expr, expr.field)
+                is ExprP.Index -> AssignTargetP.Index(expr.expr, expr.index)
+                is ExprP.Identifier<*, *> -> {
+                    @Suppress("UNCHECKED_CAST")
+                    val ident = expr.ident as AstIdent
+                    AssignTargetP.Identifier(
+                        ident.map { s ->
+                            AssignIdentP<AstNoPayload, Unit>(
+                                ident = s.ident,
+                                payload = Unit,
+                            )
+                        },
+                    )
+                }
+                else -> throw EvalException.newAnyhow(
+                    IllegalArgumentException(GrammarUtilError.InvalidLhs.message),
+                    x.span,
+                    codemap,
+                )
             }
-            else -> throw EvalException.newAnyhow(
-                IllegalArgumentException(GrammarUtilError.InvalidLhs.message),
-                x.span,
-                codemap
-            )
-        }
         return Spanned(node, x.span)
     }
 
@@ -99,7 +107,7 @@ object GrammarUtil {
         lhs: AstExpr,
         ty: AstTypeExpr?,
         op: AssignOp?,
-        rhs: AstExpr
+        rhs: AstExpr,
     ): Stmt {
         if (op != null) {
             // for augmented assignment, Starlark doesn't allow tuple/list
@@ -107,34 +115,38 @@ object GrammarUtil {
                 is ExprP.Tuple, is ExprP.ListExpr -> throw EvalException.newAnyhow(
                     IllegalArgumentException(GrammarUtilError.InvalidModifyLhs.message),
                     lhs.span,
-                    codemap
+                    codemap,
                 )
                 else -> {}
             }
         }
         val assignTarget = checkAssign(codemap, lhs)
         if (ty != null) {
-            val err = if (op != null) {
-                GrammarUtilError.TypeAnnotationOnAssignOp
-            } else if (assignTarget.node is AssignTargetP.Tuple) {
-                GrammarUtilError.TypeAnnotationOnTupleAssign
-            } else {
-                null
-            }
+            val err =
+                if (op != null) {
+                    GrammarUtilError.TypeAnnotationOnAssignOp
+                } else if (assignTarget.node is AssignTargetP.Tuple) {
+                    GrammarUtilError.TypeAnnotationOnTupleAssign
+                } else {
+                    null
+                }
             if (err != null) {
                 throw EvalException.newAnyhow(
                     IllegalArgumentException(err.message),
                     ty.span,
-                    codemap
+                    codemap,
                 )
             }
         }
         return when (op) {
-            null -> StmtP.Assign(AssignP(
-                lhs = assignTarget,
-                ty = ty,
-                rhs = rhs
-            ))
+            null ->
+                StmtP.Assign(
+                    AssignP(
+                        lhs = assignTarget,
+                        ty = ty,
+                        rhs = rhs,
+                    ),
+                )
             else -> StmtP.AssignModify(assignTarget, op, rhs)
         }
     }
@@ -145,14 +157,16 @@ object GrammarUtil {
             EvalException.newAnyhow(
                 IllegalArgumentException(GrammarUtilError.LoadRequiresAtLeastTwoArguments.message),
                 module.span,
-                parserState.codemap
-            )
+                parserState.codemap,
+            ),
         )
-        return StmtP.Load(LoadP(
-            module = module,
-            args = emptyList(),
-            payload = Unit
-        ))
+        return StmtP.Load(
+            LoadP(
+                module = module,
+                args = emptyList(),
+                payload = Unit,
+            ),
+        )
     }
 
     // pub(crate) fn check_load(...)
@@ -160,35 +174,41 @@ object GrammarUtil {
         module: AstString,
         args: List<Pair<Pair<AstAssignIdent, AstString>, Spanned<Comma>>>,
         last: Pair<AstAssignIdent, AstString>?,
-        parserState: ParserState
+        parserState: ParserState,
     ): Stmt {
         if (args.isEmpty() && last == null) {
             return checkLoad0(module, parserState)
         }
 
         @Suppress("UNCHECKED_CAST")
-        val loadArgs = args.map { (localTheir, comma) ->
-            val (local, their) = localTheir
-            LoadArgP(
-                local = local,
-                their = their,
-                comma = comma as Spanned<io.github.kotlinmania.starlark.syntax.ast.Comma>?
-            )
-        } + if (last != null) {
-            listOf(LoadArgP(
-                local = last.first,
-                their = last.second,
-                comma = null
-            ))
-        } else {
-            emptyList()
-        }
+        val loadArgs =
+            args.map { (localTheir, comma) ->
+                val (local, their) = localTheir
+                LoadArgP(
+                    local = local,
+                    their = their,
+                    comma = comma as Spanned<io.github.kotlinmania.starlark.syntax.ast.Comma>?,
+                )
+            } +
+                if (last != null) {
+                    listOf(
+                        LoadArgP(
+                            local = last.first,
+                            their = last.second,
+                            comma = null,
+                        ),
+                    )
+                } else {
+                    emptyList()
+                }
 
-        return StmtP.Load(LoadP(
-            module = module,
-            args = loadArgs,
-            payload = Unit
-        ))
+        return StmtP.Load(
+            LoadP(
+                module = module,
+                args = loadArgs,
+                payload = Unit,
+            ),
+        )
     }
 
     // pub(crate) fn fstring(...)
@@ -196,12 +216,12 @@ object GrammarUtil {
         fstring: TokenFString,
         begin: Int,
         end: Int,
-        parserState: ParserState
+        parserState: ParserState,
     ): AstFString {
         if (!parserState.dialect.enableFStrings) {
             parserState.error(
                 Span(Pos(begin), Pos(end)),
-                "Your Starlark dialect must enable f-strings to use them"
+                "Your Starlark dialect must enable f-strings to use them",
             )
         }
 
@@ -214,13 +234,14 @@ object GrammarUtil {
         val parser = FormatParser(content)
         while (true) {
             val res = parser.next()
-            val token = res.getOrElse { e ->
-                parserState.error(
-                    Span(Pos(begin), Pos(end)),
-                    "Invalid format: ${e.message}"
-                )
-                break
-            } ?: break
+            val token =
+                res.getOrElse { e ->
+                    parserState.error(
+                        Span(Pos(begin), Pos(end)),
+                        "Invalid format: ${e.message}",
+                    )
+                    break
+                } ?: break
 
             when (token) {
                 is FormatToken.Text -> format.append(token.text)
@@ -236,16 +257,18 @@ object GrammarUtil {
                     if (ident == null) {
                         parserState.error(
                             Span(Pos(captureBegin), Pos(captureEnd)),
-                            "Not a valid identifier: `${token.capture}`"
+                            "Not a valid identifier: `${token.capture}`",
                         )
                         // Might as well keep going here. This doesn't compromise the parsing of
                         // the rest of the format string.
                         continue
                     }
 
-                    val expr = ExprP.Identifier<AstNoPayload, Unit>(
-                        IdentP<AstNoPayload, Unit>(ident = ident, payload = Unit).ast(captureBegin, captureEnd)
-                    ).ast(captureBegin, captureEnd)
+                    val expr =
+                        ExprP
+                            .Identifier<AstNoPayload, Unit>(
+                                IdentP<AstNoPayload, Unit>(ident = ident, payload = Unit).ast(captureBegin, captureEnd),
+                            ).ast(captureBegin, captureEnd)
                     expressions.add(expr)
                     // Positional format.
                     when (token.conv) {
@@ -258,20 +281,20 @@ object GrammarUtil {
 
         return FStringP<AstNoPayload>(
             format = format.toString().ast(begin, end),
-            expressions = expressions
+            expressions = expressions,
         ).ast(begin, end)
     }
 
     // pub(crate) fn dialect_check_type(...)
     fun dialectCheckType(
         state: ParserState,
-        x: AstExpr
+        x: AstExpr,
     ): AstTypeExpr {
         if (state.dialect.enableTypes == DialectTypes.Disable) {
             throw EvalException.newAnyhow(
                 IllegalArgumentException(DialectError.Types.message),
                 x.span,
-                state.codemap
+                state.codemap,
             )
         }
 
@@ -281,7 +304,7 @@ object GrammarUtil {
         return x.map { node ->
             TypeExprP<AstNoPayload, Unit>(
                 expr = Spanned(node, x.span),
-                payload = Unit
+                payload = Unit,
             )
         }
     }
@@ -290,7 +313,7 @@ object GrammarUtil {
     fun checkCall(
         e: AstExpr,
         a: List<AstArgument>,
-        state: ParserState
+        state: ParserState,
     ): Expr {
         val args = CallArgsP<AstNoPayload>(args = a)
 

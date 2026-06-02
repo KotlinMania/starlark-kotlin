@@ -24,10 +24,10 @@ import io.github.kotlinmania.starlark.codemap.Spanned
 import io.github.kotlinmania.starlark.environment.GlobalsBuilder
 import io.github.kotlinmania.starlark.typing.ParamSpec
 import io.github.kotlinmania.starlark.typing.Ty
-import io.github.kotlinmania.starlark.typing.TyFunction
+import io.github.kotlinmania.starlark.typing.TyCallArgs
 import io.github.kotlinmania.starlark.typing.TyCallable
 import io.github.kotlinmania.starlark.typing.TyCustomFunctionImpl
-import io.github.kotlinmania.starlark.typing.TyCallArgs
+import io.github.kotlinmania.starlark.typing.TyFunction
 import io.github.kotlinmania.starlark.typing.oracle.TypingOracleCtx
 import io.github.kotlinmania.starlark.values.layout.Value
 import io.github.kotlinmania.starlark.values.layout.avalues.allocListIter
@@ -65,9 +65,10 @@ internal object ListTypeFunction : TyCustomFunctionImpl {
         val arg = args.pos.firstOrNull()
         if (arg != null) {
             // This is infallible after the check above.
-            val item = oracle.iterItem(Spanned(arg.node, span)).getOrElse {
-                return Result.failure(it)
-            }
+            val item =
+                oracle.iterItem(Spanned(arg.node, span)).getOrElse {
+                    return Result.failure(it)
+                }
             return Result.success(Ty.list(item))
         }
 

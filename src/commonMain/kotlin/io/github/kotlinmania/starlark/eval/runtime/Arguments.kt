@@ -19,22 +19,22 @@ package io.github.kotlinmania.starlark.eval.runtime
  * limitations under the License.
  */
 
+import io.github.kotlinmania.starlark.ErrorKind
 import io.github.kotlinmania.starlark.collections.Hashed
-import io.github.kotlinmania.starlark.collections.StarlarkHashValue
 import io.github.kotlinmania.starlark.collections.SmallMap
-import io.github.kotlinmania.starlark.collections.small_set.SmallSet
+import io.github.kotlinmania.starlark.collections.StarlarkHashValue
+import io.github.kotlinmania.starlark.collections.smallset.SmallSet
 import io.github.kotlinmania.starlark.collections.symbol.Symbol
+import io.github.kotlinmania.starlark.eval.runtime.params.spec.ParametersSpec
 import io.github.kotlinmania.starlark.values.StarlarkIterator
+import io.github.kotlinmania.starlark.values.layout.Value
+import io.github.kotlinmania.starlark.values.layout.heap.Heap
 import io.github.kotlinmania.starlark.values.layout.typed.StringValue
 import io.github.kotlinmania.starlark.values.types.dict.Dict
 import io.github.kotlinmania.starlark.values.types.dict.DictRef
-import io.github.kotlinmania.starlark.values.types.dict.Either as DictEither
-import io.github.kotlinmania.starlark.eval.runtime.params.spec.ParametersSpec
-import io.github.kotlinmania.starlark.values.layout.heap.Heap
-import io.github.kotlinmania.starlark.values.layout.Value
 import io.github.kotlinmania.starlark.values.types.dict.dictRefFromValue
 import io.github.kotlinmania.starlark.Error as StarlarkError
-import io.github.kotlinmania.starlark.ErrorKind
+import io.github.kotlinmania.starlark.values.types.dict.Either as DictEither
 
 // #[derive(Debug, Clone, Error)]
 // pub(crate) enum FunctionError
@@ -80,10 +80,10 @@ sealed class FunctionError(
         val max: Int,
         val got: Int,
     ) : FunctionError(
-        "Wrong number of positional arguments, expected ${
-            if (min == max) min.toString() else "between $min and $max"
-        }, got $got"
-    )
+            "Wrong number of positional arguments, expected ${
+                if (min == max) min.toString() else "between $min and $max"
+            }, got $got",
+        )
 }
 
 // impl From<FunctionError> for crate::Error {
@@ -91,10 +91,9 @@ sealed class FunctionError(
 //         crate::Error::new_kind(crate::ErrorKind::Function(anyhow::Error::new(e)))
 //     }
 // }
+
 /** Convert a [FunctionError] into a [StarlarkError] wrapping it as [ErrorKind.Function]. */
-fun from(e: FunctionError): StarlarkError {
-    return StarlarkError.newKind(ErrorKind.Function(e))
-}
+fun from(e: FunctionError): StarlarkError = StarlarkError.newKind(ErrorKind.Function(e))
 
 /** An object accompanying argument name for faster argument resolution. */
 // pub(crate) trait ArgSymbol: Debug + Coerce<Self> + 'static
@@ -120,13 +119,9 @@ data class ResolvedArgName(
     // impl ArgSymbol for ResolvedArgName
     override fun <V> getIndexFromParamSpec(
         ps: ParametersSpec<V>,
-    ): Int? {
-        return paramIndex
-    }
+    ): Int? = paramIndex
 
-    override fun smallHash(): StarlarkHashValue {
-        return hash
-    }
+    override fun smallHash(): StarlarkHashValue = hash
 }
 
 // unsafe impl Coerce<ResolvedArgName> for ResolvedArgName {}
@@ -141,16 +136,13 @@ class ArgNames<S : ArgSymbol>(
     // impl<'a, 'v, S: ArgSymbol> Default for ArgNames<'a, 'v, S>
     constructor() : this(emptyList())
 
-    fun names(): List<Pair<S, StringValue>> {
-        return namedArguments
-    }
+    fun names(): List<Pair<S, StringValue>> = namedArguments
 
     companion object {
-        fun <S : ArgSymbol> default(): ArgNames<S> {
-            return ArgNames()
-        }
+        fun <S : ArgSymbol> default(): ArgNames<S> = ArgNames()
 
         // pub(crate) fn new_unique(names: &'a [(S, StringValue<'v>)]) -> ArgNames<'a, 'v, S>
+
         /**
          * Names must be unique.
          * String in `Symbol` must be equal to the `StringValue`,
@@ -159,9 +151,7 @@ class ArgNames<S : ArgSymbol>(
          * When this invariant is violated, it is memory safe,
          * but behavior will be incorrect (errors in wrong places, missing errors, panics, etc.)
          */
-        fun <S : ArgSymbol> newUnique(names: List<Pair<S, StringValue>>): ArgNames<S> {
-            return ArgNames(names)
-        }
+        fun <S : ArgSymbol> newUnique(names: List<Pair<S, StringValue>>): ArgNames<S> = ArgNames(names)
 
         // pub(crate) fn new_check_unique(names: &'a [(S, StringValue<'v>)]) -> crate::Result<ArgNames<'a, 'v, S>>
         fun <S : ArgSymbol> newCheckUnique(
@@ -171,7 +161,7 @@ class ArgNames<S : ArgSymbol>(
             for ((s, name) in names) {
                 if (!set.insertHashed(Hashed.newUnchecked(s.smallHash(), name.asStr()))) {
                     return Result.failure(
-                        FunctionError.RepeatedArg(name = name.asStr())
+                        FunctionError.RepeatedArg(name = name.asStr()),
                     )
                 }
             }
@@ -186,12 +176,16 @@ interface ArgumentsImpl<S : ArgSymbol> {
     // type ArgSymbol: ArgSymbol
     // fn pos(&self) -> &[Value<'v>]
     fun pos(): List<Value>
+
     // fn named(&self) -> &[Value<'v>]
     fun named(): List<Value>
+
     // fn names(&self) -> ArgNames<'a, 'v, Self::ArgSymbol>
     fun names(): ArgNames<S>
+
     // fn args(&self) -> Option<Value<'v>>
     fun args(): Value?
+
     // fn kwargs(&self) -> Option<Value<'v>>
     fun kwargs(): Value?
 }
@@ -223,9 +217,13 @@ class ArgumentsFull<S : ArgSymbol>(
 
     // impl<'v, 'a, S: ArgSymbol> ArgumentsImpl<'v, 'a> for ArgumentsFull<'v, 'a, S>
     override fun pos(): List<Value> = pos
+
     override fun named(): List<Value> = named
+
     override fun names(): ArgNames<S> = names
+
     override fun args(): Value? = args
+
     override fun kwargs(): Value? = kwargs
 }
 
@@ -239,9 +237,13 @@ class ArgumentsPos<S : ArgSymbol>(
 ) : ArgumentsImpl<S> {
     // impl<'a, 'v, S: ArgSymbol> ArgumentsImpl<'v, 'a> for ArgumentsPos<'v, 'a, S>
     override fun pos(): List<Value> = pos
+
     override fun named(): List<Value> = emptyList()
+
     override fun names(): ArgNames<S> = ArgNames()
+
     override fun args(): Value? = null
+
     override fun kwargs(): Value? = null
 }
 
@@ -293,9 +295,10 @@ class Arguments(
                     }
                 } else {
                     // We have to insert the names before the kwargs since the iteration order is observable
-                    val result = SmallMap.withCapacity<StringValue, Value>(
-                        full.names.names().size + kwargsVal.len()
-                    )
+                    val result =
+                        SmallMap.withCapacity<StringValue, Value>(
+                            full.names.names().size + kwargsVal.len(),
+                        )
                     for ((i, kv) in full.names.names().withIndex()) {
                         val (s, stringVal) = kv
                         result.insertHashedUniqueUnchecked(
@@ -311,7 +314,7 @@ class Arguments(
                         val old = result.insertHashed(hk, v)
                         if (old != null) {
                             return Result.failure(
-                                FunctionError.RepeatedArg(name = sVal.asStr())
+                                FunctionError.RepeatedArg(name = sVal.asStr()),
                             )
                         }
                     }
@@ -328,14 +331,15 @@ class Arguments(
      */
     // pub fn len(&self) -> crate::Result<usize>
     fun len(): Result<Int> {
-        val argsLen = when (val a = full.args) {
-            null -> 0
-            else -> {
-                val lenResult = a.length()
-                if (lenResult.isFailure) return Result.failure(lenResult.exceptionOrNull()!!)
-                lenResult.getOrThrow()
+        val argsLen =
+            when (val a = full.args) {
+                null -> 0
+                else -> {
+                    val lenResult = a.length()
+                    if (lenResult.isFailure) return Result.failure(lenResult.exceptionOrNull()!!)
+                    lenResult.getOrThrow()
+                }
             }
-        }
         val kwargsResult = unpackKwargs()
         if (kwargsResult.isFailure) return Result.failure(kwargsResult.exceptionOrNull()!!)
         val kwargsLen = kwargsResult.getOrNull()?.len() ?: 0
@@ -359,14 +363,15 @@ class Arguments(
      */
     // pub fn positions<'b>(&'b self, heap: Heap<'v>) -> crate::Result<impl Iterator<Item = Value<'v>> + 'b>
     fun positions(heap: Heap): Result<Iterator<Value>> {
-        val tail: Iterator<Value> = when (val a = full.args) {
-            null -> StarlarkIterator.empty(heap)
-            else -> {
-                val iterResult = a.iterate(heap)
-                if (iterResult.isFailure) return Result.failure(iterResult.exceptionOrNull()!!)
-                iterResult.getOrThrow()
+        val tail: Iterator<Value> =
+            when (val a = full.args) {
+                null -> StarlarkIterator.empty(heap)
+                else -> {
+                    val iterResult = a.iterate(heap)
+                    if (iterResult.isFailure) return Result.failure(iterResult.exceptionOrNull()!!)
+                    iterResult.getOrThrow()
+                }
             }
-        }
         return Result.success((full.pos.asSequence() + tail.asSequence()).iterator())
     }
 
@@ -377,8 +382,8 @@ class Arguments(
      * The arguments may also overlap with named, which would be an error.
      */
     // pub(crate) fn unpack_kwargs(&self) -> crate::Result<Option<DictRef>>
-    internal fun unpackKwargs(): Result<DictRef?> {
-        return when (val kw = full.kwargs) {
+    internal fun unpackKwargs(): Result<DictRef?> =
+        when (val kw = full.kwargs) {
             null -> Result.success(null)
             else -> {
                 val dictRef = dictRefFromValue(kw)
@@ -389,7 +394,6 @@ class Arguments(
                 }
             }
         }
-    }
 
     /** Confirm that a key in the `kwargs` field is indeed a string, or error. */
     // pub(crate) fn unpack_kwargs_key_as_value(k: Value<'v>) -> crate::Result<StringValue<'v>>
@@ -400,9 +404,7 @@ class Arguments(
 
     /** Confirm that a key in the `kwargs` field is indeed a string, or error. */
     // pub(crate) fn unpack_kwargs_key(k: Value<'v>) -> crate::Result<&'v str>
-    internal fun unpackKwargsKey(k: Value): Result<String> {
-        return unpackKwargsKeyAsValue(k).map { it.asStr() }
-    }
+    internal fun unpackKwargsKey(k: Value): Result<String> = unpackKwargsKeyAsValue(k).map { it.asStr() }
 
     /**
      * Produce error if there are any positional arguments.
@@ -414,7 +416,7 @@ class Arguments(
         val list = result.getOrThrow()
         if (list.isNotEmpty()) {
             return Result.failure(
-                FunctionError.WrongNumberOfArgs(min = 0, max = 0, got = list.size)
+                FunctionError.WrongNumberOfArgs(min = 0, max = 0, got = list.size),
             )
         }
         return Result.success(Unit)
@@ -437,10 +439,11 @@ class Arguments(
      */
     // pub(crate) fn positional<const N: usize>(&self, heap: Heap<'v>) -> crate::Result<[Value<'v>; N]>
     internal fun positional(n: Int, heap: Heap): Result<List<Value>> {
-        val (required, optional) = optional(n, 0, heap).let {
-            if (it.isFailure) return Result.failure(it.exceptionOrNull()!!)
-            it.getOrThrow()
-        }
+        val (required, optional) =
+            optional(n, 0, heap).let {
+                if (it.isFailure) return Result.failure(it.exceptionOrNull()!!)
+                it.getOrThrow()
+            }
         return Result.success(required)
     }
 
@@ -455,9 +458,9 @@ class Arguments(
         optional: Int,
         heap: Heap,
     ): Result<Pair<List<Value>, List<Value?>>> {
-        if (full.args == null
-            && full.pos.size >= required
-            && full.pos.size <= required + optional
+        if (full.args == null &&
+            full.pos.size >= required &&
+            full.pos.size <= required + optional
         ) {
             val requiredList = full.pos.subList(0, required)
             val optionalList = MutableList<Value?>(optional) { null }
@@ -489,10 +492,11 @@ class Arguments(
     // pub(crate) fn optional1(&self, heap: Heap<'v>) -> crate::Result<Option<Value<'v>>>
     internal fun optional1(heap: Heap): Result<Value?> {
         // Could be implemented more directly, let's see if profiling shows it up
-        val (_, opt) = optional(0, 1, heap).let {
-            if (it.isFailure) return Result.failure(it.exceptionOrNull()!!)
-            it.getOrThrow()
-        }
+        val (_, opt) =
+            optional(0, 1, heap).let {
+                if (it.isFailure) return Result.failure(it.exceptionOrNull()!!)
+                it.getOrThrow()
+            }
         return Result.success(opt[0])
     }
 
@@ -500,13 +504,9 @@ class Arguments(
         heap: Heap,
         required: Int,
         optional: Int,
-    ): Result<Pair<List<Value>, List<Value?>>> {
-        return optional(required, optional, heap)
-    }
+    ): Result<Pair<List<Value>, List<Value?>>> = optional(required, optional, heap)
 
-    fun frozenToV(): Arguments {
-        return this
-    }
+    fun frozenToV(): Arguments = this
 
     // ---- Convenience accessors for starlark_module-style argument extraction ----
 
@@ -556,23 +556,22 @@ class Arguments(
     inline fun <reified T> namedOptional(name: String): T? = optionalNamed<T>(name)
 
     companion object {
-        fun default(): Arguments {
-            return Arguments()
-        }
+        fun default(): Arguments = Arguments()
 
         // pub(crate) fn unpack_kwargs_key_as_value(k: Value<'v>) -> crate::Result<StringValue<'v>>
+
         /** Confirm that a key in the `kwargs` field is indeed a string, or error. */
         fun unpackKwargsKeyAsValue(k: Value): Result<StringValue> {
-            val sv = StringValue.new(k)
-                ?: return Result.failure(FunctionError.ArgsValueIsNotString)
+            val sv =
+                StringValue.new(k)
+                    ?: return Result.failure(FunctionError.ArgsValueIsNotString)
             return Result.success(sv)
         }
 
         // pub(crate) fn unpack_kwargs_key(k: Value<'v>) -> crate::Result<&'v str>
+
         /** Confirm that a key in the `kwargs` field is indeed a string, or error. */
-        fun unpackKwargsKey(k: Value): Result<String> {
-            return unpackKwargsKeyAsValue(k).map { it.asStr() }
-        }
+        fun unpackKwargsKey(k: Value): Result<String> = unpackKwargsKeyAsValue(k).map { it.asStr() }
     }
 }
 
@@ -583,6 +582,7 @@ class Arguments(
 // #[cold]
 // #[inline(never)]
 // fn bad(x: &Arguments) -> crate::Result<()>
+
 /**
  * Cold path for [Arguments.noNamedArgs]: collects extra named argument names
  * and produces an error if any are found.
@@ -590,7 +590,11 @@ class Arguments(
 private fun bad(x: Arguments): Result<Unit> {
     // We might have an empty kwargs dictionary, but probably have an error
     val extra = mutableListOf<String>()
-    extra.addAll(x.full.names.names().map { it.second.asStr() })
+    extra.addAll(
+        x.full.names
+            .names()
+            .map { it.second.asStr() },
+    )
     val kwargsResult = x.unpackKwargs()
     if (kwargsResult.isFailure) return Result.failure(kwargsResult.exceptionOrNull()!!)
     val kwargsVal = kwargsResult.getOrNull()
@@ -609,7 +613,7 @@ private fun bad(x: Arguments): Result<Unit> {
             FunctionError.ExtraNamedArg(
                 names = extra,
                 function = "function",
-            )
+            ),
         )
     }
 }
@@ -619,6 +623,7 @@ private fun bad(x: Arguments): Result<Unit> {
 // fn rare<'v, const REQUIRED: usize, const OPTIONAL: usize>(
 //     x: &Arguments<'v, '_>, heap: Heap<'v>,
 // ) -> crate::Result<([Value<'v>; REQUIRED], [Option<Value<'v>>; OPTIONAL])>
+
 /**
  * Cold path for [Arguments.optional]: handles the rare case where `*args` is present
  * and needs to be iterated and combined with positional arguments.
@@ -631,14 +636,15 @@ private fun rare(
 ): Result<Pair<List<Value>, List<Value?>>> {
     // Very sad that we allocate into a list, but I expect calling into a small positional argument
     // with a *args is very rare.
-    val argsIter: Iterator<Value> = when (val a = x.full.args) {
-        null -> StarlarkIterator.empty(heap)
-        else -> {
-            val iterResult = a.iterate(heap)
-            if (iterResult.isFailure) return Result.failure(iterResult.exceptionOrNull()!!)
-            iterResult.getOrThrow()
+    val argsIter: Iterator<Value> =
+        when (val a = x.full.args) {
+            null -> StarlarkIterator.empty(heap)
+            else -> {
+                val iterResult = a.iterate(heap)
+                if (iterResult.isFailure) return Result.failure(iterResult.exceptionOrNull()!!)
+                iterResult.getOrThrow()
+            }
         }
-    }
     val xs = x.full.pos.toMutableList()
     argsIter.forEach { xs.add(it) }
     return if (xs.size >= required && xs.size <= required + optional) {
@@ -655,22 +661,19 @@ private fun rare(
                 min = required,
                 max = required + optional,
                 got = xs.size,
-            )
+            ),
         )
     }
 }
 
-private fun DictRef.dict(): Dict {
-    return when (val ref = aref) {
+private fun DictRef.dict(): Dict =
+    when (val ref = aref) {
         is DictEither.Left -> ref.value.value
         is DictEither.Right -> ref.value
         else -> throw IllegalStateException("Unexpected DictEither: $ref")
     }
-}
 
-private fun DictRef.len(): Int {
-    return dict().len()
-}
+private fun DictRef.len(): Int = dict().len()
 
 private fun DictRef.iterHashed(): Sequence<Pair<Hashed<Value>, Value>> {
     @Suppress("UNCHECKED_CAST")
@@ -696,13 +699,16 @@ private fun DictRef.downcastRefKeyString(): SmallMap<StringValue, Value>? {
  * For other types performs an unchecked cast of the underlying [Value].
  */
 @Suppress("UNCHECKED_CAST")
-@PublishedApi internal inline fun <reified T> unpackValueAs(v: Value): T {
-    return when (T::class) {
+@PublishedApi
+internal inline fun <reified T> unpackValueAs(v: Value): T =
+    when (T::class) {
         Value::class -> v as T
         String::class -> v.unpackStrErr().getOrThrow() as T
-        Int::class -> (v.unpackI32()
-            ?: throw IllegalArgumentException("Expected Int, got ${v.toStringForTypeError()}")) as T
+        Int::class ->
+            (
+                v.unpackI32()
+                    ?: throw IllegalArgumentException("Expected Int, got ${v.toStringForTypeError()}")
+            ) as T
         Boolean::class -> v.toBool() as T
         else -> v as T
     }
-}

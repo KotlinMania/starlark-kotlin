@@ -20,7 +20,7 @@ package io.github.kotlinmania.starlark.eval.runtime
  */
 
 // FrozenFileSpan.DEFAULT is used directly below
-import io.github.kotlinmania.starlark.eval.runtime.frozen_file_span.FrozenFileSpan
+import io.github.kotlinmania.starlark.eval.runtime.frozenfilespan.FrozenFileSpan
 
 /** Span of the call frame (including inlined call frames). */
 @ConsistentCopyVisibility
@@ -34,32 +34,27 @@ data class FrameSpan internal constructor(
         inlinedFrames = InlinedFrames(frames = null),
     )
 
-    fun endSpan(): FrameSpan {
-        return FrameSpan(
+    fun endSpan(): FrameSpan =
+        FrameSpan(
             span = span.endSpan(),
             inlinedFrames = inlinedFrames,
         )
-    }
 
-    fun merge(other: FrameSpan): FrameSpan {
-        return FrameSpan(
+    fun merge(other: FrameSpan): FrameSpan =
+        FrameSpan(
             span = span.merge(other.span),
             inlinedFrames = inlinedFrames,
         )
-    }
 
-    override fun toString(): String {
-        return span.toString()
-    }
+    override fun toString(): String = span.toString()
 
     companion object {
-        fun new(span: FrozenFileSpan): FrameSpan {
-            return FrameSpan(span)
-        }
+        fun new(span: FrozenFileSpan): FrameSpan = FrameSpan(span)
 
-        val DEFAULT = FrameSpan(
-            span = FrozenFileSpan.DEFAULT,
-            inlinedFrames = InlinedFrames(frames = null),
-        )
+        val DEFAULT =
+            FrameSpan(
+                span = FrozenFileSpan.DEFAULT,
+                inlinedFrames = InlinedFrames(frames = null),
+            )
     }
 }

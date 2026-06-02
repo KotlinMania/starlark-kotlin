@@ -20,14 +20,14 @@ package io.github.kotlinmania.starlark.values.types
  */
 
 import io.github.kotlinmania.starlark.environment.Methods
-import io.github.kotlinmania.starlark.eval.runtime.Evaluator
 import io.github.kotlinmania.starlark.eval.runtime.Arguments
-import io.github.kotlinmania.starlark.values.layout.Value
-import io.github.kotlinmania.starlark.values.types.set.setMethods
-import io.github.kotlinmania.starlark.values.types.list.listMethods
-import io.github.kotlinmania.starlark.values.types.dict.getDictMethods
-import io.github.kotlinmania.starlark.values.types.string.strMethods
+import io.github.kotlinmania.starlark.eval.runtime.Evaluator
 import io.github.kotlinmania.starlark.values.layout.FrozenValueTyped
+import io.github.kotlinmania.starlark.values.layout.Value
+import io.github.kotlinmania.starlark.values.types.dict.getDictMethods
+import io.github.kotlinmania.starlark.values.types.list.listMethods
+import io.github.kotlinmania.starlark.values.types.set.setMethods
+import io.github.kotlinmania.starlark.values.types.string.strMethods
 
 /** Method and a `Methods` container which declares it. */
 // #[derive(Clone, Copy, Dupe)]
@@ -41,14 +41,10 @@ internal class KnownMethod(
     val imp: NativeMeth,
 ) {
     // pub(crate) fn to_value<'v>(&self) -> Value<'v>
-    fun toValue(): Value {
-        return method.toValue()
-    }
+    fun toValue(): Value = method.toValue()
 
     // pub(crate) fn invoke_method<'v>(&self, this: Value<'v>, args: &Arguments<'v, '_>, eval: &mut Evaluator<'v, '_, '_>) -> crate::Result<Value<'v>>
-    fun invokeMethod(thisValue: Value, args: Arguments, eval: Evaluator): Result<Value> {
-        return imp.invoke(eval, thisValue, args)
-    }
+    fun invokeMethod(thisValue: Value, args: Arguments, eval: Evaluator): Result<Value> = imp.invoke(eval, thisValue, args)
 }
 
 /** Some of stdlib methods. */
@@ -73,11 +69,13 @@ private class KnownMethods(
                     val method = FrozenValueTyped.new<NativeMethod>(member)
                     if (method != null) {
                         // First wins, e. g. `list.clear` is hit, and `dict.clear` is miss.
-                        methods.getOrPut(name) { KnownMethod(
-                            typeMethods = tm,
-                            method = method,
-                            imp = method.asRef().function,
-                        ) }
+                        methods.getOrPut(name) {
+                            KnownMethod(
+                                typeMethods = tm,
+                                method = method,
+                                imp = method.asRef().function,
+                            )
+                        }
                         hasAtLeastOneMethod = true
                     }
                 }
@@ -105,6 +103,4 @@ private class KnownMethods(
 // static ANY_METHODS: Lazy<KnownMethods> = Lazy::new(KnownMethods::build)
 private val anyMethods: KnownMethods by lazy { KnownMethods.build() }
 
-internal fun getKnownMethod(name: String): KnownMethod? {
-    return anyMethods.methods[name]
-}
+internal fun getKnownMethod(name: String): KnownMethod? = anyMethods.methods[name]

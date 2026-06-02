@@ -25,19 +25,20 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 
 class UnpackTest {
-
     @Test
     fun testUnpackFloat() {
         Heap.temp { heap ->
             assertEquals(
                 1.0,
-                UnpackFloat.unpackValue(Value.testingNewInt(1))
+                UnpackFloat
+                    .unpackValue(Value.testingNewInt(1))
                     .getOrThrow()!!
                     .value,
             )
             assertEquals(
                 1.0,
-                UnpackFloat.unpackValue(heap.alloc(1.0))
+                UnpackFloat
+                    .unpackValue(1.0.allocValue(heap))
                     .getOrThrow()!!
                     .value,
             )

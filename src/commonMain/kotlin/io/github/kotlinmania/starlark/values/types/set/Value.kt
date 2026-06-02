@@ -20,22 +20,22 @@ package io.github.kotlinmania.starlark.values.types.set
  */
 
 import io.github.kotlinmania.starlark.collections.Hashed
-import io.github.kotlinmania.starlark.collections.small_set.SmallSet
+import io.github.kotlinmania.starlark.collections.smallset.SmallSet
 import io.github.kotlinmania.starlark.environment.Methods
 import io.github.kotlinmania.starlark.environment.MethodsStatic
 import io.github.kotlinmania.starlark.typing.Ty
 import io.github.kotlinmania.starlark.values.ComplexValue
 import io.github.kotlinmania.starlark.values.Freeze
-import io.github.kotlinmania.starlark.values.layout.Freezer
 import io.github.kotlinmania.starlark.values.StarlarkValue
-import io.github.kotlinmania.starlark.values.layout.FrozenValue
 import io.github.kotlinmania.starlark.values.Trace
-import io.github.kotlinmania.starlark.values.layout.heap.Tracer
 import io.github.kotlinmania.starlark.values.ValueError
 import io.github.kotlinmania.starlark.values.freezeSmallSet
+import io.github.kotlinmania.starlark.values.layout.Freezer
+import io.github.kotlinmania.starlark.values.layout.FrozenValue
 import io.github.kotlinmania.starlark.values.layout.Value
 import io.github.kotlinmania.starlark.values.layout.avalues.allocComplex
 import io.github.kotlinmania.starlark.values.layout.heap.Heap
+import io.github.kotlinmania.starlark.values.layout.heap.Tracer
 
 /**
  * Generic set wrapper.
@@ -45,14 +45,18 @@ import io.github.kotlinmania.starlark.values.layout.heap.Heap
  */
 // #[derive(Clone, Default, Trace, Debug, ProvidesStaticType, Allocative)]
 // pub(crate) struct SetGen<T>(pub(crate) T);
-data class SetGen<T>(val inner: T) : ComplexValue, Trace, Freeze<StarlarkValue> {
-
+data class SetGen<T>(
+    val inner: T,
+) : ComplexValue,
+    Trace,
+    Freeze<StarlarkValue> {
     // impl Freeze for SetGen<RefCell<SetData>>
     @Suppress("UNCHECKED_CAST")
     override fun freeze(freezer: Freezer): Result<StarlarkValue> {
         val mutableSelf = this as MutableSet
         return mutableSelf.freezeToFrozenSet(freezer).map { it as StarlarkValue }
     }
+
     override val TYPE: String get() = SET_TYPE
     override val HAS_iterate: Boolean get() = true
     override val HAS_equals: Boolean get() = true
@@ -74,19 +78,19 @@ data class SetGen<T>(val inner: T) : ComplexValue, Trace, Freeze<StarlarkValue> 
         Result.success(setLike().content().len())
 
     // fn is_in(&self, other: Value<'v>) -> crate::Result<bool>
-    override fun isIn(other: Value): Result<Boolean> {
-        return try {
+    override fun isIn(other: Value): Result<Boolean> =
+        try {
             val hashed = other.getHashed().getOrThrow()
             Result.success(setLike().content().containsHashed(hashed.asRef()))
         } catch (e: Throwable) {
             Result.failure(e)
         }
-    }
 
     // fn equals(&self, other: Value<'v>) -> crate::Result<bool>
     override fun equals(other: Value): Result<Boolean> {
-        val otherSet = SetRef.unpackValueOpt(other)
-            ?: return Result.success(false)
+        val otherSet =
+            SetRef.unpackValueOpt(other)
+                ?: return Result.success(false)
         return Result.success(equalsSmallSet(setLike().content(), otherSet.content))
     }
 
@@ -107,9 +111,12 @@ data class SetGen<T>(val inner: T) : ComplexValue, Trace, Freeze<StarlarkValue> 
     }
 
     // unsafe fn iter_next(&self, index: usize, _heap: Heap<'v>) -> Option<Value<'v>>
-    override fun iterNext(index: Int, heap: Heap): Value? {
-        return setLike().contentUnchecked().iter().drop(index).firstOrNull()
-    }
+    override fun iterNext(index: Int, heap: Heap): Value? =
+        setLike()
+            .contentUnchecked()
+            .iter()
+            .drop(index)
+            .firstOrNull()
 
     // unsafe fn iter_stop(&self)
     override fun iterStop() {
@@ -124,8 +131,9 @@ data class SetGen<T>(val inner: T) : ComplexValue, Trace, Freeze<StarlarkValue> 
     override fun bitOr(other: Value, heap: Heap): Result<Value> {
         return try {
             // Unlike in `union` it is not possible to `|` `set` and iterable. This is due python semantics.
-            val rhsSet = SetRef.unpackValueOpt(other)
-                ?: return ValueError.unsupportedWith(SET_TYPE, "|", other)
+            val rhsSet =
+                SetRef.unpackValueOpt(other)
+                    ?: return ValueError.unsupportedWith(SET_TYPE, "|", other)
 
             if (setLike().content().isEmpty()) {
                 return Result.success(copySetData(rhsSet.content).allocValue(heap))
@@ -144,8 +152,9 @@ data class SetGen<T>(val inner: T) : ComplexValue, Trace, Freeze<StarlarkValue> 
     // fn bit_and(&self, rhs: Value<'v>, heap: Heap<'v>) -> crate::Result<Value<'v>>
     override fun bitAnd(other: Value, heap: Heap): Result<Value> {
         return try {
-            val rhsSet = SetRef.unpackValueOpt(other)
-                ?: return ValueError.unsupportedWith(SET_TYPE, "&", other)
+            val rhsSet =
+                SetRef.unpackValueOpt(other)
+                    ?: return ValueError.unsupportedWith(SET_TYPE, "&", other)
 
             if (setLike().content().isEmpty()) {
                 return Result.success(SetData().allocValue(heap))
@@ -167,8 +176,9 @@ data class SetGen<T>(val inner: T) : ComplexValue, Trace, Freeze<StarlarkValue> 
     // fn bit_xor(&self, rhs: Value<'v>, heap: Heap<'v>) -> crate::Result<Value<'v>>
     override fun bitXor(other: Value, heap: Heap): Result<Value> {
         return try {
-            val rhsSet = SetRef.unpackValueOpt(other)
-                ?: return ValueError.unsupportedWith(SET_TYPE, "^", other)
+            val rhsSet =
+                SetRef.unpackValueOpt(other)
+                    ?: return ValueError.unsupportedWith(SET_TYPE, "^", other)
 
             if (rhsSet.content.isEmpty()) {
                 return Result.success(copySetData(setLike().content()).allocValue(heap))
@@ -195,8 +205,9 @@ data class SetGen<T>(val inner: T) : ComplexValue, Trace, Freeze<StarlarkValue> 
     // fn sub(&self, rhs: Value<'v>, heap: Heap<'v>) -> crate::Result<Value<'v>>
     override fun sub(other: Value, heap: Heap): Result<Value> {
         return try {
-            val rhsSet = SetRef.unpackValueOpt(other)
-                ?: return ValueError.unsupportedWith(SET_TYPE, "-", other)
+            val rhsSet =
+                SetRef.unpackValueOpt(other)
+                    ?: return ValueError.unsupportedWith(SET_TYPE, "-", other)
 
             if (setLike().content().isEmpty()) {
                 return Result.success(SetData().allocValue(heap))
@@ -226,9 +237,7 @@ data class SetGen<T>(val inner: T) : ComplexValue, Trace, Freeze<StarlarkValue> 
     override fun getTypeStarlarkRepr(): Ty = Ty.anySet()
 
     // impl Display for SetGen<T>
-    override fun toString(): String {
-        return fmtContainer("set([", "])", setLike().content().iter())
-    }
+    override fun toString(): String = fmtContainer("set([", "])", setLike().content().iter())
 }
 
 private const val SET_TYPE: String = "set"
@@ -251,35 +260,25 @@ class SetData internal constructor(
     /**
      * Iterate through the values in the set.
      */
-    fun iter(): Sequence<Value> {
-        return content.iter()
-    }
+    fun iter(): Sequence<Value> = content.iter()
 
     /**
      * Iterate through the values in the set, but retaining the hash of the values.
      */
-    fun iterHashed(): Sequence<Hashed<Value>> {
-        return content.iterHashed().map { it.copied() }
-    }
+    fun iterHashed(): Sequence<Hashed<Value>> = content.iterHashed().map { it.copied() }
 
     /**
      * Check if the set contains a hashed element.
      */
-    fun containsHashed(key: Hashed<Value>): Boolean {
-        return content.containsHashed(key.asRef())
-    }
+    fun containsHashed(key: Hashed<Value>): Boolean = content.containsHashed(key.asRef())
 
-    fun addHashed(value: Hashed<Value>): Boolean {
-        return content.insertHashed(value)
-    }
+    fun addHashed(value: Hashed<Value>): Boolean = content.insertHashed(value)
 
     fun addHashedUniqueUnchecked(value: Hashed<Value>) {
         content.insertHashedUniqueUnchecked(value)
     }
 
-    fun removeHashed(value: Hashed<Value>): Boolean {
-        return content.shiftRemoveHashed(value)
-    }
+    fun removeHashed(value: Hashed<Value>): Boolean = content.shiftRemoveHashed(value)
 }
 
 /**
@@ -289,7 +288,7 @@ class SetData internal constructor(
  */
 class FrozenSetData(
     /** The data stored by the set. The values must all be hashable values. */
-    val content: SmallSet<FrozenValue> = SmallSet()
+    val content: SmallSet<FrozenValue> = SmallSet(),
 )
 
 /** Mutable set type alias. */
@@ -301,25 +300,24 @@ typealias FrozenSet = SetGen<FrozenSetData>
 /**
  * AllocValue implementation for SetData.
  */
-fun SetData.allocValue(heap: Heap): Value {
-    return heap.allocComplex(SetGen(RefCell(this)))
-}
+fun SetData.allocValue(heap: Heap): Value = heap.allocComplex(SetGen(RefCell(this)))
 
 /**
  * StarlarkTypeRepr implementation for SetData.
  */
-fun SetData.starlarkTypeRepr(): Ty {
-    return Ty.anySet()
-}
+fun SetData.starlarkTypeRepr(): Ty = Ty.anySet()
 
 /**
  * Freeze implementation for MutableSet.
  */
 fun MutableSet.freezeToFrozenSet(freezer: Freezer): Result<FrozenSet> {
-    val contentResult = freezeSmallSet(
-        this.inner.borrow().data.content,
-        freezer,
-    ) { v, f -> v.freeze(f) }
+    val contentResult =
+        freezeSmallSet(
+            this.inner
+                .borrow()
+                .data.content,
+            freezer,
+        ) { v, f -> v.freeze(f) }
     if (contentResult.isFailure) return Result.failure(contentResult.exceptionOrNull()!!)
     return Result.success(SetGen(FrozenSetData(contentResult.getOrThrow())))
 }
@@ -327,9 +325,7 @@ fun MutableSet.freezeToFrozenSet(freezer: Freezer): Result<FrozenSet> {
 /**
  * Get set methods.
  */
-fun setMethods(): Methods? {
-    return RES.methods(::setMethodsImpl)
-}
+fun setMethods(): Methods? = RES.methods(::setMethodsImpl)
 
 private val RES = MethodsStatic()
 
@@ -349,17 +345,19 @@ interface SetLike {
     // These functions are unsafe for the same reason
     // StarlarkValue iterator functions are unsafe.
     fun iterStart()
+
     fun contentUnchecked(): SmallSet<Value>
+
     fun iterStop()
 }
 
 /**
  * SetLike implementation for RefCell<SetData>.
  */
-class RefCellSetDataSetLike(private val cell: RefCell<SetData>) : SetLike {
-    override fun content(): SmallSet<Value> {
-        return cell.borrow().data.content
-    }
+class RefCellSetDataSetLike(
+    private val cell: RefCell<SetData>,
+) : SetLike {
+    override fun content(): SmallSet<Value> = cell.borrow().data.content
 
     override fun iterStart() {
         // In Rust, mem::forget(self.borrow()) leaks a borrow to prevent mutation during iteration.
@@ -371,19 +369,17 @@ class RefCellSetDataSetLike(private val cell: RefCell<SetData>) : SetLike {
         cell.releaseBorrow()
     }
 
-    override fun contentUnchecked(): SmallSet<Value> {
-        return cell.borrow().data.content
-    }
+    override fun contentUnchecked(): SmallSet<Value> = cell.borrow().data.content
 }
 
 /**
  * SetLike implementation for FrozenSetData.
  */
-class FrozenSetDataSetLike(private val data: FrozenSetData) : SetLike {
+class FrozenSetDataSetLike(
+    private val data: FrozenSetData,
+) : SetLike {
     @Suppress("UNCHECKED_CAST")
-    override fun content(): SmallSet<Value> {
-        return data.content as SmallSet<Value>
-    }
+    override fun content(): SmallSet<Value> = data.content as SmallSet<Value>
 
     override fun iterStart() {
         // No-op for frozen data
@@ -394,9 +390,7 @@ class FrozenSetDataSetLike(private val data: FrozenSetData) : SetLike {
     }
 
     @Suppress("UNCHECKED_CAST")
-    override fun contentUnchecked(): SmallSet<Value> {
-        return data.content as SmallSet<Value>
-    }
+    override fun contentUnchecked(): SmallSet<Value> = data.content as SmallSet<Value>
 }
 
 // impl Serialize for SetGen<T>

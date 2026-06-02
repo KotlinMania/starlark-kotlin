@@ -1,5 +1,5 @@
 // port-lint: source src/values/owned_frozen_ref.rs
-package io.github.kotlinmania.starlark.values.owned_frozen_ref
+package io.github.kotlinmania.starlark.values.ownedfrozenref
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.
@@ -19,9 +19,9 @@ package io.github.kotlinmania.starlark.values.owned_frozen_ref
  * limitations under the License.
  */
 
+import io.github.kotlinmania.starlark.values.FrozenRef
 import io.github.kotlinmania.starlark.values.layout.heap.FrozenHeap
 import io.github.kotlinmania.starlark.values.layout.heap.FrozenHeapRef
-import io.github.kotlinmania.starlark.values.FrozenRef
 import io.github.kotlinmania.starlark.values.layout.heap.Heap
 
 /** A reference to a value stored in a frozen heap with a reference to the heap. */
@@ -37,9 +37,7 @@ class OwnedRefFrozenRef<T : Any>(
 ) {
     companion object {
         // pub unsafe fn new_unchecked(value: &T, owner: &FrozenHeapRef) -> OwnedRefFrozenRef<T>
-        fun <T : Any> newUnchecked(value: T, owner: FrozenHeapRef): OwnedRefFrozenRef<T> {
-            return OwnedRefFrozenRef(owner = owner, value = FrozenRef.new(value))
-        }
+        fun <T : Any> newUnchecked(value: T, owner: FrozenHeapRef): OwnedRefFrozenRef<T> = OwnedRefFrozenRef(owner = owner, value = FrozenRef.new(value))
     }
 
     /** Owner heap. */
@@ -66,23 +64,18 @@ class OwnedRefFrozenRef<T : Any>(
 
     /** Convert heap pointer to an owned one. */
     // pub fn to_owned(self) -> OwnedFrozenRef<T>
-    fun toOwned(): OwnedFrozenRef<T> {
-        return OwnedFrozenRef.newUnchecked(value.asRef(), owner)
-    }
+    fun toOwned(): OwnedFrozenRef<T> = OwnedFrozenRef.newUnchecked(value.asRef(), owner)
 
     /** Fallible map the reference to another one. */
     // pub fn try_map_result<F, U, E>(self, f: F) -> Result<OwnedRefFrozenRef<U>, E>
-    fun <U : Any> tryMapResult(f: (T) -> Result<U>): Result<OwnedRefFrozenRef<U>> {
-        return f(value.asRef()).map { u ->
+    fun <U : Any> tryMapResult(f: (T) -> Result<U>): Result<OwnedRefFrozenRef<U>> =
+        f(value.asRef()).map { u ->
             OwnedRefFrozenRef(owner = owner, value = FrozenRef.new(u))
         }
-    }
 
     /** Apply a function to the underlying value. Projection operation. */
     // pub fn map<F, U>(self, f: F) -> OwnedRefFrozenRef<U>
-    fun <U : Any> map(f: (T) -> U): OwnedRefFrozenRef<U> {
-        return OwnedRefFrozenRef(owner = owner, value = FrozenRef.new(f(value.asRef())))
-    }
+    fun <U : Any> map(f: (T) -> U): OwnedRefFrozenRef<U> = OwnedRefFrozenRef(owner = owner, value = FrozenRef.new(f(value.asRef())))
 
     /** Optionally map the reference to another one. */
     // pub fn try_map_option<F, U>(self, f: F) -> Option<OwnedRefFrozenRef<U>>
@@ -108,16 +101,12 @@ class OwnedFrozenRef<T : Any>(
 ) {
     companion object {
         // pub unsafe fn new_unchecked(value: &'static T, owner: FrozenHeapRef) -> OwnedFrozenRef<T>
-        fun <T : Any> newUnchecked(value: T, owner: FrozenHeapRef): OwnedFrozenRef<T> {
-            return OwnedFrozenRef(owner = owner, value = FrozenRef.new(value))
-        }
+        fun <T : Any> newUnchecked(value: T, owner: FrozenHeapRef): OwnedFrozenRef<T> = OwnedFrozenRef(owner = owner, value = FrozenRef.new(value))
     }
 
     /** Borrow. */
     // pub fn as_owned_ref_frozen_ref(&self) -> OwnedRefFrozenRef<T>
-    fun asOwnedRefFrozenRef(): OwnedRefFrozenRef<T> {
-        return OwnedRefFrozenRef(owner = owner, value = value)
-    }
+    fun asOwnedRefFrozenRef(): OwnedRefFrozenRef<T> = OwnedRefFrozenRef(owner = owner, value = value)
 
     /** Returns a reference to the underlying value. */
     // pub fn as_ref(&self) -> &T
@@ -125,17 +114,14 @@ class OwnedFrozenRef<T : Any>(
 
     /** Converts `self` into a new reference that points at something reachable from the previous. */
     // pub fn map<F, U>(self, f: F) -> OwnedFrozenRef<U>
-    fun <U : Any> map(f: (T) -> U): OwnedFrozenRef<U> {
-        return OwnedFrozenRef(owner = owner, value = value.map(f))
-    }
+    fun <U : Any> map(f: (T) -> U): OwnedFrozenRef<U> = OwnedFrozenRef(owner = owner, value = value.map(f))
 
     /** Fallible map the reference to another one. */
     // pub fn try_map_result<F, U, E>(self, f: F) -> Result<OwnedFrozenRef<U>, E>
-    fun <U : Any> tryMapResult(f: (T) -> Result<U>): Result<OwnedFrozenRef<U>> {
-        return value.tryMapResult(f).map { mapped ->
+    fun <U : Any> tryMapResult(f: (T) -> Result<U>): Result<OwnedFrozenRef<U>> =
+        value.tryMapResult(f).map { mapped ->
             OwnedFrozenRef(owner = owner, value = mapped)
         }
-    }
 
     /** Optionally map the reference to another one. */
     // pub fn try_map_option<F, U>(self, f: F) -> Option<OwnedFrozenRef<U>>

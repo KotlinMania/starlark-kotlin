@@ -1,5 +1,5 @@
 // port-lint: source src/values/layout/heap/profile/string_index.rs
-package io.github.kotlinmania.starlark.values.layout.heap.profile.string_index
+package io.github.kotlinmania.starlark.values.layout.heap.profile.stringindex
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.
@@ -37,9 +37,7 @@ internal class StringIndex {
         return StringId(strings.size - 1)
     }
 
-    fun get(id: StringId): String {
-        return strings.toList()[id.index]
-    }
+    fun get(id: StringId): String = strings.toList()[id.index]
 }
 
 /** Index in strings index. */

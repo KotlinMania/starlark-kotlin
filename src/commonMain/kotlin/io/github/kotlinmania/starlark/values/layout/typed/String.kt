@@ -24,22 +24,24 @@ import io.github.kotlinmania.starlark.collections.StarlarkHashValue
 import io.github.kotlinmania.starlark.collections.StarlarkHasher
 import io.github.kotlinmania.starlark.environment.Methods
 import io.github.kotlinmania.starlark.typing.Ty
-import io.github.kotlinmania.starlark.values.layout.Freezer
 import io.github.kotlinmania.starlark.values.StarlarkValue
-import io.github.kotlinmania.starlark.values.layout.Value
-import io.github.kotlinmania.starlark.values.layout.FrozenValue
-import io.github.kotlinmania.starlark.values.layout.heap.Heap
 import io.github.kotlinmania.starlark.values.ValueError
+import io.github.kotlinmania.starlark.values.layout.Freezer
+import io.github.kotlinmania.starlark.values.layout.FrozenValue
+import io.github.kotlinmania.starlark.values.layout.Value
+import io.github.kotlinmania.starlark.values.layout.heap.Heap
+import io.github.kotlinmania.starlark.values.types.string.starlarkStrAdd
 import io.github.kotlinmania.starlark.values.types.string.starlarkStrAt
 import io.github.kotlinmania.starlark.values.types.string.starlarkStrCollectRepr
 import io.github.kotlinmania.starlark.values.types.string.starlarkStrMul
 import io.github.kotlinmania.starlark.values.types.string.starlarkStrPercent
 import io.github.kotlinmania.starlark.values.types.string.starlarkStrSlice
-import io.github.kotlinmania.starlark.values.types.string.starlarkStrAdd
 import io.github.kotlinmania.starlark.values.types.string.strMethods
 
 // pub struct StarlarkStr { ... }
-class StarlarkStr(val value: String) : StarlarkValue {
+class StarlarkStr(
+    val value: String,
+) : StarlarkValue {
     override val TYPE: String get() = "string"
     override val HAS_equals: Boolean get() = true
 
@@ -86,10 +88,11 @@ class StarlarkStr(val value: String) : StarlarkValue {
 
     // fn is_in(&self, other: Value) -> crate::Result<bool>
     override fun isIn(other: Value): Result<Boolean> {
-        val s = other.unpackStarlarkStr()
-            ?: return Result.failure(
-                IllegalArgumentException("'in' requires string as left operand, not '${other.getType()}'")
-            )
+        val s =
+            other.unpackStarlarkStr()
+                ?: return Result.failure(
+                    IllegalArgumentException("'in' requires string as left operand, not '${other.getType()}'"),
+                )
         // self is the container, other (s) is the needle
         return Result.success(value.contains(s.value))
     }
@@ -117,9 +120,7 @@ class StarlarkStr(val value: String) : StarlarkValue {
     }
 
     // fn at(&self, index: Value<'v>, heap: Heap<'v>) -> crate::Result<Value<'v>>
-    override fun at(index: Value, heap: Heap): Result<Value> {
-        return starlarkStrAt(this, index, heap)
-    }
+    override fun at(index: Value, heap: Heap): Result<Value> = starlarkStrAt(this, index, heap)
 
     // fn length(&self) -> crate::Result<i32>
     override fun length(): Result<Int> {
@@ -128,33 +129,27 @@ class StarlarkStr(val value: String) : StarlarkValue {
     }
 
     // fn slice(...)
-    override fun slice(start: Value?, stop: Value?, stride: Value?, heap: Heap): Result<Value> {
-        return starlarkStrSlice(this, start, stop, stride, heap)
-    }
+    override fun slice(start: Value?, stop: Value?, stride: Value?, heap: Heap): Result<Value> = starlarkStrSlice(this, start, stop, stride, heap)
 
     // fn add(&self, other: Value<'v>, heap: Heap<'v>) -> Option<crate::Result<Value<'v>>>
-    override fun add(rhs: Value, heap: Heap): Result<Value>? {
-        return starlarkStrAdd(this, rhs, heap)
-    }
+    override fun add(rhs: Value, heap: Heap): Result<Value>? = starlarkStrAdd(this, rhs, heap)
 
     // fn mul(&self, other: Value<'v>, heap: Heap<'v>) -> Option<crate::Result<Value<'v>>>
-    override fun mul(rhs: Value, heap: Heap): Result<Value>? {
-        return starlarkStrMul(this, rhs, heap)
-    }
+    override fun mul(rhs: Value, heap: Heap): Result<Value>? = starlarkStrMul(this, rhs, heap)
 
     // fn rmul(&self, lhs: Value<'v>, heap: Heap<'v>) -> Option<crate::Result<Value<'v>>>
     override fun rmul(lhs: Value, heap: Heap): Result<Value>? = mul(lhs, heap)
 
     // fn percent(&self, other: Value<'v>, heap: Heap<'v>) -> crate::Result<Value<'v>>
-    override fun percent(other: Value, heap: Heap): Result<Value> {
-        return starlarkStrPercent(this, other, heap)
-    }
+    override fun percent(other: Value, heap: Heap): Result<Value> = starlarkStrPercent(this, other, heap)
 
     // fn typechecker_ty(&self) -> Option<Ty>
     override fun typecheckerTy(): Ty? = Ty.string()
 
     override fun toString(): String = value
+
     override fun hashCode(): Int = value.hashCode()
+
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other !is StarlarkStr) return false
@@ -185,8 +180,8 @@ class StarlarkStr(val value: String) : StarlarkValue {
 class FrozenStringValue(
     private val str: StarlarkStr,
     private val frozenValue: FrozenValue,
-) : StringValueLike, Comparable<FrozenStringValue> {
-
+) : StringValueLike,
+    Comparable<FrozenStringValue> {
     fun asStr(): String = str.asStr()
 
     fun toFrozenValue(): FrozenValue = frozenValue
@@ -196,29 +191,19 @@ class FrozenStringValue(
     fun getHash(): StarlarkHashValue = StarlarkHashValue.new(str.value)
 
     /** Get self along with the hash. */
-    fun getHashed(): Hashed<FrozenStringValue> {
-        return Hashed.newUnchecked(getHash(), this)
-    }
+    fun getHashed(): Hashed<FrozenStringValue> = Hashed.newUnchecked(getHash(), this)
 
     /** Get the FrozenValue along with the hash. */
-    fun getHashedValue(): Hashed<FrozenValue> {
-        return Hashed.newUnchecked(getHash(), toFrozenValue())
-    }
+    fun getHashedValue(): Hashed<FrozenValue> = Hashed.newUnchecked(getHash(), toFrozenValue())
 
     /** Get the string reference along with the hash. */
-    fun getHashedStr(): Hashed<String> {
-        return Hashed.newUnchecked(getHash(), asStr())
-    }
+    fun getHashedStr(): Hashed<String> = Hashed.newUnchecked(getHash(), asStr())
 
-    override fun toStringValue(): StringValue {
-        return StringValue(str, frozenValue.toValue())
-    }
+    override fun toStringValue(): StringValue = StringValue(str, frozenValue.toValue())
 
     override fun asStrValue(): String = asStr()
 
-    override fun compareTo(other: FrozenStringValue): Int {
-        return asStr().compareTo(other.asStr())
-    }
+    override fun compareTo(other: FrozenStringValue): Int = asStr().compareTo(other.asStr())
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
@@ -232,14 +217,15 @@ class FrozenStringValue(
     override fun toString(): String = str.toString()
 
     companion object {
-        fun default(): FrozenStringValue {
-            return io.github.kotlinmania.starlark.values.layout.VALUE_EMPTY_STRING.erase()
-        }
+        fun default(): FrozenStringValue =
+            io.github.kotlinmania.starlark.values.layout.VALUE_EMPTY_STRING
+                .erase()
 
         /** Construct without checking type. */
         fun newUnchecked(value: FrozenValue): FrozenStringValue {
-            val str = value.toValue().unpackStarlarkStr()
-                ?: error("FrozenStringValue.newUnchecked: value is not a StarlarkStr")
+            val str =
+                value.toValue().unpackStarlarkStr()
+                    ?: error("FrozenStringValue.newUnchecked: value is not a StarlarkStr")
             return FrozenStringValue(str, value)
         }
 
@@ -260,8 +246,8 @@ class FrozenStringValue(
 class StringValue(
     private val str: StarlarkStr,
     private val value: Value,
-) : StringValueLike, Comparable<StringValue> {
-
+) : StringValueLike,
+    Comparable<StringValue> {
     internal fun starlarkStr(): StarlarkStr = str
 
     fun asStr(): String = str.asStr()
@@ -277,19 +263,13 @@ class StringValue(
     }
 
     /** Get self along with the hash. */
-    fun getHashed(): Hashed<StringValue> {
-        return Hashed.newUnchecked(getHash(), this)
-    }
+    fun getHashed(): Hashed<StringValue> = Hashed.newUnchecked(getHash(), this)
 
     /** Get the string reference along with the hash. */
-    fun getHashedStr(): Hashed<String> {
-        return Hashed.newUnchecked(getHash(), asStr())
-    }
+    fun getHashedStr(): Hashed<String> = Hashed.newUnchecked(getHash(), asStr())
 
     /** Get the Value along with the hash. */
-    fun getHashedValue(): Hashed<Value> {
-        return Hashed.newUnchecked(getHash(), toValue())
-    }
+    fun getHashedValue(): Hashed<Value> = Hashed.newUnchecked(getHash(), toValue())
 
     /** If this string value is frozen, return it. */
     fun unpackFrozen(): FrozenStringValue? {
@@ -301,9 +281,7 @@ class StringValue(
 
     override fun asStrValue(): String = asStr()
 
-    override fun compareTo(other: StringValue): Int {
-        return asStr().compareTo(other.asStr())
-    }
+    override fun compareTo(other: StringValue): Int = asStr().compareTo(other.asStr())
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
@@ -321,8 +299,9 @@ class StringValue(
 
         /** Construct without checking type. */
         fun newUnchecked(value: Value): StringValue {
-            val str = value.unpackStarlarkStr()
-                ?: error("StringValue.newUnchecked: value is not a StarlarkStr")
+            val str =
+                value.unpackStarlarkStr()
+                    ?: error("StringValue.newUnchecked: value is not a StarlarkStr")
             return StringValue(str, value)
         }
 
@@ -340,7 +319,5 @@ interface StringValueLike {
     fun toStringValue(): StringValue
 
     /** Convert to a str. */
-    fun asStrValue(): String {
-        return toStringValue().asStr()
-    }
+    fun asStrValue(): String = toStringValue().asStr()
 }

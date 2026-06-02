@@ -19,11 +19,11 @@ package io.github.kotlinmania.starlark.values.layout
  * limitations under the License.
  */
 
-import io.github.kotlinmania.starlark.values.layout.typed.FrozenStringValue
-import io.github.kotlinmania.starlark.values.layout.typed.StarlarkStr
 import io.github.kotlinmania.starlark.values.layout.heap.AValueHeader
 import io.github.kotlinmania.starlark.values.layout.heap.AValueRepr
-import io.github.kotlinmania.starlark.values.starlark_type_id.StarlarkTypeId
+import io.github.kotlinmania.starlark.values.layout.typed.FrozenStringValue
+import io.github.kotlinmania.starlark.values.layout.typed.StarlarkStr
+import io.github.kotlinmania.starlark.values.starlarktypeid.StarlarkTypeId
 
 /**
  * Internal string representation with packed body bytes.
@@ -74,52 +74,51 @@ class StarlarkStrNRepr internal constructor(
             // `Value.unpackStarlarkStr()` can find it via `getRef().downcastRef<StarlarkStr>()`.
             val str = StarlarkStr(s)
             val typeId = ConstTypeId.of<StarlarkStr>()
-            val header = AValueHeader(
-                AValueVTable(
-                    staticTypeOfValue = typeId,
-                    starlarkTypeId = StarlarkTypeId.fromTypeId(typeId),
-                    typeName = "string",
-                    isStr = true,
-                    memorySizeFn = { _ ->
-                        val byteLen = str.len()
-                        ValueAllocSize.new(
-                            AlignedSize.alignUp(StarlarkStr.offsetOfContent() + byteLen)
-                        )
-                    },
-                    heapFreezeFn = { _, freezer ->
-                        // Static constant strings: re-intern on the frozen heap.
-                        val fv = freezer.frozenHeap().allocStrIntern(str.asStr())
-                        Result.success(fv.toFrozenValue())
-                    },
-                    heapCopyFn = { _, tracer ->
-                        tracer.allocStr(str.asStr())
-                    },
-                    starlarkValue = str,
+            val header =
+                AValueHeader(
+                    AValueVTable(
+                        staticTypeOfValue = typeId,
+                        starlarkTypeId = StarlarkTypeId.fromTypeId(typeId),
+                        typeName = "string",
+                        isStr = true,
+                        memorySizeFn = { _ ->
+                            val byteLen = str.len()
+                            ValueAllocSize.new(
+                                AlignedSize.alignUp(StarlarkStr.offsetOfContent() + byteLen),
+                            )
+                        },
+                        heapFreezeFn = { _, freezer ->
+                            // Static constant strings: re-intern on the frozen heap.
+                            val fv = freezer.frozenHeap().allocStrIntern(str.asStr())
+                            Result.success(fv.toFrozenValue())
+                        },
+                        heapCopyFn = { _, tracer ->
+                            tracer.allocStr(str.asStr())
+                        },
+                        starlarkValue = str,
+                    ),
                 )
-            )
 
             return StarlarkStrNRepr(
-                repr = AValueRepr(
-                    header = header,
-                    payload = StarlarkStrN(
-                        len = s.length,
-                        hash = 0u,
-                        body = payload,
+                repr =
+                    AValueRepr(
+                        header = header,
+                        payload =
+                            StarlarkStrN(
+                                len = s.length,
+                                hash = 0u,
+                                body = payload,
+                            ),
                     ),
-                ),
             )
         }
     }
 
     /** Obtain the [FrozenValue] for a [StarlarkStrNRepr]. */
-    fun unpack(): FrozenValue {
-        return FrozenValue.newPtr(repr.header, true)
-    }
+    fun unpack(): FrozenValue = FrozenValue.newPtr(repr.header, true)
 
     /** Erase the type parameter, giving a slightly nicer user experience. */
-    fun erase(): FrozenStringValue {
-        return FrozenStringValue.newUnchecked(unpack())
-    }
+    fun erase(): FrozenStringValue = FrozenStringValue.newUnchecked(unpack())
 }
 
 internal val VALUE_EMPTY_STRING: StarlarkStrNRepr = StarlarkStrNRepr.newUnchecked("")
@@ -128,8 +127,8 @@ internal val VALUE_EMPTY_STRING: StarlarkStrNRepr = StarlarkStrNRepr.newUnchecke
  * Returns a cached [FrozenStringValue] for strings of length <= 1,
  * or null for longer strings.
  */
-fun constantString(x: String): FrozenStringValue? {
-    return if (x.length > 1) {
+fun constantString(x: String): FrozenStringValue? =
+    if (x.length > 1) {
         null
     } else if (x.isEmpty()) {
         VALUE_EMPTY_STRING.erase()
@@ -143,8 +142,8 @@ fun constantString(x: String): FrozenStringValue? {
             null
         }
     }
-}
 
-internal val VALUE_BYTE_STRINGS: Array<StarlarkStrNRepr> = Array(128) { i ->
-    StarlarkStrNRepr.newUnchecked(i.toChar().toString())
-}
+internal val VALUE_BYTE_STRINGS: Array<StarlarkStrNRepr> =
+    Array(128) { i ->
+        StarlarkStrNRepr.newUnchecked(i.toChar().toString())
+    }

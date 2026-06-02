@@ -27,7 +27,6 @@ import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 
 class HeapTypeTest {
-
     @Test
     fun testSendSync() {
         // Mirrors upstream `fn test_send_sync() where FrozenHeapRef: Send + Sync {}`.
@@ -61,9 +60,7 @@ class HeapTypeTest {
     }
 
     private fun validateStrInterning(globals: GlobalsBuilder) {
-        fun appendX(str: StringValue, heap: Heap): Result<StringValue> {
-            return Result.success(heap.allocStrIntern(str.asStr() + "x"))
-        }
+        fun appendX(str: StringValue, heap: Heap): Result<StringValue> = Result.success(heap.allocStrIntern(str.asStr() + "x"))
 
         globals.setFunction("append_x") { args, eval ->
             val str = args.positional<StringValue>(0)

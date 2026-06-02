@@ -23,33 +23,33 @@ package io.github.kotlinmania.starlark.eval.bc.compiler
 
 import io.github.kotlinmania.starlark.collections.symbol.Symbol
 import io.github.kotlinmania.starlark.eval.bc.BcCallArgsFull
+import io.github.kotlinmania.starlark.eval.bc.BcCallArgsFullCallArgs
+import io.github.kotlinmania.starlark.eval.bc.BcCallArgsFullForDef
 import io.github.kotlinmania.starlark.eval.bc.BcCallArgsPos
+import io.github.kotlinmania.starlark.eval.bc.BcCallArgsPosCallArgs
+import io.github.kotlinmania.starlark.eval.bc.BcCallArgsPosForDef
 import io.github.kotlinmania.starlark.eval.bc.BcNativeFunction
-import io.github.kotlinmania.starlark.eval.bc.BcWriter
+import io.github.kotlinmania.starlark.eval.bc.BcNativeFunctionCallable
 import io.github.kotlinmania.starlark.eval.bc.BcSlotOut
-import io.github.kotlinmania.starlark.eval.bc.resolve
+import io.github.kotlinmania.starlark.eval.bc.BcWriter
 import io.github.kotlinmania.starlark.eval.bc.CallArg
 import io.github.kotlinmania.starlark.eval.bc.CallFrozenArg
 import io.github.kotlinmania.starlark.eval.bc.CallFrozenDefArg
-import io.github.kotlinmania.starlark.eval.bc.CallMethodArg
 import io.github.kotlinmania.starlark.eval.bc.CallMaybeKnownMethodArg
-import io.github.kotlinmania.starlark.eval.bc.BcNativeFunctionCallable
+import io.github.kotlinmania.starlark.eval.bc.CallMethodArg
 import io.github.kotlinmania.starlark.eval.bc.FrozenValueCallable
-import io.github.kotlinmania.starlark.eval.bc.BcCallArgsPosCallArgs
-import io.github.kotlinmania.starlark.eval.bc.BcCallArgsFullCallArgs
-import io.github.kotlinmania.starlark.eval.bc.BcCallArgsPosForDef
-import io.github.kotlinmania.starlark.eval.bc.BcCallArgsFullForDef
-import io.github.kotlinmania.starlark.eval.compiler.args.ArgsCompiledValue
+import io.github.kotlinmania.starlark.eval.bc.resolve
 import io.github.kotlinmania.starlark.eval.compiler.CallCompiled
 import io.github.kotlinmania.starlark.eval.compiler.ExprCompiled
-import io.github.kotlinmania.starlark.values.layout.FrozenValue
-import io.github.kotlinmania.starlark.values.typing.type_compiled.TypeCompiled
-import io.github.kotlinmania.starlark.values.types.NativeFunction
-import io.github.kotlinmania.starlark.eval.compiler.IrSpanned
-import io.github.kotlinmania.starlark.eval.runtime.FrameSpan
-import io.github.kotlinmania.starlark.values.types.getKnownMethod
-import io.github.kotlinmania.starlark.values.layout.FrozenValueTyped
 import io.github.kotlinmania.starlark.eval.compiler.FrozenDef
+import io.github.kotlinmania.starlark.eval.compiler.IrSpanned
+import io.github.kotlinmania.starlark.eval.compiler.args.ArgsCompiledValue
+import io.github.kotlinmania.starlark.eval.runtime.FrameSpan
+import io.github.kotlinmania.starlark.values.layout.FrozenValue
+import io.github.kotlinmania.starlark.values.layout.FrozenValueTyped
+import io.github.kotlinmania.starlark.values.types.NativeFunction
+import io.github.kotlinmania.starlark.values.types.getKnownMethod
+import io.github.kotlinmania.starlark.values.typing.typecompiled.TypeCompiled
 
 // impl ArgsCompiledValue
 
@@ -73,12 +73,13 @@ private fun ArgsCompiledValue.writeBc(bc: BcWriter, k: (BcCallArgsFull<Symbol>, 
     writeExprs(posNamed, bc) { posNamed, bc2 ->
         writeExprOpt(args, bc2) { argsSlot, bc3 ->
             writeExprOpt(kwargs, bc3) { kwargsSlot, bc4 ->
-                val argsFull = BcCallArgsFull(
-                    posNamed = posNamed,
-                    names = names.toList(),
-                    args = argsSlot,
-                    kwargs = kwargsSlot,
-                )
+                val argsFull =
+                    BcCallArgsFull(
+                        posNamed = posNamed,
+                        names = names.toList(),
+                        args = argsSlot,
+                        kwargs = kwargsSlot,
+                    )
                 k(argsFull, bc4)
             }
         }
@@ -102,12 +103,11 @@ internal fun CallCompiled.markDefinitelyAssignedAfterCall(bc: BcWriter) {
  * In Rust, `BcCallArgsPos` directly implements `BcCallArgs<S>`.  In Kotlin, separate
  * wrapper classes are used.
  */
-private fun Either<BcCallArgsPos, BcCallArgsFull<Symbol>>.toBcCallArgs(): Any {
-    return when (this) {
+private fun Either<BcCallArgsPos, BcCallArgsFull<Symbol>>.toBcCallArgs(): Any =
+    when (this) {
         is Either.Left -> BcCallArgsPosCallArgs<Symbol>(value)
         is Either.Right -> BcCallArgsFullCallArgs<Symbol>(value)
     }
-}
 
 // impl IrSpanned<CallCompiled>
 
@@ -260,11 +260,12 @@ internal fun IrSpanned<CallCompiled>.writeBcCall(target: BcSlotOut, bc: BcWriter
     val isinstanceArgs = call.asIsinstance()
     if (isinstanceArgs != null) {
         val (x, t) = isinstanceArgs
-        val compiled = try {
-            TypeCompiled.newFrozen(t, bc.heap)
-        } catch (_: Exception) {
-            null
-        }
+        val compiled =
+            try {
+                TypeCompiled.newFrozen(t, bc.heap)
+            } catch (_: Exception) {
+                null
+            }
         if (compiled != null) {
             x.writeBcCb(bc) { xSlot, bc2 ->
                 bc2.writeInstr("IsInstance", this.span, Triple(xSlot, compiled, target))
@@ -303,6 +304,11 @@ internal fun IrSpanned<CallCompiled>.writeBcCall(target: BcSlotOut, bc: BcWriter
 /** Simple Either type to match Rust's `either::Either`. */
 // use either::Either;
 internal sealed class Either<out L, out R> {
-    data class Left<L>(val value: L) : Either<L, Nothing>()
-    data class Right<R>(val value: R) : Either<Nothing, R>()
+    data class Left<L>(
+        val value: L,
+    ) : Either<L, Nothing>()
+
+    data class Right<R>(
+        val value: R,
+    ) : Either<Nothing, R>()
 }

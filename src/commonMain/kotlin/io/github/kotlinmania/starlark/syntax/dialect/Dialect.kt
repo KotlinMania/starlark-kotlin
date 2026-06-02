@@ -23,10 +23,12 @@ package io.github.kotlinmania.starlark.syntax.dialect
 enum class DialectTypes {
     /** Prohibit types at parse time. */
     Disable,
+
     /** Allow types at parse time, but ignore types at runtime. */
     ParseOnly,
+
     /** Check types at runtime. */
-    Enable
+    Enable,
 }
 
 /** Starlark language features to enable. */
@@ -39,46 +41,49 @@ data class Dialect(
     val enableTypes: DialectTypes,
     val enableLoadReexport: Boolean,
     val enableTopLevelStmt: Boolean,
-    val enableFStrings: Boolean
+    val enableFStrings: Boolean,
 ) {
     companion object {
         /** Follow the Starlark language standard as much as possible. */
-        val Standard = Dialect(
-            enableDef = true,
-            enableLambda = true,
-            enableLoad = true,
-            enableKeywordOnlyArguments = false,
-            enablePositionalOnlyArguments = false,
-            enableTypes = DialectTypes.Disable,
-            enableLoadReexport = true,
-            enableTopLevelStmt = false,
-            enableFStrings = false
-        )
+        val Standard =
+            Dialect(
+                enableDef = true,
+                enableLambda = true,
+                enableLoad = true,
+                enableKeywordOnlyArguments = false,
+                enablePositionalOnlyArguments = false,
+                enableTypes = DialectTypes.Disable,
+                enableLoadReexport = true,
+                enableTopLevelStmt = false,
+                enableFStrings = false,
+            )
 
         /** This option is deprecated. Extend Standard instead. */
-        val Extended = Dialect(
-            enableDef = true,
-            enableLambda = true,
-            enableLoad = true,
-            enableKeywordOnlyArguments = true,
-            enablePositionalOnlyArguments = false,
-            enableTypes = DialectTypes.Enable,
-            enableLoadReexport = true,
-            enableTopLevelStmt = true,
-            enableFStrings = false
-        )
+        val Extended =
+            Dialect(
+                enableDef = true,
+                enableLambda = true,
+                enableLoad = true,
+                enableKeywordOnlyArguments = true,
+                enablePositionalOnlyArguments = false,
+                enableTypes = DialectTypes.Enable,
+                enableLoadReexport = true,
+                enableTopLevelStmt = true,
+                enableFStrings = false,
+            )
 
         /** Only for starlark tests. */
-        val AllOptionsInternal = Dialect(
-            enableDef = true,
-            enableLambda = true,
-            enableLoad = true,
-            enableKeywordOnlyArguments = true,
-            enablePositionalOnlyArguments = true,
-            enableTypes = DialectTypes.Enable,
-            enableLoadReexport = true,
-            enableTopLevelStmt = true,
-            enableFStrings = true
-        )
+        val AllOptionsInternal =
+            Dialect(
+                enableDef = true,
+                enableLambda = true,
+                enableLoad = true,
+                enableKeywordOnlyArguments = true,
+                enablePositionalOnlyArguments = true,
+                enableTypes = DialectTypes.Enable,
+                enableLoadReexport = true,
+                enableTopLevelStmt = true,
+                enableFStrings = true,
+            )
     }
 }

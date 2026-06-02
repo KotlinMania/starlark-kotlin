@@ -5,7 +5,6 @@ import io.github.kotlinmania.starlark.syntax.ast.ExprP
 import io.github.kotlinmania.starlark.codemap.CodeMap
 import io.github.kotlinmania.starlark.syntax.ast.AstExpr
 
-
 /*
  * Copyright 2019 The Starlark in Rust Authors.
  * Copyright (c) Facebook, Inc. and its affiliates.
@@ -30,25 +29,39 @@ import io.github.kotlinmania.starlark.syntax.AstModule
 // pub(crate) enum Performance
 internal sealed class Performance : LintWarning {
     // #[error("Dict copy `{0}` is more efficient as `{1}`")]
-    data class DictWithoutStarStar(val original: String, val replacement: String) : Performance() {
+    data class DictWithoutStarStar(
+        val original: String,
+        val replacement: String,
+    ) : Performance() {
         override fun toString(): String = "Dict copy `$original` is more efficient as `$replacement`"
+
         override fun severity(): EvalSeverity = EvalSeverity.Warning
+
         override fun shortName(): String = "dict-without-star-star"
     }
 
     // #[error("`{0}` eagerly evaluates all items...")]
-    data class EagerAndInefficientBoolCheck(val expr: String) : Performance() {
+    data class EagerAndInefficientBoolCheck(
+        val expr: String,
+    ) : Performance() {
         override fun toString(): String =
             "`$expr` eagerly evaluates all items in the iterable, and allocates an array for the results. Prefer using a for-loop."
+
         override fun severity(): EvalSeverity = EvalSeverity.Warning
+
         override fun shortName(): String = "eager-and-inefficient-bool-check"
     }
 
     // #[error("`{0}` allocates a new {1}...")]
-    data class InefficientBoolCheck(val expr: String, val kind: String) : Performance() {
+    data class InefficientBoolCheck(
+        val expr: String,
+        val kind: String,
+    ) : Performance() {
         override fun toString(): String =
             "`$expr` allocates a new $kind for the results. Prefer using a for-loop."
+
         override fun severity(): EvalSeverity = EvalSeverity.Warning
+
         override fun shortName(): String = "inefficient-bool-check"
     }
 }
@@ -60,9 +73,9 @@ private fun matchDictCopy(codemap: CodeMap, x: AstExpr, res: MutableList<LintT<P
     if (expr is ExprP.Call<*> && expr.args.args.size == 1) {
         val func = expr.expr.node
         val arg = expr.args.args[0]
-        if (func is ExprP.Identifier<*, *>
-            && func.ident.node.ident == "dict"
-            && arg.node is ArgumentP.KwArgs<*>
+        if (func is ExprP.Identifier<*, *> &&
+            func.ident.node.ident == "dict" &&
+            arg.node is ArgumentP.KwArgs<*>
         ) {
             val kwArg = (arg.node as ArgumentP.KwArgs<*>).expr
             res.add(
@@ -73,7 +86,7 @@ private fun matchDictCopy(codemap: CodeMap, x: AstExpr, res: MutableList<LintT<P
                         x.toString(),
                         "dict(${kwArg.node})",
                     ),
-                )
+                ),
             )
         }
     }
@@ -120,7 +133,7 @@ private fun matchInefficientBoolCheck(
                                 x.toString(),
                                 innerIdent,
                             ),
-                        )
+                        ),
                     )
                 }
             }

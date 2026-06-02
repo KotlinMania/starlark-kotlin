@@ -20,13 +20,11 @@ package io.github.kotlinmania.starlark.stdlib
  */
 
 import io.github.kotlinmania.starlark.environment.GlobalsBuilder
-import io.github.kotlinmania.starlark.values.layout.typed.StringValue
 import io.github.kotlinmania.starlark.eval.runtime.Evaluator
-import io.github.kotlinmania.starlark.values.types.none.NoneType
 import io.github.kotlinmania.starlark.values.layout.Value
+import io.github.kotlinmania.starlark.values.layout.typed.StringValue
 import io.github.kotlinmania.starlark.values.types.list.allocList
-import kotlin.text.iterator
-import kotlin.toString
+import io.github.kotlinmania.starlark.values.types.none.NoneType
 
 /**
  * Apply a predicate to each element of the iterable, returning those that match.
@@ -44,11 +42,11 @@ import kotlin.toString
 //     eval: &mut Evaluator<'v, '_, '_>,
 // ) -> starlark::Result<Vec<Value<'v>>>
 private fun filter(
-    func: io.github.kotlinmania.starlark.values.layout.Value,
-    seq: io.github.kotlinmania.starlark.values.layout.Value,
+    func: Value,
+    seq: Value,
     eval: Evaluator,
-): Result<List<io.github.kotlinmania.starlark.values.layout.Value>> {
-    val res = mutableListOf<io.github.kotlinmania.starlark.values.layout.Value>()
+): Result<List<Value>> {
+    val res = mutableListOf<Value>()
     val heap = eval.heap()
 
     val iter = seq.iterate(heap).getOrElse { return Result.failure(it) }
@@ -60,9 +58,10 @@ private fun filter(
             }
         } else {
             // NoneOr::Other(func) => if func.get().invoke_pos(&[v], eval)?.to_bool()
-            val callResult = func.invokePos(listOf(v), eval).getOrElse {
-                return Result.failure(it)
-            }
+            val callResult =
+                func.invokePos(listOf(v), eval).getOrElse {
+                    return Result.failure(it)
+                }
             if (callResult.toBool()) {
                 res.add(v)
             }
@@ -79,18 +78,14 @@ private fun filter(
  * map(lambda x: x * 2, [1, 2, 3, 4]) == [2, 4, 6, 8]
  * ```
  */
-// fn map<'v>(
-//     func: ValueOfUnchecked<'v, StarlarkFunction>,
-//     seq: ValueOfUnchecked<'v, StarlarkIter<Value<'v>>>,
-//     eval: &mut Evaluator<'v, '_, '_>,
-// ) -> starlark::Result<Vec<Value<'v>>>
+
 private fun map(
-    func: io.github.kotlinmania.starlark.values.layout.Value,
-    seq: io.github.kotlinmania.starlark.values.layout.Value,
+    func: Value,
+    seq: Value,
     eval: Evaluator,
-): Result<List<io.github.kotlinmania.starlark.values.layout.Value>> {
+): Result<List<Value>> {
     val iter = seq.iterate(eval.heap()).getOrElse { return Result.failure(it) }
-    val res = mutableListOf<io.github.kotlinmania.starlark.values.layout.Value>()
+    val res = mutableListOf<Value>()
     for (v in iter) {
         res.add(func.invokePos(listOf(v), eval).getOrElse { return Result.failure(it) })
     }
@@ -103,7 +98,7 @@ private fun map(
  */
 // fn debug(val: Value) -> anyhow::Result<String>
 private fun debug(
-    v: io.github.kotlinmania.starlark.values.layout.Value,
+    v: Value,
 ): Result<String> {
     // Rust: format!("{val:?}") — Debug representation
     return Result.success(v.toString())
@@ -111,10 +106,10 @@ private fun debug(
 
 // struct PrintWrapper<'a, 'b>(&'a Vec<Value<'b>>)
 // impl fmt::Display for PrintWrapper<'_, '_>
-private class PrintWrapper(private val values: List<io.github.kotlinmania.starlark.values.layout.Value>) {
-    override fun toString(): String {
-        return values.joinToString(" ") { it.toString() }
-    }
+private class PrintWrapper(
+    private val values: List<Value>,
+) {
+    override fun toString(): String = values.joinToString(" ") { it.toString() }
 }
 
 /** Invoked from `print` or `pprint` to print a value. */
@@ -137,7 +132,7 @@ internal class StderrPrintHandler : PrintHandler {
 /** Print some values to the output. */
 // fn print(args: UnpackTuple<Value>, eval: &mut Evaluator) -> starlark::Result<NoneType>
 private fun printImpl(
-    args: List<io.github.kotlinmania.starlark.values.layout.Value>,
+    args: List<Value>,
     eval: Evaluator,
 ): Result<NoneType> {
     // In practice most users should want to put the print somewhere else, but this does for now.
@@ -148,7 +143,7 @@ private fun printImpl(
 
 // fn pprint(args: UnpackTuple<Value>, eval: &mut Evaluator) -> starlark::Result<NoneType>
 private fun pprintImpl(
-    args: List<io.github.kotlinmania.starlark.values.layout.Value>,
+    args: List<Value>,
     eval: Evaluator,
 ): Result<NoneType> {
     // In practice most users may want to put the print somewhere else, but this does for now.
@@ -158,22 +153,22 @@ private fun pprintImpl(
 
 // fn pretty_repr<'v>(a: Value<'v>, eval: &mut Evaluator<'v, '_, '_>) -> anyhow::Result<StringValue<'v>>
 private fun prettyRepr(
-    a: io.github.kotlinmania.starlark.values.layout.Value,
+    a: Value,
     eval: Evaluator,
-): Result<io.github.kotlinmania.starlark.values.layout.typed.StringValue> {
+): Result<StringValue> {
     // Rust: write!(s, "{a:#}") — alternate Display format
     val s = a.toRepr()
     val r = eval.heap().allocStr(s)
-    return Result.success(_root_ide_package_.io.github.kotlinmania.starlark.values.layout.typed.StringValue.Companion.newUnchecked(r))
+    return Result.success(StringValue.newUnchecked(r))
 }
 
 /** Like `str`, but produces more verbose pretty-printed output. */
 // fn pstr<'v>(a: Value<'v>, eval: &mut Evaluator<'v, '_, '_>) -> anyhow::Result<StringValue<'v>>
 private fun pstrImpl(
-    a: io.github.kotlinmania.starlark.values.layout.Value,
+    a: Value,
     eval: Evaluator,
-): Result<io.github.kotlinmania.starlark.values.layout.typed.StringValue> {
-    val sv = _root_ide_package_.io.github.kotlinmania.starlark.values.layout.typed.StringValue.Companion.new(a)
+): Result<StringValue> {
+    val sv = StringValue.new(a)
     if (sv != null) {
         return Result.success(sv)
     }
@@ -183,69 +178,67 @@ private fun pstrImpl(
 /** Like `repr`, but produces more verbose pretty-printed output. */
 // fn prepr<'v>(a: Value<'v>, eval: &mut Evaluator<'v, '_, '_>) -> anyhow::Result<StringValue<'v>>
 private fun preprImpl(
-    a: io.github.kotlinmania.starlark.values.layout.Value,
+    a: Value,
     eval: Evaluator,
-): Result<io.github.kotlinmania.starlark.values.layout.typed.StringValue> {
-    return prettyRepr(a, eval)
-}
+): Result<StringValue> = prettyRepr(a, eval)
 
 // #[starlark_module] pub fn filter(builder: &mut GlobalsBuilder)
-fun registerFilter(globals: io.github.kotlinmania.starlark.environment.GlobalsBuilder) {
+fun registerFilter(globals: GlobalsBuilder) {
     globals.setFunction("filter") { callArgs, eval ->
-        val func = callArgs.positional<io.github.kotlinmania.starlark.values.layout.Value>(0)
-        val seq = callArgs.positional<io.github.kotlinmania.starlark.values.layout.Value>(1)
+        val func = callArgs.positional<Value>(0)
+        val seq = callArgs.positional<Value>(1)
         val result = filter(func, seq, eval).getOrThrow()
         eval.heap().allocList(result)
     }
 }
 
 // #[starlark_module] pub fn map(builder: &mut GlobalsBuilder)
-fun registerMap(globals: io.github.kotlinmania.starlark.environment.GlobalsBuilder) {
+fun registerMap(globals: GlobalsBuilder) {
     globals.setFunction("map") { callArgs, eval ->
-        val func = callArgs.positional<io.github.kotlinmania.starlark.values.layout.Value>(0)
-        val seq = callArgs.positional<io.github.kotlinmania.starlark.values.layout.Value>(1)
+        val func = callArgs.positional<Value>(0)
+        val seq = callArgs.positional<Value>(1)
         val result = map(func, seq, eval).getOrThrow()
         eval.heap().allocList(result)
     }
 }
 
 // #[starlark_module] pub fn debug(builder: &mut GlobalsBuilder)
-fun registerDebug(globals: io.github.kotlinmania.starlark.environment.GlobalsBuilder) {
+fun registerDebug(globals: GlobalsBuilder) {
     globals.setFunction("debug") { callArgs, eval ->
-        val v = callArgs.positional<io.github.kotlinmania.starlark.values.layout.Value>(0)
+        val v = callArgs.positional<Value>(0)
         val result = debug(v).getOrThrow()
         eval.heap().allocStr(result)
     }
 }
 
 // #[starlark_module] pub fn print(builder: &mut GlobalsBuilder)
-fun registerPrint(globals: io.github.kotlinmania.starlark.environment.GlobalsBuilder) {
+fun registerPrint(globals: GlobalsBuilder) {
     globals.setFunction("print") { callArgs, eval ->
         printImpl(callArgs.positionalAll(), eval).getOrThrow()
-        _root_ide_package_.io.github.kotlinmania.starlark.values.layout.Value.Companion.newNone()
+        Value.newNone()
     }
 }
 
 // #[starlark_module] pub fn pprint(builder: &mut GlobalsBuilder)
-fun registerPprint(globals: io.github.kotlinmania.starlark.environment.GlobalsBuilder) {
+fun registerPprint(globals: GlobalsBuilder) {
     globals.setFunction("pprint") { callArgs, eval ->
         pprintImpl(callArgs.positionalAll(), eval).getOrThrow()
-        _root_ide_package_.io.github.kotlinmania.starlark.values.layout.Value.Companion.newNone()
+        Value.newNone()
     }
 }
 
 // #[starlark_module] pub fn pstr(builder: &mut GlobalsBuilder)
-fun registerPstr(globals: io.github.kotlinmania.starlark.environment.GlobalsBuilder) {
+fun registerPstr(globals: GlobalsBuilder) {
     globals.setFunction("pstr") { callArgs, eval ->
-        val a = callArgs.positional<io.github.kotlinmania.starlark.values.layout.Value>(0)
+        val a = callArgs.positional<Value>(0)
         pstrImpl(a, eval).getOrThrow().toValue()
     }
 }
 
 // #[starlark_module] pub fn prepr(builder: &mut GlobalsBuilder)
-fun registerPrepr(globals: io.github.kotlinmania.starlark.environment.GlobalsBuilder) {
+fun registerPrepr(globals: GlobalsBuilder) {
     globals.setFunction("prepr") { callArgs, eval ->
-        val a = callArgs.positional<io.github.kotlinmania.starlark.values.layout.Value>(0)
+        val a = callArgs.positional<Value>(0)
         preprImpl(a, eval).getOrThrow().toValue()
     }
 }

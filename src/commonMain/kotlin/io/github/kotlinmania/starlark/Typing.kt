@@ -27,7 +27,7 @@ package io.github.kotlinmania.starlark
 //   We consider "non-sensicle" operations like list.remove and == to have implied types that make them meaningful
 //       even if they don't fail when doing something silly
 
-/// Types required to support the [`typecheck`](crate::syntax::AstModule::typecheck) function.
+// / Types required to support the [`typecheck`](crate::syntax::AstModule::typecheck) function.
 
 // pub(crate) mod basic;
 // pub(crate) mod bindings;
@@ -44,7 +44,6 @@ package io.github.kotlinmania.starlark
 // pub(crate) mod ty;
 // pub(crate) mod typecheck;
 // pub(crate) mod user;
-
 
 // #[cfg(test)]
 // mod tests;

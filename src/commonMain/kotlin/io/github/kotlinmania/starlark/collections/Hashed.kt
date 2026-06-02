@@ -36,17 +36,13 @@ class Hashed<out K> internal constructor(
         /**
          * Create a new [Hashed] value using the hash of the key.
          */
-        fun <K> new(key: K): Hashed<K> {
-            return newUnchecked(StarlarkHashValue.new(key), key)
-        }
+        fun <K> new(key: K): Hashed<K> = newUnchecked(StarlarkHashValue.new(key), key)
 
         /**
          * Directly create a new [Hashed] using a given hash value.
          * If the hash does not correspond to the key, it will cause issues.
          */
-        fun <K> newUnchecked(hash: StarlarkHashValue, key: K): Hashed<K> {
-            return Hashed(hash, key)
-        }
+        fun <K> newUnchecked(hash: StarlarkHashValue, key: K): Hashed<K> = Hashed(hash, key)
     }
 
     /**
@@ -95,7 +91,5 @@ class Hashed<out K> internal constructor(
         return hash.hashCode()
     }
 
-    override fun toString(): String {
-        return key.toString()
-    }
+    override fun toString(): String = key.toString()
 }

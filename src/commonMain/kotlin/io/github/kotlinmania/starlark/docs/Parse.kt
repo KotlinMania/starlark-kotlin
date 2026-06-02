@@ -19,12 +19,12 @@ package io.github.kotlinmania.starlark.docs
  * limitations under the License.
  */
 
-import io.github.kotlinmania.starlark.typing.Ty
+import io.github.kotlinmania.starlark.syntax.ast.AstLiteral
+import io.github.kotlinmania.starlark.syntax.ast.AstPayload
+import io.github.kotlinmania.starlark.syntax.ast.AstStmtP
 import io.github.kotlinmania.starlark.syntax.ast.ExprP
 import io.github.kotlinmania.starlark.syntax.ast.StmtP
-import io.github.kotlinmania.starlark.syntax.ast.AstStmtP
-import io.github.kotlinmania.starlark.syntax.ast.AstPayload
-import io.github.kotlinmania.starlark.syntax.ast.AstLiteral
+import io.github.kotlinmania.starlark.typing.Ty
 
 /** Controls the formatting to use when parsing [DocString]s from raw docstrings. */
 // #[derive(Copy, Clone, Dupe)]
@@ -104,26 +104,31 @@ private fun dedent(text: String): String {
 // remove_rust_comments
 // ```(\w*)\n.*?``` with DOTALL
 private val CODEBLOCK_RE = Regex("""```(\w*)\n[\s\S]*?```""")
+
 // ^# .*$\n with MULTILINE
 private val COMMENT_RE = Regex("""^# .*$\n""", RegexOption.MULTILINE)
 
 // parse_and_remove_sections — Starlark
 // ^([\w -]+):\s*$
 private val STARLARK_SECTION_RE = Regex("""^([\w -]+):\s*$""")
+
 // ^(?:\s|$)
 private val STARLARK_INDENTED_RE = Regex("""^(?:\s|$)""")
 
 // parse_and_remove_sections — Rust
 // ^# ([\w -]+)\s*$
 private val RUST_SECTION_RE = Regex("""^# ([\w -]+)\s*$""")
+
 // ^.*
 private val RUST_INDENTED_RE = Regex("""^.*""")
 
 // parse_params
 // ^\*{0,2}(\w+):\s*(.*)
 private val STARLARK_ARG_RE = Regex("""^\*{0,2}(\w+):\s*(.*)""")
+
 // ^(?:\* )?`(\w+)`:?\s*(.*)
 private val RUST_ARG_RE = Regex("""^(?:\* )?`(\w+)`:?\s*(.*)""")
+
 // ^(?:\s|$)
 private val PARAM_INDENTED_RE = Regex("""^(?:\s|$)""")
 
@@ -194,8 +199,8 @@ private fun splitSummaryDetails(s: String): Triple<String, String, String>? {
 }
 
 // fn normalize_summary(summary: &str) -> String
-private fun normalizeSummary(summary: String): String {
-    return buildString(summary.length) {
+private fun normalizeSummary(summary: String): String =
+    buildString(summary.length) {
         for (line in summary.lines()) {
             if (isNotEmpty()) {
                 append(' ')
@@ -203,7 +208,6 @@ private fun normalizeSummary(summary: String): String {
             append(line.trim())
         }
     }
-}
 
 /** Do common work to parse a docstring (dedenting, splitting summary and details, etc). */
 // pub fn from_docstring(kind: DocStringKind, user_docstring: &str) -> Option<DocString>
@@ -221,25 +225,27 @@ fun DocString.Companion.fromDocstring(kind: DocStringKind, userDocstring: String
     if (split != null && split.first.isNotEmpty()) {
         val (rawSummary, rawDetails, rawExamples) = split
 
-        details = if (rawDetails.trim().isEmpty()) {
-            null
-        } else {
-            // Dedent the details separately so that people can have the summary on the
-            // same line as the opening quotes, and the details indented on subsequent lines.
-            when (kind) {
-                DocStringKind.Starlark -> dedent(rawDetails).trim()
-                DocStringKind.Rust -> removeRustComments(dedent(rawDetails).trim())
+        details =
+            if (rawDetails.trim().isEmpty()) {
+                null
+            } else {
+                // Dedent the details separately so that people can have the summary on the
+                // same line as the opening quotes, and the details indented on subsequent lines.
+                when (kind) {
+                    DocStringKind.Starlark -> dedent(rawDetails).trim()
+                    DocStringKind.Rust -> removeRustComments(dedent(rawDetails).trim())
+                }
             }
-        }
 
-        examples = if (rawExamples.isEmpty()) {
-            null
-        } else {
-            when (kind) {
-                DocStringKind.Starlark -> dedent(rawExamples).trim()
-                DocStringKind.Rust -> removeRustComments(dedent(rawExamples).trim())
+        examples =
+            if (rawExamples.isEmpty()) {
+                null
+            } else {
+                when (kind) {
+                    DocStringKind.Starlark -> dedent(rawExamples).trim()
+                    DocStringKind.Rust -> removeRustComments(dedent(rawExamples).trim())
+                }
             }
-        }
 
         summary = rawSummary
     } else {
@@ -259,8 +265,8 @@ fun DocString.Companion.fromDocstring(kind: DocStringKind, userDocstring: String
 
 /** Removes rustdoc-style commented out lines from code blocks. */
 // fn remove_rust_comments(details: &str) -> String
-private fun removeRustComments(details: String): String {
-    return CODEBLOCK_RE.replace(details) { matchResult ->
+private fun removeRustComments(details: String): String =
+    CODEBLOCK_RE.replace(details) { matchResult ->
         val lang = matchResult.groupValues[1]
         val fullMatch = matchResult.value
         when (lang) {
@@ -268,13 +274,10 @@ private fun removeRustComments(details: String): String {
             else -> fullMatch
         }
     }
-}
 
 /** Join lines up, dedent them, and trim them. */
 // fn join_and_dedent_lines(lines: &[String]) -> String
-private fun joinAndDedentLines(lines: List<String>): String {
-    return dedent(lines.joinToString("\n")).trim()
-}
+private fun joinAndDedentLines(lines: List<String>): String = dedent(lines.joinToString("\n")).trim()
 
 /**
  * Parse the sections out of a docstring's `details` text, and remove the requested
@@ -377,20 +380,23 @@ fun DocFunction.Companion.fromDocstring(
     returnType: Ty,
     rawDocstring: String?,
 ): DocFunction {
-    val ds = rawDocstring?.let { DocString.fromDocstring(kind, it) }
-        ?: return DocFunction(
-            docs = null,
-            params = params,
-            ret = DocReturn(
+    val ds =
+        rawDocstring?.let { DocString.fromDocstring(kind, it) }
+            ?: return DocFunction(
                 docs = null,
-                typ = returnType,
-            ),
-        )
+                params = params,
+                ret =
+                    DocReturn(
+                        docs = null,
+                        typ = returnType,
+                    ),
+            )
 
-    val (functionDocstring, sections) = ds.parseAndRemoveSections(
-        kind,
-        listOf("arguments", "args", "returns", "return"),
-    )
+    val (functionDocstring, sections) =
+        ds.parseAndRemoveSections(
+            kind,
+            listOf("arguments", "args", "returns", "return"),
+        )
 
     val argsSection = sections["arguments"] ?: sections["args"]
     if (argsSection != null) {
@@ -403,16 +409,18 @@ fun DocFunction.Companion.fromDocstring(
         }
     }
 
-    val returnDocs = (sections["return"] ?: sections["returns"])
-        ?.let { DocString.fromDocstring(kind, it) }
+    val returnDocs =
+        (sections["return"] ?: sections["returns"])
+            ?.let { DocString.fromDocstring(kind, it) }
 
     return DocFunction(
         docs = functionDocstring,
         params = params,
-        ret = DocReturn(
-            docs = returnDocs,
-            typ = returnType,
-        ),
+        ret =
+            DocReturn(
+                docs = returnDocs,
+                typ = returnType,
+            ),
     )
 }
 
@@ -424,10 +432,11 @@ fun DocFunction.Companion.fromDocstring(
  */
 // fn parse_params(kind: DocStringKind, args_section: &str) -> HashMap<String, String>
 private fun parseParams(kind: DocStringKind, argsSection: String): Map<String, String> {
-    val argRe = when (kind) {
-        DocStringKind.Starlark -> STARLARK_ARG_RE
-        DocStringKind.Rust -> RUST_ARG_RE
-    }
+    val argRe =
+        when (kind) {
+            DocStringKind.Starlark -> STARLARK_ARG_RE
+            DocStringKind.Rust -> RUST_ARG_RE
+        }
 
     val ret = mutableMapOf<String, String>()
     var currentArg: String? = null
@@ -445,9 +454,10 @@ private fun parseParams(kind: DocStringKind, argsSection: String): Map<String, S
 
             val docMatchStr = argMatch.groupValues[2]
             val docMatchStart = line.indexOf(docMatchStr, argMatch.groupValues[1].length)
-            currentText = mutableListOf(
-                " ".repeat(if (docMatchStart >= 0) docMatchStart else 0) + docMatchStr
-            )
+            currentText =
+                mutableListOf(
+                    " ".repeat(if (docMatchStart >= 0) docMatchStart else 0) + docMatchStr,
+                )
         } else if (currentArg != null && PARAM_INDENTED_RE.containsMatchIn(line)) {
             currentText.add(line)
         }

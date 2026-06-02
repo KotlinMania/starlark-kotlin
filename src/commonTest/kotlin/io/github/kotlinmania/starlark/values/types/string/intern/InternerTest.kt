@@ -19,14 +19,13 @@ package io.github.kotlinmania.starlark.values.types.string.intern
  * limitations under the License.
  */
 
+import io.github.kotlinmania.starlark.collections.Hashed
 import io.github.kotlinmania.starlark.values.layout.heap.FrozenHeap
 import io.github.kotlinmania.starlark.values.layout.heap.Heap
-import io.github.kotlinmania.starlarkmap.Hashed
 import kotlin.test.Test
 import kotlin.test.assertTrue
 
 class InternerTest {
-
     @Test
     fun testIntern() {
         val heap1 = FrozenHeap.new()
@@ -44,9 +43,10 @@ class InternerTest {
             val intern = StringValueInterner()
 
             val xx1 = intern.intern(Hashed.new("xx")) { heap1.allocStr("xx") }
-            val xx2 = intern.intern(Hashed.new("xx")) {
-                error("alloc_str should be only called once")
-            }
+            val xx2 =
+                intern.intern(Hashed.new("xx")) {
+                    error("alloc_str should be only called once")
+                }
             assertTrue(xx1.toValue().ptrEq(xx2.toValue()))
         }
     }

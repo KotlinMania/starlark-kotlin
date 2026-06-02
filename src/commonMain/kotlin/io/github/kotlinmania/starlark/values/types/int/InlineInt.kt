@@ -24,11 +24,11 @@ import io.github.kotlinmania.starlark.likely
 import io.github.kotlinmania.starlark.typing.Ty
 import io.github.kotlinmania.starlark.values.AllocFrozenValue
 import io.github.kotlinmania.starlark.values.AllocValue
-import io.github.kotlinmania.starlark.values.layout.heap.FrozenHeap
-import io.github.kotlinmania.starlark.values.layout.FrozenValue
 import io.github.kotlinmania.starlark.values.StarlarkTypeRepr
 import io.github.kotlinmania.starlark.values.UnpackValue
+import io.github.kotlinmania.starlark.values.layout.FrozenValue
 import io.github.kotlinmania.starlark.values.layout.Value
+import io.github.kotlinmania.starlark.values.layout.heap.FrozenHeap
 import io.github.kotlinmania.starlark.values.layout.heap.Heap
 import kotlin.ConsistentCopyVisibility
 
@@ -37,15 +37,14 @@ import kotlin.ConsistentCopyVisibility
 // Rust: #[serde(transparent)]
 // Rust: pub struct InlineInt(i32)
 @ConsistentCopyVisibility
-data class InlineInt internal constructor(private val value: Int) : Comparable<InlineInt> {
-
+data class InlineInt internal constructor(
+    private val value: Int,
+) : Comparable<InlineInt> {
     // Rust: impl Debug for InlineInt
     // fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
     //     Debug::fmt(&self.0, f)
     // }
-    override fun toString(): String {
-        return value.toString()
-    }
+    override fun toString(): String = value.toString()
 
     companion object {
         // Rust: const fn min_max_for_bits(bits: usize) -> (i32, i32)
@@ -67,27 +66,19 @@ data class InlineInt internal constructor(private val value: Int) : Comparable<I
         internal val MAX: InlineInt = InlineInt(minMaxForBits(BITS).second)
 
         /** This type does not contain full range of `i32`. */
-        internal fun smallerThanI32(): Boolean {
-            return BITS < 32
-        }
+        internal fun smallerThanI32(): Boolean = BITS < 32
 
         // Rust: fn new_unchecked(i: i32) -> InlineInt
         @Suppress("NOTHING_TO_INLINE")
-        internal inline fun newUnchecked(i: Int): InlineInt {
-            return InlineInt(i)
-        }
+        internal inline fun newUnchecked(i: Int): InlineInt = InlineInt(i)
 
         // Rust: fn testing_new(i: i32) -> InlineInt
-        internal fun testingNew(i: Int): InlineInt {
-            return tryFrom(i).getOrThrow()
-        }
+        internal fun testingNew(i: Int): InlineInt = tryFrom(i).getOrThrow()
 
         // --- TryFrom impls ---
 
         // Rust: impl TryFrom<i32> for InlineInt
-        internal fun tryFrom(value: Int): Result<InlineInt> {
-            return tryFromImpl(value)
-        }
+        internal fun tryFrom(value: Int): Result<InlineInt> = tryFromImpl(value)
 
         // Rust: impl TryFrom<u32> for InlineInt
         internal fun tryFrom(value: UInt): Result<InlineInt> {
@@ -103,9 +94,7 @@ data class InlineInt internal constructor(private val value: Int) : Comparable<I
         }
 
         // Rust: impl TryFrom<i64> for InlineInt
-        internal fun tryFrom(value: Long): Result<InlineInt> {
-            return tryFromImpl(value)
-        }
+        internal fun tryFrom(value: Long): Result<InlineInt> = tryFromImpl(value)
 
         // Rust: impl TryFrom<u64> for InlineInt
         internal fun tryFrom(value: ULong): Result<InlineInt> {
@@ -114,29 +103,29 @@ data class InlineInt internal constructor(private val value: Int) : Comparable<I
         }
 
         // Rust: impl TryFrom<&BigInt> for InlineInt
-        internal fun tryFrom(value: BigInteger): Result<InlineInt> {
-            return try {
+        internal fun tryFrom(value: BigInteger): Result<InlineInt> =
+            try {
                 val i = value.intValue(exactRequired = true)
                 tryFromImpl(i)
             } catch (_: ArithmeticException) {
                 Result.failure(InlineIntOverflow())
             }
-        }
 
         // Rust: fn try_from_impl<I>(i: I) -> Result<InlineInt, InlineIntOverflow>
         //     where i32: TryFrom<I>,
         private fun <T> tryFromImpl(value: T): Result<InlineInt>
             where T : Number, T : Comparable<T> {
-            val i = when (value) {
-                is Int -> value
-                is Long -> {
-                    if (value < Int.MIN_VALUE || value > Int.MAX_VALUE) {
-                        return Result.failure(InlineIntOverflow())
+            val i =
+                when (value) {
+                    is Int -> value
+                    is Long -> {
+                        if (value < Int.MIN_VALUE || value > Int.MAX_VALUE) {
+                            return Result.failure(InlineIntOverflow())
+                        }
+                        value.toInt()
                     }
-                    value.toInt()
+                    else -> return Result.failure(InlineIntOverflow())
                 }
-                else -> return Result.failure(InlineIntOverflow())
-            }
 
             // Only absurd for certain bit widths
             @Suppress("KotlinConstantConditions")
@@ -152,33 +141,23 @@ data class InlineInt internal constructor(private val value: Int) : Comparable<I
 
     /** Rust: fn to_i32(self) -> i32 */
     @Suppress("NOTHING_TO_INLINE")
-    internal inline fun toI32(): Int {
-        return value
-    }
+    internal inline fun toI32(): Int = value
 
     /** Rust: fn to_u64(self) -> Option<u64> */
     @Suppress("NOTHING_TO_INLINE")
-    internal inline fun toU64(): ULong? {
-        return if (value >= 0) value.toULong() else null
-    }
+    internal inline fun toU64(): ULong? = if (value >= 0) value.toULong() else null
 
     /** Rust: fn to_u32(self) -> Option<u32> */
     @Suppress("NOTHING_TO_INLINE")
-    internal inline fun toU32(): UInt? {
-        return if (value >= 0) value.toUInt() else null
-    }
+    internal inline fun toU32(): UInt? = if (value >= 0) value.toUInt() else null
 
     /** Rust: fn to_f64(self) -> f64 */
     @Suppress("NOTHING_TO_INLINE")
-    internal inline fun toF64(): Double {
-        return value.toDouble()
-    }
+    internal inline fun toF64(): Double = value.toDouble()
 
     /** Rust: fn signum(self) -> i32 */
     @Suppress("NOTHING_TO_INLINE")
-    internal inline fun signum(): Int {
-        return value.compareTo(0)
-    }
+    internal inline fun signum(): Int = value.compareTo(0)
 
     // --- Checked arithmetic ---
 
@@ -194,9 +173,7 @@ data class InlineInt internal constructor(private val value: Int) : Comparable<I
 
     /** Rust: fn checked_sub(self, rhs: InlineInt) -> Option<InlineInt> */
     @Suppress("NOTHING_TO_INLINE")
-    internal inline fun checkedSub(rhs: InlineInt): InlineInt? {
-        return checkedSubI32(rhs.value)
-    }
+    internal inline fun checkedSub(rhs: InlineInt): InlineInt? = checkedSubI32(rhs.value)
 
     /** Rust: fn checked_sub_i32(self, rhs: i32) -> Option<InlineInt> */
     @Suppress("NOTHING_TO_INLINE")
@@ -266,9 +243,7 @@ data class InlineInt internal constructor(private val value: Int) : Comparable<I
     // --- BigInt / abs ---
 
     /** Rust: fn to_bigint(self) -> BigInt */
-    internal fun toBigInt(): BigInteger {
-        return BigInteger.fromInt(value)
-    }
+    internal fun toBigInt(): BigInteger = BigInteger.fromInt(value)
 
     /** Rust: fn abs(self) -> StarlarkInt */
     internal fun abs(): StarlarkInt {
@@ -287,56 +262,38 @@ data class InlineInt internal constructor(private val value: Int) : Comparable<I
     // --- Bitwise operators (Rust: impl BitAnd, BitOr, BitXor, Not) ---
 
     // Rust: impl BitAnd for InlineInt
-    infix fun and(other: InlineInt): InlineInt {
-        return InlineInt(value and other.value)
-    }
+    infix fun and(other: InlineInt): InlineInt = InlineInt(value and other.value)
 
     // Rust: impl BitOr for InlineInt
-    infix fun or(other: InlineInt): InlineInt {
-        return InlineInt(value or other.value)
-    }
+    infix fun or(other: InlineInt): InlineInt = InlineInt(value or other.value)
 
     // Rust: impl BitXor for InlineInt
-    infix fun xor(other: InlineInt): InlineInt {
-        return InlineInt(value xor other.value)
-    }
+    infix fun xor(other: InlineInt): InlineInt = InlineInt(value xor other.value)
 
     // Rust: impl Not for InlineInt
-    operator fun not(): InlineInt {
-        return InlineInt(value.inv())
-    }
+    operator fun not(): InlineInt = InlineInt(value.inv())
 
     // --- Comparison (Rust: PartialEq/PartialOrd with i32, Comparable<InlineInt>) ---
 
-    override fun compareTo(other: InlineInt): Int {
-        return value.compareTo(other.value)
-    }
+    override fun compareTo(other: InlineInt): Int = value.compareTo(other.value)
 
     // Rust: impl PartialOrd<i32> for InlineInt
-    operator fun compareTo(other: Int): Int {
-        return value.compareTo(other)
-    }
+    operator fun compareTo(other: Int): Int = value.compareTo(other)
 
     // Rust: impl PartialEq<i32> for InlineInt
     // Value class equals/hashCode are derived from the underlying Int.
     // For explicit comparison with Int, use equalsInt.
     @Suppress("NOTHING_TO_INLINE")
-    internal inline fun equalsInt(other: Int): Boolean {
-        return value == other
-    }
+    internal inline fun equalsInt(other: Int): Boolean = value == other
 
     // --- Rem (Rust: impl Rem for InlineInt) ---
 
-    operator fun rem(other: InlineInt): InlineInt {
-        return InlineInt(value % other.value)
-    }
+    operator fun rem(other: InlineInt): InlineInt = InlineInt(value % other.value)
 }
 
 // Rust: impl PartialEq<InlineInt> for i32
 // Rust: impl PartialOrd<InlineInt> for i32
-internal operator fun Int.compareTo(other: InlineInt): Int {
-    return this.compareTo(other.toI32())
-}
+internal operator fun Int.compareTo(other: InlineInt): Int = this.compareTo(other.toI32())
 
 /** Rust: pub struct InlineIntOverflow */
 internal class InlineIntOverflow : Exception("InlineInt overflow")
@@ -347,30 +304,22 @@ internal class InlineIntOverflow : Exception("InlineInt overflow")
 // type Canonical = <StarlarkInt as StarlarkTypeRepr>::Canonical;
 object InlineIntStarlarkTypeRepr : StarlarkTypeRepr {
     // Rust: fn starlark_type_repr() -> Ty { PointerI32::starlark_type_repr() }
-    override fun starlarkTypeRepr(): Ty {
-        return Ty.int()
-    }
+    override fun starlarkTypeRepr(): Ty = Ty.int()
 }
 
 /** Rust: impl<'v> UnpackValue<'v> for InlineInt */
 object InlineIntUnpackValue : UnpackValue<InlineInt> {
     // Rust: fn starlark_type_repr() -> Ty
-    override fun starlarkTypeRepr(): Ty {
-        return InlineIntStarlarkTypeRepr.starlarkTypeRepr()
-    }
+    override fun starlarkTypeRepr(): Ty = InlineIntStarlarkTypeRepr.starlarkTypeRepr()
 
     // Rust: fn unpack_value_impl(value: Value<'v>) -> crate::Result<Option<Self>>
-    override fun unpackValueImpl(value: Value): Result<InlineInt?> {
-        return Result.success(value.unpackInlineInt())
-    }
+    override fun unpackValueImpl(value: Value): Result<InlineInt?> = Result.success(value.unpackInlineInt())
 }
 
 /** Rust: impl<'v> AllocValue<'v> for InlineInt */
 object InlineIntAllocValue : AllocValue {
     // Rust: fn starlark_type_repr() -> Ty
-    override fun starlarkTypeRepr(): Ty {
-        return InlineIntStarlarkTypeRepr.starlarkTypeRepr()
-    }
+    override fun starlarkTypeRepr(): Ty = InlineIntStarlarkTypeRepr.starlarkTypeRepr()
 
     // Rust: fn alloc_value(self, _heap: Heap<'v>) -> Value<'v> { Value::new_int(self) }
     override fun allocValue(heap: Heap): Value {
@@ -381,16 +330,14 @@ object InlineIntAllocValue : AllocValue {
 /** Extension to allocate an [InlineInt] as a [Value]. */
 // Rust: impl<'v> AllocValue<'v> for InlineInt
 //     fn alloc_value(self, _heap: Heap<'v>) -> Value<'v> { Value::new_int(self) }
-internal fun InlineInt.allocValue(@Suppress("UNUSED_PARAMETER") heap: Heap): Value {
-    return Value.newInt(this)
-}
+internal fun InlineInt.allocValue(
+    @Suppress("UNUSED_PARAMETER") heap: Heap,
+): Value = Value.newInt(this)
 
 /** Rust: impl AllocFrozenValue for InlineInt */
 object InlineIntAllocFrozenValue : AllocFrozenValue {
     // Rust: fn starlark_type_repr() -> Ty
-    override fun starlarkTypeRepr(): Ty {
-        return InlineIntStarlarkTypeRepr.starlarkTypeRepr()
-    }
+    override fun starlarkTypeRepr(): Ty = InlineIntStarlarkTypeRepr.starlarkTypeRepr()
 
     // Rust: fn alloc_frozen_value(self, _heap: &FrozenHeap) -> FrozenValue { FrozenValue::new_int(self) }
     override fun allocFrozenValue(heap: FrozenHeap): FrozenValue {
@@ -401,6 +348,6 @@ object InlineIntAllocFrozenValue : AllocFrozenValue {
 /** Extension to allocate an [InlineInt] as a [FrozenValue]. */
 // Rust: impl AllocFrozenValue for InlineInt
 //     fn alloc_frozen_value(self, _heap: &FrozenHeap) -> FrozenValue { FrozenValue::new_int(self) }
-internal fun InlineInt.allocFrozenValue(@Suppress("UNUSED_PARAMETER") heap: FrozenHeap): FrozenValue {
-    return FrozenValue.newInt(this)
-}
+internal fun InlineInt.allocFrozenValue(
+    @Suppress("UNUSED_PARAMETER") heap: FrozenHeap,
+): FrozenValue = FrozenValue.newInt(this)

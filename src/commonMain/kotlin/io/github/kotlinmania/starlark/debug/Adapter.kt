@@ -25,11 +25,11 @@ package io.github.kotlinmania.starlark.debug
  * [DapAdapter]/[DapAdapterEvalHook] that provide for debugging a starlark Evaluation.
  */
 
-import io.github.kotlinmania.starlark.eval.runtime.Evaluator
-import io.github.kotlinmania.starlark.debug.adapter_impl.prepareDapAdapterImpl
-import io.github.kotlinmania.starlark.debug.adapter_impl.resolveBreakpointsImpl
-import io.github.kotlinmania.starlark.debug.adapter_impl.resolvedBreakpointsToDap
 import io.github.kotlinmania.starlark.codemap.FileSpan
+import io.github.kotlinmania.starlark.debug.adapterimpl.prepareDapAdapterImpl
+import io.github.kotlinmania.starlark.debug.adapterimpl.resolveBreakpointsImpl
+import io.github.kotlinmania.starlark.debug.adapterimpl.resolvedBreakpointsToDap
+import io.github.kotlinmania.starlark.eval.runtime.Evaluator
 import io.github.kotlinmania.starlark.syntax.AstModule
 import io.github.kotlinmania.starlark.values.layout.Value
 import io.github.kotlinmania.starlark.values.layout.heap.Heap
@@ -74,17 +74,17 @@ data class Variable(
     companion object {
         private fun tupleValueAsStr(v: Value): String {
             val size = v.length().getOrNull()
-            return if (size != null && size.compareTo(0)) "<tuple, size=$size>" else "()"
+            return if (size != null && size > 0) "<tuple, size=$size>" else "()"
         }
 
         private fun listValueAsStr(v: Value): String {
             val size = v.length().getOrNull()
-            return if (size != null && size.compareTo(0)) "<list, size=$size>" else "[]"
+            return if (size != null && size > 0) "<list, size=$size>" else "[]"
         }
 
         private fun dictValueAsStr(v: Value): String {
             val size = v.length().getOrNull()
-            return if (size != null && size.compareTo(0)) "<dict, size=$size>" else "{}"
+            return if (size != null && size > 0) "<dict, size=$size>" else "{}"
         }
 
         private fun structLikeValueAsStr(v: Value): String {
@@ -107,8 +107,8 @@ data class Variable(
             return strValue
         }
 
-        internal fun valueAsStr(v: Value): String {
-            return if (hasChildren(v)) {
+        internal fun valueAsStr(v: Value): String =
+            if (hasChildren(v)) {
                 when (v.getType()) {
                     "list" -> listValueAsStr(v)
                     "tuple" -> tupleValueAsStr(v)
@@ -124,24 +124,22 @@ data class Variable(
                     }
                 }
             }
-        }
 
         /** Creates a new instance of [Variable] from a given starlark value. */
-        fun fromValue(name: PathSegment, v: Value): Variable {
-            return Variable(
+        fun fromValue(name: PathSegment, v: Value): Variable =
+            Variable(
                 name = name,
                 value = valueAsStr(v),
                 type = v.getType(),
                 hasChildren = hasChildren(v),
             )
-        }
 
         internal fun hasChildren(v: Value): Boolean {
             return when (v.getType()) {
                 "function", "never", "NoneType", "bool", "int", "float", "string" -> false
                 "list", "tuple", "dict" -> {
                     val length = v.length().getOrNull() ?: return false
-                    length compareTo 0
+                    length > 0
                 }
                 else -> true
             }
@@ -149,8 +147,8 @@ data class Variable(
     }
 
     /** Helper to convert to the DAP Variable type. */
-    fun toDap(): DapVariable {
-        return DapVariable(
+    fun toDap(): DapVariable =
+        DapVariable(
             name = this.name.toString(),
             value = this.value,
             type = this.type,
@@ -160,16 +158,19 @@ data class Variable(
             presentationHint = null,
             variablesReference = 0,
         )
-    }
 }
 
 /** Represents the scope of a variable. */
 sealed class Scope {
     /** A local variable's scope, identified by its name. */
-    data class Local(val name: String) : Scope()
+    data class Local(
+        val name: String,
+    ) : Scope()
 
     /** A scope determined by a particular expression. */
-    data class Expr(val expression: String) : Scope()
+    data class Expr(
+        val expression: String,
+    ) : Scope()
 }
 
 /**
@@ -188,20 +189,18 @@ data class VariablePath(
 ) {
     companion object {
         /** Creates new instance of [VariablePath] from a given expression. */
-        fun newExpression(expr: String): VariablePath {
-            return VariablePath(
+        fun newExpression(expr: String): VariablePath =
+            VariablePath(
                 scope = Scope.Expr(expr),
                 accessPath = emptyList(),
             )
-        }
 
         /** Creates new instance of [VariablePath] from a given local variable. */
-        fun newLocal(scope: String): VariablePath {
-            return VariablePath(
+        fun newLocal(scope: String): VariablePath =
+            VariablePath(
                 scope = Scope.Local(scope),
                 accessPath = emptyList(),
             )
-        }
     }
 
     /** Creates a child segment of given access path. */
@@ -222,27 +221,33 @@ data class VariablePath(
  */
 sealed class PathSegment {
     /** Represents a path segment that accesses array-like types (i.e., types indexable by numbers). */
-    data class Index(val index: Int) : PathSegment()
+    data class Index(
+        val index: Int,
+    ) : PathSegment()
 
     /** Represents a path segment that accesses object-like types (i.e., types keyed by strings). */
-    data class Attr(val name: String) : PathSegment()
+    data class Attr(
+        val name: String,
+    ) : PathSegment()
 
     /** Represents a path segment that accesses dict items by key. */
-    data class Key(val key: String) : PathSegment()
+    data class Key(
+        val key: String,
+    ) : PathSegment()
 
-    override fun toString(): String = when (this) {
-        is Index -> "$index"
-        is Attr -> name
-        is Key -> "\"$key\""
-    }
+    override fun toString(): String =
+        when (this) {
+            is Index -> "$index"
+            is Attr -> name
+            is Key -> "\"$key\""
+        }
 
-    fun get(v: Value, heap: Heap): Result<Value> {
-        return when (this) {
+    fun get(v: Value, heap: Heap): Result<Value> =
+        when (this) {
             is Index -> v.at(index.allocValue(heap), heap)
             is Attr -> v.getAttrError(name, heap)
             is Key -> v.at(heap.allocStr(key), heap)
         }
-    }
 }
 
 /** The kind of debugger step, used for next/stepin/stepout requests. */
@@ -279,49 +284,55 @@ data class InspectVariableInfo(
 ) {
     companion object {
         private fun tryFromDict(valueDict: DictRef): Result<InspectVariableInfo> {
-            val keySegments = valueDict.iter()
-                .map { (key, value) -> Pair(PathSegment.Key(key.toStr()), value) }
+            val keySegments =
+                valueDict
+                    .iter()
+                    .map { (key, value) -> Pair(PathSegment.Key(key.toStr()), value) }
 
-            return Result.success(InspectVariableInfo(
-                subValues = keySegments
-                    .map { (pathSegment, value) -> Variable.fromValue(pathSegment, value) }
-                    .toList()
-            ))
+            return Result.success(
+                InspectVariableInfo(
+                    subValues =
+                        keySegments
+                            .map { (pathSegment, value) -> Variable.fromValue(pathSegment, value) }
+                            .toList(),
+                ),
+            )
         }
 
-        private fun tryFromStructLike(v: Value, heap: Heap): Result<InspectVariableInfo> {
-            return try {
-                val subValues = v.dirAttr().map { childName ->
-                    val childValue = v.getAttrError(childName, heap).getOrThrow()
-                    val segment = PathSegment.Attr(childName)
-                    Variable.fromValue(segment, childValue)
-                }
+        private fun tryFromStructLike(v: Value, heap: Heap): Result<InspectVariableInfo> =
+            try {
+                val subValues =
+                    v.dirAttr().map { childName ->
+                        val childValue = v.getAttrError(childName, heap).getOrThrow()
+                        val segment = PathSegment.Attr(childName)
+                        Variable.fromValue(segment, childValue)
+                    }
                 Result.success(InspectVariableInfo(subValues = subValues))
             } catch (e: Exception) {
                 Result.failure(e)
             }
-        }
 
-        private fun tryFromArrayLike(v: Value, heap: Heap): Result<InspectVariableInfo> {
-            return try {
+        private fun tryFromArrayLike(v: Value, heap: Heap): Result<InspectVariableInfo> =
+            try {
                 val len = v.length().getOrThrow()
-                val subValues = (0 until len).map { i ->
-                    val index = i.allocValue(heap)
-                    val elem = v.at(index, heap).getOrThrow()
-                    Variable.fromValue(PathSegment.Index(i), elem)
-                }
+                val subValues =
+                    (0 until len).map { i ->
+                        val index = i.allocValue(heap)
+                        val elem = v.at(index, heap).getOrThrow()
+                        Variable.fromValue(PathSegment.Index(i), elem)
+                    }
                 Result.success(InspectVariableInfo(subValues = subValues))
             } catch (e: Exception) {
                 Result.failure(e)
             }
-        }
 
         /** Tries to create [InspectVariableInfo] from a given starlark value. */
         fun tryFromValue(v: Value, heap: Heap): Result<InspectVariableInfo> {
             return when (v.getType()) {
                 "dict" -> {
-                    val dictRef = dictRefFromValue(v)
-                        ?: return Result.failure(IllegalArgumentException("not a dictionary"))
+                    val dictRef =
+                        dictRefFromValue(v)
+                            ?: return Result.failure(IllegalArgumentException("not a dictionary"))
                     tryFromDict(dictRef)
                 }
                 "struct" -> tryFromStructLike(v, heap)
@@ -346,13 +357,12 @@ data class EvaluateExprInfo(
 ) {
     companion object {
         /** Creates [EvaluateExprInfo] from a given starlark value. */
-        fun fromValue(v: Value): EvaluateExprInfo {
-            return EvaluateExprInfo(
+        fun fromValue(v: Value): EvaluateExprInfo =
+            EvaluateExprInfo(
                 result = Variable.valueAsStr(v),
                 type = v.getType(),
                 hasChildren = Variable.hasChildren(v),
             )
-        }
     }
 }
 
@@ -464,18 +474,14 @@ class ResolvedBreakpoints internal constructor(
      * Converts resolved breakpoints to a [SetBreakpointsResponseBody].
      * The breakpoints should've been resolved from the corresponding SetBreakpointsRequest.
      */
-    fun toResponse(): SetBreakpointsResponseBody {
-        return resolvedBreakpointsToDap(this)
-    }
+    fun toResponse(): SetBreakpointsResponseBody = resolvedBreakpointsToDap(this)
 }
 
 /** Resolves the breakpoints to their [FileSpan] if possible. */
 fun resolveBreakpoints(
     args: SetBreakpointsArguments,
     ast: AstModule,
-): Result<ResolvedBreakpoints> {
-    return resolveBreakpointsImpl(args, ast)
-}
+): Result<ResolvedBreakpoints> = resolveBreakpointsImpl(args, ast)
 
 /**
  * The [DapAdapter] accepts DAP requests and updates the hooks in the running evaluator.
@@ -557,19 +563,16 @@ interface DapAdapterEvalHook {
 }
 
 /** The DAP capabilities that the adapter supports. */
-fun dapCapabilities(): Capabilities {
-    return Capabilities(
+fun dapCapabilities(): Capabilities =
+    Capabilities(
         supportsConfigurationDoneRequest = true,
         supportsEvaluateForHovers = true,
         supportsSetVariable = true,
         supportsStepInTargetsRequest = true,
         supportsConditionalBreakpoints = true,
     )
-}
 
 /** Creates a [DapAdapter] and corresponding [DapAdapterEvalHook]. */
 fun prepareDapAdapter(
     client: DapAdapterClient,
-): Pair<DapAdapter, DapAdapterEvalHook> {
-    return prepareDapAdapterImpl(client)
-}
+): Pair<DapAdapter, DapAdapterEvalHook> = prepareDapAdapterImpl(client)

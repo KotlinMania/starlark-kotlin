@@ -23,19 +23,19 @@ package io.github.kotlinmania.starlark.values.types.structs
  * Implementation of `struct` function.
  */
 
-import io.github.kotlinmania.starlark.environment.GlobalsBuilder
-import io.github.kotlinmania.starlark.typing.ParamSpec
-import io.github.kotlinmania.starlark.typing.Ty
-import io.github.kotlinmania.starlark.typing.TyStarlarkValue
-import io.github.kotlinmania.starlark.typing.TyStruct
-import io.github.kotlinmania.starlark.typing.TyCallable
-import io.github.kotlinmania.starlark.typing.TyCustomFunctionImpl
-import io.github.kotlinmania.starlark.typing.TyCallArgs
-import io.github.kotlinmania.starlark.typing.oracle.TypingOracleCtx
-import io.github.kotlinmania.starlark.eval.runtime.Arguments
-import io.github.kotlinmania.starlark.values.layout.Value
 import io.github.kotlinmania.starlark.codemap.Span
 import io.github.kotlinmania.starlark.collections.SmallMap
+import io.github.kotlinmania.starlark.environment.GlobalsBuilder
+import io.github.kotlinmania.starlark.eval.runtime.Arguments
+import io.github.kotlinmania.starlark.typing.ParamSpec
+import io.github.kotlinmania.starlark.typing.Ty
+import io.github.kotlinmania.starlark.typing.TyCallArgs
+import io.github.kotlinmania.starlark.typing.TyCallable
+import io.github.kotlinmania.starlark.typing.TyCustomFunctionImpl
+import io.github.kotlinmania.starlark.typing.TyStarlarkValue
+import io.github.kotlinmania.starlark.typing.TyStruct
+import io.github.kotlinmania.starlark.typing.oracle.TypingOracleCtx
+import io.github.kotlinmania.starlark.values.layout.Value
 
 /**
  * Type implementation for the struct type.
@@ -49,15 +49,15 @@ internal object StructType : TyCustomFunctionImpl {
     override fun validateCall(
         span: Span,
         args: TyCallArgs,
-        oracle: TypingOracleCtx
+        oracle: TypingOracleCtx,
     ): Result<Ty> {
         if (args.pos.isNotEmpty()) {
             val pos = args.pos.first()
             return Result.failure(
                 oracle.msgError(
                     pos.span,
-                    "Positional arguments not allowed"
-                )
+                    "Positional arguments not allowed",
+                ),
             )
         }
 
@@ -73,9 +73,9 @@ internal object StructType : TyCustomFunctionImpl {
             Ty.custom(
                 TyStruct(
                     fields = fields.toList().sortedBy { it.first }.toMap(),
-                    extra = extra
-                )
-            )
+                    extra = extra,
+                ),
+            ),
         )
     }
 }
@@ -90,7 +90,7 @@ internal object StructType : TyCustomFunctionImpl {
 internal fun registerStruct(builder: GlobalsBuilder) {
     builder.setFunction(
         name = "struct",
-        asType = Ty.starlarkValue(TyStarlarkValue.new("struct"))
+        asType = Ty.starlarkValue(TyStarlarkValue.new("struct")),
     ) { args: Arguments, eval ->
         val heap = eval.heap()
         val noPosResult = args.noPositionalArgs(heap)

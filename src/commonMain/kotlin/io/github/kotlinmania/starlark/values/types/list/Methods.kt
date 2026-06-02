@@ -21,9 +21,9 @@ package io.github.kotlinmania.starlark.values.types.list
 
 /** Methods for the `list` type. */
 
-import io.github.kotlinmania.starlark.environment.MethodsBuilder
 import io.github.kotlinmania.starlark.deriverefs.NativeCallableComponents
 import io.github.kotlinmania.starlark.deriverefs.NativeCallableParamSpec
+import io.github.kotlinmania.starlark.environment.MethodsBuilder
 import io.github.kotlinmania.starlark.eval.runtime.Arguments
 import io.github.kotlinmania.starlark.eval.runtime.Evaluator
 import io.github.kotlinmania.starlark.eval.runtime.params.spec.ParametersSpec
@@ -33,9 +33,9 @@ import io.github.kotlinmania.starlark.values.ValueError
 import io.github.kotlinmania.starlark.values.layout.FrozenValue
 import io.github.kotlinmania.starlark.values.layout.Value
 import io.github.kotlinmania.starlark.values.layout.heap.Heap
+import io.github.kotlinmania.starlark.values.toValue
 import io.github.kotlinmania.starlark.values.types.none.NoneOr
 import io.github.kotlinmania.starlark.values.types.none.NoneType
-import io.github.kotlinmania.starlark.values.toValue
 
 // -- Index conversion helpers (from starlark_syntax::convert_indices) ----------
 //
@@ -50,13 +50,12 @@ import io.github.kotlinmania.starlark.values.toValue
  *
  * Corresponds to Rust's `bound` function in `convert_indices.rs`.
  */
-private fun bound(value: Int, limit: Int): Int {
-    return when {
+private fun bound(value: Int, limit: Int): Int =
+    when {
         value <= 0 -> 0
         value >= limit -> limit
         else -> value
     }
-}
 
 /**
  * Convert optional start/end indices into a bounded `(start, end)` pair.
@@ -113,12 +112,13 @@ internal fun convertIndex(len: Int, index: Int): Int {
  * standalone functions below and wired in through the builder.
  */
 internal fun listMethodsImpl(builder: MethodsBuilder) {
-    val components = NativeCallableComponents(
-        speculativeExecSafe = false,
-        rustDocstring = null,
-        paramSpec = NativeCallableParamSpec.forArguments(),
-        returnType = Ty.any(),
-    )
+    val components =
+        NativeCallableComponents(
+            speculativeExecSafe = false,
+            rustDocstring = null,
+            paramSpec = NativeCallableParamSpec.forArguments(),
+            returnType = Ty.any(),
+        )
 
     fun setMethod(
         name: String,
@@ -187,20 +187,22 @@ internal fun listMethodsImpl(builder: MethodsBuilder) {
         "index",
         ParametersSpec.newParts(
             functionName = "index",
-            posOnly = listOf(
-                Pair("needle", ParametersSpecParam.Required),
-                Pair("start", ParametersSpecParam.Defaulted(FrozenValue.newNone())),
-                Pair("end", ParametersSpecParam.Defaulted(FrozenValue.newNone())),
-            ),
+            posOnly =
+                listOf(
+                    Pair("needle", ParametersSpecParam.Required),
+                    Pair("start", ParametersSpecParam.Defaulted(FrozenValue.newNone())),
+                    Pair("end", ParametersSpecParam.Defaulted(FrozenValue.newNone())),
+                ),
             posOrNamed = emptyList(),
             args = false,
             namedOnly = emptyList(),
             kwargs = false,
         ),
     ) { _, thisValue, args ->
-        val thisRef = ListRef.fromValue(thisValue) ?: return@setMethod Result.failure(
-            IllegalArgumentException("Value is not a list")
-        )
+        val thisRef =
+            ListRef.fromValue(thisValue) ?: return@setMethod Result.failure(
+                IllegalArgumentException("Value is not a list"),
+            )
         val needle = args.positional<Value>(0)
 
         fun noneOrI32(v: Value?): NoneOr<Int> {
@@ -219,10 +221,11 @@ internal fun listMethodsImpl(builder: MethodsBuilder) {
         "insert",
         ParametersSpec.newParts(
             functionName = "insert",
-            posOnly = listOf(
-                Pair("index", ParametersSpecParam.Required),
-                Pair("el", ParametersSpecParam.Required),
-            ),
+            posOnly =
+                listOf(
+                    Pair("index", ParametersSpecParam.Required),
+                    Pair("el", ParametersSpecParam.Required),
+                ),
             posOrNamed = emptyList(),
             args = false,
             namedOnly = emptyList(),
@@ -248,10 +251,11 @@ internal fun listMethodsImpl(builder: MethodsBuilder) {
         ),
     ) { _, thisValue, args ->
         val indexValue = args.optionalPositional<Value>(0)
-        val index = when {
-            indexValue == null || indexValue.isNone() -> null
-            else -> indexValue.unpackI32() ?: return@setMethod Result.failure(ValueError.IncorrectParameterType)
-        }
+        val index =
+            when {
+                indexValue == null || indexValue.isNone() -> null
+                else -> indexValue.unpackI32() ?: return@setMethod Result.failure(ValueError.IncorrectParameterType)
+            }
         pop(thisValue, index)
     }
 
@@ -408,11 +412,12 @@ internal fun index(
     start: NoneOr<Int> = NoneOr.None,
     end: NoneOr<Int> = NoneOr.None,
 ): Result<Int> {
-    val (startIdx, endIdx) = convertIndices(
-        thisRef.len(),
-        start.intoOption(),
-        end.intoOption(),
-    )
+    val (startIdx, endIdx) =
+        convertIndices(
+            thisRef.len(),
+            start.intoOption(),
+            end.intoOption(),
+        )
     // In Rust: if let Some(haystack) = this.get(start..end)
     val haystack = thisRef.get(startIdx until endIdx)
     if (haystack != null) {
@@ -423,7 +428,7 @@ internal fun index(
         }
     }
     return Result.failure(
-        IllegalArgumentException("Element '$needle' not found in '$thisRef'")
+        IllegalArgumentException("Element '$needle' not found in '$thisRef'"),
     )
 }
 
@@ -536,21 +541,23 @@ internal fun remove(
 ): Result<NoneType> {
     // Written in two separate blocks so we ensure we give up the
     // immutable borrow before making the mutable borrow.
-    val position = run {
-        val thisRef = ListRef.fromValue(thisValue)
-            ?: return Result.failure(
-                IllegalArgumentException("Value is not a list")
-            )
-        val pos = thisRef.content().indexOfFirst { v -> v == needle }
-        if (pos < 0) {
-            return Result.failure(
-                IllegalArgumentException(
-                    "Element '$needle' not found in list '$thisRef'"
+    val position =
+        run {
+            val thisRef =
+                ListRef.fromValue(thisValue)
+                    ?: return Result.failure(
+                        IllegalArgumentException("Value is not a list"),
+                    )
+            val pos = thisRef.content().indexOfFirst { v -> v == needle }
+            if (pos < 0) {
+                return Result.failure(
+                    IllegalArgumentException(
+                        "Element '$needle' not found in list '$thisRef'",
+                    ),
                 )
-            )
+            }
+            pos
         }
-        pos
-    }
     // Now mutate it with no further value calls.
     val thisList = ListData.fromValueMut(thisValue).getOrElse { return Result.failure(it) }
     thisList.remove(position)

@@ -24,14 +24,12 @@ package io.github.kotlinmania.starlark.values.types.tuple
 import io.github.kotlinmania.starlark.typing.Ty
 import io.github.kotlinmania.starlark.values.layout.FrozenValue
 import io.github.kotlinmania.starlark.values.layout.Value
-import io.github.kotlinmania.starlark.values.layout.heap.Heap
 import io.github.kotlinmania.starlark.values.layout.avalues.allocTuple
 import io.github.kotlinmania.starlark.values.layout.heap.FrozenHeap
+import io.github.kotlinmania.starlark.values.layout.heap.Heap
 
 /** AllocValue for 1-element tuple. */
-fun <T1> allocTuple1(t1: T1, heap: Heap, alloc1: (T1, Heap) -> Value): Value {
-    return heap.allocTuple(listOf(alloc1(t1, heap)))
-}
+fun <T1> allocTuple1(t1: T1, heap: Heap, alloc1: (T1, Heap) -> Value): Value = heap.allocTuple(listOf(alloc1(t1, heap)))
 
 /** AllocValue for 2-element tuple. */
 fun <T1, T2> allocTuple2(
@@ -40,9 +38,7 @@ fun <T1, T2> allocTuple2(
     heap: Heap,
     alloc1: (T1, Heap) -> Value,
     alloc2: (T2, Heap) -> Value,
-): Value {
-    return heap.allocTuple(listOf(alloc1(t1, heap), alloc2(t2, heap)))
-}
+): Value = heap.allocTuple(listOf(alloc1(t1, heap), alloc2(t2, heap)))
 
 /** AllocValue for 3-element tuple. */
 fun <T1, T2, T3> allocTuple3(
@@ -53,18 +49,14 @@ fun <T1, T2, T3> allocTuple3(
     alloc1: (T1, Heap) -> Value,
     alloc2: (T2, Heap) -> Value,
     alloc3: (T3, Heap) -> Value,
-): Value {
-    return heap.allocTuple(listOf(alloc1(t1, heap), alloc2(t2, heap), alloc3(t3, heap)))
-}
+): Value = heap.allocTuple(listOf(alloc1(t1, heap), alloc2(t2, heap), alloc3(t3, heap)))
 
 /** AllocFrozenValue for 1-element tuple. */
 fun <T1> allocFrozenTuple1(
     t1: T1,
     heap: FrozenHeap,
     alloc1: (T1, FrozenHeap) -> FrozenValue,
-): FrozenValue {
-    return heap.allocTuple(listOf(alloc1(t1, heap)))
-}
+): FrozenValue = heap.allocTuple(listOf(alloc1(t1, heap)))
 
 /** AllocFrozenValue for 2-element tuple. */
 fun <T1, T2> allocFrozenTuple2(
@@ -73,9 +65,7 @@ fun <T1, T2> allocFrozenTuple2(
     heap: FrozenHeap,
     alloc1: (T1, FrozenHeap) -> FrozenValue,
     alloc2: (T2, FrozenHeap) -> FrozenValue,
-): FrozenValue {
-    return heap.allocTuple(listOf(alloc1(t1, heap), alloc2(t2, heap)))
-}
+): FrozenValue = heap.allocTuple(listOf(alloc1(t1, heap), alloc2(t2, heap)))
 
 /** AllocFrozenValue for 3-element tuple. */
 fun <T1, T2, T3> allocFrozenTuple3(
@@ -86,24 +76,16 @@ fun <T1, T2, T3> allocFrozenTuple3(
     alloc1: (T1, FrozenHeap) -> FrozenValue,
     alloc2: (T2, FrozenHeap) -> FrozenValue,
     alloc3: (T3, FrozenHeap) -> FrozenValue,
-): FrozenValue {
-    return heap.allocTuple(listOf(alloc1(t1, heap), alloc2(t2, heap), alloc3(t3, heap)))
-}
+): FrozenValue = heap.allocTuple(listOf(alloc1(t1, heap), alloc2(t2, heap), alloc3(t3, heap)))
 
 /** StarlarkTypeRepr for 1-element tuple. */
-fun starlarkTypeReprTuple1(repr1: () -> Ty): Ty {
-    return Ty.tuple(listOf(repr1()))
-}
+fun starlarkTypeReprTuple1(repr1: () -> Ty): Ty = Ty.tuple(listOf(repr1()))
 
 /** StarlarkTypeRepr for 2-element tuple. */
-fun starlarkTypeReprTuple2(repr1: () -> Ty, repr2: () -> Ty): Ty {
-    return Ty.tuple2(repr1(), repr2())
-}
+fun starlarkTypeReprTuple2(repr1: () -> Ty, repr2: () -> Ty): Ty = Ty.tuple2(repr1(), repr2())
 
 /** StarlarkTypeRepr for 3-element tuple. */
-fun starlarkTypeReprTuple3(repr1: () -> Ty, repr2: () -> Ty, repr3: () -> Ty): Ty {
-    return Ty.tuple(listOf(repr1(), repr2(), repr3()))
-}
+fun starlarkTypeReprTuple3(repr1: () -> Ty, repr2: () -> Ty, repr3: () -> Ty): Ty = Ty.tuple(listOf(repr1(), repr2(), repr3()))
 
 /** UnpackValue for 2-element tuple. */
 fun <T1, T2> unpackTuple2(

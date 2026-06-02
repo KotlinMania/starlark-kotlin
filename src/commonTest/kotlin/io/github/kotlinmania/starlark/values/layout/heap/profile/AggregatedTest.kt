@@ -29,11 +29,9 @@ import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
 class AggregatedTest {
-
-    private fun totalAllocCount(frame: StackFrame): Int {
-        return frame.allocs.total().count +
+    private fun totalAllocCount(frame: StackFrame): Int =
+        frame.allocs.total().count +
             frame.callees.values.sumOf { c -> totalAllocCount(c) }
-    }
 
     @Test
     fun testStacksCollect() {
@@ -44,7 +42,10 @@ class AggregatedTest {
             heap.recordCallExit()
 
             val stacks = AggregateHeapProfileInfo.collect(heap, null)
-            assertTrue(stacks.root.allocs.summary.isEmpty())
+            assertTrue(
+                stacks.root.allocs.summary
+                    .isEmpty(),
+            )
             assertEquals(1, stacks.root.callees.size)
             assertEquals(2, totalAllocCount(stacks.root))
         }
@@ -65,13 +66,18 @@ class AggregatedTest {
             freezer.freeze(s1.toValue()).getOrThrow()
 
             val stacks = AggregateHeapProfileInfo.collect(heap, HeapKind.Frozen)
-            assertTrue(stacks.root.allocs.summary.isEmpty())
+            assertTrue(
+                stacks.root.allocs.summary
+                    .isEmpty(),
+            )
             assertEquals(1, stacks.root.callees.size)
             // 3 allocated, 2 retained.
             assertEquals(
                 2,
-                stacks.root.callees.values.first()
-                    .allocs.summary["string"]!!.count,
+                stacks.root.callees.values
+                    .first()
+                    .allocs.summary["string"]!!
+                    .count,
             )
             assertEquals(2, totalAllocCount(stacks.root))
         }
@@ -79,8 +85,8 @@ class AggregatedTest {
 
     @Test
     fun testMerge() {
-        fun make(): AggregateHeapProfileInfo {
-            return Heap.temp { heap ->
+        fun make(): AggregateHeapProfileInfo =
+            Heap.temp { heap ->
                 heap.recordCallEnter(constFrozenString("xx").toValue())
                 val s = heap.allocStr("abc")
                 heap.recordCallExit()
@@ -90,7 +96,6 @@ class AggregatedTest {
 
                 AggregateHeapProfileInfo.collect(heap, HeapKind.Frozen)
             }
-        }
 
         val merge = AggregateHeapProfileInfo.merge(listOf(make(), make(), make()))
         val summary = HeapSummaryByFunction.init(merge)

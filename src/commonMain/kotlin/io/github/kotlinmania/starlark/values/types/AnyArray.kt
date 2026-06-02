@@ -1,5 +1,5 @@
 // port-lint: source src/values/types/any_array.rs
-package io.github.kotlinmania.starlark.values.types.any_array
+package io.github.kotlinmania.starlark.values.types.anyarray
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.
@@ -19,7 +19,7 @@ package io.github.kotlinmania.starlark.values.types.any_array
  * limitations under the License.
  */
 
-//! Utility to heap allocate arrays of values.
+// ! Utility to heap allocate arrays of values.
 
 // use std::fmt;
 // use std::fmt::Debug;
@@ -46,7 +46,6 @@ import io.github.kotlinmania.starlark.values.StarlarkValue
 internal class AnyArray<T>(
     private val content: MutableList<T>,
 ) : StarlarkValue {
-
     // pub(crate) len: usize
     val len: Int get() = content.size
 
@@ -57,9 +56,7 @@ internal class AnyArray<T>(
          */
         // pub(crate) unsafe fn new(len: usize) -> AnyArray<T>
         // Kotlin: creates an empty array with the given capacity.
-        fun <T> new(len: Int): AnyArray<T> {
-            return AnyArray(ArrayList(len))
-        }
+        fun <T> new(len: Int): AnyArray<T> = AnyArray(ArrayList(len))
     }
 
     // fn as_slice(&self) -> &[T]
@@ -83,9 +80,7 @@ internal class AnyArray<T>(
 
     // impl Debug for AnyArray<T>
     // fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result
-    override fun toString(): String {
-        return "AnyArray(${asSlice()})"
-    }
+    override fun toString(): String = "AnyArray(${asSlice()})"
 
     // impl Drop for AnyArray<T>
     // Kotlin: GC handles cleanup. No explicit drop needed.

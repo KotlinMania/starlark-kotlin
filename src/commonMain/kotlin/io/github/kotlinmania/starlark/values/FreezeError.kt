@@ -1,5 +1,5 @@
 // port-lint: source src/values/freeze_error.rs
-package io.github.kotlinmania.starlark.values.freeze_error
+package io.github.kotlinmania.starlark.values.freezeerror
 
 /*
  * Copyright 2018 The Starlark in Rust Authors.
@@ -34,7 +34,6 @@ class FreezeError(
     /** The error contexts that are added to the error message. */
     val contexts: MutableList<String> = mutableListOf(),
 ) : Exception(errMsg) {
-
     /** Convert to an exception with layered context messages (mirrors `From<FreezeError> for anyhow::Error`). */
     fun toException(): Exception {
         val sb = StringBuilder(errMsg)
@@ -45,15 +44,11 @@ class FreezeError(
     }
 
     /** Convert to a starlark [io.github.kotlinmania.starlark.Error] (mirrors `From<FreezeError> for starlark_syntax::Error`). */
-    fun toStarlarkError(): Error {
-        return Error.newKind(ErrorKind.Freeze(this.toException()))
-    }
+    fun toStarlarkError(): Error = Error.newKind(ErrorKind.Freeze(this.toException()))
 
     companion object {
         /** Create a new freeze error. */
-        fun new(errMsg: String): FreezeError {
-            return FreezeError(errMsg)
-        }
+        fun new(errMsg: String): FreezeError = FreezeError(errMsg)
     }
 
     /** Add error context to this freeze error. */
@@ -85,8 +80,8 @@ interface FreezeErrorContext<T> : Sealed {
 sealed interface Sealed
 
 /** Extension to add context to a [Result]. */
-fun <T> Result<T>.freezeErrorContext(context: String): Result<T> {
-    return when {
+fun <T> Result<T>.freezeErrorContext(context: String): Result<T> =
+    when {
         isSuccess -> this
         else -> {
             val e = exceptionOrNull()
@@ -97,4 +92,3 @@ fun <T> Result<T>.freezeErrorContext(context: String): Result<T> {
             }
         }
     }
-}

@@ -25,15 +25,13 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 
 class DubiousTest {
-
-    private fun module(x: String): AstModule {
-        return AstModule.parse("X", x, Dialect.AllOptionsInternal).getOrThrow()
-    }
+    private fun module(x: String): AstModule = AstModule.parse("X", x, Dialect.AllOptionsInternal).getOrThrow()
 
     @Test
     fun testLintDuplicateKeys() {
-        val m = module(
-            """
+        val m =
+            module(
+                """
 {'no1': 1, 'no1': 2}
 {42: 1, 78: 9, 'no2': 100, 42: 6, 'no2': 8}
 {123.0: "f", 123: "i"}
@@ -45,13 +43,20 @@ class DubiousTest {
 
 # Functions can change each time round, so don't lint on them.
 {f(): 1, f(): 2}
-"""
-        )
+""",
+            )
         val res = mutableListOf<LintT<Dubious>>()
         duplicateDictionaryKey(m, res)
         assertEquals(
             listOf(
-                "\"no1\"", "42", "\"no2\"", "123", "0.25", "no3", "no3", "no4"
+                "\"no1\"",
+                "42",
+                "\"no2\"",
+                "123",
+                "0.25",
+                "no3",
+                "no3",
+                "no4",
             ),
             res.map { it.problem.about() },
         )
@@ -59,14 +64,15 @@ class DubiousTest {
 
     @Test
     fun testLintIdentifierAsStatement() {
-        val m = module(
-            """
+        val m =
+            module(
+                """
 no1
 def foo():
     f(yes)
     no2
-"""
-        )
+""",
+            )
         val res = mutableListOf<LintT<Dubious>>()
         identifierAsStatement(m, res)
         assertEquals(listOf("no1", "no2"), res.map { it.problem.about() })

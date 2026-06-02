@@ -105,51 +105,54 @@ internal fun registerInt(globals: GlobalsBuilder) {
             val baseValue = base ?: 0
             if (baseValue == 1 || baseValue < 0 || baseValue > 36) {
                 throw IllegalArgumentException(
-                    "$baseValue is not a valid base, int() base must be >= 2 and <= 36"
+                    "$baseValue is not a valid base, int() base must be >= 2 and <= 36",
                 )
             }
 
-            val (negate, strippedSign) = when (str.firstOrNull()) {
-                '+' -> false to str.substring(1)
-                '-' -> true to str.substring(1)
-                else -> false to str
-            }
+            val (negate, strippedSign) =
+                when (str.firstOrNull()) {
+                    '+' -> false to str.substring(1)
+                    '-' -> true to str.substring(1)
+                    else -> false to str
+                }
 
-            val actualBase = if (baseValue == 0) {
-                when (strippedSign.take(2)) {
-                    "0b", "0B" -> 2
-                    "0o", "0O" -> 8
-                    "0x", "0X" -> 16
-                    else -> 10
+            val actualBase =
+                if (baseValue == 0) {
+                    when (strippedSign.take(2)) {
+                        "0b", "0B" -> 2
+                        "0o", "0O" -> 8
+                        "0x", "0X" -> 16
+                        else -> 10
+                    }
+                } else {
+                    baseValue
                 }
-            } else {
-                baseValue
-            }
 
-            val strippedPrefix = when (actualBase) {
-                16 -> {
-                    if (strippedSign.startsWith("0x") || strippedSign.startsWith("0X")) {
-                        strippedSign.substring(2)
-                    } else {
-                        strippedSign
+            val strippedPrefix =
+                when (actualBase) {
+                    16 -> {
+                        if (strippedSign.startsWith("0x") || strippedSign.startsWith("0X")) {
+                            strippedSign.substring(2)
+                        } else {
+                            strippedSign
+                        }
                     }
-                }
-                8 -> {
-                    if (strippedSign.startsWith("0o") || strippedSign.startsWith("0O")) {
-                        strippedSign.substring(2)
-                    } else {
-                        strippedSign
+                    8 -> {
+                        if (strippedSign.startsWith("0o") || strippedSign.startsWith("0O")) {
+                            strippedSign.substring(2)
+                        } else {
+                            strippedSign
+                        }
                     }
-                }
-                2 -> {
-                    if (strippedSign.startsWith("0b") || strippedSign.startsWith("0B")) {
-                        strippedSign.substring(2)
-                    } else {
-                        strippedSign
+                    2 -> {
+                        if (strippedSign.startsWith("0b") || strippedSign.startsWith("0B")) {
+                            strippedSign.substring(2)
+                        } else {
+                            strippedSign
+                        }
                     }
+                    else -> strippedSign
                 }
-                else -> strippedSign
-            }
 
             // We already handled the sign above, so we are not trying to parse another sign.
             if (strippedPrefix.startsWith('-') || strippedPrefix.startsWith('+')) {
@@ -164,7 +167,7 @@ internal fun registerInt(globals: GlobalsBuilder) {
         // Not a string - try numeric or bool
         if (base != null) {
             throw IllegalArgumentException(
-                "int() cannot convert non-string with explicit base '$base'"
+                "int() cannot convert non-string with explicit base '$base'",
             )
         }
 
@@ -192,7 +195,7 @@ internal fun registerInt(globals: GlobalsBuilder) {
         }
 
         throw IllegalArgumentException(
-            "int() argument must be a string, a number, or a bool, not '${a.getType()}'"
+            "int() argument must be a string, a number, or a bool, not '${a.getType()}'",
         )
     }
 }
@@ -206,9 +209,8 @@ internal fun registerInt(globals: GlobalsBuilder) {
 private fun allocStarlarkInt(
     starlarkInt: StarlarkInt,
     heap: io.github.kotlinmania.starlark.values.layout.heap.Heap,
-): Value {
-    return when (starlarkInt) {
+): Value =
+    when (starlarkInt) {
         is StarlarkInt.Small -> Value.newInt(starlarkInt.value)
         is StarlarkInt.Big -> starlarkInt.value.allocValue(heap)
     }
-}

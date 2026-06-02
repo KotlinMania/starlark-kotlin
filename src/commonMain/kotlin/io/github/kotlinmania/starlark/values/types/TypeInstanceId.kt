@@ -26,10 +26,7 @@ import kotlin.concurrent.atomics.ExperimentalAtomicApi
 data class TypeInstanceId(
     private val id: Long,
 ) : Comparable<TypeInstanceId> {
-
-    override fun compareTo(other: TypeInstanceId): Int {
-        return id.compareTo(other.id)
-    }
+    override fun compareTo(other: TypeInstanceId): Int = id.compareTo(other.id)
 
     companion object {
         @OptIn(ExperimentalAtomicApi::class)
@@ -37,8 +34,6 @@ data class TypeInstanceId(
 
         /** Generate a new unique identifier. */
         @OptIn(ExperimentalAtomicApi::class)
-        fun gen(): TypeInstanceId {
-            return TypeInstanceId(LAST_ID.fetchAndAdd(1L) + 1L)
-        }
+        fun gen(): TypeInstanceId = TypeInstanceId(LAST_ID.fetchAndAdd(1L) + 1L)
     }
 }

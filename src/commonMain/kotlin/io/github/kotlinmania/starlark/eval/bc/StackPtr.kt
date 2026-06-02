@@ -34,8 +34,9 @@ package io.github.kotlinmania.starlark.eval.bc
 // #[derive(Copy, Clone, Dupe, Debug, PartialOrd, Ord, PartialEq, Eq, Hash, derive_more::Display)]
 // #[display("&{}", _0)]
 // pub(crate) struct BcSlot(pub(crate) u32);
-data class BcSlot(val index: UInt) : Comparable<BcSlot> {
-
+data class BcSlot(
+    val index: UInt,
+) : Comparable<BcSlot> {
     // impl BcSlot
 
     // pub(crate) fn to_in(self) -> BcSlotIn
@@ -107,10 +108,11 @@ data class BcSlotRange(
     override fun iterator(): Iterator<BcSlot> = iter().iterator()
 
     // pub(crate) fn to_in(self) -> BcSlotInRange
-    fun toIn(): BcSlotInRange = BcSlotInRange(
-        start = start.toIn(),
-        end = end.toIn(),
-    )
+    fun toIn(): BcSlotInRange =
+        BcSlotInRange(
+            start = start.toIn(),
+            end = end.toIn(),
+        )
 
     // #[display("{}..{}", start, end)]
     override fun toString(): String = "$start..$end"
@@ -123,8 +125,9 @@ data class BcSlotRange(
  */
 // #[derive(Debug, Copy, Clone, Dupe, derive_more::Display, PartialEq, Eq)]
 // pub(crate) struct BcSlotIn(BcSlot);
-data class BcSlotIn(val slot: BcSlot) {
-
+data class BcSlotIn(
+    val slot: BcSlot,
+) {
     // impl Add<u32> for BcSlotIn
     // fn add(self, rhs: u32) -> BcSlotIn
     operator fun plus(rhs: UInt): BcSlotIn = BcSlotIn(slot + rhs)
@@ -166,8 +169,8 @@ data class BcSlotInRange(
      * Add an element to the slot range if possible.
      */
     // pub(crate) fn try_push(&mut self, slot: BcSlotIn) -> bool
-    fun tryPush(slot: BcSlotIn): Boolean {
-        return if (len() == 0u) {
+    fun tryPush(slot: BcSlotIn): Boolean =
+        if (len() == 0u) {
             // *self = BcSlotInRange { start: slot, end: slot + 1 };
             start = slot
             end = slot + 1u
@@ -179,7 +182,6 @@ data class BcSlotInRange(
         } else {
             false
         }
-    }
 
     // #[display("{}..{}", start, end)]
     override fun toString(): String = "$start..$end"
@@ -187,24 +189,27 @@ data class BcSlotInRange(
     companion object {
         // impl Default for BcSlotInRange
         // fn default() -> Self
-        fun default(): BcSlotInRange = BcSlotInRange(
-            start = BcSlotIn(BcSlot(0u)),
-            end = BcSlotIn(BcSlot(0u)),
-        )
+        fun default(): BcSlotInRange =
+            BcSlotInRange(
+                start = BcSlotIn(BcSlot(0u)),
+                end = BcSlotIn(BcSlot(0u)),
+            )
     }
 }
 
 // #[derive(Copy, Clone, Dupe, Debug)]
 // pub(crate) struct BcSlotInRangeFrom(pub(crate) BcSlotIn);
-data class BcSlotInRangeFrom(val start: BcSlotIn) {
-
+data class BcSlotInRangeFrom(
+    val start: BcSlotIn,
+) {
     // impl BcSlotInRangeFrom
 
     // pub(crate) fn to_range(self, len: u32) -> BcSlotInRange
-    fun toRange(len: UInt): BcSlotInRange = BcSlotInRange(
-        start = start,
-        end = start + len,
-    )
+    fun toRange(len: UInt): BcSlotInRange =
+        BcSlotInRange(
+            start = start,
+            end = start + len,
+        )
 }
 
 /**
@@ -214,8 +219,9 @@ data class BcSlotInRangeFrom(val start: BcSlotIn) {
  */
 // #[derive(Debug, Copy, Clone, Dupe, derive_more::Display)]
 // pub(crate) struct BcSlotOut(BcSlot);
-data class BcSlotOut(val slot: BcSlot) {
-
+data class BcSlotOut(
+    val slot: BcSlot,
+) {
     // impl BcSlotOut
 
     // pub(crate) fn get(self) -> BcSlot

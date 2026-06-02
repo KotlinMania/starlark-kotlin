@@ -21,7 +21,7 @@ package io.github.kotlinmania.starlark
  * limitations under the License.
  */
 
-/// Error types used by Starlark.
+// / Error types used by Starlark.
 
 // pub use starlark_syntax::frame::Frame;
 

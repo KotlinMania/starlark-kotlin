@@ -1,5 +1,5 @@
 // port-lint: source src/read_line.rs
-package io.github.kotlinmania.starlark.read_line
+package io.github.kotlinmania.starlark.readline
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.
@@ -35,9 +35,7 @@ class ReadLine private constructor(
 ) {
     companion object {
         // pub fn new(histfile_env: &str) -> anyhow::Result<ReadLine>
-        fun new(histfileEnv: String): ReadLine {
-            return ReadLine(histfileEnv = histfileEnv)
-        }
+        fun new(histfileEnv: String): ReadLine = ReadLine(histfileEnv = histfileEnv)
     }
 
     /** Read line. Return `null` on EOF or interrupt. */

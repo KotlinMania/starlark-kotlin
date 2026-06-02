@@ -27,9 +27,16 @@ package io.github.kotlinmania.starlark.eval.compiler
 //     One(T),
 //     Vec(Vec<T>),
 // }
-internal sealed class SmallVec1<T> : Iterable<T>, Comparable<SmallVec1<T>> {
-    class One<T>(val value: T) : SmallVec1<T>()
-    class Vec<T>(val values: MutableList<T>) : SmallVec1<T>()
+internal sealed class SmallVec1<T> :
+    Iterable<T>,
+    Comparable<SmallVec1<T>> {
+    class One<T>(
+        val value: T,
+    ) : SmallVec1<T>()
+
+    class Vec<T>(
+        val values: MutableList<T>,
+    ) : SmallVec1<T>()
 
     companion object {
         // pub(crate) const fn new() -> SmallVec1<T>
@@ -37,12 +44,11 @@ internal sealed class SmallVec1<T> : Iterable<T>, Comparable<SmallVec1<T>> {
     }
 
     // pub(crate) fn as_slice(&self) -> &[T]
-    fun asSlice(): List<T> {
-        return when (this) {
+    fun asSlice(): List<T> =
+        when (this) {
             is One -> listOf(value)
             is Vec -> values
         }
-    }
 
     // impl Deref for SmallVec1
     // fn deref(&self) -> &[T]
@@ -50,18 +56,17 @@ internal sealed class SmallVec1<T> : Iterable<T>, Comparable<SmallVec1<T>> {
 
     // impl IntoIterator for SmallVec1
     // fn into_iter(self) -> Self::IntoIter
-    override fun iterator(): Iterator<T> {
-        return when (this) {
+    override fun iterator(): Iterator<T> =
+        when (this) {
             is One -> iterator { yield(value) }
             is Vec -> values.iterator()
         }
-    }
 
     // pub(crate) fn extend(&mut self, that: SmallVec1<T>)
     // Note: returns a new SmallVec1 since sealed classes are immutable references.
     // Caller must reassign: `self = self.extend(that)`
-    fun extend(that: SmallVec1<T>): SmallVec1<T> {
-        return when {
+    fun extend(that: SmallVec1<T>): SmallVec1<T> =
+        when {
             this is Vec && this.values.isEmpty() -> that
             that is Vec && that.values.isEmpty() -> this
             this is One && that is One -> Vec(mutableListOf(this.value, that.value))
@@ -79,12 +84,9 @@ internal sealed class SmallVec1<T> : Iterable<T>, Comparable<SmallVec1<T>> {
             }
             else -> error("unreachable")
         }
-    }
 
     // pub(crate) fn push(&mut self, value: T)
-    fun push(value: T): SmallVec1<T> {
-        return extend(One(value))
-    }
+    fun push(value: T): SmallVec1<T> = extend(One(value))
 
     // impl Debug for SmallVec1
     override fun toString(): String = asSlice().toString()

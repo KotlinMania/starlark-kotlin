@@ -29,14 +29,12 @@ internal class UnorderedHasher {
     private var count: ULong = 0uL
 
     companion object {
-        fun new(): UnorderedHasher {
-            return UnorderedHasher()
-        }
+        fun new(): UnorderedHasher = UnorderedHasher()
     }
 
     fun writeHash(value: ULong) {
-        state = state + value  // wrapping_add in Rust
-        count = count + 1uL    // wrapping_add in Rust
+        state = state + value // wrapping_add in Rust
+        count = count + 1uL // wrapping_add in Rust
     }
 
     fun finish(): ULong {

@@ -35,7 +35,6 @@ import kotlin.test.assertTrue
 import kotlin.time.Duration.Companion.milliseconds
 
 class TimeFlameTest {
-
     @Test
     fun testTimeFlameWorksInsideFrozenModule() {
         fun registerSleep(globals: GlobalsBuilder) {
@@ -43,7 +42,9 @@ class TimeFlameTest {
                 // The Rust upstream uses `thread::sleep(2ms)`. The Kotlin runtime
                 // proxy is a brief busy-wait loop using TimeSource so the time
                 // flame profile records a non-zero duration for the call.
-                val start = kotlin.time.TimeSource.Monotonic.markNow()
+                val start =
+                    kotlin.time.TimeSource.Monotonic
+                        .markNow()
                 while (start.elapsedNow() < 2.milliseconds) {
                     // spin
                 }
@@ -54,14 +55,15 @@ class TimeFlameTest {
 
         val a = Assert()
         a.globalsAdd(::registerSleep)
-        val aBzl = a.passModule(
-            """
+        val aBzl =
+            a.passModule(
+                """
 def foo():
     for i in range(5):
         # Must sleep otherwise time flame will round the duration to zero and erase it.
         sleep()
     """,
-        )
+            )
 
         val modules = HashMap<String, io.github.kotlinmania.starlark.environment.FrozenModule>()
         modules["a.bzl"] = aBzl
@@ -71,10 +73,12 @@ def foo():
             val eval = Evaluator(module)
             eval.enableProfile(ProfileMode.TimeFlame).getOrThrow()
             eval.setLoader(loader)
-            eval.evalModule(
-                AstModule.parse(
-                    "x.star",
-                    """
+            eval
+                .evalModule(
+                    AstModule
+                        .parse(
+                            "x.star",
+                            """
 load("a.bzl", "foo")
 
 def bar():
@@ -83,10 +87,10 @@ def bar():
 
 bar()
 """,
-                    Dialect.Standard,
-                ).getOrThrow(),
-                Globals.standard(),
-            ).getOrThrow()
+                            Dialect.Standard,
+                        ).getOrThrow(),
+                    Globals.standard(),
+                ).getOrThrow()
 
             val profile = eval.genProfile().getOrThrow().genFlameData()
             val theLine = profile.lines().find { it.contains("foo") }

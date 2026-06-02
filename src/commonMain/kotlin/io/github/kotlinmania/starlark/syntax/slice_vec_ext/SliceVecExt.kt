@@ -1,7 +1,7 @@
 // port-lint: source src/slice_vec_ext.rs
 @file:Suppress("unused")
 
-package io.github.kotlinmania.starlark.syntax.slice_vec_ext
+package io.github.kotlinmania.starlark.syntax.slicevecext
 
 /*
  * Copyright 2018 The Starlark in Rust Authors.
@@ -51,9 +51,7 @@ private fun <T> collectResult(items: List<Result<T>>): Result<List<T>> {
  *
  * Kotlin doesn't have slice traits, so these are provided as extension functions.
  */
-fun <T, B> List<T>.mapExt(f: (T) -> B): List<B> {
-    return this.map(f)
-}
+fun <T, B> List<T>.mapExt(f: (T) -> B): List<B> = this.map(f)
 
 /**
  * A shorthand for `iter().map(f).collect::<Result<Vec<_>, _>>()`.
@@ -71,9 +69,7 @@ fun <T, B> List<T>.tryMap(f: (T) -> Result<B>): Result<List<B>> {
  *
  * Kotlin doesn't have ownership, so `into_*` variants are expressed as normal extensions.
  */
-fun <T, B> List<T>.intoMap(f: (T) -> B): List<B> {
-    return this.map(f)
-}
+fun <T, B> List<T>.intoMap(f: (T) -> B): List<B> = this.map(f)
 
 /**
  * A shorthand for `into_iter().map(f).collect::<Result<Vec<_>, _>>()`.
@@ -93,4 +89,3 @@ fun <T, B> List<T>.intoTryMap(f: (T) -> Result<B>): Result<List<B>> {
     }
     return Result.success(res)
 }
-

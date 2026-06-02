@@ -21,16 +21,17 @@ package io.github.kotlinmania.starlark.values.layout.heap.allocator.alloc
 
 import io.github.kotlinmania.starlark.values.layout.AlignedSize
 import io.github.kotlinmania.starlark.values.layout.heap.allocator.alloc.chunk.Chunk
-import io.github.kotlinmania.starlark.values.layout.heap.allocator.alloc.chunk_part.ChunkPart
+import io.github.kotlinmania.starlark.values.layout.heap.allocator.alloc.chunkpart.ChunkPart
 import io.github.kotlinmania.starlark.values.layout.heap.arena.MIN_ALLOC
 
 /**
  * Minimum usable cached allocation.
  * All chunks are used to store chains, so we need chain header + at least one object.
  */
-internal val MIN_USABLE_ALLOC: AlignedSize = AlignedSize.newBytes(
-    (ChunkChain.HEADER_SIZE.bytes() + MIN_ALLOC.bytes()).toInt()
-)
+internal val MIN_USABLE_ALLOC: AlignedSize =
+    AlignedSize.newBytes(
+        (ChunkChain.HEADER_SIZE.bytes() + MIN_ALLOC.bytes()).toInt(),
+    )
 
 /**
  * Chunk cache for reuse across arena allocations.
@@ -99,12 +100,13 @@ internal fun threadLocalAllocAtLeast(
     len: AlignedSize,
     chunkCountInBump: Int,
 ): ChunkPart {
-    val chunk = PER_THREAD_ALLOCATOR.fetch(len)
-        ?: run {
-            val nextSize = nextChunkSize(chunkCountInBump) - Chunk.HEADER_SIZE
-            val allocLen = maxOf(len, nextSize)
-            ChunkPart.allocAtLeast(allocLen)
-        }
+    val chunk =
+        PER_THREAD_ALLOCATOR.fetch(len)
+            ?: run {
+                val nextSize = nextChunkSize(chunkCountInBump) - Chunk.HEADER_SIZE
+                val allocLen = maxOf(len, nextSize)
+                ChunkPart.allocAtLeast(allocLen)
+            }
     check(chunk.len() >= len) { "Allocated chunk too small: ${chunk.len()} < $len" }
     return chunk
 }

@@ -1,5 +1,5 @@
 // port-lint: source src/sorted_set.rs
-package io.github.kotlinmania.starlark.collections.sorted_set
+package io.github.kotlinmania.starlark.collections.sortedset
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.
@@ -20,9 +20,9 @@ package io.github.kotlinmania.starlark.collections.sorted_set
  */
 
 import io.github.kotlinmania.starlark.collections.Equivalent
-import io.github.kotlinmania.starlark.collections.ordered_set.OrderedSet
-import io.github.kotlinmania.starlark.collections.small_set.SmallSet
-import io.github.kotlinmania.starlark.collections.sorted_vec.SortedVec
+import io.github.kotlinmania.starlark.collections.orderedset.OrderedSet
+import io.github.kotlinmania.starlark.collections.smallset.SmallSet
+import io.github.kotlinmania.starlark.collections.sortedvec.SortedVec
 
 /**
  * An immutable [SmallSet] with values guaranteed to be sorted.
@@ -32,7 +32,6 @@ import io.github.kotlinmania.starlark.collections.sorted_vec.SortedVec
 class SortedSet<T> internal constructor(
     private val inner: OrderedSet<T>,
 ) : Iterable<T> {
-
     companion object {
         /** Construct an empty [SortedSet]. */
         fun <T> new(): SortedSet<T> where T : Comparable<T> =

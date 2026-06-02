@@ -24,7 +24,6 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 
 class ConstantsTest {
-
     @Test
     fun testConstants() {
         assertEquals(

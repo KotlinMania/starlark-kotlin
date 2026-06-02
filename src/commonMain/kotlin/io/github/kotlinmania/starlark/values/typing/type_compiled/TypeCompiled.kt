@@ -1,6 +1,7 @@
 // port-lint: source src/values/typing/type_compiled.rs
 @file:Suppress("unused")
-package io.github.kotlinmania.starlark.values.typing.type_compiled
+
+package io.github.kotlinmania.starlark.values.typing.typecompiled
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.

@@ -55,50 +55,45 @@ private const val INT_DATA_MASK: Long = ((1L shl 32) - 1L) shl INT_SHIFT
 /** All possible tag values, three least significant bits of a pointer. */
 // #[repr(usize)]
 // pub(crate) enum PointerTags { Int, StrUnfrozen, StrFrozen, OtherUnfrozen, OtherFrozen }
-internal enum class PointerTags(val bits: Int) {
+internal enum class PointerTags(
+    val bits: Int,
+) {
     Int(TAG_INT),
     StrUnfrozen(TAG_STR or TAG_UNFROZEN),
     StrFrozen(TAG_STR),
     OtherUnfrozen(TAG_UNFROZEN),
-    OtherFrozen(0);
+    OtherFrozen(0),
+    ;
 
     companion object {
         // unsafe fn from_usize_unchecked(x: usize) -> Self
-        fun fromUsize(x: Int): PointerTags {
-            return entries.first { it.bits == x }
-        }
+        fun fromUsize(x: Int): PointerTags = entries.first { it.bits == x }
 
         // fn from_pointer(ptr: RawPointer) -> Self
-        fun fromPointer(ptr: RawPointer): PointerTags {
-            return fromUsize(ptr.ptrValue().toInt() and TAG_MASK)
-        }
+        fun fromPointer(ptr: RawPointer): PointerTags = fromUsize(ptr.ptrValue().toInt() and TAG_MASK)
     }
 
     /** String value, frozen or not. */
     // fn is_str(self) -> bool
-    fun isStr(): Boolean {
-        return bits and TAG_STR != 0
-    }
+    fun isStr(): Boolean = bits and TAG_STR != 0
 
     /** Inline integer. */
     // fn is_int(self) -> bool
-    fun isInt(): Boolean {
-        return this == Int
-    }
+    fun isInt(): Boolean = this == Int
 
     /** Not frozen, not an integer. */
     // fn is_unfrozen(self) -> bool
-    fun isUnfrozen(): Boolean {
-        return bits and TAG_UNFROZEN != 0
-    }
+    fun isUnfrozen(): Boolean = bits and TAG_UNFROZEN != 0
 }
 
 /** All possible tag values for frozen pointers. */
 // enum _FrozenPointerTags { Int, Str, Other }
-private enum class FrozenPointerTags(val bits: Int) {
+private enum class FrozenPointerTags(
+    val bits: Int,
+) {
     Int(TAG_INT),
     Str(TAG_STR),
-    Other(0);
+    Other(0),
 }
 
 // Kotlin: We simulate raw tagged pointers using a Long for the tagged value.
@@ -122,9 +117,7 @@ internal class RawPointer private constructor(
 
     companion object {
         // unsafe fn new_unchecked(ptr: usize) -> RawPointer
-        fun newUnchecked(ptr: Long): RawPointer {
-            return RawPointer(ptr)
-        }
+        fun newUnchecked(ptr: Long): RawPointer = RawPointer(ptr)
 
         // pub(crate) fn new_int(i: InlineInt) -> RawPointer
         fun newInt(i: Int): RawPointer {
@@ -170,25 +163,20 @@ internal class RawPointer private constructor(
     fun isUnfrozen(): Boolean = tags().isUnfrozen()
 
     // pub(crate) fn unpack_int(self) -> Option<InlineInt>
-    fun unpackInt(): Int? {
-        return if (!isInt()) {
+    fun unpackInt(): Int? =
+        if (!isInt()) {
             null
         } else {
             unpackIntUnchecked()
         }
-    }
 
     /** Unpack integer when it is known to be not a pointer. */
     // pub(crate) unsafe fn unpack_int_unchecked(self) -> InlineInt
-    fun unpackIntUnchecked(): Int {
-        return ((raw) shr INT_SHIFT).toInt()
-    }
+    fun unpackIntUnchecked(): Int = ((raw) shr INT_SHIFT).toInt()
 
     /** Unpack the index (stripping tag bits) when known to be not an int. */
     // pub(crate) unsafe fn unpack_ptr_no_int_unchecked(self) -> &'v AValueOrForward
-    fun unpackPtrNoIntUnchecked(): Long {
-        return raw and (TAG_STR.toLong() or TAG_UNFROZEN.toLong()).inv()
-    }
+    fun unpackPtrNoIntUnchecked(): Long = raw and (TAG_STR.toLong() or TAG_UNFROZEN.toLong()).inv()
 
     // impl Debug for RawPointer
     override fun toString(): String = "RawPointer(0x${raw.toString(16)})"
@@ -205,9 +193,7 @@ internal class RawPointer private constructor(
 }
 
 // unsafe fn untag_pointer<'a>(x: usize) -> &'a AValueOrForward
-private fun untagPointer(x: Long): Long {
-    return x and TAG_MASK.toLong().inv()
-}
+private fun untagPointer(x: Long): Long = x and TAG_MASK.toLong().inv()
 
 /** Pointer which may be frozen or unfrozen. */
 // pub(crate) struct Pointer<'p> { ptr: RawPointer, _phantom: PhantomData<*mut &'p ()> }
@@ -216,19 +202,13 @@ internal class Pointer private constructor(
 ) {
     companion object {
         // unsafe fn new(ptr: RawPointer) -> Pointer<'p>
-        fun new(ptr: RawPointer): Pointer {
-            return Pointer(ptr)
-        }
+        fun new(ptr: RawPointer): Pointer = Pointer(ptr)
 
         // pub(crate) unsafe fn new_unfrozen_usize_with_str_tag(x: usize) -> Self
-        fun newUnfrozenUsizeWithStrTag(x: Long): Pointer {
-            return new(RawPointer.newUnchecked(x or TAG_UNFROZEN.toLong()))
-        }
+        fun newUnfrozenUsizeWithStrTag(x: Long): Pointer = new(RawPointer.newUnchecked(x or TAG_UNFROZEN.toLong()))
 
         // pub(crate) fn new_unfrozen(x: &'p AValueHeader, is_string: bool) -> Self
-        fun newUnfrozen(index: Long, isString: Boolean): Pointer {
-            return new(RawPointer.newUnfrozen(index, isString))
-        }
+        fun newUnfrozen(index: Long, isString: Boolean): Pointer = new(RawPointer.newUnfrozen(index, isString))
     }
 
     // pub(crate) fn is_str(self) -> bool
@@ -242,37 +222,28 @@ internal class Pointer private constructor(
     // (exactly one is non-null)
     fun unpackIsInt(): Boolean = ptr.isInt()
 
-    fun unpackPtr(): Long {
-        return ptr.unpackPtrNoIntUnchecked()
-    }
+    fun unpackPtr(): Long = ptr.unpackPtrNoIntUnchecked()
 
-    fun unpackIntValue(): Int {
-        return ptr.unpackIntUnchecked()
-    }
+    fun unpackIntValue(): Int = ptr.unpackIntUnchecked()
 
     // pub(crate) fn unpack_int(self) -> Option<InlineInt>
     fun unpackInt(): Int? = ptr.unpackInt()
 
     // pub(crate) fn unpack_ptr(self) -> Option<&'p AValueOrForward>
-    fun unpackPtrOpt(): Long? {
-        return if (!ptr.isInt()) {
+    fun unpackPtrOpt(): Long? =
+        if (!ptr.isInt()) {
             untagPointer(ptr.ptrValue())
         } else {
             null
         }
-    }
 
     /** Unpack pointer when it is known to be not an integer. */
     // pub(crate) unsafe fn unpack_ptr_no_int_unchecked(self) -> &'p AValueOrForward
-    fun unpackPtrNoIntUnchecked(): Long {
-        return untagPointer(ptr.ptrValue())
-    }
+    fun unpackPtrNoIntUnchecked(): Long = untagPointer(ptr.ptrValue())
 
     /** Unpack integer when it is known to be not a pointer. */
     // pub(crate) unsafe fn unpack_pointer_i32_unchecked(self) -> &'static PointerI32
-    fun unpackPointerI32Unchecked(): Int {
-        return ptr.unpackIntUnchecked()
-    }
+    fun unpackPointerI32Unchecked(): Int = ptr.unpackIntUnchecked()
 
     // pub(crate) fn ptr_eq(self, other: Pointer<'_>) -> bool
     fun ptrEq(other: Pointer): Boolean = ptr == other.ptr
@@ -301,19 +272,13 @@ internal class FrozenPointer private constructor(
         }
 
         // pub(crate) fn new_frozen_usize_with_str_tag(x: usize) -> Self
-        fun newFrozenUsizeWithStrTag(x: Long): FrozenPointer {
-            return new(RawPointer.newUnchecked(x))
-        }
+        fun newFrozenUsizeWithStrTag(x: Long): FrozenPointer = new(RawPointer.newUnchecked(x))
 
         // pub(crate) fn new_frozen(x: &'p AValueHeader, is_str: bool) -> Self
-        fun newFrozen(index: Long, isStr: Boolean): FrozenPointer {
-            return new(RawPointer.newFrozen(index, isStr))
-        }
+        fun newFrozen(index: Long, isStr: Boolean): FrozenPointer = new(RawPointer.newFrozen(index, isStr))
 
         // pub(crate) fn new_int(x: InlineInt) -> Self
-        fun newInt(x: Int): FrozenPointer {
-            return new(RawPointer.newInt(x))
-        }
+        fun newInt(x: Int): FrozenPointer = new(RawPointer.newInt(x))
     }
 
     /** It is safe to bitcast `FrozenPointer` to `Pointer` but not vice versa. */
@@ -325,21 +290,15 @@ internal class FrozenPointer private constructor(
 
     /** Unpack pointer when it is known to be not an integer. */
     // pub(crate) unsafe fn unpack_ptr_no_int_unchecked(self) -> &'p AValueOrForward
-    fun unpackPtrNoIntUnchecked(): Long {
-        return ptr.unpackPtrNoIntUnchecked()
-    }
+    fun unpackPtrNoIntUnchecked(): Long = ptr.unpackPtrNoIntUnchecked()
 
     /** Unpack integer when it is known to be not a pointer. */
     // pub(crate) unsafe fn unpack_pointer_i32_unchecked(self) -> &'static PointerI32
-    fun unpackPointerI32Unchecked(): Int {
-        return ptr.unpackIntUnchecked()
-    }
+    fun unpackPointerI32Unchecked(): Int = ptr.unpackIntUnchecked()
 
     /** Unpack pointer when it is known to be frozen, not an integer, not a string. */
     // pub(crate) unsafe fn unpack_ptr_no_int_no_str_unchecked(self) -> &'p AValueOrForward
-    fun unpackPtrNoIntNoStrUnchecked(): Long {
-        return ptr.ptrValue()
-    }
+    fun unpackPtrNoIntNoStrUnchecked(): Long = ptr.ptrValue()
 }
 
 // #[cfg(test)] #[test] fn test_int_tag()

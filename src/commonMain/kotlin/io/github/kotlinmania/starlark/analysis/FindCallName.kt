@@ -21,13 +21,13 @@ package io.github.kotlinmania.starlark.analysis
 
 import io.github.kotlinmania.starlark.codemap.Span
 import io.github.kotlinmania.starlark.syntax.AstModule
-import io.github.kotlinmania.starlark.syntax.ast.AstExpr
-import io.github.kotlinmania.starlark.syntax.ast.AstLiteral
-import io.github.kotlinmania.starlark.syntax.ast.AstStmt
 import io.github.kotlinmania.starlark.syntax.ast.ArgumentP
 import io.github.kotlinmania.starlark.syntax.ast.AssignTargetP
-import io.github.kotlinmania.starlark.syntax.ast.ClauseP
+import io.github.kotlinmania.starlark.syntax.ast.AstExpr
+import io.github.kotlinmania.starlark.syntax.ast.AstLiteral
 import io.github.kotlinmania.starlark.syntax.ast.AstPayload
+import io.github.kotlinmania.starlark.syntax.ast.AstStmt
+import io.github.kotlinmania.starlark.syntax.ast.ClauseP
 import io.github.kotlinmania.starlark.syntax.ast.ExprP
 import io.github.kotlinmania.starlark.syntax.ast.StmtP
 
@@ -64,23 +64,24 @@ fun AstModule.findFunctionCallWithName(name: String): Span? {
             is ExprP.Call<*> -> {
                 val identifier = expr.expr
                 if (identifier.node is ExprP.Identifier<*, *> || identifier.node is ExprP.Dot<*>) {
-                    val found = expr.args.args.firstNotNullOfOrNull { argument ->
-                        val arg = argument.node
-                        if (arg is ArgumentP.Named<*>) {
-                            val value = arg.expr
-                            if (arg.name.node == "name" &&
-                                value.node is ExprP.Literal<*> &&
-                                (value.node as ExprP.Literal<*>).literal is AstLiteral.String &&
-                                ((value.node as ExprP.Literal<*>).literal as AstLiteral.String).value.node == name
-                            ) {
-                                identifier.span
+                    val found =
+                        expr.args.args.firstNotNullOfOrNull { argument ->
+                            val arg = argument.node
+                            if (arg is ArgumentP.Named<*>) {
+                                val value = arg.expr
+                                if (arg.name.node == "name" &&
+                                    value.node is ExprP.Literal<*> &&
+                                    (value.node as ExprP.Literal<*>).literal is AstLiteral.String &&
+                                    ((value.node as ExprP.Literal<*>).literal as AstLiteral.String).value.node == name
+                                ) {
+                                    identifier.span
+                                } else {
+                                    null
+                                }
                             } else {
                                 null
                             }
-                        } else {
-                            null
                         }
-                    }
                     if (found != null) {
                         ret = found
                     }
@@ -131,17 +132,27 @@ internal fun <P : AstPayload> ExprP<P>.visitChildExprs(f: (AstExpr) -> Unit) {
                 @Suppress("UNCHECKED_CAST")
                 when (p) {
                     is io.github.kotlinmania.starlark.syntax.ast.ParameterP.Normal<*> -> {
-                        p.typ?.node?.expr?.let { f(it as AstExpr) }
+                        p.typ
+                            ?.node
+                            ?.expr
+                            ?.let { f(it as AstExpr) }
                         (p.defaultVal as AstExpr?)?.let(f)
                     }
                     is io.github.kotlinmania.starlark.syntax.ast.ParameterP.Args<*> -> {
-                        p.typ?.node?.expr?.let { f(it as AstExpr) }
+                        p.typ
+                            ?.node
+                            ?.expr
+                            ?.let { f(it as AstExpr) }
                     }
                     is io.github.kotlinmania.starlark.syntax.ast.ParameterP.KwArgs<*> -> {
-                        p.typ?.node?.expr?.let { f(it as AstExpr) }
+                        p.typ
+                            ?.node
+                            ?.expr
+                            ?.let { f(it as AstExpr) }
                     }
                     is io.github.kotlinmania.starlark.syntax.ast.ParameterP.NoArgs<*>,
-                    is io.github.kotlinmania.starlark.syntax.ast.ParameterP.Slash<*> -> { /* no expr */ }
+                    is io.github.kotlinmania.starlark.syntax.ast.ParameterP.Slash<*>,
+                    -> { /* no expr */ }
                 }
             }
             f(lambda.body as AstExpr)
@@ -161,10 +172,11 @@ internal fun <P : AstPayload> ExprP<P>.visitChildExprs(f: (AstExpr) -> Unit) {
             f(v2 as AstExpr)
         }
         is ExprP.ListExpr<*> -> elements.forEach { f(it as AstExpr) }
-        is ExprP.Dict<*> -> elements.forEach { (k, v) ->
-            f(k as AstExpr)
-            f(v as AstExpr)
-        }
+        is ExprP.Dict<*> ->
+            elements.forEach { (k, v) ->
+                f(k as AstExpr)
+                f(v as AstExpr)
+            }
         is ExprP.ListComprehension<*> -> {
             visitForClauseExprs(forClause, f)
             clauses.forEach { visitClauseExprs(it, f) }
@@ -248,17 +260,27 @@ internal fun AstStmt.visitExprs(f: (AstExpr) -> Unit) {
                 val p = param.node
                 when (p) {
                     is io.github.kotlinmania.starlark.syntax.ast.ParameterP.Normal<*> -> {
-                        p.typ?.node?.expr?.let { f(it as AstExpr) }
+                        p.typ
+                            ?.node
+                            ?.expr
+                            ?.let { f(it as AstExpr) }
                         (p.defaultVal as AstExpr?)?.let(f)
                     }
                     is io.github.kotlinmania.starlark.syntax.ast.ParameterP.Args<*> -> {
-                        p.typ?.node?.expr?.let { f(it as AstExpr) }
+                        p.typ
+                            ?.node
+                            ?.expr
+                            ?.let { f(it as AstExpr) }
                     }
                     is io.github.kotlinmania.starlark.syntax.ast.ParameterP.KwArgs<*> -> {
-                        p.typ?.node?.expr?.let { f(it as AstExpr) }
+                        p.typ
+                            ?.node
+                            ?.expr
+                            ?.let { f(it as AstExpr) }
                     }
                     is io.github.kotlinmania.starlark.syntax.ast.ParameterP.NoArgs<*>,
-                    is io.github.kotlinmania.starlark.syntax.ast.ParameterP.Slash<*> -> { /* no expr */ }
+                    is io.github.kotlinmania.starlark.syntax.ast.ParameterP.Slash<*>,
+                    -> { /* no expr */ }
                 }
             }
             s.def.returnType?.let { f(it.node.expr as AstExpr) }
@@ -267,7 +289,8 @@ internal fun AstStmt.visitExprs(f: (AstExpr) -> Unit) {
         is StmtP.Load<*, *> -> { /* no expressions */ }
         is StmtP.Break<*>,
         is StmtP.Continue<*>,
-        is StmtP.Pass<*> -> { /* no expressions */ }
+        is StmtP.Pass<*>,
+        -> { /* no expressions */ }
     }
 }
 
@@ -293,7 +316,8 @@ internal fun AstStmt.visitStmtChildren(f: (AstStmt) -> Unit) {
         is StmtP.Load<*, *>,
         is StmtP.Break<*>,
         is StmtP.Continue<*>,
-        is StmtP.Pass<*> -> { /* no child statements */ }
+        is StmtP.Pass<*>,
+        -> { /* no child statements */ }
     }
 }
 

@@ -113,13 +113,14 @@ object ComplexValueRegistry {
         allocFrozenValue: (Any, FrozenHeap) -> FrozenValue,
         fromValue: (Value) -> T?,
     ) {
-        entries[unfrozenType] = ComplexValueEntry(
-            unfrozenType = unfrozenType,
-            frozenType = frozenType,
-            allocValue = allocValue,
-            allocFrozenValue = allocFrozenValue,
-            fromValue = fromValue,
-        )
+        entries[unfrozenType] =
+            ComplexValueEntry(
+                unfrozenType = unfrozenType,
+                frozenType = frozenType,
+                allocValue = allocValue,
+                allocFrozenValue = allocFrozenValue,
+                fromValue = fromValue,
+            )
     }
 
     @Suppress("UNCHECKED_CAST")
@@ -146,13 +147,14 @@ object ComplexValuesRegistry {
         allocFrozenValue: (F, FrozenHeap) -> FrozenValue,
         fromValue: (Value) -> Either<T, F>?,
     ) {
-        entries[unfrozenType] = ComplexValuesEntry(
-            unfrozenType = unfrozenType,
-            frozenType = frozenType,
-            allocValue = allocValue,
-            allocFrozenValue = allocFrozenValue,
-            fromValue = fromValue,
-        )
+        entries[unfrozenType] =
+            ComplexValuesEntry(
+                unfrozenType = unfrozenType,
+                frozenType = frozenType,
+                allocValue = allocValue,
+                allocFrozenValue = allocFrozenValue,
+                fromValue = fromValue,
+            )
     }
 
     @Suppress("UNCHECKED_CAST")
@@ -178,12 +180,13 @@ object SimpleValueRegistry {
         allocFrozenValue: (T, FrozenHeap) -> FrozenValue,
         fromValue: (Value) -> T?,
     ) {
-        entries[type] = SimpleValueEntry(
-            type = type,
-            allocValue = allocValue,
-            allocFrozenValue = allocFrozenValue,
-            fromValue = fromValue,
-        )
+        entries[type] =
+            SimpleValueEntry(
+                type = type,
+                allocValue = allocValue,
+                allocFrozenValue = allocFrozenValue,
+                fromValue = fromValue,
+            )
     }
 
     @Suppress("UNCHECKED_CAST")
@@ -201,6 +204,11 @@ data class SimpleValueEntry<T : StarlarkValue>(
 /** Either type used by starlark_complex_values for from_value return. */
 // (corresponds to either::Either in Rust)
 sealed class Either<out L, out R> {
-    data class Left<out L>(val value: L) : Either<L, Nothing>()
-    data class Right<out R>(val value: R) : Either<Nothing, R>()
+    data class Left<out L>(
+        val value: L,
+    ) : Either<L, Nothing>()
+
+    data class Right<out R>(
+        val value: R,
+    ) : Either<Nothing, R>()
 }

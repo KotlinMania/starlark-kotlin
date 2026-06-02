@@ -22,17 +22,17 @@ package io.github.kotlinmania.starlark.values.types.namespace
 import io.github.kotlinmania.starlark.codemap.Span
 import io.github.kotlinmania.starlark.typing.ParamSpec
 import io.github.kotlinmania.starlark.typing.Ty
-import io.github.kotlinmania.starlark.typing.TyCallable
 import io.github.kotlinmania.starlark.typing.TyCallArgs
+import io.github.kotlinmania.starlark.typing.TyCallable
 import io.github.kotlinmania.starlark.typing.TyCustomFunctionImpl
 import io.github.kotlinmania.starlark.typing.TyCustomImpl
 import io.github.kotlinmania.starlark.typing.TypingNoContextError
 import io.github.kotlinmania.starlark.typing.oracle.TypingOracleCtx
 import io.github.kotlinmania.starlark.util.ArcStr
 import io.github.kotlinmania.starlark.values.layout.Value
-import io.github.kotlinmania.starlark.values.starlark_type_id.StarlarkTypeId
-import io.github.kotlinmania.starlark.values.typing.type_compiled.TypeMatcher
-import io.github.kotlinmania.starlark.values.typing.type_compiled.TypeMatcherAlloc
+import io.github.kotlinmania.starlark.values.starlarktypeid.StarlarkTypeId
+import io.github.kotlinmania.starlark.values.typing.typecompiled.TypeMatcher
+import io.github.kotlinmania.starlark.values.typing.typecompiled.TypeMatcherAlloc
 
 // #[derive(Allocative, Eq, PartialEq, Hash, Debug, Clone, Copy, Dupe)]
 internal object NamespaceMatcher : TypeMatcher {
@@ -43,14 +43,15 @@ internal object NamespaceMatcher : TypeMatcher {
 
 // #[derive(Allocative, Clone, Copy, Dupe, Debug, Eq, PartialEq, Hash, Ord, PartialOrd)]
 internal object TyNamespaceFunction : TyCustomFunctionImpl {
-
     override fun asCallable(): TyCallable =
         TyCallable.new(
             ParamSpec.kwargs(Ty.any()),
-            Ty.custom(TyNamespace(
-                fields = emptyMap(),
-                extra = true,
-            )),
+            Ty.custom(
+                TyNamespace(
+                    fields = emptyMap(),
+                    extra = true,
+                ),
+            ),
         )
 
     override fun validateCall(
@@ -68,10 +69,14 @@ internal object TyNamespaceFunction : TyCustomFunctionImpl {
             fields.add(ArcStr.from(name) to ty)
         }
         val extra = args.kwargs != null
-        return Result.success(Ty.custom(TyNamespace(
-            fields = fields.sortedBy { it.first.toString() }.toMap(),
-            extra = extra,
-        )))
+        return Result.success(
+            Ty.custom(
+                TyNamespace(
+                    fields = fields.sortedBy { it.first.toString() }.toMap(),
+                    extra = extra,
+                ),
+            ),
+        )
     }
 }
 
@@ -81,17 +86,18 @@ data class TyNamespace(
     /** `true` if there might be additional fields not captured above,
      *  `false` if this struct has no extra members. */
     val extra: Boolean,
-) : TyCustomImpl, Comparable<TyCustomImpl> {
-
+) : TyCustomImpl,
+    Comparable<TyCustomImpl> {
     override fun asName(): String? = "namespace"
 
     override fun attribute(attr: String): Result<Ty> =
         when (val ty = fields[ArcStr.from(attr)]) {
-            null -> if (extra) {
-                Result.success(Ty.any())
-            } else {
-                Result.failure(TypingNoContextError)
-            }
+            null ->
+                if (extra) {
+                    Result.success(Ty.any())
+                } else {
+                    Result.failure(TypingNoContextError)
+                }
             else -> Result.success(ty)
         }
 
@@ -119,14 +125,15 @@ data class TyNamespace(
 
     // impl Display for TyNamespace
     override fun toString(): String {
-        val items = buildList {
-            for ((k, v) in fields) {
-                add("$k = $v")
+        val items =
+            buildList {
+                for ((k, v) in fields) {
+                    add("$k = $v")
+                }
+                if (extra) {
+                    add("..")
+                }
             }
-            if (extra) {
-                add("..")
-            }
-        }
         return "namespace(${items.joinToString(", ")})"
     }
 }

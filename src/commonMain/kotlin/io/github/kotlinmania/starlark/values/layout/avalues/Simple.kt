@@ -19,24 +19,22 @@ package io.github.kotlinmania.starlark.values.layout.avalues.simple
  * limitations under the License.
  */
 
-import io.github.kotlinmania.starlark.values.layout.heap.FrozenHeap
-import io.github.kotlinmania.starlark.values.layout.FrozenValue
 import io.github.kotlinmania.starlark.values.StarlarkValue
-import io.github.kotlinmania.starlark.values.layout.Freezer
 import io.github.kotlinmania.starlark.values.layout.AValue
 import io.github.kotlinmania.starlark.values.layout.AValueImpl
+import io.github.kotlinmania.starlark.values.layout.Freezer
+import io.github.kotlinmania.starlark.values.layout.FrozenValue
+import io.github.kotlinmania.starlark.values.layout.FrozenValueTyped
+import io.github.kotlinmania.starlark.values.layout.Value
+import io.github.kotlinmania.starlark.values.layout.heap.FrozenHeap
+import io.github.kotlinmania.starlark.values.layout.heap.Heap
+import io.github.kotlinmania.starlark.values.layout.heap.Tracer
 import io.github.kotlinmania.starlark.values.layout.heapCopyImpl
 import io.github.kotlinmania.starlark.values.layout.heapFreezeSimpleImpl
 import io.github.kotlinmania.starlark.values.layout.tryFreezeDirectly
-import io.github.kotlinmania.starlark.values.layout.heap.Heap
-import io.github.kotlinmania.starlark.values.layout.Value
-import io.github.kotlinmania.starlark.values.layout.heap.Tracer
-import io.github.kotlinmania.starlark.values.layout.FrozenValueTyped
 
 // pub(crate) fn simple<'v, T: StarlarkValue<'v>>(x: T) -> AValueImpl<'v, AValueSimple<T>>
-internal fun <T : StarlarkValue> simple(x: T): AValueImpl<AValueSimple<T>> {
-    return AValueImpl.new(x)
-}
+internal fun <T : StarlarkValue> simple(x: T): AValueImpl<AValueSimple<T>> = AValueImpl.new(x)
 
 /** AValue implementation for simple Starlark values. */
 // pub struct AValueSimple<T>(PhantomData<T>);
@@ -44,7 +42,6 @@ internal fun <T : StarlarkValue> simple(x: T): AValueImpl<AValueSimple<T>> {
 class AValueSimple<T : StarlarkValue>(
     private val inner: T,
 ) : AValue {
-
     // fn extra_len(_value: &T) -> usize
     override fun extraLen(value: StarlarkValue): Int = 0
 
@@ -59,9 +56,7 @@ class AValueSimple<T : StarlarkValue>(
     }
 
     // unsafe fn heap_copy(me, tracer) -> Value<'v>
-    override fun heapCopy(tracer: Tracer): Value {
-        return heapCopyImpl(inner, tracer) { _, _ -> }
-    }
+    override fun heapCopy(tracer: Tracer): Value = heapCopyImpl(inner, tracer) { _, _ -> }
 
     override fun unpack(): StarlarkValue = inner
 }
@@ -70,16 +65,12 @@ class AValueSimple<T : StarlarkValue>(
 // impl FrozenHeap
 // pub(crate) fn alloc_simple_typed_static<T>(&self, val: T) -> FrozenValueTyped<'static, T>
 @Suppress("UNCHECKED_CAST")
-fun <T : StarlarkValue> FrozenHeap.allocSimpleTypedStatic(value: T): FrozenValueTyped<T> {
-    return allocRaw(simple(value)) as FrozenValueTyped<T>
-}
+fun <T : StarlarkValue> FrozenHeap.allocSimpleTypedStatic(value: T): FrozenValueTyped<T> = allocRaw(simple(value)) as FrozenValueTyped<T>
 
 /** Allocate a value on the heap. */
 // pub fn alloc_simple_typed<'fv, T>(&'fv self, val: T) -> FrozenValueTyped<'fv, T>
 @Suppress("UNCHECKED_CAST")
-fun <T : StarlarkValue> FrozenHeap.allocSimpleTyped(value: T): FrozenValueTyped<T> {
-    return allocRaw(simple(value)) as FrozenValueTyped<T>
-}
+fun <T : StarlarkValue> FrozenHeap.allocSimpleTyped(value: T): FrozenValueTyped<T> = allocRaw(simple(value)) as FrozenValueTyped<T>
 
 /**
  * Allocate a simple [`StarlarkValue`] on this heap.
@@ -89,12 +80,8 @@ fun <T : StarlarkValue> FrozenHeap.allocSimpleTyped(value: T): FrozenValueTyped<
  * * is not special builtin (e.g. `None`)
  */
 // pub fn alloc_simple<T>(&self, val: T) -> FrozenValue
-fun <T : StarlarkValue> FrozenHeap.allocSimple(value: T): FrozenValue {
-    return allocSimpleTypedStatic(value).toFrozenValue()
-}
+fun <T : StarlarkValue> FrozenHeap.allocSimple(value: T): FrozenValue = allocSimpleTypedStatic(value).toFrozenValue()
 
 /** Allocate a simple [`StarlarkValue`] on this heap. */
 // impl Heap { pub fn alloc_simple<T>(&self, x: T) -> Value<'v> }
-fun <T : StarlarkValue> Heap.allocSimple(x: T): Value {
-    return allocRaw(simple(x)).toValue()
-}
+fun <T : StarlarkValue> Heap.allocSimple(x: T): Value = allocRaw(simple(x)).toValue()

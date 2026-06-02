@@ -1,5 +1,5 @@
 // port-lint: source src/debug/adapter/implementation.rs
-package io.github.kotlinmania.starlark.debug.adapter_impl
+package io.github.kotlinmania.starlark.debug.adapterimpl
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.
@@ -19,13 +19,10 @@ package io.github.kotlinmania.starlark.debug.adapter_impl
  * limitations under the License.
  */
 
+import io.github.kotlinmania.starlark.ReentrantLock
 import io.github.kotlinmania.starlark.codemap.FileSpan
 import io.github.kotlinmania.starlark.codemap.FileSpanRef
 import io.github.kotlinmania.starlark.codemap.Span
-import io.github.kotlinmania.starlark.debug.localVariables
-import io.github.kotlinmania.starlark.syntax.AstModule
-import io.github.kotlinmania.starlark.syntax.dialect.Dialect
-import io.github.kotlinmania.starlark.values.layout.Value
 import io.github.kotlinmania.starlark.debug.Breakpoint
 import io.github.kotlinmania.starlark.debug.DapAdapter
 import io.github.kotlinmania.starlark.debug.DapAdapterClient
@@ -35,6 +32,7 @@ import io.github.kotlinmania.starlark.debug.EvaluateExprInfo
 import io.github.kotlinmania.starlark.debug.InspectVariableInfo
 import io.github.kotlinmania.starlark.debug.PathSegment
 import io.github.kotlinmania.starlark.debug.ResolvedBreakpoints
+import io.github.kotlinmania.starlark.debug.Scope
 import io.github.kotlinmania.starlark.debug.ScopesInfo
 import io.github.kotlinmania.starlark.debug.SetBreakpointsArguments
 import io.github.kotlinmania.starlark.debug.SetBreakpointsResponseBody
@@ -46,12 +44,14 @@ import io.github.kotlinmania.starlark.debug.Variable
 import io.github.kotlinmania.starlark.debug.VariablePath
 import io.github.kotlinmania.starlark.debug.VariablesInfo
 import io.github.kotlinmania.starlark.debug.evalStatements
+import io.github.kotlinmania.starlark.debug.localVariables
 import io.github.kotlinmania.starlark.eval.runtime.Evaluator
-import io.github.kotlinmania.starlark.eval.runtime.before_stmt.BeforeStmtFunc
+import io.github.kotlinmania.starlark.eval.runtime.beforestmt.BeforeStmtFunc
+import io.github.kotlinmania.starlark.eval.runtime.beforestmt.BeforeStmtFuncDyn
 import io.github.kotlinmania.starlark.runBlocking
-import io.github.kotlinmania.starlark.ReentrantLock
-import io.github.kotlinmania.starlark.debug.Scope
-import io.github.kotlinmania.starlark.eval.runtime.before_stmt.BeforeStmtFuncDyn
+import io.github.kotlinmania.starlark.syntax.AstModule
+import io.github.kotlinmania.starlark.syntax.dialect.Dialect
+import io.github.kotlinmania.starlark.values.layout.Value
 import io.github.kotlinmania.starlark.withLock
 import kotlinx.coroutines.channels.Channel
 import kotlin.concurrent.atomics.AtomicInt
@@ -59,11 +59,12 @@ import kotlin.concurrent.atomics.AtomicInt
 internal fun prepareDapAdapterImpl(
     client: DapAdapterClient,
 ): Pair<DapAdapter, DapAdapterEvalHook> {
-    val state = SharedAdapterState(
-        client = client,
-        breakpoints = BreakpointConfig(),
-        disableBreakpoints = AtomicInt(0),
-    )
+    val state =
+        SharedAdapterState(
+            client = client,
+            breakpoints = BreakpointConfig(),
+            disableBreakpoints = AtomicInt(0),
+        )
 
     val channel = MessageChannel<ToEvalMessage>()
     return Pair(
@@ -76,30 +77,33 @@ internal fun resolveBreakpointsImpl(
     args: SetBreakpointsArguments,
     ast: AstModule,
 ): Result<ResolvedBreakpoints> {
-    val poss: Map<Int, FileSpan> = ast.stmtLocations()
-        .associateBy { span -> span.resolveSpan().begin.line }
+    val poss: Map<Int, FileSpan> =
+        ast
+            .stmtLocations()
+            .associateBy { span -> span.resolveSpan().begin.line }
 
-    val resolved = args.breakpoints?.map { x ->
-        poss[(x.line - 1).toInt()]?.let { span ->
-            Breakpoint(
-                span = span,
-                condition = x.condition,
-            )
-        }
-    } ?: emptyList()
+    val resolved =
+        args.breakpoints?.map { x ->
+            poss[(x.line - 1).toInt()]?.let { span ->
+                Breakpoint(
+                    span = span,
+                    condition = x.condition,
+                )
+            }
+        } ?: emptyList()
 
     return Result.success(ResolvedBreakpoints(resolved))
 }
 
 internal fun resolvedBreakpointsToDap(
     breakpoints: ResolvedBreakpoints,
-): SetBreakpointsResponseBody {
-    return SetBreakpointsResponseBody(
-        breakpoints = breakpoints.breakpoints.map { x ->
-            makeBreakpoint(x != null)
-        }
+): SetBreakpointsResponseBody =
+    SetBreakpointsResponseBody(
+        breakpoints =
+            breakpoints.breakpoints.map { x ->
+                makeBreakpoint(x != null)
+            },
     )
-}
 
 /** Type alias for the message sent to the evaluation thread. */
 private typealias ToEvalMessage = (FileSpanRef, Evaluator) -> Next
@@ -116,15 +120,14 @@ private class MessageChannel<T> {
         channel.trySend(value)
     }
 
-    fun recv(): Result<T> {
-        return runBlocking {
+    fun recv(): Result<T> =
+        runBlocking {
             try {
                 Result.success(channel.receive())
             } catch (e: Exception) {
                 Result.failure(e)
             }
         }
-    }
 }
 
 /** The DapAdapter allows controlling a running evaluator from a different thread. */
@@ -132,23 +135,20 @@ private class DapAdapterImpl(
     private val state: SharedAdapterState,
     private val sender: MessageChannel<ToEvalMessage>,
 ) : DapAdapter {
-
     override fun setBreakpoints(
         source: String,
         breakpoints: ResolvedBreakpoints,
-    ): Result<Unit> {
-        return state.breakpointsLock.withLock {
+    ): Result<Unit> =
+        state.breakpointsLock.withLock {
             state.breakpoints.setBreakpoints(source, breakpoints)
         }
-    }
 
-    override fun topFrame(): Result<StackFrame?> {
-        return withCtx { span, eval ->
+    override fun topFrame(): Result<StackFrame?> =
+        withCtx { span, eval ->
             val frame = eval.callStackTopFrame()
             val name = frame?.name ?: ""
             Result.success(convertFrame(0, name, FileSpan(span.file, span.span)))
         }
-    }
 
     override fun stackTrace(args: StackTraceArguments): Result<StackTraceResponseBody> {
         // Rust: fn stack_trace(&self, _: StackTraceArguments) — args intentionally unused
@@ -164,51 +164,59 @@ private class DapAdapterImpl(
                 next = x.location
             }
             res.add(convertFrame(frames.size, "Root", next))
-            Result.success(StackTraceResponseBody(
-                totalFrames = res.size,
-                stackFrames = res,
-            ))
+            Result.success(
+                StackTraceResponseBody(
+                    totalFrames = res.size,
+                    stackFrames = res,
+                ),
+            )
         }
     }
 
-    override fun scopes(): Result<ScopesInfo> {
-        return withCtx { _, eval ->
+    override fun scopes(): Result<ScopesInfo> =
+        withCtx { _, eval ->
             val vars = eval.localVariables()
             Result.success(ScopesInfo(numLocals = vars.len()))
         }
-    }
 
-    override fun variables(): Result<VariablesInfo> {
-        return withCtx { _, eval ->
+    override fun variables(): Result<VariablesInfo> =
+        withCtx { _, eval ->
             val vars = eval.localVariables()
-            Result.success(VariablesInfo(
-                locals = vars.iter().map { (name, value) ->
-                    Variable.fromValue(PathSegment.Attr(name), value)
-                }.toList()
-            ))
+            Result.success(
+                VariablesInfo(
+                    locals =
+                        vars
+                            .iter()
+                            .map { (name, value) ->
+                                Variable.fromValue(PathSegment.Attr(name), value)
+                            }.toList(),
+                ),
+            )
         }
-    }
 
     override fun inspectVariable(path: VariablePath): Result<InspectVariableInfo> {
         return withCtx { _, eval ->
             val accessPath = path.accessPath
-            var value = when (val scope = path.scope) {
-                is Scope.Local -> {
-                    val vars = eval.localVariables()
-                    // since vars is owned within this closure scope we can just remove value from the map
-                    // obtaining owned variable as the rest of the map will be dropped anyway
-                    vars.shiftRemove(scope.name)
-                        ?: return@withCtx Result.failure(Exception("Local variable ${scope.name} not found"))
+            var value =
+                when (val scope = path.scope) {
+                    is Scope.Local -> {
+                        val vars = eval.localVariables()
+                        // since vars is owned within this closure scope we can just remove value from the map
+                        // obtaining owned variable as the rest of the map will be dropped anyway
+                        vars.shiftRemove(scope.name)
+                            ?: return@withCtx Result.failure(Exception("Local variable ${scope.name} not found"))
+                    }
+                    is Scope.Expr -> {
+                        evaluateExpr(state, eval, scope.expression)
+                            .getOrElse { return@withCtx Result.failure(it) }
+                    }
                 }
-                is Scope.Expr -> {
-                    evaluateExpr(state, eval, scope.expression)
-                        .getOrElse { return@withCtx Result.failure(it) }
-                }
-            }
 
             for (p in accessPath) {
-                value = p.get(value, eval.heap())
-                    .getOrElse { return@withCtx Result.failure(it) }
+                value =
+                    p
+                        .get(value, eval.heap())
+                        .getOrElse { return@withCtx Result.failure(it) }
             }
             InspectVariableInfo.tryFromValue(value, eval.heap())
         }
@@ -249,11 +257,10 @@ private class DapAdapterImpl(
 
     private fun <T : Any> withCtx(
         f: (FileSpanRef, Evaluator) -> T,
-    ): T {
-        return inject { span, eval ->
+    ): T =
+        inject { span, eval ->
             Pair(Next.RemainPaused, f(span, eval))
         }
-    }
 }
 
 /** The evaluation-side hook implementation. */
@@ -261,12 +268,10 @@ private class DapAdapterEvalHookImpl private constructor(
     private val state: SharedAdapterState,
     private val receiver: MessageChannel<ToEvalMessage>,
     private var step: Pair<StepKind, Int>?,
-) : DapAdapterEvalHook, BeforeStmtFuncDyn {
-
+) : DapAdapterEvalHook,
+    BeforeStmtFuncDyn {
     companion object {
-        fun create(state: SharedAdapterState, receiver: MessageChannel<ToEvalMessage>): DapAdapterEvalHookImpl {
-            return DapAdapterEvalHookImpl(state, receiver, step = null)
-        }
+        fun create(state: SharedAdapterState, receiver: MessageChannel<ToEvalMessage>): DapAdapterEvalHookImpl = DapAdapterEvalHookImpl(state, receiver, step = null)
     }
 
     override fun addDapHooks(eval: Evaluator) {
@@ -293,35 +298,39 @@ private class DapAdapterEvalHookImpl private constructor(
             return Result.success(Unit)
         }
 
-        val stop = if (state.disableBreakpoints.load() > 0) {
-            false
-        } else {
-            val breakpoint = state.breakpointsLock.withLock {
-                state.breakpoints.at(spanLoc)
-            }
-            when {
-                breakpoint != null && breakpoint.condition != null -> {
-                    evaluateExpr(state, eval, breakpoint.condition)
-                        .map { it.toBool() }
-                        .getOrElse { true } // If failed to evaluate the condition, stop.
+        val stop =
+            if (state.disableBreakpoints.load() > 0) {
+                false
+            } else {
+                val breakpoint =
+                    state.breakpointsLock.withLock {
+                        state.breakpoints.at(spanLoc)
+                    }
+                when {
+                    breakpoint != null && breakpoint.condition != null -> {
+                        evaluateExpr(state, eval, breakpoint.condition)
+                            .map { it.toBool() }
+                            .getOrElse { true } // If failed to evaluate the condition, stop.
+                    }
+                    breakpoint != null -> true
+                    else -> false
                 }
-                breakpoint != null -> true
-                else -> false
             }
-        }
 
-        val stepStop = when (val s = step) {
-            null -> false
-            else -> when (s.first) {
-                StepKind.Into -> true
-                // These aren't quite right because we only get called before statements
-                // and so we could return from the current function and be in an expression
-                // that then calls another function without hitting a new statement in the
-                // outer function.
-                StepKind.Over -> eval.callStackCount() <= s.second
-                StepKind.Out -> eval.callStackCount() < s.second
+        val stepStop =
+            when (val s = step) {
+                null -> false
+                else ->
+                    when (s.first) {
+                        StepKind.Into -> true
+                        // These aren't quite right because we only get called before statements
+                        // and so we could return from the current function and be in an expression
+                        // that then calls another function without hitting a new statement in the
+                        // outer function.
+                        StepKind.Over -> eval.callStackCount() <= s.second
+                        StepKind.Out -> eval.callStackCount() < s.second
+                    }
             }
-        }
 
         if (stop || stepStop) {
             step = null
@@ -333,14 +342,15 @@ private class DapAdapterEvalHookImpl private constructor(
                         // DapAdapter has been dropped so we'll continue.
                         break
                     }
-                    else -> when (val next = msg.getOrThrow()(spanLoc, eval)) {
-                        Next.Continue -> break
-                        is Next.Step -> {
-                            step = Pair(next.kind, eval.callStackCount())
-                            break
+                    else ->
+                        when (val next = msg.getOrThrow()(spanLoc, eval)) {
+                            Next.Continue -> break
+                            is Next.Step -> {
+                                step = Pair(next.kind, eval.callStackCount())
+                                break
+                            }
+                            Next.RemainPaused -> { /* continue loop */ }
                         }
-                        Next.RemainPaused -> { /* continue loop */ }
-                    }
                 }
             }
         }
@@ -355,9 +365,7 @@ private class BreakpointConfig {
     // maps a source filename to the breakpoint spans for the file
     private val breakpoints: MutableMap<String, Map<Span, Breakpoint>> = mutableMapOf()
 
-    fun at(spanLoc: FileSpanRef): Breakpoint? {
-        return breakpoints[spanLoc.file.filename()]?.get(spanLoc.span)
-    }
+    fun at(spanLoc: FileSpanRef): Breakpoint? = breakpoints[spanLoc.file.filename()]?.get(spanLoc.span)
 
     fun setBreakpoints(
         source: String,
@@ -366,9 +374,10 @@ private class BreakpointConfig {
         if (breakpoints.breakpoints.isEmpty()) {
             this.breakpoints.remove(source)
         } else {
-            this.breakpoints[source] = breakpoints.breakpoints
-                .filterNotNull()
-                .associateBy { it.span.span }
+            this.breakpoints[source] =
+                breakpoints.breakpoints
+                    .filterNotNull()
+                    .associateBy { it.span.span }
         }
         return Result.success(Unit)
     }
@@ -389,8 +398,12 @@ private class SharedAdapterState(
 /** The next action after a breakpoint pause. */
 private sealed class Next {
     data object Continue : Next()
+
     data object RemainPaused : Next()
-    data class Step(val kind: StepKind) : Next()
+
+    data class Step(
+        val kind: StepKind,
+    ) : Next()
 }
 
 private fun evaluateExpr(
@@ -413,17 +426,18 @@ private fun evaluateExpr(
 }
 
 private fun convertFrame(id: Int, name: String, location: FileSpan?): StackFrame {
-    val s = StackFrame(
-        id = id,
-        name = name,
-        source = null,
-        line = 0,
-        column = 0,
-        endColumn = null,
-        endLine = null,
-        moduleId = null,
-        presentationHint = null,
-    )
+    val s =
+        StackFrame(
+            id = id,
+            name = name,
+            source = null,
+            line = 0,
+            column = 0,
+            endColumn = null,
+            endLine = null,
+            moduleId = null,
+            presentationHint = null,
+        )
     if (location != null) {
         val span = location.resolveSpan()
         return s.copy(
@@ -437,8 +451,8 @@ private fun convertFrame(id: Int, name: String, location: FileSpan?): StackFrame
     return s
 }
 
-internal fun makeBreakpoint(verified: Boolean): DapBreakpoint {
-    return DapBreakpoint(
+internal fun makeBreakpoint(verified: Boolean): DapBreakpoint =
+    DapBreakpoint(
         column = null,
         endColumn = null,
         endLine = null,
@@ -448,4 +462,3 @@ internal fun makeBreakpoint(verified: Boolean): DapBreakpoint {
         source = null,
         verified = verified,
     )
-}

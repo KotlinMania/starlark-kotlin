@@ -19,7 +19,7 @@ package io.github.kotlinmania.starlark.errors
  * limitations under the License.
  */
 
-//! Spelling suggestions.
+// ! Spelling suggestions.
 
 // use strsim::levenshtein;
 // Kotlin: inline Levenshtein distance (replaces strsim crate).
@@ -35,17 +35,18 @@ private fun levenshtein(a: String, b: String): Int {
     for (i in 1..m) {
         for (j in 1..n) {
             val cost = if (a[i - 1] == b[j - 1]) 0 else 1
-            dp[i][j] = minOf(
-                dp[i - 1][j] + 1,
-                dp[i][j - 1] + 1,
-                dp[i - 1][j - 1] + cost,
-            )
+            dp[i][j] =
+                minOf(
+                    dp[i - 1][j] + 1,
+                    dp[i][j - 1] + 1,
+                    dp[i - 1][j - 1] + cost,
+                )
         }
     }
     return dp[m][n]
 }
 
-/// Find a suggestion for a typo.
+// / Find a suggestion for a typo.
 // pub(crate) fn did_you_mean<'a>(
 //     value: &str,
 //     variants: impl IntoIterator<Item = &'a str>,
@@ -55,12 +56,13 @@ internal fun didYouMean(value: String, variants: Iterable<String>): String? {
         return null
     }
 
-    val maxDist = if (value.length <= 2) {
-        // we don't want to suggest "cd" for "a"
-        1
-    } else {
-        2
-    }
+    val maxDist =
+        if (value.length <= 2) {
+            // we don't want to suggest "cd" for "a"
+            1
+        } else {
+            2
+        }
 
     // variants
     //     .into_iter()

@@ -1,5 +1,5 @@
 // port-lint: source src/eval/runtime/frozen_file_span.rs
-package io.github.kotlinmania.starlark.eval.runtime.frozen_file_span
+package io.github.kotlinmania.starlark.eval.runtime.frozenfilespan
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.
@@ -19,9 +19,9 @@ package io.github.kotlinmania.starlark.eval.runtime.frozen_file_span
  * limitations under the License.
  */
 
-import io.github.kotlinmania.starlark.codemap.FileSpanRef
 import io.github.kotlinmania.starlark.codemap.CodeMap
 import io.github.kotlinmania.starlark.codemap.FileSpan
+import io.github.kotlinmania.starlark.codemap.FileSpanRef
 import io.github.kotlinmania.starlark.codemap.Span
 import io.github.kotlinmania.starlark.values.FrozenRef
 
@@ -44,7 +44,6 @@ data class FrozenFileSpan private constructor(
     /** The span within [file]. */
     private val span: Span,
 ) {
-
     // impl Display for FrozenFileSpan
     //     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
     //         Display::fmt(&self.to_file_span(), f)
@@ -52,7 +51,6 @@ data class FrozenFileSpan private constructor(
     override fun toString(): String = toFileSpan().toString()
 
     companion object {
-
         // impl Default for FrozenFileSpan
         //     fn default() -> FrozenFileSpan {
         //         FrozenFileSpan::new(FrozenRef::new(CodeMap::empty_static()), Span::default())
@@ -79,9 +77,7 @@ data class FrozenFileSpan private constructor(
         /**
          * Creates a new [FrozenFileSpan] without validating that [span] is within [file].
          */
-        fun newUnchecked(file: FrozenRef<CodeMap>, span: Span): FrozenFileSpan {
-            return FrozenFileSpan(file, span)
-        }
+        fun newUnchecked(file: FrozenRef<CodeMap>, span: Span): FrozenFileSpan = FrozenFileSpan(file, span)
 
         // pub(crate) fn new(file: FrozenRef<'static, CodeMap>, span: Span) -> FrozenFileSpan {
         //     // Check the span is valid: this will panic if the span is not valid.
@@ -121,9 +117,7 @@ data class FrozenFileSpan private constructor(
     /**
      * Returns a new [FrozenFileSpan] pointing to the end of this span.
      */
-    internal fun endSpan(): FrozenFileSpan {
-        return FrozenFileSpan(file, span.endSpan())
-    }
+    internal fun endSpan(): FrozenFileSpan = FrozenFileSpan(file, span.endSpan())
 
     // pub(crate) fn file_span_ref(&self) -> FileSpanRef<'static> {
     //     FileSpanRef {
@@ -135,9 +129,7 @@ data class FrozenFileSpan private constructor(
     /**
      * Converts this frozen span to a [FileSpanRef].
      */
-    internal fun fileSpanRef(): FileSpanRef {
-        return FileSpanRef(file.asRef(), span)
-    }
+    internal fun fileSpanRef(): FileSpanRef = FileSpanRef(file.asRef(), span)
 
     // pub(crate) fn to_file_span(&self) -> FileSpan {
     //     FileSpan {
@@ -149,9 +141,7 @@ data class FrozenFileSpan private constructor(
     /**
      * Converts this frozen span to an owned [FileSpan].
      */
-    internal fun toFileSpan(): FileSpan {
-        return FileSpan(file.asRef(), span)
-    }
+    internal fun toFileSpan(): FileSpan = FileSpan(file.asRef(), span)
 
     // pub(crate) fn merge(&self, other: &FrozenFileSpan) -> FrozenFileSpan {
     //     if self.file == other.file {
@@ -169,12 +159,11 @@ data class FrozenFileSpan private constructor(
      * Merges this span with [other]. If both reference the same file, returns a span
      * covering both. Otherwise returns `this`.
      */
-    internal fun merge(other: FrozenFileSpan): FrozenFileSpan {
-        return if (file == other.file) {
+    internal fun merge(other: FrozenFileSpan): FrozenFileSpan =
+        if (file == other.file) {
             FrozenFileSpan(file, span.merge(other.span))
         } else {
             // We need to pick something if we merge two spans from different files.
             this
         }
-    }
 }

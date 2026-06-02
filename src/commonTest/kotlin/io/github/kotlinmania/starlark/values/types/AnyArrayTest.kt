@@ -26,7 +26,6 @@ import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
 class AnyArrayTest {
-
     @Test
     fun testDrop() {
         // The Rust upstream relies on `Drop` impls to count deallocations on
@@ -37,18 +36,21 @@ class AnyArrayTest {
         val counter1 = AtomicInt(0)
         val counter2 = AtomicInt(0)
 
-        data class IncrementOnDrop(val counter: AtomicInt)
+        data class IncrementOnDrop(
+            val counter: AtomicInt,
+        )
 
         val heap = FrozenHeap.new()
-        val values = heap.allocAnySlice(
-            listOf(
-                IncrementOnDrop(counter1),
-                IncrementOnDrop(counter1),
-                IncrementOnDrop(counter2),
-                IncrementOnDrop(counter1),
-                IncrementOnDrop(counter2),
-            ),
-        )
+        val values =
+            heap.allocAnySlice(
+                listOf(
+                    IncrementOnDrop(counter1),
+                    IncrementOnDrop(counter1),
+                    IncrementOnDrop(counter2),
+                    IncrementOnDrop(counter1),
+                    IncrementOnDrop(counter2),
+                ),
+            )
 
         assertEquals(5, values.size)
 

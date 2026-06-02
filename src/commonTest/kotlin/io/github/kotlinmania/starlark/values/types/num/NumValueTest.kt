@@ -22,16 +22,15 @@ package io.github.kotlinmania.starlark.values.types.num
 import com.ionspin.kotlin.bignum.integer.BigInteger
 import io.github.kotlinmania.starlark.values.layout.Value
 import io.github.kotlinmania.starlark.values.types.float.StarlarkFloat
+import io.github.kotlinmania.starlark.values.types.int.InlineInt
 import io.github.kotlinmania.starlark.values.types.int.StarlarkInt
 import io.github.kotlinmania.starlark.values.types.int.StarlarkIntRef
-import io.github.kotlinmania.starlark.values.types.int.inline.InlineInt
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
 
 class NumValueTest {
-
     @Test
     fun testFromValue() {
         assertNull(NumRef.unpackValue(Value.newBool(true)).getOrThrow())

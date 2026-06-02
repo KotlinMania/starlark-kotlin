@@ -19,32 +19,32 @@ package io.github.kotlinmania.starlark.eval.runtime.params.spec
  * limitations under the License.
  */
 
+import io.github.kotlinmania.starlark.collections.Hashed
+import io.github.kotlinmania.starlark.collections.SmallMap
 import io.github.kotlinmania.starlark.collections.symbol.SymbolMap
 import io.github.kotlinmania.starlark.docs.DocParam
 import io.github.kotlinmania.starlark.docs.DocParams
 import io.github.kotlinmania.starlark.docs.DocString
-import io.github.kotlinmania.starlark.typing.ParamIsRequired
-import io.github.kotlinmania.starlark.typing.Ty
-import io.github.kotlinmania.starlark.values.layout.typed.StringValue
-import io.github.kotlinmania.starlark.collections.Hashed
-import io.github.kotlinmania.starlark.eval.runtime.Evaluator
 import io.github.kotlinmania.starlark.eval.runtime.Arguments
 import io.github.kotlinmania.starlark.eval.runtime.ArgumentsImpl
+import io.github.kotlinmania.starlark.eval.runtime.Evaluator
 import io.github.kotlinmania.starlark.eval.runtime.FunctionError
 import io.github.kotlinmania.starlark.eval.runtime.ResolvedArgName
-import io.github.kotlinmania.starlark.typing.DefParamIndices
-import io.github.kotlinmania.starlark.eval.runtime.params.ParamFmt
 import io.github.kotlinmania.starlark.eval.runtime.params.PARAM_FMT_OPTIONAL
-import io.github.kotlinmania.starlark.eval.runtime.params.fmtParamSpec
+import io.github.kotlinmania.starlark.eval.runtime.params.ParamFmt
 import io.github.kotlinmania.starlark.eval.runtime.params.ParametersParser
-import io.github.kotlinmania.starlark.values.layout.heap.Heap
+import io.github.kotlinmania.starlark.eval.runtime.params.fmtParamSpec
+import io.github.kotlinmania.starlark.typing.DefParamIndices
+import io.github.kotlinmania.starlark.typing.ParamIsRequired
+import io.github.kotlinmania.starlark.typing.Ty
 import io.github.kotlinmania.starlark.values.layout.Value
+import io.github.kotlinmania.starlark.values.layout.avalues.allocTuple
+import io.github.kotlinmania.starlark.values.layout.heap.Heap
+import io.github.kotlinmania.starlark.values.layout.typed.StringValue
 import io.github.kotlinmania.starlark.values.types.dict.Dict
+import io.github.kotlinmania.starlark.values.types.dict.allocValue
 import io.github.kotlinmania.starlark.values.types.dict.dictRefFromValue
 import io.github.kotlinmania.starlark.values.types.dict.getValue
-import io.github.kotlinmania.starlark.values.types.dict.allocValue
-import io.github.kotlinmania.starlark.values.layout.avalues.allocTuple
-import io.github.kotlinmania.starlark.collections.SmallMap
 
 /** Describe parameter for [`ParametersSpec`]. */
 // #[derive(Debug, Clone, Copy, Dupe, PartialEq, Eq, PartialOrd, Ord, Trace, Freeze, Allocative)]
@@ -52,16 +52,21 @@ import io.github.kotlinmania.starlark.collections.SmallMap
 sealed class ParametersSpecParam<out V> {
     /** Parameter is required. */
     data object Required : ParametersSpecParam<Nothing>()
+
     /** Parameter is optional (returned as `None`). */
     data object Optional : ParametersSpecParam<Nothing>()
+
     /** Parameter has default value. */
-    data class Defaulted<V>(val value: V) : ParametersSpecParam<V>()
+    data class Defaulted<V>(
+        val value: V,
+    ) : ParametersSpecParam<V>()
 
     // pub(crate) fn is_required(&self) -> ParamIsRequired
-    fun isRequired(): ParamIsRequired = when (this) {
-        is Required -> ParamIsRequired.Yes
-        is Optional, is Defaulted -> ParamIsRequired.No
-    }
+    fun isRequired(): ParamIsRequired =
+        when (this) {
+            is Required -> ParamIsRequired.Yes
+            is Optional, is Defaulted -> ParamIsRequired.No
+        }
 }
 
 // #[derive(Debug, Copy, Clone, Dupe, Coerce, PartialEq, Trace, Freeze, Allocative)]
@@ -69,6 +74,7 @@ sealed class ParametersSpecParam<out V> {
 // pub(crate) enum ParameterKind<V>
 sealed class ParameterKind<out V> {
     data object Required : ParameterKind<Nothing>()
+
     /**
      * When optional parameter is not supplied, there's no error,
      * but the slot remains `None`.
@@ -76,8 +82,13 @@ sealed class ParameterKind<out V> {
      * This is used only in native code, parameters of type `Option<T>` become `Optional`.
      */
     data object Optional : ParameterKind<Nothing>()
-    data class Defaulted<V>(val value: V) : ParameterKind<V>()
+
+    data class Defaulted<V>(
+        val value: V,
+    ) : ParameterKind<V>()
+
     data object Args : ParameterKind<Nothing>()
+
     data object KWargs : ParameterKind<Nothing>()
 }
 
@@ -86,10 +97,13 @@ sealed class ParameterKind<out V> {
 internal enum class CurrentParameterStyle {
     /** Parameter can be only filled positionally. */
     PosOnly,
+
     /** Parameter can be filled positionally or by name. */
     PosOrNamed,
+
     /** Parameter can be filled by name only. */
     NamedOnly,
+
     /** No more args accepted. */
     NoMore,
 }
@@ -242,12 +256,13 @@ internal class ParametersSpecBuilder<V>(
             paramKinds = paramKinds,
             paramNames = paramNames,
             names = names,
-            indices = DefParamIndices(
-                numPositionalOnly = posOnly,
-                numPositional = pos,
-                args = argsIndex?.toUInt(),
-                kwargs = kwargsIndex?.toUInt(),
-            ),
+            indices =
+                DefParamIndices(
+                    numPositionalOnly = posOnly,
+                    numPositional = pos,
+                    args = argsIndex?.toUInt(),
+                    kwargs = kwargsIndex?.toUInt(),
+                ),
         )
     }
 }
@@ -291,10 +306,11 @@ class ParametersSpec<V>(
             namedOnly: List<Pair<String, ParametersSpecParam<V>>>,
             kwargs: Boolean,
         ): ParametersSpec<V> {
-            val builder = withCapacity<V>(
-                functionName,
-                posOnly.size + posOrNamed.size + (if (args) 1 else 0) + namedOnly.size + (if (kwargs) 1 else 0),
-            )
+            val builder =
+                withCapacity<V>(
+                    functionName,
+                    posOnly.size + posOrNamed.size + (if (args) 1 else 0) + namedOnly.size + (if (kwargs) 1 else 0),
+                )
 
             for ((name, param) in posOnly) {
                 builder.param(name, param)
@@ -322,14 +338,15 @@ class ParametersSpec<V>(
         fun <V> newNamedOnly(
             functionName: String,
             namedOnly: List<Pair<String, ParametersSpecParam<V>>>,
-        ): ParametersSpec<V> = newParts(
-            functionName = functionName,
-            posOnly = emptyList(),
-            posOrNamed = emptyList(),
-            args = false,
-            namedOnly = namedOnly,
-            kwargs = false,
-        )
+        ): ParametersSpec<V> =
+            newParts(
+                functionName = functionName,
+                posOnly = emptyList(),
+                posOrNamed = emptyList(),
+                args = false,
+                namedOnly = namedOnly,
+                kwargs = false,
+            )
     }
 
     /** Produce an approximate signature for the function, combining the name and arguments. */
@@ -352,21 +369,19 @@ class ParametersSpec<V>(
      */
     // pub fn parameters_str(&self) -> String
     fun parametersStr(): String {
-        fun err(msg: String): String {
-            return "<$msg>"
-        }
+        fun err(msg: String): String = "<$msg>"
 
         indices.args?.let { argsIdx ->
             if (argsIdx != indices.numPositional) {
                 return err(
-                    "Inconsistent *args: $functionName, args=$argsIdx, positional=${indices.numPositional}"
+                    "Inconsistent *args: $functionName, args=$argsIdx, positional=${indices.numPositional}",
                 )
             }
         }
         indices.kwargs?.let { kwargsIdx ->
             if (kwargsIdx.toInt() + 1 != paramKinds.size) {
                 return err(
-                    "Inconsistent **kwargs: $functionName, kwargs=$kwargsIdx, param_kinds.len()=${paramKinds.size}"
+                    "Inconsistent **kwargs: $functionName, kwargs=$kwargsIdx, param_kinds.len()=${paramKinds.size}",
                 )
             }
         }
@@ -378,10 +393,11 @@ class ParametersSpec<V>(
             ParamFmt(
                 name = name,
                 ty = null,
-                default = when (paramKinds[i]) {
-                    is ParameterKind.Defaulted, is ParameterKind.Optional -> PARAM_FMT_OPTIONAL
-                    is ParameterKind.Required, is ParameterKind.Args, is ParameterKind.KWargs -> null
-                },
+                default =
+                    when (paramKinds[i]) {
+                        is ParameterKind.Defaulted, is ParameterKind.Optional -> PARAM_FMT_OPTIONAL
+                        is ParameterKind.Required, is ParameterKind.Args, is ParameterKind.KWargs -> null
+                    },
             )
         }
 
@@ -430,13 +446,14 @@ class ParametersSpec<V>(
                 name = name,
                 docs = docs,
                 typ = parameterTypes[i],
-                defaultValue = when (val kind = paramKinds[i]) {
-                    is ParameterKind.Required -> null
-                    is ParameterKind.Optional -> PARAM_FMT_OPTIONAL
-                    is ParameterKind.Defaulted -> formatter(kind.value)
-                    is ParameterKind.Args -> null
-                    is ParameterKind.KWargs -> null
-                },
+                defaultValue =
+                    when (val kind = paramKinds[i]) {
+                        is ParameterKind.Required -> null
+                        is ParameterKind.Optional -> PARAM_FMT_OPTIONAL
+                        is ParameterKind.Defaulted -> formatter(kind.value)
+                        is ParameterKind.Args -> null
+                        is ParameterKind.KWargs -> null
+                    },
             )
         }
 
@@ -504,11 +521,11 @@ class ParametersSpec<V>(
         // If the arguments equal the length and the kinds, and we don't have any other args,
         // then no_args, *args and **kwargs must all be unset,
         // and we don't have to create args/kwargs objects, we can skip everything else
-        if (args.pos().size == indices.numPositional.toInt()
-            && args.pos().size == paramKinds.size
-            && args.named().isEmpty()
-            && args.args() == null
-            && args.kwargs() == null
+        if (args.pos().size == indices.numPositional.toInt() &&
+            args.pos().size == paramKinds.size &&
+            args.named().isEmpty() &&
+            args.args() == null &&
+            args.kwargs() == null
         ) {
             for ((i, v) in args.pos().withIndex()) {
                 slots[i] = v
@@ -627,13 +644,15 @@ class ParametersSpec<V>(
 
         // Now insert the kwargs, if there are any
         args.kwargs()?.let { paramKwargs ->
-            val dictRef = dictRefFromValue(paramKwargs)
-                ?: throw FunctionError.KwArgsIsNotDict
+            val dictRef =
+                dictRefFromValue(paramKwargs)
+                    ?: throw FunctionError.KwArgsIsNotDict
             val dict: Dict by dictRef
             for ((k, v) in dict.content.iterHashed()) {
                 val keyValue = k.key() // Value
-                val s = StringValue.new(keyValue)
-                    ?: throw FunctionError.ArgsValueIsNotString
+                val s =
+                    StringValue.new(keyValue)
+                        ?: throw FunctionError.ArgsValueIsNotString
                 val hashedStr = Hashed.newUnchecked(k.hash(), s.asStr())
                 val paramIndex = names.getHashedStringValue(hashedStr)
                 if (paramIndex == null) {
@@ -698,7 +717,11 @@ class ParametersSpec<V>(
             slots[kwargsPos.toInt()] = kwargs.alloc(heap)
         } else if (kwargs.kwargs != null) {
             throw FunctionError.ExtraNamedArg(
-                names = kwargs.kwargs!!.keys().map { it.toStr() }.toList(),
+                names =
+                    kwargs.kwargs!!
+                        .keys()
+                        .map { it.toStr() }
+                        .toList(),
                 function = signature(),
             )
         }
@@ -754,13 +777,14 @@ class ParametersSpec<V>(
     fun documentation(
         parameterTypes: List<Ty>,
         parameterDocs: MutableMap<String, DocString?>,
-    ): DocParams = documentationWithDefaultValueFormatter(
-        parameterTypes,
-        parameterDocs,
-    ) { v ->
-        @Suppress("UNCHECKED_CAST")
-        (v as? Value)?.toRepr() ?: v.toString()
-    }
+    ): DocParams =
+        documentationWithDefaultValueFormatter(
+            parameterTypes,
+            parameterDocs,
+        ) { v ->
+            @Suppress("UNCHECKED_CAST")
+            (v as? Value)?.toRepr() ?: v.toString()
+        }
 
     /** Create a [`ParametersParser`] for given arguments. */
     // pub fn parser(...)

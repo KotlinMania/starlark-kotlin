@@ -1,5 +1,5 @@
 // port-lint: source src/eval/runtime/before_stmt.rs
-package io.github.kotlinmania.starlark.eval.runtime.before_stmt
+package io.github.kotlinmania.starlark.eval.runtime.beforestmt
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.
@@ -51,10 +51,14 @@ interface BeforeStmtFuncDyn {
  */
 sealed class BeforeStmtFunc {
     /** A plain function callback. */
-    class Fn(val f: (FileSpanRef, Boolean, Evaluator) -> Unit) : BeforeStmtFunc()
+    class Fn(
+        val f: (FileSpanRef, Boolean, Evaluator) -> Unit,
+    ) : BeforeStmtFunc()
 
     /** A dynamic (trait-object) callback. */
-    class Dyn(val d: BeforeStmtFuncDyn) : BeforeStmtFunc()
+    class Dyn(
+        val d: BeforeStmtFuncDyn,
+    ) : BeforeStmtFunc()
 
     /**
      * Invokes the callback with the given span, continuation flag, and evaluator.
@@ -76,14 +80,10 @@ sealed class BeforeStmtFunc {
 
     companion object {
         /** Creates a [BeforeStmtFunc] from a plain function reference. */
-        fun fromFn(value: (FileSpanRef, Boolean, Evaluator) -> Unit): BeforeStmtFunc {
-            return Fn(value)
-        }
+        fun fromFn(value: (FileSpanRef, Boolean, Evaluator) -> Unit): BeforeStmtFunc = Fn(value)
 
         /** Creates a [BeforeStmtFunc] from a dynamic callback. */
-        fun fromDyn(value: BeforeStmtFuncDyn): BeforeStmtFunc {
-            return Dyn(value)
-        }
+        fun fromDyn(value: BeforeStmtFuncDyn): BeforeStmtFunc = Dyn(value)
     }
 }
 
@@ -102,7 +102,5 @@ internal class BeforeStmt {
     var instrument: Boolean = false
 
     /** Returns `true` if instrumentation is enabled or callbacks are registered. */
-    fun enabled(): Boolean {
-        return instrument || beforeStmt.isNotEmpty()
-    }
+    fun enabled(): Boolean = instrument || beforeStmt.isNotEmpty()
 }

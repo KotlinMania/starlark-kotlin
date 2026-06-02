@@ -23,12 +23,12 @@ import io.github.kotlinmania.starlark.codemap.CodeMap
 import io.github.kotlinmania.starlark.codemap.FileSpan
 import io.github.kotlinmania.starlark.codemap.Span
 import io.github.kotlinmania.starlark.syntax.AstModule
+import io.github.kotlinmania.starlark.syntax.ast.AssignTargetP
 import io.github.kotlinmania.starlark.syntax.ast.AstAssignIdent
 import io.github.kotlinmania.starlark.syntax.ast.AstAssignTarget
 import io.github.kotlinmania.starlark.syntax.ast.AstExpr
 import io.github.kotlinmania.starlark.syntax.ast.AstIdent
 import io.github.kotlinmania.starlark.syntax.ast.AstStmt
-import io.github.kotlinmania.starlark.syntax.ast.AssignTargetP
 import io.github.kotlinmania.starlark.syntax.ast.BinOp
 import io.github.kotlinmania.starlark.syntax.ast.ExprP
 import io.github.kotlinmania.starlark.syntax.ast.StmtP
@@ -52,29 +52,24 @@ sealed class Incompatibility : LintWarning {
             "Duplicate top-level assignment of `$name`, first defined at $firstDefined"
     }
 
+    override fun severity(): EvalSeverity = EvalSeverity.Warning
 
-    override fun severity(): EvalSeverity {
-        return EvalSeverity.Warning
-    }
-
-
-    override fun shortName(): String {
-        return when (this) {
+    override fun shortName(): String =
+        when (this) {
             is IncompatibleTypeCheck -> "incompatible-type-check"
             is DuplicateTopLevelAssign -> "duplicate-top-level-assign"
         }
-    }
 }
 
 // static TYPES: Lazy<HashMap<&'static str, &'static str>> = Lazy::new(|| { ... });
-private val TYPES: Map<String, String> = mapOf(
-    "bool" to "True",
-    "tuple" to "()",
-    "str" to "\"\"",
-    "list" to "[]",
-    "int" to "0",
-)
-
+private val TYPES: Map<String, String> =
+    mapOf(
+        "bool" to "True",
+        "tuple" to "()",
+        "str" to "\"\"",
+        "list" to "[]",
+        "int" to "0",
+    )
 
 // visit_stmt helper: visit immediate child statements
 private fun AstStmt.visitStmt(visitor: (AstStmt) -> Unit) {
@@ -132,17 +127,16 @@ private fun AstAssignTarget.visitLvalue(visitor: (AstAssignIdent) -> Unit) {
 }
 
 // fn lookup_type<'a>(x: &AstExpr, types: &HashMap<&str, &'a str>) -> Option<&'a str>
-private fun lookupType(x: AstExpr, types: Map<String, String>): String? {
-    return when (val e = x.node) {
+private fun lookupType(x: AstExpr, types: Map<String, String>): String? =
+    when (val e = x.node) {
         is ExprP.Identifier<*, *> -> types[(e.ident as AstIdent).node.ident]
         else -> null
     }
-}
 
 // Return true if this expression matches `type($x)`
 // fn is_type_call(x: &AstExpr) -> bool
-private fun isTypeCall(x: AstExpr): Boolean {
-    return when (val e = x.node) {
+private fun isTypeCall(x: AstExpr): Boolean =
+    when (val e = x.node) {
         is ExprP.Call<*> -> {
             if (e.args.args.size == 1) {
                 @Suppress("UNCHECKED_CAST")
@@ -154,7 +148,6 @@ private fun isTypeCall(x: AstExpr): Boolean {
         }
         else -> false
     }
-}
 
 // fn match_bad_type_equality(...)
 @Suppress("UNCHECKED_CAST")
@@ -178,7 +171,7 @@ private fun matchBadTypeEquality(
                                 x.toString(),
                                 "${(e.lhs as AstExpr).node}${e.op}type($replacement)",
                             ),
-                        )
+                        ),
                     )
                 }
             }
@@ -190,6 +183,7 @@ private fun matchBadTypeEquality(
 // fn bad_type_equality(module: &AstModule, res: &mut Vec<LintT<Incompatibility>>)
 private fun badTypeEquality(module: AstModule, res: MutableList<LintT<Incompatibility>>) {
     val types = TYPES
+
     fun check(
         codemap: CodeMap,
         x: AstExpr,
@@ -225,7 +219,7 @@ private fun duplicateTopLevelAssignment(module: AstModule, res: MutableList<Lint
                     codemap,
                     x.span,
                     Incompatibility.DuplicateTopLevelAssign(x.node.ident, codemap.fileSpan(old.first)),
-                )
+                ),
             )
         } else {
             defined[x.node.ident] = Pair(x.span, isLoad)
@@ -244,12 +238,12 @@ private fun duplicateTopLevelAssignment(module: AstModule, res: MutableList<Lint
                 val lhsNode = (s.assign.lhs as AstAssignTarget).node
                 val rhsNode = (s.assign.rhs as AstExpr).node
                 when {
-                    lhsNode is AssignTargetP.Identifier<*, *>
-                        && rhsNode is ExprP.Identifier<*, *>
-                        && (lhsNode.ident as AstAssignIdent).node.ident ==
-                            (rhsNode.ident as AstIdent).node.ident
-                        && defined[(lhsNode.ident as AstAssignIdent).node.ident]?.second == true
-                        && !exported.contains((lhsNode.ident as AstAssignIdent).node.ident) -> {
+                    lhsNode is AssignTargetP.Identifier<*, *> &&
+                        rhsNode is ExprP.Identifier<*, *> &&
+                        (lhsNode.ident as AstAssignIdent).node.ident ==
+                        (rhsNode.ident as AstIdent).node.ident &&
+                        defined[(lhsNode.ident as AstAssignIdent).node.ident]?.second == true &&
+                        !exported.contains((lhsNode.ident as AstAssignIdent).node.ident) -> {
                         // Normally this would be an error, but if we load()'d it,
                         // this is how we'd reexport through Starlark.
                         // But only allow one export

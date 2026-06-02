@@ -20,9 +20,9 @@ package io.github.kotlinmania.starlark.values.layout.heap.allocator.alloc
  */
 
 import io.github.kotlinmania.starlark.values.layout.AlignedSize
+import io.github.kotlinmania.starlark.values.layout.ValueAllocSize
 import io.github.kotlinmania.starlark.values.layout.heap.allocator.ArenaAllocator
 import io.github.kotlinmania.starlark.values.layout.heap.allocator.ChunkAllocationDirection
-import io.github.kotlinmania.starlark.values.layout.ValueAllocSize
 
 /**
  * Chunk-based arena allocator.
@@ -39,11 +39,13 @@ internal class ChunkAllocator : ArenaAllocator {
      * The rest of the chain contains allocated data.
      */
     private var chain: ChunkChain = ChunkChain.default()
+
     /**
      * Offset pointing to the currently filled part of the chunk.
      * In Rust: Cell<NonNull<usize>>
      */
     private var currentPtr: Int = chain.begin()
+
     /**
      * Offset pointing to the end of the current chunk part.
      * In Rust: Cell<NonNull<usize>>
@@ -61,9 +63,7 @@ internal class ChunkAllocator : ArenaAllocator {
     }
 
     /** Take the current chain and replace with default. */
-    private fun takeChain(): Pair<ChunkChain, Int> {
-        return replaceChain(ChunkChain.default())
-    }
+    private fun takeChain(): Pair<ChunkChain, Int> = replaceChain(ChunkChain.default())
 
     /**
      * Try to allocate from the current chunk (fast path).
@@ -103,29 +103,24 @@ internal class ChunkAllocator : ArenaAllocator {
 
     // --- ArenaAllocator implementation ---
 
-    override fun allocatedBytes(): Int {
-        return chain.allocatedBytes()
-    }
+    override fun allocatedBytes(): Int = chain.allocatedBytes()
 
-    override fun remainingCapacity(): Int {
-        return endPtr - currentPtr
-    }
+    override fun remainingCapacity(): Int = endPtr - currentPtr
 
     override fun allocationOverhead(): Int {
         val allocatedBytesWithMetadata = chain.allocatedBytesWithMetadata()
         return maxOf(0, allocatedBytesWithMetadata - allocatedBytes())
     }
 
-    override fun alloc(size: ValueAllocSize): Any {
-        return tryAllocFast(size.size())
+    override fun alloc(size: ValueAllocSize): Any =
+        tryAllocFast(size.size())
             ?: allocSlow(size.size())
-    }
 
     override val chunkAllocationDirection: ChunkAllocationDirection =
         ChunkAllocationDirection.Up
 
-    override fun iterAllocatedChunksRev(): Sequence<ByteArray> {
-        return sequence {
+    override fun iterAllocatedChunksRev(): Sequence<ByteArray> =
+        sequence {
             // First, yield the currently filling chunk.
             val begin = chain.begin()
             val currentLen = currentPtr - begin
@@ -145,7 +140,6 @@ internal class ChunkAllocator : ArenaAllocator {
                 }
             }
         }
-    }
 
     override fun finish() {
         val (oldChain, oldCurrentPtr) = takeChain()

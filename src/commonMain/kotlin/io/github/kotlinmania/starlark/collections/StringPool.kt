@@ -19,9 +19,9 @@ package io.github.kotlinmania.starlark.collections
  * limitations under the License.
  */
 
-//! Reuse string allocation.
+// ! Reuse string allocation.
 
-/// Pool of strings.
+// / Pool of strings.
 // #[derive(Default, Debug)]
 // pub(crate) struct StringPool {
 //     /// Empty strings with (typically) non-zero capacity.
@@ -33,9 +33,9 @@ internal class StringPool {
 
     // impl StringPool
 
-    /// Fetch a string from the pool or create an empty one.
-    ///
-    /// It is OK to not return a string to the pool.
+    // / Fetch a string from the pool or create an empty one.
+    // /
+    // / It is OK to not return a string to the pool.
     // pub(crate) fn alloc(&mut self) -> String
     fun alloc(): StringBuilder {
         // let string = self.strings.pop().unwrap_or_default();
@@ -45,10 +45,10 @@ internal class StringPool {
         return builder
     }
 
-    /// Return the string back to the pool.
-    ///
-    /// Only strings previously allocated with this pool should be returned,
-    /// otherwise pool may grow too much.
+    // / Return the string back to the pool.
+    // /
+    // / Only strings previously allocated with this pool should be returned,
+    // / otherwise pool may grow too much.
     // pub(crate) fn release(&mut self, mut s: String)
     fun release(s: StringBuilder) {
         // s.clear();

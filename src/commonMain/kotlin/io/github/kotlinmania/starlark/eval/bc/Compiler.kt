@@ -19,7 +19,7 @@ package io.github.kotlinmania.starlark.eval.bc
  * limitations under the License.
  */
 
-//! Compile module or function to bytecode.
+// ! Compile module or function to bytecode.
 
 // pub(crate) mod assign;
 // pub(crate) mod assign_modify;
