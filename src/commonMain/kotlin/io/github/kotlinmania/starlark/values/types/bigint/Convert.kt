@@ -32,6 +32,7 @@ import com.ionspin.kotlin.bignum.integer.BigInteger
 import io.github.kotlinmania.starlark.typing.Ty
 import io.github.kotlinmania.starlark.values.AllocValue
 import io.github.kotlinmania.starlark.values.StarlarkTypeRepr
+import io.github.kotlinmania.starlark.values.UnpackValue
 import io.github.kotlinmania.starlark.values.layout.FrozenValue
 import io.github.kotlinmania.starlark.values.layout.Value
 import io.github.kotlinmania.starlark.values.layout.heap.FrozenHeap
@@ -161,6 +162,12 @@ fun Value.unpackULong(): Result<ULong?> =
  * impl UnpackValue for i64
  */
 fun Value.unpackLong(): Result<Long?> = unpackInteger()
+
+object I64UnpackValue : UnpackValue<Long> {
+    override fun starlarkTypeRepr(): Ty = Ty.int()
+
+    override fun unpackValueImpl(value: Value): Result<Long?> = value.unpackLong()
+}
 
 /**
  * Unpack an Int from a Starlark Value.
