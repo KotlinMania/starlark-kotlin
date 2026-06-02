@@ -20,6 +20,4 @@ package io.github.kotlinmania.starlark
  */
 
 /** Are we on wasm? */
-fun isWasm(): Boolean {
-    return false
-}
+fun isWasm(): Boolean = false

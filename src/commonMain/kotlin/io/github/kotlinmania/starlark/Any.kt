@@ -21,75 +21,33 @@ package io.github.kotlinmania.starlark.any
 import kotlin.reflect.KClass
 
 /**
- * Provides access to the same type as `Self` but with all lifetimes dropped to `'static`
- * (including lifetimes of parameters).
+ * Provides the stable runtime type used for dynamic type checks.
  *
- * This type is usually implemented with `#[derive(ProvidesStaticType)]`.
- *
- * In Kotlin, since there are no lifetime parameters, this maps to providing
- * the [KClass] of the static type for runtime type identification.
+ * Implementations must return the type that should be used for erased runtime
+ * comparisons, independent of instance state.
  */
 interface ProvidesStaticType {
     /**
-     * Same type as `Self` but with lifetimes dropped to `'static`.
-     *
-     * The trait is unsafe because if this is implemented incorrectly,
-     * the program might not work correctly.
+     * Stable type identity for this value.
      */
     val staticType: KClass<*>
 }
 
 /**
- * Any [ProvidesStaticType] can implement [AnyLifetime].
- *
- * Note [ProvidesStaticType] and [AnyLifetime] cannot be the same type,
- * because [AnyLifetime] needs to be object safe,
- * and [ProvidesStaticType] has type member.
+ * Any [ProvidesStaticType] value can expose object-safe type identity through [AnyLifetime].
  */
+
 /**
- * Like [Any][kotlin.Any], but while `Any` requires `'static`, this version
- * allows a lifetime parameter.
- *
- * Code using this trait is _unsafe_ if your implementation of the inner methods do not meet the
- * invariants listed. Therefore, it is recommended you use one of the helper macros.
- *
- * You cannot implement this trait directly. You should instead implement [ProvidesStaticType],
- * usually via the derive macro:
- *
- * ```
- * use starlark::any::ProvidesStaticType;
- * #[derive(ProvidesStaticType)]
- * struct Foo1();
- * #[derive(ProvidesStaticType)]
- * struct Foo2<'a>(&'a ());
- * ```
- *
- * If your data type is not of the form `Foo` or `Foo<'v>` you may need to implement
- * [ProvidesStaticType] directly.
- *
- * ```
- * use starlark::any::ProvidesStaticType;
- * struct Baz<T: Display>(T);
- * unsafe impl<'a, T> ProvidesStaticType<'a> for Baz<T>
- * where
- *     T: ProvidesStaticType<'a> + Display,
- *     T::StaticType: Display + Sized,
- * {
- *     type StaticType = Baz<T::StaticType>;
- * }
- * ```
+ * Object-safe runtime type identity.
  */
 interface AnyLifetime {
     /**
-     * Must return the `TypeId` of `Self` but where the lifetimes are changed
-     * to `'static`. Must be consistent with [staticTypeOf].
+     * Static type identity for this implementation.
      */
     fun staticTypeId(): KClass<*>
 
     /**
-     * Must return the `TypeId` of `Self` but where the lifetimes are changed
-     * to `'static`. Must be consistent with [staticTypeOf]. Must not
-     * consult the `self` parameter in any way.
+     * Runtime type identity for this value. Must be consistent with [staticTypeId].
      */
     fun staticTypeOf(): KClass<*>
 }
@@ -109,12 +67,8 @@ inline fun <reified T> AnyLifetime.isType(): Boolean = this.staticTypeOf() == T:
  * right type.
  */
 inline fun <reified T> AnyLifetime.downcastRef(): T? {
-    if (this.isType<T>()) {
-        @Suppress("UNCHECKED_CAST")
-        return this as T
-    } else {
-        return null
-    }
+    if (!this.isType<T>()) return null
+    return if (this is T) this else null
 }
 
 /**
@@ -122,12 +76,8 @@ inline fun <reified T> AnyLifetime.downcastRef(): T? {
  * the right type.
  */
 inline fun <reified T> AnyLifetime.downcastMut(): T? {
-    if (this.isType<T>()) {
-        @Suppress("UNCHECKED_CAST")
-        return this as T
-    } else {
-        return null
-    }
+    if (!this.isType<T>()) return null
+    return if (this is T) this else null
 }
 
 class UnitStaticType : ProvidesStaticType {

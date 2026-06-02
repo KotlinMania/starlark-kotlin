@@ -76,6 +76,7 @@ class Symbol private constructor(
         Hashed.newUnchecked(smallHash, asStr())
 
     override fun smallHash(): StarlarkHashValue = smallHash
+
     override fun <V> getIndexFromParamSpec(ps: ParametersSpec<V>): Int? = ps.names.get(this)?.toInt()
 
     companion object {
