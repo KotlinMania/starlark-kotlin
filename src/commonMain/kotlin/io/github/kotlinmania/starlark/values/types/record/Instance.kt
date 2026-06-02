@@ -175,7 +175,7 @@ class RecordGen internal constructor(
     override fun typecheckerTy(): Ty = getRecordType().instanceTy()
 
     @HiddenFromObjC
-    fun serialize(): Map<String, Value> = iter().toMap()
+    internal fun serialize(): Map<String, Value> = iter().toMap()
 }
 
 /** Type alias for unfrozen record. */

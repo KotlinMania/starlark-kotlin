@@ -142,7 +142,7 @@ internal class StarlarkBigInt private constructor(
      *
      * Rust: `fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>`
      */
-    fun serialize(): Any {
+    internal fun serialize(): Any {
         // Always serialize as a number, prefer i64 if it fits, otherwise u64
         val longVal =
             try {
