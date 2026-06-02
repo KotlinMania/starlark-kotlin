@@ -31,8 +31,8 @@ import io.github.kotlinmania.starlark.collections.smallset.SmallSet
  */
 class OrderedSet<T> internal constructor(
     internal val inner: SmallSet<T>,
-) : Iterable<T>,
-    Comparable<OrderedSet<T>> {
+) : Iterable<T>, Comparable<OrderedSet<T>> {
+
     companion object {
         /** Create a new empty set. */
         fun <T> new(): OrderedSet<T> = OrderedSet(SmallSet())
@@ -133,14 +133,11 @@ class OrderedSet<T> internal constructor(
      */
     fun tryInsert(value: T): OccupiedError<T>? {
         val hashed = Hashed.new(value)
-        val existing =
-            inner.getHashed(
-                object : Equivalent<T> {
-                    override fun equivalent(key: T): Boolean = hashed.key() == key
-                }.let { equiv ->
-                    Hashed.newUnchecked(hashed.hash(), equiv)
-                },
-            )
+        val existing = inner.getHashed(object : Equivalent<T> {
+            override fun equivalent(key: T): Boolean = hashed.key() == key
+        }.let { equiv ->
+            Hashed.newUnchecked(hashed.hash(), equiv)
+        })
         if (existing != null) {
             return OccupiedError(value, existing)
         }
@@ -212,7 +209,6 @@ class OrderedSet<T> internal constructor(
         while (thisIter.hasNext() && otherIter.hasNext()) {
             val t = thisIter.next()
             val o = otherIter.next()
-
             @Suppress("UNCHECKED_CAST")
             val cmp = (t as Comparable<T>).compareTo(o)
             if (cmp != 0) return cmp
@@ -224,7 +220,9 @@ class OrderedSet<T> internal constructor(
         }
     }
 
-    override fun toString(): String = iter().joinToString(", ", "{", "}")
+    override fun toString(): String {
+        return iter().joinToString(", ", "{", "}")
+    }
 }
 
 /**

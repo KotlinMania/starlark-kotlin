@@ -52,7 +52,8 @@ class AnyComplexTest {
 
             assertEquals(
                 "aaa",
-                StarlarkAnyComplex.getErr<StarlarkAnyComplex<*>>(data.downcastRefErr(StarlarkAnyComplex::class).getOrThrow()).value
+                data.downcastRef<StarlarkAnyComplex<*>>()!!
+                    .value
                     .let { it as UnfrozenData }
                     .string
                     .unpackStr(),
@@ -65,9 +66,10 @@ class AnyComplexTest {
             val frozenData = frozenModule.extraValue()!!
             assertEquals(
                 constFrozenString("aaa").toFrozenValue(),
-                StarlarkAnyComplex.getErr<StarlarkAnyComplex<*>>(
-                    frozenData.toValue().downcastRefErr(StarlarkAnyComplex::class).getOrThrow(),
-                ).value
+                frozenData
+                    .toValue()
+                    .downcastRef<StarlarkAnyComplex<*>>()!!
+                    .value
                     .let { it as FrozenData }
                     .string,
             )

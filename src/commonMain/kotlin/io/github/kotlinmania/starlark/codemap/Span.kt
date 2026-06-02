@@ -52,7 +52,7 @@ data class Span(
 
     fun endSpan(): Span = Span(end, end)
 
-    fun contains(pos: Pos): Boolean = begin <= pos && pos <= end
+    fun contains(pos: Pos): Boolean = pos in begin..end
 
     fun intersects(span: Span): Boolean =
         contains(span.begin) || contains(span.end) || span.contains(begin)
