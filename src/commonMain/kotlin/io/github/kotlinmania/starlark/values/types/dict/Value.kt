@@ -127,7 +127,14 @@ data class DictGen<T>(
         val hashed = index.getHashed().getOrElse { return Result.failure(it) }
         val v =
             innerVal.content().getHashedByValue(hashed)
-                ?: return Result.failure(ValueError.KeyNotFound(index.toRepr()))
+                ?: run {
+                    println("DEBUG: KeyNotFound lookup for: index=$index (ptr=${index.ptr.raw()}), hash=${hashed.hash()}")
+                    println("DEBUG: Dictionary contents:")
+                    for ((k, valVal) in innerVal.content().iterHashed()) {
+                        println("  key=$k (ptr=${k.key().ptr.raw()}), hash=${k.hash()}, val=$valVal")
+                    }
+                    return Result.failure(ValueError.KeyNotFound(index.toRepr()))
+                }
         return Result.success(v.toValue())
     }
 
@@ -246,6 +253,7 @@ class Dict(
         for (entry in content.entries) {
             val keyHolder = ValueHolder(entry.key.key())
             tracer.trace(keyHolder)
+            entry.key = Hashed.newUnchecked(entry.key.hash(), keyHolder.value)
             val valueHolder = ValueHolder(entry.value)
             tracer.trace(valueHolder)
             entry.value = valueHolder.value
@@ -526,7 +534,14 @@ internal fun <K, V> fmtKeyedContainer(
 
 class AtomicRef<T>(
     var value: T,
-) {
+) : Trace {
+    override fun trace(tracer: Tracer) {
+        val v = value
+        if (v is Trace) {
+            v.trace(tracer)
+        }
+    }
+
     fun borrow(): Ref<T> = Ref(value)
 
     fun tryBorrowMut(): RefMut<T> = RefMut(value)

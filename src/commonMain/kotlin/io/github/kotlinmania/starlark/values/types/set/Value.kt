@@ -36,6 +36,7 @@ import io.github.kotlinmania.starlark.values.layout.Value
 import io.github.kotlinmania.starlark.values.layout.avalues.allocComplex
 import io.github.kotlinmania.starlark.values.layout.heap.Heap
 import io.github.kotlinmania.starlark.values.layout.heap.Tracer
+import io.github.kotlinmania.starlark.values.layout.heap.ValueHolder
 
 /**
  * Generic set wrapper.
@@ -227,7 +228,16 @@ private const val SET_TYPE: String = "set"
 class SetData internal constructor(
     /** The data stored by the set. */
     val content: SmallSet<Value>,
-) {
+) : Trace {
+    override fun trace(tracer: Tracer) {
+        for (i in content.entries.indices) {
+            val entry = content.entries[i]
+            val key = entry.key()
+            val holder = ValueHolder(key)
+            tracer.trace(holder)
+            content.entries[i] = Hashed.newUnchecked(entry.hash(), holder.value)
+        }
+    }
     constructor() : this(SmallSet())
 
     fun clear() {

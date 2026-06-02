@@ -32,6 +32,7 @@ import io.github.kotlinmania.starlark.values.layout.heap.ForwardPtr
 import io.github.kotlinmania.starlark.values.layout.heap.FrozenHeap
 import io.github.kotlinmania.starlark.values.layout.heap.Heap
 import io.github.kotlinmania.starlark.values.layout.heap.Tracer
+import io.github.kotlinmania.starlark.values.layout.heap.ValueHolder
 import io.github.kotlinmania.starlark.values.types.array.Array
 import io.github.kotlinmania.starlark.values.types.list.FrozenListData
 import io.github.kotlinmania.starlark.values.types.list.ListData
@@ -86,8 +87,26 @@ internal object AValueList : AValue {
         return Result.success(fv)
     }
 
-    override fun heapCopy(tracer: Tracer): Value {
-        error("heapCopy should be dispatched via vtable with actual value")
+    override fun heapCopy(repr: AValueRepr<*>, tracer: Tracer): Value {
+        @Suppress("UNCHECKED_CAST")
+        val list = repr.payload as ListGen<ListData>
+        val content = list.data.content()
+
+        val (v, r) = tracer.reserve<AValueList>()
+        AValueHeader.overwriteWithForward(repr, ForwardPtr.newUnfrozen(v))
+
+        println("LIST COPY: old ptr = ${repr.header.index}, new ptr = ${v.ptrValue()}")
+        val newContent = content.toMutableList()
+        for (i in newContent.indices) {
+            val oldVal = newContent[i]
+            val holder = ValueHolder(oldVal)
+            tracer.trace(holder)
+            newContent[i] = holder.value
+            println("LIST COPY ELEMENT $i: old = ${oldVal.ptrValue()}, new = ${newContent[i].ptrValue()}")
+        }
+
+        r.fill(ListGen(ListData.new(newContent)))
+        return v
     }
 
     override fun unpack(): StarlarkValue = ListGen(ListData())
@@ -107,7 +126,7 @@ internal object AValueFrozenList : AValue {
         error("already frozen")
     }
 
-    override fun heapCopy(tracer: Tracer): Value {
+    override fun heapCopy(repr: AValueRepr<*>, tracer: Tracer): Value {
         error("shouldn't be copying frozen values")
     }
 

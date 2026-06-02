@@ -61,6 +61,8 @@ class AValueHeader(
         /** Global counter for assigning aligned indices. */
         private var counter: Long = ALIGN.toLong()
 
+        fun currentCounter(): Long = lock.withLock { counter }
+
         /** Global registry mapping index -> AValueHeader. */
         private val headerRegistry: MutableMap<Long, AValueHeader> = mutableMapOf()
 

@@ -66,7 +66,7 @@ internal val VALUE_STR_A_VALUE_PTR: AValueHeader by lazy {
                 AValueHeader.overwriteWithForward(repr, ForwardPtr.newFrozen(fv.toFrozenValue()))
                 Result.success(fv.toFrozenValue())
             },
-            heapCopyFn = { ptr, tracer ->
+            heapCopyFn = { _, ptr, tracer ->
                 val str = ptr.starlarkValue() as? StarlarkStr ?: error("Expected string value")
                 tracer.allocStr(str.asStr())
             },
@@ -118,7 +118,7 @@ internal class StarlarkStrAValue(
         return Result.success(fv.toFrozenValue())
     }
 
-    override fun heapCopy(tracer: Tracer): Value {
+    override fun heapCopy(repr: AValueRepr<*>, tracer: Tracer): Value {
         val s = str.asStr()
         return tracer.allocStr(s)
     }

@@ -31,6 +31,7 @@ import io.github.kotlinmania.starlark.values.layout.heap.ForwardPtr
 import io.github.kotlinmania.starlark.values.layout.heap.FrozenHeap
 import io.github.kotlinmania.starlark.values.layout.heap.Heap
 import io.github.kotlinmania.starlark.values.layout.heap.Tracer
+import io.github.kotlinmania.starlark.values.layout.heap.ValueHolder
 import io.github.kotlinmania.starlark.values.types.tuple.FrozenTuple
 import io.github.kotlinmania.starlark.values.types.tuple.Tuple
 import io.github.kotlinmania.starlark.values.types.tuple.TupleGen
@@ -79,8 +80,23 @@ internal object AValueTuple : AValue {
         return Result.success(fv)
     }
 
-    override fun heapCopy(tracer: Tracer): Value {
-        error("heapCopy should be dispatched via vtable with actual value")
+    override fun heapCopy(repr: AValueRepr<*>, tracer: Tracer): Value {
+        @Suppress("UNCHECKED_CAST")
+        val tuple = repr.payload as TupleGen<Value>
+        val content = tuple.content()
+
+        val (v, r) = tracer.reserve<AValueTuple>()
+        AValueHeader.overwriteWithForward(repr, ForwardPtr.newUnfrozen(v))
+
+        val newContent = content.toMutableList()
+        for (i in newContent.indices) {
+            val holder = ValueHolder(newContent[i])
+            tracer.trace(holder)
+            newContent[i] = holder.value
+        }
+
+        r.fill(TupleGen(newContent))
+        return v
     }
 
     override fun unpack(): StarlarkValue = TupleGen<Value>(emptyList())
@@ -99,7 +115,7 @@ internal object AValueFrozenTuple : AValue {
         error("already frozen")
     }
 
-    override fun heapCopy(tracer: Tracer): Value {
+    override fun heapCopy(repr: AValueRepr<*>, tracer: Tracer): Value {
         error("shouldn't be copying frozen values")
     }
 

@@ -24,10 +24,12 @@ import io.github.kotlinmania.starlark.collections.smallset.SmallSet
 import io.github.kotlinmania.starlark.typing.Ty
 import io.github.kotlinmania.starlark.values.SetType
 import io.github.kotlinmania.starlark.values.StarlarkTypeRepr
+import io.github.kotlinmania.starlark.values.Trace
 import io.github.kotlinmania.starlark.values.UnpackValue
 import io.github.kotlinmania.starlark.values.ValueError
 import io.github.kotlinmania.starlark.values.layout.FrozenValueStarlarkTypeRepr
 import io.github.kotlinmania.starlark.values.layout.Value
+import io.github.kotlinmania.starlark.values.layout.heap.Tracer
 
 /**
  * Define the set type.
@@ -180,7 +182,10 @@ sealed class Either<out L, out R> {
  */
 class RefCell(
     private var value: SetData,
-) : SetLike {
+) : SetLike, Trace {
+    override fun trace(tracer: Tracer) {
+        value.trace(tracer)
+    }
     private var borrowCount = 0
     private var mutBorrowCount = 0
 

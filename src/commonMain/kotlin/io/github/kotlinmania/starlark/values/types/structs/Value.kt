@@ -27,12 +27,19 @@ import io.github.kotlinmania.starlark.docs.DocMember
 import io.github.kotlinmania.starlark.docs.DocProperty
 import io.github.kotlinmania.starlark.typing.Ty
 import io.github.kotlinmania.starlark.typing.TyStruct
+import io.github.kotlinmania.starlark.values.ComplexValue
+import io.github.kotlinmania.starlark.values.Trace
+import io.github.kotlinmania.starlark.values.Freeze
+import io.github.kotlinmania.starlark.values.FreezeResult
 import io.github.kotlinmania.starlark.values.ValueError
 import io.github.kotlinmania.starlark.values.compareSmallMap
 import io.github.kotlinmania.starlark.values.equalsSmallMap
+import io.github.kotlinmania.starlark.values.layout.Freezer
 import io.github.kotlinmania.starlark.values.layout.FrozenValue
 import io.github.kotlinmania.starlark.values.layout.Value
 import io.github.kotlinmania.starlark.values.layout.heap.Heap
+import io.github.kotlinmania.starlark.values.layout.heap.Tracer
+import io.github.kotlinmania.starlark.values.layout.heap.ValueHolder
 
 /**
  * The result of calling `struct()`.
@@ -44,13 +51,44 @@ import io.github.kotlinmania.starlark.values.layout.heap.Heap
 data class StructGen<V>(
     /** The fields in a struct. */
     val fields: SmallMap<String, V>,
-) : io.github.kotlinmania.starlark.values.StarlarkValue {
+) : io.github.kotlinmania.starlark.values.StarlarkValue, ComplexValue, Trace, Freeze<FrozenStruct> {
     override val TYPE: String get() = Companion.TYPE
     override val HAS_equals: Boolean get() = true
 
     companion object {
         /** The result of calling `type()` on a struct. */
         const val TYPE: String = "struct"
+    }
+
+    @Suppress("UNCHECKED_CAST", "USELESS_IS_CHECK")
+    override fun trace(tracer: Tracer) {
+        println("STRUCT TRACE: fields size = ${fields.len()}")
+        for (entry in fields.entries) {
+            val v = entry.value
+            if (v is Value) {
+                println("STRUCT TRACE FIELD: key=${entry.key.key()} value=$v isValue=true ptr=${v.ptrValue()}")
+                val holder = ValueHolder(v)
+                tracer.trace(holder)
+                entry.value = holder.value as V
+                println("STRUCT TRACE FIELD AFTER: key=${entry.key.key()} value=${entry.value} ptr=${(entry.value as Value).ptrValue()}")
+            } else {
+                println("STRUCT TRACE FIELD: key=${entry.key.key()} value=$v isValue=false")
+            }
+        }
+    }
+
+    @Suppress("UNCHECKED_CAST")
+    override fun freeze(freezer: Freezer): FreezeResult<FrozenStruct> {
+        val frozenFields = SmallMap.withCapacity<String, FrozenValue>(fields.len())
+        for ((k, v) in fields.iter()) {
+            val frozenVal = when (v) {
+                is Value -> freezer.freeze(v).getOrElse { return Result.failure(it) }
+                is FrozenValue -> v
+                else -> return Result.failure(IllegalArgumentException("Unexpected type in fields: ${v?.let { it::class.simpleName }}"))
+            }
+            frozenFields.insert(k, frozenVal)
+        }
+        return Result.success(StructGen(frozenFields))
     }
 
     /**

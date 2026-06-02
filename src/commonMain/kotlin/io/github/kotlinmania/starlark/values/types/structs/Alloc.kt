@@ -29,6 +29,7 @@ import io.github.kotlinmania.starlark.values.AllocValue
 import io.github.kotlinmania.starlark.values.StarlarkTypeRepr
 import io.github.kotlinmania.starlark.values.layout.FrozenValue
 import io.github.kotlinmania.starlark.values.layout.Value
+import io.github.kotlinmania.starlark.values.layout.avalues.allocComplex
 import io.github.kotlinmania.starlark.values.layout.avalues.simple.allocSimple
 import io.github.kotlinmania.starlark.values.layout.heap.FrozenHeap
 import io.github.kotlinmania.starlark.values.layout.heap.Heap
@@ -98,7 +99,7 @@ fun <K, V, S> AllocStruct<S>.allocValue(heap: Heap): Value
         check(prev == null) { "non-unique key: $allocatedKey" }
     }
 
-    return heap.allocSimple(StructGen(fields))
+    return heap.allocComplex(StructGen(fields))
 }
 
 /**

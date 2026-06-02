@@ -49,9 +49,9 @@ private sealed class AValueError : Exception() {
 }
 
 /** AValue implementation for ComplexValue types that support freezing. */
-internal class AValueComplex<T>(
-    private val value: T,
-) : AValue where T : ComplexValue, T : Freeze<out StarlarkValue> {
+internal class AValueComplex(
+    private val value: StarlarkValue,
+) : AValue {
     override fun extraLen(value: StarlarkValue): Int = 0
 
     override fun offsetOfExtra(): Int = 0
@@ -64,8 +64,9 @@ internal class AValueComplex<T>(
             return direct
         }
 
-        // r.fill(res);
-        val result = value.freeze(freezer)
+        @Suppress("UNCHECKED_CAST")
+        val freezeValue = value as Freeze<StarlarkValue>
+        val result = freezeValue.freeze(freezer)
         val frozen = result.getOrElse { return Result.failure(it) }
 
         val (fv, r) = freezer.reserve<AValue>()
@@ -96,7 +97,9 @@ internal class AValueComplex<T>(
         val (fv, r) = freezer.reserve<AValue>()
         AValueHeader.overwriteWithForward(repr, ForwardPtr.newFrozen(fv))
 
-        val result = value.freeze(freezer)
+        @Suppress("UNCHECKED_CAST")
+        val freezeValue = value as Freeze<StarlarkValue>
+        val result = freezeValue.freeze(freezer)
         val frozen = result.getOrElse { return Result.failure(it) }
         r.fill(frozen)
 
@@ -110,7 +113,7 @@ internal class AValueComplex<T>(
         return Result.success(fv)
     }
 
-    override fun heapCopy(tracer: Tracer): Value = heapCopyImpl(value, tracer) { v, t -> (v as Trace).trace(t) }
+    override fun heapCopy(repr: AValueRepr<*>, tracer: Tracer): Value = heapCopyImpl(repr, value, tracer) { v, t -> (v as Trace).trace(t) }
 
     override fun unpack(): StarlarkValue = value
 }
@@ -130,7 +133,7 @@ internal class AValueComplexNoFreeze(
             FreezeError(AValueError.CannotBeFrozen(value::class.simpleName ?: "unknown").message),
         )
 
-    override fun heapCopy(tracer: Tracer): Value = heapCopyImpl(value, tracer) { v, t -> (v as Trace).trace(t) }
+    override fun heapCopy(repr: AValueRepr<*>, tracer: Tracer): Value = heapCopyImpl(repr, value, tracer) { v, t -> (v as Trace).trace(t) }
 
     override fun unpack(): StarlarkValue = value
 }
@@ -140,6 +143,17 @@ fun <T> Heap.allocComplex(x: T): Value where T : ComplexValue, T : Freeze<out St
     check(!x.isSpecial())
     return allocRaw(AValueImpl.new(x, AValueComplex(x))).toValue()
 }
+
+/** Allocate a [ComplexValue] of unknown static type on the [Heap]. */
+fun Heap.allocComplexAny(x: Any): Value {
+    check(x is ComplexValue)
+    check(x is Freeze<*>)
+    @Suppress("UNCHECKED_CAST")
+    fun <T> Heap.allocComplexHelper(v: Any): Value where T : ComplexValue, T : Freeze<out StarlarkValue> =
+        this.allocComplex(v as T)
+    return allocComplexHelper<io.github.kotlinmania.starlark.values.types.anycomplex.StarlarkAnyComplex<Any>>(x)
+}
+
 
 /** Allocate a value which can be traced (garbage collected), but cannot be frozen. */
 fun Heap.allocComplexNoFreeze(x: StarlarkValue): Value {

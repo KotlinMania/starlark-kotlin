@@ -22,8 +22,11 @@ package io.github.kotlinmania.starlark.values
 /** Detect recursion when doing `repr` or `to_json`. */
 
 import io.github.kotlinmania.starlark.collections.smallset.SmallSet
+import io.github.kotlinmania.starlark.values.layout.Pointer
 import io.github.kotlinmania.starlark.values.layout.RawPointer
 import io.github.kotlinmania.starlark.values.layout.Value
+import io.github.kotlinmania.starlark.values.layout.heap.Tracer
+import io.github.kotlinmania.starlark.values.layout.heap.ValueHolder
 
 /** Pop the stack on drop. */
 internal class ReprStackGuard : AutoCloseable {
@@ -63,8 +66,32 @@ internal fun reprStackPush(value: Value): Result<ReprStackGuard> {
 
 /** Push a value to the stack, return error if it is already on the stack. */
 internal fun jsonStackPush(value: Value): Result<JsonStackGuard> {
+    println("PUSH: value=${value} type=${value.getType()} ptrVal=${value.ptrValue()} stack=${jsonStack.iter().map { it.toString() }.toList()}")
     if (!jsonStack.insert(value.ptrValue())) {
+        println("CYCLE DETECTED: value=${value} type=${value.getType()}")
         return Result.failure(Exception(JsonCycle().toString()))
     }
     return Result.success(JsonStackGuard())
+}
+
+/** Trace and update pointers in reprStack and jsonStack when garbage collection runs. */
+internal fun traceRecursiveGuardStacks(tracer: Tracer) {
+    if (!reprStack.isEmpty()) {
+        val oldItems = reprStack.iter().toList()
+        reprStack.clear()
+        for (raw in oldItems) {
+            val holder = ValueHolder(Value(Pointer.new(raw)))
+            tracer.trace(holder)
+            reprStack.insert(holder.value.ptrValue())
+        }
+    }
+    if (!jsonStack.isEmpty()) {
+        val oldItems = jsonStack.iter().toList()
+        jsonStack.clear()
+        for (raw in oldItems) {
+            val holder = ValueHolder(Value(Pointer.new(raw)))
+            tracer.trace(holder)
+            jsonStack.insert(holder.value.ptrValue())
+        }
+    }
 }

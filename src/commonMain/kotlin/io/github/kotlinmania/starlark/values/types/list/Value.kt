@@ -34,15 +34,23 @@ import io.github.kotlinmania.starlark.values.layout.Value
 import io.github.kotlinmania.starlark.values.layout.avalues.AllocStaticSimple
 import io.github.kotlinmania.starlark.values.layout.avalues.allocList
 import io.github.kotlinmania.starlark.values.layout.avalues.allocListIter
+import io.github.kotlinmania.starlark.values.Trace
 import io.github.kotlinmania.starlark.values.layout.heap.FrozenHeap
 import io.github.kotlinmania.starlark.values.layout.heap.Heap
+import io.github.kotlinmania.starlark.values.layout.heap.Tracer
+import io.github.kotlinmania.starlark.values.layout.heap.ValueHolder
 import kotlin.math.max
 import kotlin.reflect.KClass
 
 /** Generic list container, parameterized on the data type. */
 class ListGen<T>(
     val data: T,
-) : StarlarkValue {
+) : StarlarkValue, Trace {
+    override fun trace(tracer: Tracer) {
+        if (data is Trace) {
+            data.trace(tracer)
+        }
+    }
     override val TYPE: String get() = ListData.TYPE
     override val HAS_iterate: Boolean get() = true
     override val HAS_equals: Boolean get() = true
@@ -170,7 +178,14 @@ class ListGen<T>(
 class ListData(
     /** The data stored by the list. */
     private val content: MutableList<Value> = mutableListOf(),
-) : ListLike {
+) : ListLike, Trace {
+    override fun trace(tracer: Tracer) {
+        for (i in content.indices) {
+            val holder = ValueHolder(content[i])
+            tracer.trace(holder)
+            content[i] = holder.value
+        }
+    }
     @PublishedApi
     internal var iterCount: Int = 0
 

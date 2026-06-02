@@ -72,7 +72,7 @@ class AValueVTable(
     val isStr: Boolean,
     internal val memorySizeFn: (StarlarkValueRawPtr) -> ValueAllocSize,
     internal val heapFreezeFn: (AValueRepr<*>, StarlarkValueRawPtr, Freezer) -> Result<FrozenValue>,
-    internal val heapCopyFn: (StarlarkValueRawPtr, Tracer) -> Value,
+    internal val heapCopyFn: (AValueRepr<*>, StarlarkValueRawPtr, Tracer) -> Value,
     // StarlarkValue dispatch
     internal val starlarkValue: StarlarkValue,
     /**
@@ -98,7 +98,7 @@ class AValueVTable(
                     blackHole.size
                 },
                 heapFreezeFn = { _, _, _ -> error("BlackHole") },
-                heapCopyFn = { _, _ -> error("BlackHole") },
+                heapCopyFn = { _, _, _ -> error("BlackHole") },
                 starlarkValue =
                     object : StarlarkValue {
                         override val TYPE: String get() = "BlackHole"
@@ -134,7 +134,7 @@ class AValueVTable(
                 isStr = false,
                 memorySizeFn = { _ -> ValueAllocSize.new(AlignedSize.newBytes(16)) },
                 heapFreezeFn = { _, _, _ -> error("forType: heapFreeze not supported for $typeName") },
-                heapCopyFn = { _, _ -> error("forType: heapCopy not supported for $typeName") },
+                heapCopyFn = { _, _, _ -> error("forType: heapCopy not supported for $typeName") },
                 starlarkValue =
                     object : StarlarkValue {
                         override val TYPE: String get() = typeName
@@ -175,7 +175,7 @@ internal class AValueDyn(
         freezer: Freezer,
     ): Result<FrozenValue> = _vtable.heapFreezeFn(repr, value, freezer)
 
-    fun heapCopy(tracer: Tracer): Value = _vtable.heapCopyFn(value, tracer)
+    fun heapCopy(repr: AValueRepr<*>, tracer: Tracer): Value = _vtable.heapCopyFn(repr, value, tracer)
 
     fun documentation(): DocItem = starlarkValue().documentation()
 

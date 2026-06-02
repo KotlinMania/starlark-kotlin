@@ -40,9 +40,12 @@ import io.github.kotlinmania.starlark.typing.ParamSpec
 import io.github.kotlinmania.starlark.typing.Ty
 import io.github.kotlinmania.starlark.values.AllocFrozenValue
 import io.github.kotlinmania.starlark.values.AllocValue
+import io.github.kotlinmania.starlark.values.ComplexValue
+import io.github.kotlinmania.starlark.values.Freeze
 import io.github.kotlinmania.starlark.values.StarlarkValue
 import io.github.kotlinmania.starlark.values.layout.FrozenValue
 import io.github.kotlinmania.starlark.values.layout.Value
+import io.github.kotlinmania.starlark.values.layout.avalues.allocComplexAny
 import io.github.kotlinmania.starlark.values.layout.avalues.allocListIter
 import io.github.kotlinmania.starlark.values.layout.avalues.simple.allocSimple
 import io.github.kotlinmania.starlark.values.layout.avalues.str.allocStr
@@ -477,6 +480,7 @@ class GlobalsBuilder private constructor(
                 is StringValue -> result.toValue()
                 is FrozenStringValue -> result.toValue()
                 is AllocValue -> result.allocValue(heap)
+                is ComplexValue -> heap.allocComplexAny(result)
                 is StarlarkValue -> heap.allocSimple(result)
                 is String -> result.allocValue(heap)
                 is Int -> result.allocValue(heap)

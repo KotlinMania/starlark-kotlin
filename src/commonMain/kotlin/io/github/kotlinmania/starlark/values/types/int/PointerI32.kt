@@ -90,7 +90,7 @@ internal class PointerI32 internal constructor(
                 isStr = false,
                 memorySizeFn = { _ -> error("PointerI32 has no heap allocation") },
                 heapFreezeFn = { _, _, _ -> error("PointerI32 cannot be frozen") },
-                heapCopyFn = { _, _ -> error("PointerI32 cannot be heap-copied") },
+                heapCopyFn = { _, _, _ -> error("PointerI32 cannot be heap-copied") },
                 starlarkValue = PointerI32StarlarkValueAdapter,
                 hasEquals = PointerI32StarlarkValueAdapter.HAS_equals,
             )

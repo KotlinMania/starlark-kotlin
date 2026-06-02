@@ -35,6 +35,7 @@ import io.github.kotlinmania.starlark.values.layout.FrozenValue
 import io.github.kotlinmania.starlark.values.layout.FrozenValueTyped
 import io.github.kotlinmania.starlark.values.layout.Value
 import io.github.kotlinmania.starlark.values.layout.ValueTyped
+import io.github.kotlinmania.starlark.values.layout.heapCopy
 import io.github.kotlinmania.starlark.values.layout.constantString
 import io.github.kotlinmania.starlark.values.layout.avalues.AValueComplexNoFreeze
 import io.github.kotlinmania.starlark.values.layout.avalues.allocComplexNoFreeze
@@ -48,6 +49,7 @@ import io.github.kotlinmania.starlark.values.layout.typed.FrozenStringValue
 import io.github.kotlinmania.starlark.values.layout.typed.StringValue
 import io.github.kotlinmania.starlark.values.owned.OwnedFrozenValue
 import io.github.kotlinmania.starlark.values.owned.OwnedFrozenValueTyped
+import io.github.kotlinmania.starlark.values.traceRecursiveGuardStacks
 import io.github.kotlinmania.starlark.values.types.string.intern.FrozenStringValueInterner
 import io.github.kotlinmania.starlark.values.types.string.intern.StringValueInterner
 import io.github.kotlinmania.starlark.values.valueof.ValueOf
@@ -271,15 +273,24 @@ class Heap internal constructor(
 
     private fun garbageCollectInternal(f: (Tracer) -> Unit) {
         val retainedArena = owned.arena.take()
+        var success = false
         try {
+            val maxOldIndex = AValueHeader.currentCounter()
             val tracer =
                 Tracer(
                     arena = Arena(),
+                    maxOldIndex = maxOldIndex,
                 )
             f(tracer)
+            traceRecursiveGuardStacks(tracer)
             owned.arena.set(tracer.arena)
+            success = true
         } finally {
-            retainedArena.finish()
+            if (!success) {
+                owned.arena.set(retainedArena)
+            } else {
+                retainedArena.finish()
+            }
         }
     }
 
@@ -583,6 +594,7 @@ class FrozenHeapRef(
 /** Used to perform garbage collection by Trace.trace. */
 class Tracer internal constructor(
     internal val arena: Arena = Arena(),
+    internal val maxOldIndex: Long,
 ) {
     /** Walk over a value during garbage collection. */
     fun trace(value: ValueHolder) {
@@ -624,13 +636,25 @@ class Tracer internal constructor(
             return value
         }
         val ptrIndex = value.ptr.unpackPtrOpt() ?: return value
+        if (ptrIndex >= maxOldIndex) {
+            return value
+        }
 
         // Case 2: We have already been replaced with a forwarding, or need to freeze
         val header = AValueHeader.fromIndex(ptrIndex)
         val aValueOrForward = AValueOrForward.Header(header)
+        println("ADJUST: value=$value type=${value.getType()} ptrVal=${value.ptrValue()} index=${header.index} maxOldIndex=$maxOldIndex")
         return when (val unpacked = aValueOrForward.unpack()) {
-            is AValueOrForwardUnpack.Forward -> unpacked.forward.forwardPtr().unpackUnfrozenValue()
-            is AValueOrForwardUnpack.Header -> unpacked.header.unpack().heapCopy(this)
+            is AValueOrForwardUnpack.Forward -> {
+                val dest = unpacked.forward.forwardPtr().unpackUnfrozenValue()
+                println("ADJUST FORWARDED: old=$value to new=$dest")
+                dest
+            }
+            is AValueOrForwardUnpack.Header -> {
+                val dest = unpacked.header.heapCopy(this)
+                println("ADJUST COPIED: old=$value to new=$dest")
+                dest
+            }
         }
     }
 }

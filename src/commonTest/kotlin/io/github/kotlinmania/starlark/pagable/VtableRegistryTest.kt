@@ -19,6 +19,12 @@ package io.github.kotlinmania.starlark.pagable
  * limitations under the License.
  */
 
+import io.github.kotlinmania.starlark.values.layout.heap.AValueRepr
+import io.github.kotlinmania.starlark.values.layout.Freezer
+import io.github.kotlinmania.starlark.values.layout.heap.Tracer
+import io.github.kotlinmania.starlark.values.layout.FrozenValue
+import io.github.kotlinmania.starlark.values.layout.Value
+import io.github.kotlinmania.starlark.values.layout.StarlarkValueRawPtr
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
@@ -123,8 +129,8 @@ private object TestVTableFactory {
                             .AlignedSize(0u),
                     )
             },
-            heapFreezeFn = { _, _, _ -> error("test vtable") },
-            heapCopyFn = { _, _ -> error("test vtable") },
+            heapFreezeFn = { _: AValueRepr<*>, _: StarlarkValueRawPtr, _: Freezer -> error("test vtable") },
+            heapCopyFn = { _: AValueRepr<*>, _: StarlarkValueRawPtr, _: Tracer -> error("test vtable") },
             starlarkValue = object : io.github.kotlinmania.starlark.values.StarlarkValue {},
         )
 }

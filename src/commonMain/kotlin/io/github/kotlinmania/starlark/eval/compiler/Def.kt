@@ -690,9 +690,14 @@ internal class DefGen<V>(
         // The parameters also contain Values that need tracing.
         // For the frozen case, there's nothing to trace.
         if (!frozen) {
-            for (cap in captured) {
-                if (cap is Value) {
-                    tracer.trace(ValueHolder(cap))
+            @Suppress("UNCHECKED_CAST")
+            val capturedMut = captured as? MutableList<Value>
+            if (capturedMut != null) {
+                for (i in capturedMut.indices) {
+                    val cap = capturedMut[i]
+                    val holder = ValueHolder(cap)
+                    tracer.trace(holder)
+                    capturedMut[i] = holder.value
                 }
             }
         }
