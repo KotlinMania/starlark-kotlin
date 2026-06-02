@@ -1,4 +1,6 @@
 // port-lint: source src/syntax/module.rs
+@file:OptIn(kotlin.experimental.ExperimentalObjCRefinement::class)
+
 package io.github.kotlinmania.starlark.syntax
 
 /*
@@ -52,7 +54,9 @@ import io.github.kotlinmania.starlark.syntax.lexer.Lexer
 import io.github.kotlinmania.starlark.syntax.lexer.Token
 import io.github.kotlinmania.starlark.syntax.parser.Parser
 import io.github.kotlinmania.starlark.syntax.state.ParserState
+import kotlin.native.HiddenFromObjC
 
+@HiddenFromObjC
 class AstLoad(
     val span: FileSpan,
     val moduleId: String,

@@ -1,4 +1,6 @@
 // port-lint: source src/typing/typecheck.rs
+@file:OptIn(kotlin.experimental.ExperimentalObjCRefinement::class)
+
 package io.github.kotlinmania.starlark.typing
 
 /*
@@ -38,6 +40,7 @@ import io.github.kotlinmania.starlark.syntax.dialect.Dialect
 import io.github.kotlinmania.starlark.typing.oracle.TypingOracleCtx
 import io.github.kotlinmania.starlark.values.FrozenRef
 import io.github.kotlinmania.starlark.values.layout.heap.FrozenHeap
+import kotlin.native.HiddenFromObjC
 
 // Things which are None in the map have type void - they are never constructed
 internal fun solveBindings(
@@ -149,6 +152,7 @@ class TypeMap(
 }
 
 /** Typecheck a module. */
+@HiddenFromObjC
 interface AstModuleTypecheck {
     /** Typecheck a module. */
     fun typecheck(
@@ -157,6 +161,7 @@ interface AstModuleTypecheck {
     ): TypecheckResult
 }
 
+@HiddenFromObjC
 data class TypecheckResult(
     val errors: List<Exception>,
     val typeMap: TypeMap,
