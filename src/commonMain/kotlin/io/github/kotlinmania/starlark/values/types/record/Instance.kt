@@ -1,4 +1,6 @@
 // port-lint: source src/values/types/record/instance.rs
+@file:OptIn(kotlin.experimental.ExperimentalObjCRefinement::class)
+
 package io.github.kotlinmania.starlark.values.types.record
 
 /*
@@ -34,6 +36,7 @@ import io.github.kotlinmania.starlark.values.layout.heap.Heap
 import io.github.kotlinmania.starlark.values.types.TypeInstanceId
 import io.github.kotlinmania.starlark.values.types.record.recordtype.RecordTypeGen
 import io.github.kotlinmania.starlark.values.types.record.recordtype.recordFields
+import kotlin.native.HiddenFromObjC
 
 /** Helper: format keyed container like "record[Name](a=1, b=2)". */
 private fun <K, V> fmtKeyedContainer(
@@ -153,6 +156,7 @@ class RecordGen internal constructor(
 
     override fun typecheckerTy(): Ty = getRecordType().instanceTy()
 
+    @HiddenFromObjC
     fun serialize(): Map<String, Value> = iter().toMap()
 }
 

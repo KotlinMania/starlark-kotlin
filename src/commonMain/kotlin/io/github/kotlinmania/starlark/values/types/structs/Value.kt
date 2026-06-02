@@ -1,4 +1,6 @@
 // port-lint: source src/values/types/structs/value.rs
+@file:OptIn(kotlin.experimental.ExperimentalObjCRefinement::class)
+
 package io.github.kotlinmania.starlark.values.types.structs
 
 /*
@@ -33,6 +35,7 @@ import io.github.kotlinmania.starlark.values.equalsSmallMap
 import io.github.kotlinmania.starlark.values.layout.FrozenValue
 import io.github.kotlinmania.starlark.values.layout.Value
 import io.github.kotlinmania.starlark.values.layout.heap.Heap
+import kotlin.native.HiddenFromObjC
 
 /**
  * The result of calling `struct()`.
@@ -175,6 +178,7 @@ data class StructGen<V>(
     /**
      * Serialize to map format matching Rust serde implementation.
      */
+    @HiddenFromObjC
     fun serialize(): Map<String, V> = iter().associate { (k, v) -> k to v }
 }
 

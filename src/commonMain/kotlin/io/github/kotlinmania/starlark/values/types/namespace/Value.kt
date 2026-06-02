@@ -1,4 +1,6 @@
 // port-lint: source src/values/types/namespace/value.rs
+@file:OptIn(kotlin.experimental.ExperimentalObjCRefinement::class)
+
 package io.github.kotlinmania.starlark.values.types.namespace
 
 /*
@@ -29,6 +31,7 @@ import io.github.kotlinmania.starlark.values.StarlarkValue
 import io.github.kotlinmania.starlark.values.layout.FrozenValue
 import io.github.kotlinmania.starlark.values.layout.Value
 import io.github.kotlinmania.starlark.values.layout.heap.Heap
+import kotlin.native.HiddenFromObjC
 
 data class MaybeDocHiddenValue<V>(
     val value: V,
@@ -126,6 +129,7 @@ data class NamespaceGen<V>(
         )
     }
 
+    @HiddenFromObjC
     fun serialize(): Map<String, V> =
         fields.iter().associate { (k, v) -> k to v.value }
 }
