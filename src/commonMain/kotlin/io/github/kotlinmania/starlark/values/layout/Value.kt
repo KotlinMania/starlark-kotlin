@@ -1358,6 +1358,17 @@ class Value internal constructor(
         return getRef().downcastRef<T>()
     }
 
+    @PublishedApi
+    internal fun matchesStarlarkType(clazz: KClass<*>): Boolean {
+        if (clazz == StarlarkStr::class) {
+            return isStr()
+        }
+        if (clazz == PointerI32::class) {
+            return unpackInlineInt() != null
+        }
+        return clazz.isInstance(getRef().starlarkValue())
+    }
+
     // ValueLike interface requires non-reified KClass version
     override fun <T : StarlarkValue> downcastRef(clazz: KClass<T>): T? {
         if (clazz == StarlarkStr::class) {
@@ -1704,6 +1715,10 @@ class FrozenValue internal constructor(
 
     // ValueLike interface requires non-reified KClass version
     override fun <T : StarlarkValue> downcastRef(clazz: KClass<T>): T? = toValue().downcastRef(clazz)
+
+    @PublishedApi
+    internal fun matchesStarlarkType(clazz: KClass<*>): Boolean =
+        toValue().matchesStarlarkType(clazz)
 
     /**
      * Downcast to a specific [StarlarkValue] type.

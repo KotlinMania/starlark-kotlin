@@ -173,8 +173,10 @@ class StructGen<V> internal constructor(
             return Result.success(false)
         }
         for ((key, value) in fields.iter()) {
-            val lhs = value.asValueOrNull() ?: return Result.success(false)
-            val rhs = otherStruct.fields.get(key) ?: return Result.success(false)
+            val lhs = value.asStructValueOrNull() ?: return Result.success(false)
+            val rhs =
+                otherStruct.fields.get(key)?.asStructValueOrNull()
+                    ?: return Result.success(false)
             val equal = lhs.equals(rhs).getOrElse { return Result.failure(it) }
             if (!equal) {
                 return Result.success(false)
@@ -188,17 +190,20 @@ class StructGen<V> internal constructor(
             Struct.fromValue(other)
                 ?: return ValueError.unsupportedWith(TYPE, "cmp()", other)
 
+        val otherFields =
+            otherStruct.valueFieldsOrNull()
+                ?: return Result.failure(IllegalStateException("Unsupported value type in struct"))
         return compareSmallMap<Exception, String, String, Value, Value>(
             valueFieldsOrNull()
                 ?: return Result.failure(IllegalStateException("Unsupported value type in struct")),
-            otherStruct.fields,
+            otherFields,
             key = { k: String -> k },
         ) { x, y -> x.compare(y) }
     }
 
     override fun getAttr(attribute: String, heap: Heap): Value? = getAttrHashed(Hashed.new(attribute), heap)
 
-    override fun getAttrHashed(attribute: Hashed<String>, heap: Heap): Value? = fields.getHashedByValue(attribute)?.asValueOrNull()
+    override fun getAttrHashed(attribute: Hashed<String>, heap: Heap): Value? = fields.getHashedByValue(attribute)?.asStructValueOrNull()
 
     override fun writeHash(hasher: StarlarkHasher): Result<Unit> {
         // Must use unordered hash because equality is unordered,
@@ -212,7 +217,7 @@ class StructGen<V> internal constructor(
             // Hash the key's hash value into the entry hasher
             entryHasher.writeU32(hashedKey.hash().get())
             // Hash the value
-            val value = v.asValueOrNull() ?: return Result.failure(IllegalStateException("Unsupported value type in struct"))
+            val value = v.asStructValueOrNull() ?: return Result.failure(IllegalStateException("Unsupported value type in struct"))
             value.writeHash(entryHasher).getOrElse { return Result.failure(it) }
             unorderedHasher.writeHash(entryHasher.finish())
         }
@@ -242,17 +247,10 @@ class StructGen<V> internal constructor(
      */
     fun serialize(): Map<String, V> = iter().associate { (k, v) -> k to v }
 
-    private fun Any?.asValueOrNull(): Value? =
-        when (this) {
-            is Value -> this
-            is FrozenValue -> toValue()
-            else -> null
-        }
-
     private fun valueFieldsOrNull(): SmallMap<String, Value>? {
         val values = SmallMap.withCapacity<String, Value>(fields.len())
         for ((key, value) in fields.iter()) {
-            values.insert(key, value.asValueOrNull() ?: return null)
+            values.insert(key, value.asStructValueOrNull() ?: return null)
         }
         return values
     }
@@ -262,12 +260,6 @@ class StructGen<V> internal constructor(
  * Extension for StructGen<FrozenValue> to iterate with frozen types.
  */
 fun StructGen<FrozenValue>.iterFrozen(): Sequence<Pair<String, FrozenValue>> = fields.iter()
-
-/**
- * Unsafe coercion for frozen structs - corresponds to Rust's unsafe impl for Coerce.
- */
-@Suppress("UNCHECKED_CAST")
-fun coerceStruct(frozen: StructGen<FrozenValue>): StructGen<Value> = frozen as StructGen<Value>
 
 /**
  * Type alias for mutable Struct - corresponds to starlark_complex_value!(pub(crate) Struct)
@@ -282,8 +274,15 @@ typealias FrozenStruct = StructGen<FrozenValue>
 /**
  * Helper function to extract struct from a value.
  */
-fun StructGen.Companion.fromValue(value: Value): Struct? {
+fun StructGen.Companion.fromValue(value: Value): StructGen<*>? {
     // Try to get as unfrozen struct first, then try frozen and coerce
     return value.downcastRef<Struct>()
-        ?: value.downcastRef<FrozenStruct>()?.let { coerceStruct(it) }
+        ?: value.downcastRef<FrozenStruct>()
 }
+
+internal fun Any?.asStructValueOrNull(): Value? =
+    when (this) {
+        is Value -> this
+        is FrozenValue -> toValue()
+        else -> null
+    }

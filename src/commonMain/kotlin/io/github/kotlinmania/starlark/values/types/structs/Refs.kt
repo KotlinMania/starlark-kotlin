@@ -34,7 +34,7 @@ import io.github.kotlinmania.starlark.values.starlarktypeid.StarlarkTypeId
  */
 @ConsistentCopyVisibility
 data class StructRef internal constructor(
-    private val struct: Struct,
+    private val struct: StructGen<*>,
 ) {
     companion object {
         /**
@@ -51,7 +51,12 @@ data class StructRef internal constructor(
     /**
      * Iterate over struct fields.
      */
-    fun iter(): Sequence<Pair<String, Value>> = struct.iter()
+    fun iter(): Sequence<Pair<String, Value>> =
+        sequence {
+            for ((key, value) in struct.fields.iter()) {
+                yield(key to (value.asStructValueOrNull() ?: continue))
+            }
+        }
 }
 
 /**
