@@ -16,7 +16,6 @@ package io.github.kotlinmania.starlark.values.layout
 import io.github.kotlinmania.starlark.assert.Assert
 import io.github.kotlinmania.starlark.environment.GlobalsBuilder
 import io.github.kotlinmania.starlark.tests.TestComplexValue
-import io.github.kotlinmania.starlark.values.layout.constFrozenString
 import kotlin.test.Test
 
 class ComplexTest {

@@ -19,7 +19,6 @@ package io.github.kotlinmania.starlark
  * limitations under the License.
  */
 
-import io.github.kotlinmania.starlark.coerce
 import io.github.kotlinmania.starlark.values.PhantomData
 import io.github.kotlinmania.starlark.values.Tuple1
 import kotlin.test.Test
