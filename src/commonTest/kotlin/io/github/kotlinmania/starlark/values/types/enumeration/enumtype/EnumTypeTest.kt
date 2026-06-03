@@ -6,10 +6,12 @@ import kotlin.test.Ignore
 import kotlin.test.Test
 
 class EnumTypeTest {
-    // EnumType.new() has a ClassCastException bug when freezing enum values —
-    // the enum() globals function casts Value to StringValue unsafely.
-    // Fix requires EnumTypeGen value handling to use StringValue properly.
-    @Ignore("EnumType.new() crashes with ClassCastException on StringValue")
+    // EnumTypeGen.exportAs() creates TyUser with TyUserIndex (indexable) but
+    // its TyStarlarkValue base uses FUNCTION_VTABLE (hasAt=false, hasIterate=false).
+    // The type checker rejects this: "Type `enum[Color]` specifies custom
+    // indexable, but underlying StarlarkValue is not indexable".
+    // Fix requires registering a proper vtable with hasAt=true and hasIterate=true.
+    @Ignore("EnumTypeGen vtable missing hasAt/hasIterate — TyUserError.IndexableNotIndexable")
     @Test
     fun testEnumTypeAsTypePass() {
         Assert().pass(
