@@ -20,6 +20,7 @@ package io.github.kotlinmania.starlark.syntax.lexer
  */
 
 import com.ionspin.kotlin.bignum.integer.BigInteger
+import io.github.kotlinmania.starlark.values.types.bigint.StarlarkBigInt
 
 sealed class TokenInt {
     data class I32(
@@ -28,7 +29,7 @@ sealed class TokenInt {
 
     /** Only if larger than `i32`. */
     class BigInt internal constructor(
-        internal val value: BigInteger,
+        val value: StarlarkBigInt,
     ) : TokenInt() {
         override fun equals(other: Any?): Boolean =
             other is BigInt && value == other.value
@@ -48,7 +49,7 @@ sealed class TokenInt {
         fun fromStrRadix(s: String, base: Int): TokenInt {
             val i = s.toIntOrNull(base)
             if (i != null) return I32(i)
-            return BigInt(BigInteger.parseString(s, base))
+            return BigInt(StarlarkBigInt.uncheckedNew(BigInteger.parseString(s, base)))
         }
     }
 }

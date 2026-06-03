@@ -1,4 +1,3 @@
-@file:OptIn(kotlin.experimental.ExperimentalObjCRefinement::class)
 // port-lint: source src/docs/multipage.rs
 
 package io.github.kotlinmania.starlark.docs
@@ -215,7 +214,7 @@ internal class MultipageRender(
  * [linkedTyMapper] is used to map the **type path** and **type name** to a linkable element
  * in the markdown.
  */
-internal fun renderMarkdownMultipage(
+fun renderMarkdownMultipage(
     modulesInfos: List<DocModuleInfo>,
     linkedTyMapper: ((String, String) -> String)?,
     renderSignatureAtBottom: Boolean,

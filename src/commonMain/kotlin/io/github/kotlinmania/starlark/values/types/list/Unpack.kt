@@ -33,10 +33,15 @@ import io.github.kotlinmania.starlark.values.layout.Value
  * @param T The expected element type, which must implement [StarlarkTypeRepr].
  * @property items The unpacked list items.
  */
-data class UnpackList<T>(
-    /** Unpacked items. */
-    val items: List<T>,
+class UnpackList<T>(
+    items: List<T>,
 ) : Iterable<T> {
+    internal val mutableItems: MutableList<T> = items.toMutableList()
+
+    /** Unpacked items. */
+    val items: List<T>
+        get() = mutableItems
+
     /** Create an empty [UnpackList]. Corresponds to Rust's `impl Default`. */
     constructor() : this(emptyList())
 
@@ -45,14 +50,21 @@ data class UnpackList<T>(
      *
      * Corresponds to Rust's `impl IntoIterator for UnpackList<T>`.
      */
-    override fun iterator(): Iterator<T> = items.iterator()
+    override fun iterator(): Iterator<T> = mutableItems.iterator()
 
     /**
      * Returns a mutable iterator over the items.
      *
      * Corresponds to Rust's `impl IntoIterator for &mut UnpackList<T>`.
      */
-    fun iterMut(): MutableIterator<T> = (items as? MutableList<T> ?: items.toMutableList()).iterator()
+    fun iterMut(): MutableIterator<T> = mutableItems.iterator()
+
+    override fun equals(other: Any?): Boolean =
+        other is UnpackList<*> && items == other.items
+
+    override fun hashCode(): Int = items.hashCode()
+
+    override fun toString(): String = "UnpackList(items=$items)"
 
     companion object {
         /** Creates a default empty [UnpackList]. */
@@ -122,7 +134,7 @@ class UnpackListStarlarkTypeRepr<T : StarlarkTypeRepr>(
  * Corresponds to Rust's `impl IntoIterator for UnpackList<T>` where
  * `type Item = T` and `type IntoIter = vec::IntoIter<T>`.
  */
-internal fun <T> UnpackList<T>.intoList(): List<T> = items
+internal fun <T> UnpackList<T>.intoList(): MutableList<T> = mutableItems
 
 /**
  * Extension for iterating an [UnpackList] by reference.
@@ -130,4 +142,4 @@ internal fun <T> UnpackList<T>.intoList(): List<T> = items
  * Corresponds to Rust's `impl IntoIterator for &'a UnpackList<T>` where
  * `type Item = &'a T` and `type IntoIter = slice::Iter<'a, T>`.
  */
-internal fun <T> UnpackList<T>.iterRef(): Iterator<T> = items.iterator()
+internal fun <T> UnpackList<T>.iterRef(): Iterator<T> = mutableItems.iterator()

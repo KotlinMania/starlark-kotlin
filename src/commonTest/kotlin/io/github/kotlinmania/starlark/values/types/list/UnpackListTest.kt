@@ -40,6 +40,19 @@ private object StringUnpackValue : UnpackValue<String> {
 
 internal class UnpackListTest {
     @Test
+    fun testIterMutRemovesFromBackingList() {
+        val source = listOf("a", "b")
+        val unpacked = UnpackList(source)
+        val iterator = unpacked.iterMut()
+
+        assertEquals("a", iterator.next())
+        iterator.remove()
+
+        assertEquals(listOf("b"), unpacked.items)
+        assertEquals(listOf("a", "b"), source)
+    }
+
+    @Test
     fun testUnpack() {
         Heap.temp { heap ->
             val list =
