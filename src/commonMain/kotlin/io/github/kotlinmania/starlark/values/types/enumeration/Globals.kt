@@ -24,6 +24,7 @@ package io.github.kotlinmania.starlark.values.types.enumeration
 import io.github.kotlinmania.starlark.environment.GlobalsBuilder
 import io.github.kotlinmania.starlark.eval.runtime.Arguments
 import io.github.kotlinmania.starlark.eval.runtime.Evaluator
+import io.github.kotlinmania.starlark.values.layout.Value
 import io.github.kotlinmania.starlark.values.layout.typed.StringValue
 import io.github.kotlinmania.starlark.values.types.enumeration.enumtype.EnumType
 
@@ -60,9 +61,11 @@ fun registerEnum(builder: GlobalsBuilder) {
         val heap = eval.heap()
         val positionalArgs = args.positionalAll()
 
-        // Every Value must either be a field or a value (the type)
-        @Suppress("UNCHECKED_CAST")
-        val stringArgs = positionalArgs as List<StringValue>
+        val stringArgs: List<StringValue> = positionalArgs.map { v ->
+            StringValue.new(v) ?: return@setFunction Result.failure<Value>(
+                IllegalArgumentException("enum() arguments must be strings, got: $v"),
+            )
+        }
         val enumType = EnumType.new(stringArgs, heap)
         Result.success(enumType.toValue())
     }
