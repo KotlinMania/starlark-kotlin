@@ -5,27 +5,27 @@ Based on AST analysis, here are the concrete next steps.
 ## Summary
 
 - **Files Present:** 364/470 (77.4%)
-- **Function parity:** 2940/4585 matched (target 4971) — 64.1%
-- **Class/type parity:** 790/1209 matched (target 1472) — 65.3%
-- **Combined symbol parity:** 3730/5794 matched (target 6443) — 64.4%
+- **Function parity:** 2940/4585 matched (target 4972) — 64.1%
+- **Class/type parity:** 791/1209 matched (target 1473) — 65.4%
+- **Combined symbol parity:** 3731/5794 matched (target 6445) — 64.4%
 - **Average inline-code cosine:** 0.25 (function body across 341 matched files)
 - **Average documentation cosine:** 0.67 (doc text across 341 matched files)
-- **Cheat-zeroed Files:** 219
-- **Critical Issues:** 287 files with <0.60 function similarity
+- **Cheat-zeroed Files:** 218
+- **Critical Issues:** 286 files with <0.60 function similarity
 
 ## Priority 1: Fix Incomplete High-Dependency Files
 
 ### 1. layout.value
-- **Similarity:** 0.00 (needs 85% improvement)
+- **Similarity:** 0.72 (needs 13% improvement)
 - **Dependencies:** 178
-- **Priority Score:** 178162720.0
-- **Functions:** 106/118 matched (target 158)
-- **Missing functions:** `fmt`, `eq`, `testing_new_int`, `_test_send_sync`, `test_downcast_ref`, `test_unpack_i32`, `test_unpack_frozen`, `test_unpack_bigint`, `test_to_json_value`, `test_display_for_type_error`, `test_check_callable_with_none`, `test_check_callable_with_good_function`
-- **Types:** 6/9 matched
-- **Missing types:** `DisplayWithTypeImpl`, `Canonical`, `String`
-- **Symbol Deficit:** 15 (functions: 12, types: 3)
+- **Priority Score:** 178162704.0
+- **Functions:** 105/118 matched (target 158)
+- **Missing functions:** `fmt`, `eq`, `testing_new_int`, `display_for_type_error`, `_test_send_sync`, `test_downcast_ref`, `test_unpack_i32`, `test_unpack_frozen`, `test_unpack_bigint`, `test_to_json_value`, `test_display_for_type_error`, `test_check_callable_with_none`, `test_check_callable_with_good_function`
+- **Types:** 7/9 matched (target 10)
+- **Missing types:** `Canonical`, `String`
+- **Symbol Deficit:** 15 (functions: 13, types: 2)
 - **Missing Tests:** 9 of 9 `#[test]` functions have no Kotlin counterpart
-- **Action:** Deep review - likely missing major functionality
+- **Action:** Review and complete missing sections
 
 ### 2. typing.ty
 - **Similarity:** 0.75 (needs 10% improvement)
@@ -361,14 +361,14 @@ Every matched file is listed below with function and type symbol parity.
 
 ### 1. layout.value
 
-- **Target:** `layout.Value [ZERO]`
-- **Similarity:** 0.00
+- **Target:** `layout.Value`
+- **Similarity:** 0.72
 - **Dependents:** 178
-- **Priority Score:** 178162720.0
-- **Functions:** 106/118 matched (target 158)
-- **Missing functions:** `fmt`, `eq`, `testing_new_int`, `_test_send_sync`, `test_downcast_ref`, `test_unpack_i32`, `test_unpack_frozen`, `test_unpack_bigint`, `test_to_json_value`, `test_display_for_type_error`, `test_check_callable_with_none`, `test_check_callable_with_good_function`
-- **Types:** 6/9 matched
-- **Missing types:** `DisplayWithTypeImpl`, `Canonical`, `String`
+- **Priority Score:** 178162704.0
+- **Functions:** 105/118 matched (target 158)
+- **Missing functions:** `fmt`, `eq`, `testing_new_int`, `display_for_type_error`, `_test_send_sync`, `test_downcast_ref`, `test_unpack_i32`, `test_unpack_frozen`, `test_unpack_bigint`, `test_to_json_value`, `test_display_for_type_error`, `test_check_callable_with_none`, `test_check_callable_with_good_function`
+- **Types:** 7/9 matched (target 10)
+- **Missing types:** `Canonical`, `String`
 - **Tests:** 0/9 matched
 
 ### 2. typing.ty
@@ -2200,19 +2200,7 @@ Every matched file is listed below with function and type symbol parity.
 - **Missing types:** _none_
 - **Tests:** 0/1 matched
 
-### 158. dict.methods
-
-- **Target:** `dict.Methods [ZERO]`
-- **Similarity:** 0.00
-- **Dependents:** 0
-- **Priority Score:** 71710.0
-- **Functions:** 10/17 matched (target 12)
-- **Missing functions:** `test_error_codes`, `test_dict_add`, `test_dict_with_duplicates`, `test_dict_update_with_self_pos`, `test_dict_update_with_self_as_kwargs`, `test_frozen_dict_cannot_be_updated_with_self_pos`, `test_frozen_dict_cannot_be_updated_with_self_as_kwargs`
-- **Types:** 0/0 matched
-- **Missing types:** _none_
-- **Tests:** 0/7 matched
-
-### 159. layout.complex
+### 158. layout.complex
 
 - **Target:** `layout.Complex [ZERO]`
 - **Similarity:** 0.00
@@ -2223,6 +2211,18 @@ Every matched file is listed below with function and type symbol parity.
 - **Types:** 1/4 matched (target 1)
 - **Missing types:** `Canonical`, `Error`, `Frozen`
 - **Tests:** 0/2 matched
+
+### 159. dict.methods
+
+- **Target:** `dict.Methods [ZERO]`
+- **Similarity:** 0.00
+- **Dependents:** 0
+- **Priority Score:** 71710.0
+- **Functions:** 10/17 matched (target 12)
+- **Missing functions:** `test_error_codes`, `test_dict_add`, `test_dict_with_duplicates`, `test_dict_update_with_self_pos`, `test_dict_update_with_self_as_kwargs`, `test_frozen_dict_cannot_be_updated_with_self_pos`, `test_frozen_dict_cannot_be_updated_with_self_as_kwargs`
+- **Types:** 0/0 matched
+- **Missing types:** _none_
+- **Tests:** 0/7 matched
 
 ### 160. docs.parse
 
@@ -2416,18 +2416,7 @@ Every matched file is listed below with function and type symbol parity.
 - **Missing types:** _none_
 - **Tests:** 0/5 matched
 
-### 176. params.spec
-
-- **Target:** `params.Spec [ZERO]`
-- **Similarity:** 0.00
-- **Dependents:** 0
-- **Priority Score:** 54410.0
-- **Functions:** 33/38 matched (target 34)
-- **Missing functions:** `as_value`, `collect_impl`, `collect_into_impl`, `can_fill_with_args_impl`, `parser_impl`
-- **Types:** 6/6 matched (target 11)
-- **Missing types:** _none_
-
-### 177. values.owned
+### 176. values.owned
 
 - **Target:** `values.Owned [ZERO]`
 - **Similarity:** 0.00
@@ -2438,7 +2427,7 @@ Every matched file is listed below with function and type symbol parity.
 - **Types:** 3/5 matched
 - **Missing types:** `Canonical`, `Target`
 
-### 178. profile.time_flame
+### 177. profile.time_flame
 
 - **Target:** `profile.TimeFlame`
 - **Similarity:** 0.60
@@ -2450,7 +2439,7 @@ Every matched file is listed below with function and type symbol parity.
 - **Missing types:** `Data`
 - **Tests:** 0/3 matched
 
-### 179. profile.stmt
+### 178. profile.stmt
 
 - **Target:** `profile.Stmt [ZERO]`
 - **Similarity:** 0.00
@@ -2462,7 +2451,7 @@ Every matched file is listed below with function and type symbol parity.
 - **Missing types:** `Data`
 - **Tests:** 0/3 matched
 
-### 180. typing.callable_param
+### 179. typing.callable_param
 
 - **Target:** `typing.CallableParam`
 - **Similarity:** 0.56
@@ -2474,7 +2463,7 @@ Every matched file is listed below with function and type symbol parity.
 - **Missing types:** `ParamSpecDisplay`
 - **Tests:** 0/1 matched
 
-### 181. values.unpack
+### 180. values.unpack
 
 - **Target:** `values.Unpack [ZERO]`
 - **Similarity:** 0.00
@@ -2485,7 +2474,7 @@ Every matched file is listed below with function and type symbol parity.
 - **Types:** 3/7 matched
 - **Missing types:** `IncorrectType`, `IncorrectParameterTypeWithExpected`, `IncorrectParameterTypeNamedWithExpected`, `Error`
 
-### 182. dict.refs
+### 181. dict.refs
 
 - **Target:** `dict.Refs`
 - **Similarity:** 0.51
@@ -2496,7 +2485,7 @@ Every matched file is listed below with function and type symbol parity.
 - **Types:** 4/7 matched (target 11)
 - **Missing types:** `Target`, `Canonical`, `Error`
 
-### 183. analysis.underscore
+### 182. analysis.underscore
 
 - **Target:** `analysis.Underscore`
 - **Similarity:** 0.44
@@ -2508,7 +2497,7 @@ Every matched file is listed below with function and type symbol parity.
 - **Missing types:** _none_
 - **Tests:** 0/4 matched
 
-### 184. allocator.bumpalo
+### 183. allocator.bumpalo
 
 - **Target:** `allocator.Bumpalo [ZERO]`
 - **Similarity:** 0.00
@@ -2519,7 +2508,7 @@ Every matched file is listed below with function and type symbol parity.
 - **Types:** 0/3 matched (target 1)
 - **Missing types:** `ChunkIteratorWrapper`, `Item`, `ChunkRevIterator`
 
-### 185. typing.iter
+### 184. typing.iter
 
 - **Target:** `typing.Iter [ZERO]`
 - **Similarity:** 0.00
@@ -2531,7 +2520,7 @@ Every matched file is listed below with function and type symbol parity.
 - **Missing types:** `NonInstantiable`, `Canonical`
 - **Tests:** 0/3 matched
 
-### 186. debug.inspect
+### 185. debug.inspect
 
 - **Target:** `debug.Inspect [ZERO]`
 - **Similarity:** 0.00
@@ -2542,6 +2531,17 @@ Every matched file is listed below with function and type symbol parity.
 - **Types:** 0/0 matched
 - **Missing types:** _none_
 - **Tests:** 0/5 matched
+
+### 186. params.spec
+
+- **Target:** `params.Spec [ZERO]`
+- **Similarity:** 0.00
+- **Dependents:** 0
+- **Priority Score:** 44410.0
+- **Functions:** 34/38 matched (target 35)
+- **Missing functions:** `collect_impl`, `collect_into_impl`, `can_fill_with_args_impl`, `parser_impl`
+- **Types:** 6/6 matched (target 11)
+- **Missing types:** _none_
 
 ### 187. string.methods
 
@@ -2844,7 +2844,18 @@ Every matched file is listed below with function and type symbol parity.
 - **Types:** 1/1 matched (target 8)
 - **Missing types:** _none_
 
-### 213. typing.never
+### 213. bc.repr
+
+- **Target:** `bc.Repr [ZERO]`
+- **Similarity:** 0.00
+- **Dependents:** 0
+- **Priority Score:** 30910.0
+- **Functions:** 4/6 matched (target 5)
+- **Missing functions:** `size_of_repr`, `handle`
+- **Types:** 2/3 matched (target 2)
+- **Missing types:** `HandlerImpl`
+
+### 214. typing.never
 
 - **Target:** `typing.Never [ZERO]`
 - **Similarity:** 0.00
@@ -2855,17 +2866,6 @@ Every matched file is listed below with function and type symbol parity.
 - **Types:** 2/3 matched (target 2)
 - **Missing types:** `Canonical`
 - **Tests:** 0/2 matched
-
-### 214. bc.repr
-
-- **Target:** `bc.Repr [ZERO]`
-- **Similarity:** 0.00
-- **Dependents:** 0
-- **Priority Score:** 30910.0
-- **Functions:** 4/6 matched (target 5)
-- **Missing functions:** `size_of_repr`, `handle`
-- **Types:** 2/3 matched (target 2)
-- **Missing types:** `HandlerImpl`
 
 ### 215. string.alloc_unpack
 

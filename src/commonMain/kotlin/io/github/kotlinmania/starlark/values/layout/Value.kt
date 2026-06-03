@@ -22,7 +22,7 @@ package io.github.kotlinmania.starlark.values.layout
  */
 
 // Possible optimisations:
-// Avoid the Box duplication
+// Avoid duplicate object wrappers
 // Encode Int in the pointer too
 
 // We use pointer tagging on the bottom two bits:
@@ -32,8 +32,8 @@ package io.github.kotlinmania.starlark.values.layout
 // 10 => this is a None
 //
 // We don't use pointer tagging for Int (although we'd like to), because
-// our val_ref requires a pointer to the value. We need to put that pointer
-// somewhere. The solution is to have a separate value storage vs vtable.
+// integer operations need a pointer to the value. We need to put that pointer
+// somewhere. The solution is to have separate value storage and vtable metadata.
 
 import com.ionspin.kotlin.bignum.integer.BigInteger
 import io.github.kotlinmania.starlark.Error
@@ -49,6 +49,7 @@ import io.github.kotlinmania.starlark.eval.runtime.ArgumentsFull
 import io.github.kotlinmania.starlark.eval.runtime.Evaluator
 import io.github.kotlinmania.starlark.eval.runtime.FrameSpan
 import io.github.kotlinmania.starlark.eval.runtime.params.spec.ParametersSpec
+import io.github.kotlinmania.starlark.eval.runtime.params.spec.asValue
 import io.github.kotlinmania.starlark.typing.ParamIsRequired
 import io.github.kotlinmania.starlark.typing.ParamSpec
 import io.github.kotlinmania.starlark.typing.Ty
@@ -95,6 +96,7 @@ import io.github.kotlinmania.starlark.values.types.tuple.VALUE_EMPTY_TUPLE
 import io.github.kotlinmania.starlark.values.types.tuple.fromValue
 import kotlin.native.HiddenFromObjC
 import kotlin.reflect.KClass
+import kotlin.reflect.cast
 
 // We already import another `ValueError`, hence the odd name.
 private class ValueValueError {
@@ -121,6 +123,40 @@ class IntegerTooBigError(
 private class ToJsonCycleError(
     val typeName: String,
 ) : Exception("Cycle detected when serializing value of type `$typeName` to JSON")
+
+private class DisplayWithTypeImpl(
+    private val value: Value,
+) {
+    override fun toString(): String {
+        var repr = value.toRepr()
+        val maxLen = 60
+
+        if (repr.length > maxLen && repr.toList().size > maxLen) {
+            val truncated = "<<...>>"
+
+            // 1/3 from back, 2/3 from front, because front is usually more interesting.
+            val takeFromBack = maxOf(0, maxLen - truncated.length) / 3
+            val takeFromFront = takeFromBack * 2
+
+            // Resulting repr is approximately `maxLen` long.
+            repr =
+                buildString {
+                    append(splitAtSafe(repr, takeFromFront).first)
+                    append(truncated)
+                    append(splitAtSafe(repr, maxOf(0, repr.length - takeFromBack)).second)
+                }
+        }
+
+        return "${value.getType()} (repr: $repr)"
+    }
+
+    companion object {
+        private fun splitAtSafe(s: String, index: Int): Pair<String, String> {
+            val safeIndex = index.coerceIn(0, s.length)
+            return Pair(s.substring(0, safeIndex), s.substring(safeIndex))
+        }
+    }
+}
 
 private fun debugValue(typ: String, v: Value): String {
     // When value is being moved during GC or freeze,
@@ -175,7 +211,7 @@ class Value internal constructor(
         internal fun <T : AValue> newRepr(x: AValueRepr<AValueImpl<T>>): Value = newPtr(x.header, x.header.vtable.isStr)
 
         /**
-         * Create a new [Value] from a raw pointer word with string tag.
+         * Create a new [Value] from a tagged pointer word.
          */
         internal fun newPtrUsizeWithStrTag(x: Long): Value = Value(Pointer.newUnfrozenUsizeWithStrTag(x))
 
@@ -214,8 +250,8 @@ class Value internal constructor(
          * `OwnedFrozenValue`.
          */
         fun newFrozen(x: FrozenValue): Value {
-            // Safe if every FrozenValue must have had a reference added to its heap first.
-            // That property is NOT statically checked.
+            // Valid when the owning frozen heap is kept alive for this value.
+            // The caller is responsible for maintaining that ownership.
             return Value(x.ptr.toPointer())
         }
 
@@ -243,7 +279,7 @@ class Value internal constructor(
         if (ptr.isUnfrozen()) {
             null
         } else {
-            // SAFETY: We've just checked the value is frozen.
+            // The pointer is known to be frozen after the branch above.
             unpackFrozenUnchecked()
         }
 
@@ -355,7 +391,7 @@ class Value internal constructor(
      */
     internal fun unpackIntValue(): FrozenValueTyped<PointerI32>? =
         if (unpackInlineInt() != null) {
-            // SAFETY: We've just checked the value is an int.
+            // The value is known to be an int after the branch above.
             FrozenValueTyped.newUnchecked(unpackFrozenUnchecked())
         } else {
             null
@@ -367,12 +403,11 @@ class Value internal constructor(
     internal fun isStr(): Boolean = ptr.isStr()
 
     /**
-     * Like [unpackStr], but gives a pointer to a boxed [StarlarkStr].
-     * Mostly useful for when you want to convert the string to a `dyn` trait, but can't
-     * form a `dyn` of an unsized type.
+     * Like [unpackStr], but returns the [StarlarkStr] wrapper.
+     * Mostly useful when callers need the Starlark string object rather than its text.
      *
-     * Unstable and likely to be removed in future, as the presence of the `Box` is
-     * not a guaranteed part of the API.
+     * Unstable and likely to be removed in future, as the wrapper shape is not
+     * a guaranteed part of the API.
      */
     fun unpackStarlarkStr(): StarlarkStr? =
         if (isStr()) {
@@ -436,7 +471,7 @@ class Value internal constructor(
         }
 
     /**
-     * Get the raw underlying pointer from this value's AValueDyn.
+     * Get the underlying value reference from this value's AValueDyn.
      * Used by inline functions that need to access the underlying object
      * from a different package (e.g. ValueOf.unpackValueImpl).
      */
@@ -444,12 +479,11 @@ class Value internal constructor(
     internal fun getUnderlyingPtr(): StarlarkValue = getRef().value.starlarkValue()
 
     /**
-     * Downcast without checking the value type.
+     * Downcast after the caller has already established the value type.
      */
-    @Suppress("UNCHECKED_CAST")
     internal inline fun <reified T : StarlarkValue> downcastRefUnchecked(): T {
         if (PointerI32.typeIsPointerI32<T>()) {
-            return PointerI32.fromRawInt(ptr.unpackIntValue()) as T
+            return getRef().downcastRef<T>()!!
         }
         return getRef().downcastRef<T>()!!
     }
@@ -620,7 +654,6 @@ class Value internal constructor(
      *
      * For now it only returns parameter spec for `def` and `lambda`.
      */
-    @Suppress("UNCHECKED_CAST")
     fun parametersSpec(): ParametersSpec<Value>? {
         val def = downcastRef<Def>()
         if (def != null) {
@@ -628,8 +661,7 @@ class Value internal constructor(
         }
         val frozenDef = downcastRef<FrozenDef>()
         if (frozenDef != null) {
-            // Frozen function parameters are immutable, so they can be viewed as value parameters.
-            return frozenDef.parameters as ParametersSpec<Value>
+            return frozenDef.parameters.asValue()
         }
         return null
     }
@@ -1297,36 +1329,7 @@ class Value internal constructor(
      *
      * If the value is too large, it may be truncated.
      */
-    fun toStringForTypeError(): String = displayForTypeError()
-
-    private fun displayForTypeError(): String {
-        fun splitAtSafe(s: String, index: Int): Pair<String, String> {
-            // In Kotlin strings are always valid character sequences
-            val safeIndex = index.coerceIn(0, s.length)
-            return Pair(s.substring(0, safeIndex), s.substring(safeIndex))
-        }
-
-        var repr = toRepr()
-        val maxLen = 60
-
-        if (repr.length > maxLen && repr.toList().size > maxLen) {
-            val truncated = "<<...>>"
-
-            // 1/3 from back, 2/3 from front, because front is usually more interesting.
-            val takeFromBack = maxOf(0, maxLen - truncated.length) / 3
-            val takeFromFront = takeFromBack * 2
-
-            // Resulting repr is approximately `maxLen` long.
-            repr =
-                buildString {
-                    append(splitAtSafe(repr, takeFromFront).first)
-                    append(truncated)
-                    append(splitAtSafe(repr, maxOf(0, repr.length - takeFromBack)).second)
-                }
-        }
-
-        return "${getType()} (repr: $repr)"
-    }
+    fun toStringForTypeError(): String = DisplayWithTypeImpl(this).toString()
 
     /**
      * Downcast to a specific [StarlarkValue] type.
@@ -1336,17 +1339,14 @@ class Value internal constructor(
     internal inline fun <reified T : StarlarkValue> downcastRef(): T? {
         if (T::class == StarlarkStr::class) {
             return if (isStr()) {
-                // SAFETY: we just checked this is string, and requested type is string.
-                @Suppress("UNCHECKED_CAST")
-                getRef().downcastRef<StarlarkStr>() as? T
+                getRef().downcastRef<T>()
             } else {
                 null
             }
         }
         if (PointerI32.typeIsPointerI32<T>()) {
             return if (unpackInlineInt() != null) {
-                @Suppress("UNCHECKED_CAST")
-                PointerI32.fromRawInt(ptr.unpackIntValue()) as? T
+                getRef().downcastRef<T>()
             } else {
                 null
             }
@@ -1372,8 +1372,7 @@ class Value internal constructor(
         }
         if (clazz == PointerI32::class) {
             return if (unpackInlineInt() != null) {
-                @Suppress("UNCHECKED_CAST")
-                PointerI32.fromRawInt(ptr.unpackIntValue()) as? T
+                clazz.cast(PointerI32.fromRawInt(ptr.unpackIntValue()))
             } else {
                 null
             }
@@ -1381,8 +1380,7 @@ class Value internal constructor(
         val ref = getRef()
         val sv = ref.starlarkValue()
         return if (clazz.isInstance(sv)) {
-            @Suppress("UNCHECKED_CAST")
-            sv as T
+            clazz.cast(sv)
         } else {
             null
         }
@@ -1435,8 +1433,6 @@ class Value internal constructor(
     fun debug(): String = debugValue("Value", this)
 }
 
-// Kotlin: Coerce/CoerceKey traits not needed; type safety is handled differently.
-
 internal fun Value.Companion.default(): Value = Value.newNone()
 
 internal fun FrozenValue.Companion.default(): FrozenValue = FrozenValue.newNone()
@@ -1474,7 +1470,7 @@ class FrozenValue internal constructor(
         }
 
         /**
-         * Create a new [FrozenValue] from a raw usize with string tag.
+         * Create a new [FrozenValue] from a tagged pointer word.
          */
         internal fun newPtrUsizeWithStrTag(x: Long): FrozenValue = FrozenValue(FrozenPointer.newFrozenUsizeWithStrTag(x))
 
@@ -1530,7 +1526,7 @@ class FrozenValue internal constructor(
     }
 
     /**
-     * Get the underlying raw pointer.
+     * Get the underlying pointer word.
      */
     internal fun ptrValue(): RawPointer = ptr.raw()
 
@@ -1561,10 +1557,8 @@ class FrozenValue internal constructor(
     internal fun isStr(): Boolean = toValue().isStr()
 
     /**
-     * The resulting `str` is alive as long as the `FrozenHeap` is,
-     * but we don't have that lifetime available to us. Therefore,
-     * we cheat a little, and use the lifetime of the `FrozenValue`.
-     * Because of this cheating, we don't expose it outside Starlark.
+     * The resulting string is owned by the frozen heap backing this value.
+     * Keep this internal so callers cannot outlive the owning frozen heap reference.
      */
     internal fun unpackStr(): String? = toValue().unpackStr()
 
@@ -1621,18 +1615,18 @@ class FrozenValue internal constructor(
      * `self == b` is `ptrEq`.
      */
     internal fun eqIsPtrEq(): Boolean {
-        // Note `int` is not `ptr_eq` because `int` can be equal to `float`.
+        // Note `int` is not pointer identity because `int` can be equal to `float`.
 
-        // If a value does not override equality, it is `ptr_eq`.
+        // If a value does not override equality, pointer identity is enough.
         if (!toValue().getRef().vtable().hasEquals) {
             return true
         }
-        // Strings of length <= 1 are statically allocated.
+        // Strings of length <= 1 use shared storage.
         val str = unpackStr()
         if (str != null && str.length <= 1) {
             return true
         }
-        // Empty tuple is statically allocated.
+        // Empty tuple uses shared storage.
         val tuple = Tuple.fromValue(toValue())
         return tuple != null && tuple.len() == 0
     }
@@ -1841,8 +1835,6 @@ interface ValueLike : ValueLifetimeless {
         }
     }
 }
-
-// Kotlin: Sealed/marker traits not needed; implemented via interface inheritance.
 
 // Static value references are imported from their defining modules.
 // See: VALUE_NONE (NoneType.kt), VALUE_FALSE_TRUE (bool/Value.kt),

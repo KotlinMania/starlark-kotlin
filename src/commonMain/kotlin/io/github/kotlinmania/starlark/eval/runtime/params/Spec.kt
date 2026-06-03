@@ -38,6 +38,7 @@ import io.github.kotlinmania.starlark.eval.runtime.params.fmtParamSpec
 import io.github.kotlinmania.starlark.typing.DefParamIndices
 import io.github.kotlinmania.starlark.typing.ParamIsRequired
 import io.github.kotlinmania.starlark.typing.Ty
+import io.github.kotlinmania.starlark.values.layout.FrozenValue
 import io.github.kotlinmania.starlark.values.layout.Value
 import io.github.kotlinmania.starlark.values.layout.avalues.allocTuple
 import io.github.kotlinmania.starlark.values.layout.heap.Heap
@@ -250,6 +251,24 @@ internal class ParametersSpecBuilder<V>(
         )
     }
 }
+
+fun ParametersSpec<FrozenValue>.asValue(): ParametersSpec<Value> =
+    ParametersSpec(
+        functionName = functionName,
+        paramKinds =
+            paramKinds.map { kind ->
+                when (kind) {
+                    is ParameterKind.Required -> ParameterKind.Required
+                    is ParameterKind.Optional -> ParameterKind.Optional
+                    is ParameterKind.Defaulted -> ParameterKind.Defaulted(kind.value.toValue())
+                    is ParameterKind.Args -> ParameterKind.Args
+                    is ParameterKind.KWargs -> ParameterKind.KWargs
+                }
+            },
+        paramNames = paramNames,
+        names = names,
+        indices = indices,
+    )
 
 /**
  * Define a list of parameters. This code assumes that all names are distinct and that

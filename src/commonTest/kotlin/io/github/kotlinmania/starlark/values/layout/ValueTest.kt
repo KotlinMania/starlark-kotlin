@@ -29,6 +29,7 @@ import io.github.kotlinmania.starlark.values.layout.typed.StarlarkStr
 import io.github.kotlinmania.starlark.values.types.bigint.allocValue
 import io.github.kotlinmania.starlark.values.types.bigint.unpackBigInteger
 import io.github.kotlinmania.starlark.values.types.int.InlineInt
+import io.github.kotlinmania.starlark.values.types.int.PointerI32
 import io.github.kotlinmania.starlark.values.types.none.NoneType
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -56,11 +57,9 @@ class ValueTest {
             assertNull(integer.downcastRef<StarlarkStr>())
             assertNull(none.downcastRef<StarlarkStr>())
 
-            // PointerI32 uses a vtable adapter pattern in Kotlin rather than
-            // directly implementing StarlarkValue, so we test int via unpack.
-            assertNull(string.unpackInlineInt())
-            assertEquals(InlineInt(17), integer.unpackInlineInt())
-            assertNull(none.unpackInlineInt())
+            assertNull(string.downcastRef<PointerI32>())
+            assertEquals(InlineInt(17), integer.downcastRef<PointerI32>()!!.get())
+            assertNull(none.downcastRef<PointerI32>())
         }
     }
 

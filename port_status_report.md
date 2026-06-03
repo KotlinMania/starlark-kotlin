@@ -8,15 +8,15 @@
 
 | Metric | Count | Percentage |
 |--------|-------|------------|
-| Function parity | 2940/4585 matched (target 4971) | 64.1% |
-| Class/type parity | 790/1209 matched (target 1472) | 65.3% |
-| Combined symbol parity | 3730/5794 matched (target 6443) | 64.4% |
+| Function parity | 2940/4585 matched (target 4972) | 64.1% |
+| Class/type parity | 791/1209 matched (target 1473) | 65.4% |
+| Combined symbol parity | 3731/5794 matched (target 6445) | 64.4% |
 | Average function body similarity | 0.25 | inline-code cosine |
 | Average documentation similarity | 0.67 | doc text cosine |
 | Missing source functions | 535 | 0% parity until ported |
 | Missing source classes/types | 72 | 0% parity until ported |
 | Missing source symbol files | 74 | 607 symbols |
-| Cheat/scoring failures | 219 | forced to 0% |
+| Cheat/scoring failures | 218 | forced to 0% |
 | Total source files | 470 | 100% |
 | Target units (paired) | 424 | - |
 | Target files (total) | 424 | - |
@@ -30,8 +30,8 @@
 Similarity in this report is the required function-by-function body/parameter score. Class/type parity and symbol deficits are reported beside it; whole-file shape is diagnostic only.
 
 **Work Distribution:**
-- Critical (<0.60): 287 files (78.8% of matched)
-- Needs review (0.60-0.84): 50 files (13.7% of matched)
+- Critical (<0.60): 286 files (78.6% of matched)
+- Needs review (0.60-0.84): 51 files (14.0% of matched)
 
 ## Worst Function Scores First
 
@@ -39,315 +39,315 @@ Every matched file is listed from lowest function body/parameter similarity upwa
 
 | Rank | Source | Target | Function similarity | Functions | Missing functions | Types | Missing types | Tests | Symbol deficit | Priority |
 |------|--------|--------|---------------------|-----------|-------------------|-------|---------------|-------|----------------|----------|
-| 1 | `layout.value` | `layout.Value [ZERO]` | 0.00 | 106/118 matched (target 158) | `fmt`, `eq`, `testing_new_int`, `_test_send_sync`, `test_downcast_ref`, `test_unpack_i32`, `test_unpack_frozen`, `test_unpack_bigint`, `test_to_json_value`, `test_display_for_type_error`, `test_check_callable_with_none`, `test_check_callable_with_good_function` | 6/9 matched | `DisplayWithTypeImpl`, `Canonical`, `String` | 0/9 | 15 | 178162720.0 |
-| 2 | `typing.starlark_value` | `typing.StarlarkValue [ZERO]` | 0.00 | 29/34 matched (target 43) | `fmt`, `eq`, `hash`, `partial_cmp`, `cmp` | 4/4 matched (target 5) | _none_ | - | 5 | 76053808.0 |
-| 3 | `runtime.evaluator` | `runtime.Evaluator [ZERO]` | 0.00 | 58/60 matched (target 63) | `drop`, `add_diagnostics` | 7/7 matched (target 17) | _none_ | - | 2 | 56026712.0 |
-| 4 | `values.trace` | `values.Trace [ZERO]` | 0.00 | 1/1 matched (target 43) | _none_ | 1/1 matched | _none_ | - | 0 | 52000208.0 |
-| 5 | `values.freeze` | `values.Freeze [ZERO]` | 0.00 | 1/1 matched (target 31) | _none_ | 1/2 matched (target 6) | `Frozen` | - | 1 | 42010312.0 |
-| 6 | `values.alloc_value` | `values.AllocValue [ZERO]` | 0.00 | 2/2 matched (target 5) | _none_ | 4/4 matched | _none_ | - | 0 | 42000608.0 |
-| 7 | `layout.freezer` | `layout.Freezer [ZERO]` | 0.00 | 5/5 matched | _none_ | 1/1 matched | _none_ | - | 0 | 36000608.0 |
-| 8 | `values.frozen_ref` | `values.FrozenRef [ZERO]` | 0.00 | 17/17 matched (target 23) | _none_ | 2/4 matched (target 2) | `Target`, `Frozen` | - | 2 | 27022110.0 |
-| 9 | `none.none_type` | `none.NoneType [ZERO]` | 0.00 | 11/11 matched (target 16) | _none_ | 1/2 matched | `Error` | - | 1 | 27011310.0 |
-| 10 | `runtime.arguments` | `runtime.Arguments [ZERO]` | 0.00 | 26/30 matched (target 49) | `test_parameter_unpack`, `f`, `test_parameter_no_named`, `test_names_map_repeated_name_in_arg_names` | 8/8 matched (target 16) | _none_ | 0/4 | 4 | 25043810.0 |
-| 11 | `typing.type_compiled` | `type_compiled.TypeCompiled [STUB]` | 0.00 | 0/0 matched | _none_ | 0/0 matched | _none_ | - | 0 | 22000010.0 |
-| 12 | `environment.globals` | `environment.Globals [ZERO]` | 0.00 | 30/35 matched (target 38) | `get`, `test_send_sync`, `register_foo`, `foo`, `test_doc_hidden` | 5/5 matched | _none_ | 0/5 | 5 | 21054010.0 |
-| 13 | `derive.module` | `syntax.AstModule [ZERO] [PROVENANCE-FALLBACK]` | 0.00 | 0/0 matched (target 21) | _none_ | 0/0 matched (target 3) | _none_ | - | 0 | 21000010.0 |
-| 14 | `values.value_of_unchecked` | `values.ValueOfUnchecked [ZERO]` | 0.00 | 12/18 matched (target 17) | `fmt`, `test_cast_example`, `test_frozen_value_of_unchecked_send_sync`, `assert_send_sync`, `test_frozen_value_of_unchecked_covariant`, `_assert_covariant` | 3/7 matched (target 4) | `Canonical`, `Frozen`, `Error`, `ReprNotSendSync` | 0/5 | 10 | 20102510.0 |
-| 15 | `environment.methods` | `environment.Methods [ZERO]` | 0.00 | 17/19 matched (target 21) | `test_set_attribute`, `get_methods` | 3/4 matched (target 3) | `Magic` | 0/2 | 3 | 17032310.0 |
-| 16 | `values.iter` | `values.Iter [ZERO] [PROVENANCE-FALLBACK]` | 0.00 | 4/5 matched (target 84) | `drop` | 1/2 matched (target 14) | `Item` | - | 2 | 17020710.0 |
-| 17 | `collections.symbol` | `collections.Symbol [STUB]` | 0.00 | 0/0 matched | _none_ | 0/0 matched | _none_ | - | 0 | 15000010.0 |
-| 18 | `private` | `starlark.Private [ZERO]` | 0.00 | 0/0 matched | _none_ | 1/1 matched | _none_ | - | 0 | 15000110.0 |
-| 19 | `layout.avalue` | `layout.AValue [ZERO]` | 0.00 | 6/8 matched (target 11) | `tuple_cycle_freeze`, `test_try_freeze_directly` | 3/3 matched | _none_ | 0/2 | 2 | 14021110.0 |
-| 20 | `layout.const_frozen_string` | `layout.ConstFrozenString [ZERO]` | 0.00 | 0/2 matched (target 1) | `test_const_frozen_string_for_short_strings`, `test_const_frozen_string` | 0/0 matched | _none_ | 0/2 | 2 | 12020210.0 |
-| 21 | `typing.tuple` | `typing.Tuple [ZERO]` | 0.00 | 5/6 matched (target 9) | `fmt` | 1/1 matched (target 3) | _none_ | - | 1 | 12010710.0 |
-| 22 | `int.inline_int` | `int.InlineInt [ZERO]` | 0.00 | 25/34 matched (target 43) | `fmt`, `testing_new`, `try_from_impl`, `bitand`, `bitor`, `bitxor`, `eq`, `partial_cmp`, `test_min_max_for_bits` | 2/5 matched (target 6) | `Error`, `Output`, `Canonical` | 0/2 | 12 | 11123910.0 |
-| 23 | `int.pointer_i32` | `int.PointerI32 [ZERO]` | 0.00 | 28/31 matched (target 34) | `eq`, `fmt`, `serialize` | 1/2 matched | `Canonical` | - | 4 | 9043310.0 |
-| 24 | `layout.aligned_size` | `layout.AlignedSize [ZERO]` | 0.00 | 6/13 matched (target 15) | `layout`, `ptr_diff`, `add`, `sub`, `mul`, `test_checked_next_power_of_two`, `test_sub` | 1/2 matched (target 1) | `Output` | 0/2 | 8 | 8081510.0 |
-| 25 | `cast` | `starlark.Cast [ZERO]` | 0.00 | 3/3 matched (target 4) | _none_ | 0/0 matched | _none_ | - | 0 | 8000310.0 |
-| 26 | `eval.compiler` | `eval.Compiler [ZERO]` | 0.00 | 6/6 matched | _none_ | 1/1 matched | _none_ | - | 0 | 8000710.0 |
-| 27 | `types.bigint` | `types.Bigint [ZERO]` | 0.00 | 29/73 matched (target 35) | `unpack_integer`, `eq`, `test_parse`, `test_str`, `test_repr`, `test_equals`, `test_plus`, `test_compare_big_big`, `test_compare_big_small`, `test_compare_big_float`, `test_add_big`, `test_add_big_small`, `test_add_big_float`, `test_mul_big`, `test_mul_big_small`, `test_mul_big_float`, `test_div_big`, `test_div_big_small`, `test_div_big_float`, `test_floor_div_big`, `test_floor_div_big_small`, `test_floor_div_big_float`, `test_percent_big`, `test_percent_big_small`, `test_percent_big_float`, `test_bit_and_big`, `test_bit_and_big_small`, `test_bit_and_float`, `test_bit_or_big`, `test_bit_or_big_small`, `test_bit_or_float`, `test_bit_xor_big`, `test_bit_xor_big_small`, `test_bit_xor_float`, `test_bit_not`, `test_left_shift`, `test_left_shift_small`, `test_left_shift_float`, `test_right_shift`, `test_right_shift_small`, `test_right_shift_float`, `test_int_function`, `test_hash`, `test_int_type_matches_bigint` | 1/1 matched | _none_ | 0/42 | 44 | 7447410.0 |
-| 28 | `runtime.frozen_file_span` | `runtime.FrozenFileSpan [ZERO]` | 0.00 | 9/10 matched | `fmt` | 1/1 matched | _none_ | - | 1 | 7011110.0 |
-| 29 | `runtime.small_duration` | `runtime.SmallDuration [ZERO]` | 0.00 | 4/7 matched (target 9) | `from_millis`, `add_assign`, `add` | 1/2 matched (target 1) | `Output` | 0/1 | 4 | 6040910.0 |
-| 30 | `dict.dict_type` | `dict.DictType [ZERO]` | 0.00 | 1/2 matched (target 4) | `unpack_value_impl` | 1/3 matched (target 1) | `Canonical`, `Error` | - | 3 | 6030510.0 |
-| 31 | `typing.typecheck` | `typing.Typecheck [STUB]` | 0.00 | 2/5 matched | `fmt`, `find_bindings_by_name`, `find_first_binding` | 2/2 matched (target 3) | _none_ | 0/2 | 3 | 6030710.0 |
-| 32 | `values.freeze_error` | `values.FreezeError [ZERO]` | 0.00 | 3/4 matched (target 6) | `from` | 3/4 matched (target 3) | `FreezeResult` | - | 2 | 6020810.0 |
-| 33 | `layout.value_alloc_size` | `layout.ValueAllocSize [ZERO]` | 0.00 | 4/5 matched | `layout` | 1/1 matched | _none_ | - | 1 | 6010610.0 |
-| 34 | `compiler.stmt` | `compiler.Stmt [ZERO]` | 0.00 | 25/25 matched (target 28) | _none_ | 7/7 matched (target 24) | _none_ | - | 0 | 6003210.0 |
-| 35 | `values.layout` | `values.Layout [STUB]` | 0.00 | 0/0 matched | _none_ | 0/0 matched | _none_ | - | 0 | 6000010.0 |
-| 36 | `tests.def` | `typing.DefParamIndices [ZERO] [PROVENANCE-FALLBACK]` | 0.00 | 0/14 matched (target 4) | `test_lambda`, `test_frozen_lambda`, `test_nested_def_1`, `test_nested_def_2`, `test_nested_def_3`, `test_lambda_capture_from_module`, `test_lambda_capture_from_def`, `test_lambda_capture_reassigned_from_def`, `test_def_freeze`, `test_frozen_lambda_nest`, `test_context_captured`, `test_lambda_errors`, `test_lambda_errors_nested`, `test_double_capture_and_freeze` | 0/0 matched (target 1) | _none_ | 0/14 | 14 | 5141410.0 |
-| 37 | `types.array` | `types.Array [ZERO]` | 0.00 | 23/32 matched (target 24) | `fmt`, `offset_of_content`, `ptr_at`, `mut_ptr_at`, `get_unchecked`, `is_special`, `serialize`, `debug`, `display` | 2/2 matched | _none_ | 0/2 | 9 | 5093410.0 |
-| 38 | `eval.bc` | `bc.Bc [STUB]` | 0.00 | 0/0 matched | _none_ | 0/0 matched | _none_ | - | 0 | 5000010.0 |
-| 39 | `enumeration.enum_type` | `enumeration.EnumType [ZERO]` | 0.00 | 21/36 matched (target 24) | `fmt`, `r#type`, `values`, `test_enum_type_as_type_pass`, `test_enum_type_fail_runtime`, `test_enum_type_fail_compile_time`, `test_enum_is_callable`, `test_enum_value_index`, `test_enum_value_index_correct_type`, `test_enum_index`, `test_enum_index_fail`, `test_enum_call`, `test_enum_attribute_access`, `test_enum_attribute_access_invalid`, `test_enum_attribute_access_type` | 4/8 matched (target 6) | `EnumCell`, `TyEnumDataOpt`, `Frozen`, `Canonical` | 0/12 | 19 | 4194410.0 |
-| 40 | `types.starlark_value_as_type` | `types.StarlarkValueAsType [ZERO]` | 0.00 | 6/13 matched (target 8) | `fmt`, `new`, `compiler_args_globals`, `compiler_args`, `test_pass`, `test_fail_compile_time`, `test_fail_runtime` | 2/4 matched (target 2) | `Canonical`, `CompilerArgs` | 0/5 | 9 | 4091710.0 |
-| 41 | `bc.frame` | `bc.Frame [ZERO]` | 0.00 | 16/24 matched (target 31) | `eq`, `null`, `is_inititalized`, `frame`, `frame_mut`, `offset_of_slots`, `locals_uninit`, `stack_uninit` | 2/2 matched | _none_ | - | 8 | 4082610.0 |
-| 42 | `values.value_of` | `values.ValueOf [ZERO]` | 0.00 | 4/6 matched (target 5) | `deref`, `fmt` | 1/4 matched (target 1) | `Target`, `Canonical`, `Error` | - | 5 | 4051010.0 |
-| 43 | `record.record_type` | `record.RecordType [ZERO]` | 0.00 | 15/22 matched (target 18) | `fmt`, `r#type`, `test_record_type_as_type_pass`, `test_record_type_as_type_compile_time`, `test_record_type_as_type_runtime`, `test_anon_record`, `test_missing_field_error` | 2/8 matched (target 2) | `RecordCell`, `TyRecordDataOpt`, `RecordType`, `FrozenRecordType`, `Frozen`, `Canonical` | 0/5 | 13 | 3133010.0 |
-| 44 | `alloc.chunk` | `alloc.Chunk [ZERO]` | 0.00 | 11/19 matched (target 18) | `fmt`, `begin`, `ptr_eq`, `drop`, `clone`, `counter_overflow`, `test_empty`, `test_alloc_release` | 2/3 matched (target 2) | `ChunkDataEmpty` | 0/3 | 9 | 3092210.0 |
-| 45 | `stdlib.call_stack` | `stdlib.CallStack [ZERO] [PROVENANCE-FALLBACK]` | 0.00 | 7/13 matched (target 14) | `fmt`, `global`, `test_simple`, `test_strip_one`, `test_strip_all`, `test_call_stack_frame` | 1/1 matched (target 2) | _none_ | 0/4 | 6 | 3061410.0 |
-| 46 | `errors.did_you_mean` | `errors.DidYouMean [ZERO]` | 0.00 | 1/6 matched (target 2) | `prefixes`, `typos`, `best`, `very_short`, `earlier_variants_are_more_important` | 0/0 matched | _none_ | 0/5 | 5 | 3050610.0 |
-| 47 | `list.alloc` | `list.Alloc [ZERO]` | 0.00 | 0/3 matched (target 0) | `starlark_type_repr`, `alloc_value`, `alloc_frozen_value` | 1/2 matched (target 1) | `Canonical` | - | 4 | 3040510.0 |
-| 48 | `compiler.constants` | `compiler.Constants [ZERO]` | 0.00 | 1/3 matched (target 5) | `eq`, `test_constants` | 2/2 matched | _none_ | 0/1 | 2 | 3020510.0 |
-| 49 | `profile.instant` | `profile.Instant [ZERO]` | 0.00 | 3/4 matched (target 9) | `sub` | 1/2 matched (target 1) | `Output` | - | 2 | 3020610.0 |
-| 50 | `values.unpack_and_discard` | `values.UnpackAndDiscard [ZERO]` | 0.00 | 2/2 matched | _none_ | 1/3 matched (target 1) | `Canonical`, `Error` | - | 2 | 3020510.0 |
-| 51 | `sealed` | `starlark.Sealed [ZERO]` | 0.00 | 0/0 matched | _none_ | 1/1 matched | _none_ | - | 0 | 3000110.0 |
-| 52 | `types.record` | `types.Record [ZERO]` | 0.00 | 0/0 matched | _none_ | 0/0 matched | _none_ | - | 0 | 3000010.0 |
-| 53 | `compiler.small_vec_1` | `compiler.SmallVec1 [ZERO]` | 0.00 | 4/11 matched (target 9) | `fmt`, `eq`, `hash`, `partial_cmp`, `cmp`, `deref`, `into_iter` | 1/4 matched (target 3) | `Target`, `Item`, `IntoIter` | - | 10 | 2101510.0 |
-| 54 | `layout.const_type_id` | `layout.ConstTypeId [ZERO]` | 0.00 | 2/5 matched (target 4) | `fmt`, `eq`, `hash` | 1/1 matched | _none_ | - | 3 | 2030610.0 |
-| 55 | `runtime.rust_loc` | `runtime.RustLoc [ZERO]` | 0.00 | 0/3 matched (target 1) | `rust_loc_globals`, `invoke`, `test_rust_loc` | 0/0 matched | _none_ | 0/3 | 3 | 2030310.0 |
-| 56 | `values.owned_frozen_ref` | `values.OwnedFrozenRef [ZERO]` | 0.00 | 10/12 matched (target 19) | `fmt`, `deref` | 2/3 matched (target 2) | `Target` | - | 3 | 2031510.0 |
-| 57 | `avalues.str_` | `avalues.Str [ZERO]` | 0.00 | 11/11 matched (target 15) | _none_ | 1/3 matched (target 1) | `StarlarkValue`, `ExtraElem` | - | 2 | 2021410.0 |
-| 58 | `values.stack_guard` | `values.StackGuard [ZERO]` | 0.00 | 3/4 matched | `drop` | 1/1 matched | _none_ | - | 1 | 2010510.0 |
-| 59 | `collections.string_pool` | `collections.StringPool [ZERO]` | 0.00 | 2/2 matched | _none_ | 1/1 matched | _none_ | - | 0 | 2000310.0 |
-| 60 | `def_inline.local_as_value` | `def_inline.LocalAsValue [ZERO]` | 0.00 | 1/1 matched (target 2) | _none_ | 1/1 matched | _none_ | - | 0 | 2000210.0 |
-| 61 | `profile.string_index` | `profile.StringIndex [ZERO]` | 0.00 | 2/2 matched | _none_ | 2/2 matched | _none_ | - | 0 | 2000410.0 |
-| 62 | `values.thin_box_slice_frozen_value` | `values.ThinBoxSliceFrozenValue [STUB]` | 0.00 | 0/0 matched | _none_ | 0/0 matched | _none_ | - | 0 | 2000010.0 |
-| 63 | `heap.arena` | `heap.Arena [ZERO]` | 0.00 | 18/37 matched (target 23) | `max`, `next`, `write_black_hole`, `debug_assert_extra_is_empty`, `write`, `write_no_extra`, `alloc_uninit`, `bump_for_type`, `iter_chunk`, `drop`, `visit`, `visit_bump`, `to_repr`, `mk_str`, `reserve_str`, `test_trait_arena_iteration`, `drop_with_blackhole`, `test_allocated_summary`, `test_is_empty` | 4/7 matched (target 6) | `ChunkIter`, `Item`, `ArenaUninit` | 0/7 | 22 | 1224410.0 |
-| 64 | `collections.alloca` | `collections.Alloca [ZERO]` | 0.00 | 5/22 matched (target 5) | `alloc`, `ptr`, `end`, `size_words`, `drop`, `new`, `with_capacity`, `assert_state`, `allocate_more`, `rem_in_words_to_rem_in_t`, `len_in_to_to_len_in_words`, `test_rem_in_words_to_rem_in_t`, `test_len_in_t_to_len_in_words`, `test_alloca`, `trigger_bug`, `test_alloca_bug_not_aligned`, `test_alloca_concat` | 1/4 matched (target 1) | `Buffer`, `Align`, `DropSliceGuard` | 0/6 | 20 | 1202610.0 |
-| 65 | `stdlib` | `starlark.Stdlib [ZERO]` | 0.00 | 3/14 matched (target 3) | `test_no_arg`, `global`, `nop`, `test_value_attributes`, `get_methods`, `equals`, `unpack_value_impl`, `globals`, `methods`, `invert1`, `invert2` | 1/3 matched (target 1) | `Bool2`, `Error` | 0/11 | 13 | 1131710.0 |
-| 66 | `string.interpolation` | `string.Interpolation [ZERO]` | 0.00 | 4/12 matched (target 6) | `test_incomplete_format`, `test_unsupported_format_character`, `test_parse_percent_s_one`, `test_type_support_d`, `test_type_support_o`, `test_type_support_x`, `test_type_support_e`, `test_int_min` | 4/4 matched (target 20) | _none_ | 0/8 | 8 | 1081610.0 |
-| 67 | `types.list_or_tuple` | `types.ListOrTuple [ZERO]` | 0.00 | 1/5 matched | `default`, `starlark_type_repr`, `into_iter`, `test_unpack` | 1/5 matched (target 1) | `Canonical`, `Error`, `Item`, `IntoIter` | 0/1 | 8 | 1081010.0 |
-| 68 | `layout.pointer` | `layout.Pointer [ZERO]` | 0.00 | 25/32 matched (target 46) | `fmt`, `_test_lifetime_covariant`, `from_usize_unchecked`, `to_usize`, `unpack`, `test_int_tag`, `check` | 5/5 matched | _none_ | 0/1 | 7 | 1073710.0 |
-| 69 | `types.any_array` | `types.AnyArray [ZERO]` | 0.00 | 3/7 matched | `fmt`, `drop`, `test_drop`, `test_allocation_size` | 1/3 matched (target 1) | `Canonical`, `IncrementOnDrop` | 0/2 | 6 | 1061010.0 |
-| 70 | `util.rtabort` | `util.Rtabort [ZERO]` | 0.00 | 2/6 matched (target 3) | `drop`, `_test_compiles_fixed_string`, `_test_compiles_with_format_args`, `test_rtabort` | 0/1 matched (target 0) | `AbortOnDrop` | 0/3 | 5 | 1050710.0 |
-| 71 | `bc.if_debug` | `bc.IfDebug [ZERO]` | 0.00 | 5/8 matched (target 9) | `eq`, `partial_cmp`, `cmp` | 1/1 matched | _none_ | - | 3 | 1030910.0 |
-| 72 | `util.non_static_type_id` | `util.NonStaticTypeId [ZERO]` | 0.00 | 1/3 matched (target 1) | `get_type_id`, `test_non_static_type_id` | 0/1 matched (target 0) | `NonStaticAny` | 0/1 | 3 | 1030410.0 |
-| 73 | `avalues.simple` | `avalues.Simple [ZERO]` | 0.00 | 8/8 matched (target 11) | _none_ | 1/3 matched (target 1) | `StarlarkValue`, `ExtraElem` | - | 2 | 1021110.0 |
-| 74 | `record.field` | `record.Field [ZERO]` | 0.00 | 4/5 matched (target 10) | `fmt` | 0/1 matched | `FieldGen` | - | 2 | 1020610.0 |
-| 75 | `runtime.cheap_call_stack` | `runtime.CheapCallStack [ZERO]` | 0.00 | 15/17 matched | `fmt`, `default` | 3/3 matched (target 6) | _none_ | - | 2 | 1022010.0 |
-| 76 | `structs.unordered_hasher` | `structs.UnorderedHasher [ZERO]` | 0.00 | 3/5 matched (target 3) | `_write`, `test_unordered_hasher` | 1/1 matched | _none_ | 0/1 | 2 | 1020610.0 |
-| 77 | `heap.fast_cell` | `heap.FastCell [ZERO]` | 0.00 | 6/7 matched | `drop` | 1/1 matched | _none_ | - | 1 | 1010810.0 |
-| 78 | `read_line` | `starlark.ReadLine [ZERO]` | 0.00 | 2/2 matched | _none_ | 1/2 matched (target 1) | `NoRustyline` | - | 1 | 1010410.0 |
-| 79 | `typing.bindings` | `typing.Bindings [STUB]` | 0.00 | 7/8 matched (target 18) | `get_for_clause` | 3/3 matched (target 18) | _none_ | - | 1 | 1011110.0 |
-| 80 | `types.int` | `types.Int [ZERO]` | 0.00 | 0/0 matched | _none_ | 0/0 matched | _none_ | - | 0 | 1000010.0 |
-| 81 | `typing` | `starlark.Typing [STUB]` | 0.00 | 0/0 matched | _none_ | 0/0 matched | _none_ | - | 0 | 1000010.0 |
-| 82 | `typing.function` | `typing.Function [STUB]` | 0.00 | 12/12 matched (target 24) | _none_ | 3/3 matched | _none_ | - | 0 | 1001510.0 |
-| 83 | `set.methods` | `set.Methods [STUB]` | 0.00 | 18/68 matched (target 19) | `test_empty`, `test_single`, `test_eq`, `test_clear`, `test_type`, `test_iter`, `test_bool_true`, `test_bool_false`, `test_union`, `test_union_empty`, `test_union_iter`, `test_union_ordering_mixed`, `test_intersection`, `test_intersection_empty`, `test_intersection_iter`, `test_intersection_order`, `test_symmetric_difference`, `test_symmetric_difference_empty`, `test_symmetric_difference_iter`, `test_symmetric_difference_ord`, `test_add`, `test_add_empty`, `test_add_existing`, `test_add_order`, `test_remove`, `test_remove_empty`, `test_remove_not_existing`, `test_discard`, `test_discard_multiple_times`, `test_pop`, `test_pop_empty`, `test_difference`, `test_difference_iter`, `test_difference_order`, `test_difference_empty_lhs`, `test_difference_empty_rhs`, `test_is_superset`, `test_is_not_superset`, `test_is_not_superset_empty_lhs`, `test_is_superset_empty_rhs`, `test_is_superset_iter`, `test_is_subset`, `test_is_not_subset`, `test_is_subset_empty_lhs`, `test_is_not_subset_empty_rhs`, `test_is_subset_iter`, `test_update`, `test_update_empty`, `test_update_self`, `test_update_frozen_set_cannot_be_updated_with_self` | 1/1 matched (target 3) | _none_ | 0/50 | 50 | 506910.0 |
-| 84 | `string.str_type` | `string.StrType [ZERO]` | 0.00 | 2/47 matched (target 25) | `freeze`, `deref`, `eq`, `partial_cmp`, `cmp`, `fmt`, `payload_len_for_len`, `new`, `as_str`, `as_aligned_padded_str`, `get_hash`, `as_str_hashed`, `len`, `is_empty`, `offset_of_content`, `repr`, `is_special`, `get_methods`, `collect_repr`, `to_bool`, `write_hash`, `equals`, `compare`, `at`, `length`, `is_in`, `slice`, `start_stop_to_none_or`, `add`, `mul`, `rmul`, `percent`, `typechecker_ty`, `serialize`, `test_string_corruption`, `test_escape_characters`, `test_string_hash`, `test_zero_length_string_hash_is_not_zero`, `test_string_len`, `test_arithmetic_on_string`, `test_slice_string`, `test_string_is_in`, `test_successive_add`, `test_string_index`, `test_str` | 0/4 matched (target 0) | `StarlarkStrN`, `StarlarkStr`, `Frozen`, `Target` | 0/11 | 49 | 495110.0 |
-| 85 | `int.int_or_big` | `int.IntOrBig [STUB]` | 0.00 | 24/46 matched (target 57) | `starlark_type_repr`, `from_str`, `unpack_value_impl`, `bitand`, `bitor`, `bitxor`, `neg`, `add`, `sub`, `mul`, `partial_cmp`, `cmp`, `eq`, `int`, `test_floor_div_big`, `test_floor_div_big_small`, `test_floor_div_small_big`, `test_floor_div_small`, `test_percent_big`, `test_percent_big_small`, `test_percent_small_big`, `test_percent_small` | 3/7 matched (target 11) | `Canonical`, `Err`, `Error`, `Output` | 0/9 | 26 | 265310.0 |
-| 86 | `thin_box_slice_frozen_value.thin_box` | `thinboxslicefrozenvalue.ThinBox [ZERO]` | 0.00 | 6/29 matched (target 11) | `offset_of_data`, `get_reserved_tag_bit_count`, `get_unshifted_tag_bit_mask`, `get_tag_bit_mask`, `get_max_short_len`, `layout_for_len`, `get_tag_bits`, `as_ptr`, `as_nonnull_ptr`, `from_inner`, `deref`, `deref_mut`, `assume_init`, `default`, `fmt`, `eq`, `partial_cmp`, `hash`, `visit`, `test_empty`, `test_from_iter_sized`, `test_from_iter_unknown_size`, `test_stress` | 1/3 matched (target 1) | `ThinBoxSliceLayout`, `Target` | 0/4 | 25 | 253210.0 |
-| 87 | `set.value` | `set.Value [ZERO]` | 0.00 | 30/50 matched (target 47) | `fmt`, `test_bit_or`, `test_bit_or_lhs_empty`, `test_bit_or_rhs_empty`, `test_bit_or_fail_iter`, `test_bit_or_ord`, `test_bit_and`, `test_bit_and_lhs_empty`, `test_bit_and_rhs_empty`, `test_bit_and_ord`, `test_bit_and_fail_iter`, `test_bit_xor`, `test_bit_xor_ord`, `test_bit_xor_lhs_empty`, `test_bit_xor_rhs_empty`, `test_bit_xor_fail_iter`, `test_sub`, `test_sub_empty_lhs`, `test_sub_empty_rhs`, `test_sub_fail_iter` | 6/9 matched (target 6) | `Canonical`, `Frozen`, `ContentRef` | 0/19 | 23 | 235910.0 |
-| 88 | `values.typing.callable` | `kotlin.io.github.kotlinmania.starlark.values.typing.Callable [ZERO]` | 0.00 | 12/32 matched (target 31) | `clone`, `fmt`, `trace`, `_assert_sync_send`, `_assert`, `test_callable_runtime`, `test_callable_pass_compile_time`, `test_callable_fail_compile_time`, `my_module`, `accept_f`, `test_native_callable_pass`, `test_native_callable_fail_compile_time_wrong_param_type`, `test_native_callable_fail_compile_time_wrong_param_count`, `test_typing_callable_pass`, `test_typing_callable_fail_compile_time_wrong_param_type`, `test_typing_callable_fail_compile_time_wrong_param_count`, `test_callable_checked_runtime`, `module`, `good`, `bad` | 5/8 matched (target 6) | `Canonical`, `Error`, `Frozen` | 0/15 | 23 | 234010.0 |
-| 89 | `float.float` | `float.Float [ZERO]` | 0.00 | 26/39 matched (target 33) | `fmt`, `non_finite`, `test_write_non_finite`, `decimal`, `test_write_decimal`, `scientific`, `test_write_scientific`, `compact`, `test_write_compact`, `test_arithmetic_operators`, `test_dictionary_key`, `test_comparisons`, `test_comparisons_by_sorting` | 1/3 matched (target 1) | `Canonical`, `Error` | 0/12 | 15 | 154210.0 |
-| 90 | `layout.typed` | `layout.ValueTyped [ZERO]` | 0.00 | 21/31 matched (target 44) | `fmt`, `serialize`, `eq`, `deref`, `unpack_value_impl`, `int`, `test_unpack_value_for_frozen_value_typed`, `module`, `mutable`, `takes_frozen_value_typed` | 2/7 matched (target 2) | `Frozen`, `Target`, `Canonical`, `Error`, `NotFrozenError` | 0/5 | 15 | 153810.0 |
-| 91 | `scope.payload` | `scope.Payload [ZERO]` | 0.00 | 0/7 matched (target 0) | `map_load`, `map_ident`, `map_ident_assign`, `map_def`, `map_type_expr`, `from_ast`, `resolved_binding_id` | 9/17 matched (target 14) | `LoadPayload`, `IdentPayload`, `IdentAssignPayload`, `DefPayload`, `TypeExprPayload`, `CompilerAstMap`, `CstStmtFromAst`, `CstAssignIdentExt` | - | 15 | 152410.0 |
-| 92 | `thin_box_slice_frozen_value.packed_impl` | `thinboxslicefrozenvalue.PackedImpl [ZERO]` | 0.00 | 4/18 matched (target 8) | `new_allocated`, `unpack`, `drop`, `visit`, `deref`, `default`, `fmt`, `eq`, `across_lengths`, `test_strings`, `test_ints`, `test_mixed_types`, `test_default`, `test_empty` | 2/3 matched (target 2) | `Target` | 0/6 | 15 | 152110.0 |
-| 93 | `string.repr` | `string.Repr [ZERO]` | 0.00 | 9/22 matched (target 11) | `or4`, `push_vec_tail`, `test_to_repr`, `test_string_repr`, `test`, `test_to_repr_long_smoke`, `string_repr_for_test`, `to_repr_sse`, `to_repr_no_escape_all_lengths`, `to_repr_tail_escape_all_lengths`, `to_repr_middle_escape_all_lengths`, `test_chunk_non_ascii_or_need_escape`, `load` | 1/1 matched | _none_ | 0/11 | 13 | 132310.0 |
-| 94 | `dict.value` | `dict.Value [ZERO]` | 0.00 | 43/52 matched (target 79) | `fmt`, `hash`, `get_type_value_static`, `_assert_coerce`, `dict_methods`, `serialize`, `test_mutate_dict`, `test_get_str`, `test_repr_cycle` | 7/10 matched | `Canonical`, `Frozen`, `ContentRef` | 0/3 | 12 | 126210.0 |
-| 95 | `list.value` | `list.Value [ZERO]` | 0.00 | 46/56 matched (target 96) | `fmt`, `error`, `starlark_type_repr`, `test_to_str`, `test_repr_cycle`, `test_mutate_list`, `test_arithmetic_on_list`, `test_value_alias`, `test_mutating_imports`, `test_compare` | 6/8 matched (target 9) | `List`, `Canonical` | 0/7 | 12 | 126410.0 |
-| 96 | `pagable.vtable_registry` | `pagable.VtableRegistry [ZERO]` | 0.00 | 3/13 matched (target 6) | `fmt`, `registered_type_ids`, `test_simple_type_is_registered`, `test_complex_type_frozen_is_registered`, `test_lookup_nonexistent_type`, `test_starlark_str_is_registered`, `test_frozen_tuple_is_registered`, `test_frozen_list_is_registered`, `test_type_compiled_non_generic_matcher_is_registered`, `test_type_compiled_generic_matcher_is_registered` | 2/4 matched (target 3) | `TestSimpleType`, `TestComplexGen` | 0/9 | 12 | 121710.0 |
-| 97 | `record.globals` | `record.Globals [ZERO]` | 0.00 | 1/12 matched (target 1) | `record`, `field`, `test_record_pass`, `test_record_fail_0`, `test_record_fail_1`, `test_record_fail_2`, `test_record_fail_3`, `test_record_fail_4`, `test_record_fail_5`, `test_record_equality`, `test_field_invalid` | 0/0 matched | _none_ | 0/9 | 11 | 111210.0 |
-| 98 | `alloc.chain` | `alloc.Chain [ZERO]` | 0.00 | 14/22 matched (target 19) | `drop`, `test_default`, `test_new_drop`, `test_new_drop_many`, `test_split_at`, `test_split_at_len`, `test_split_at_zero`, `test_depth` | 3/5 matched (target 3) | `Item`, `ResetSplitAtZeroTest` | 0/7 | 10 | 102710.0 |
-| 99 | `heap.heap_type` | `heap.HeapType [ZERO]` | 0.00 | 37/47 matched (target 68) | `fmt`, `_test_frozen_heap_ref_send_sync`, `hash`, `eq`, `test_send_sync`, `test_string_reallocated_on_heap`, `test_interned_string_equal`, `validate_str_interning`, `append_x`, `test_interned_str_starlark` | 8/8 matched (target 9) | _none_ | 0/6 | 10 | 105510.0 |
-| 100 | `range.range_type` | `range.RangeType [ZERO]` | 0.00 | 14/24 matched (target 21) | `fmt`, `eq`, `range`, `range_start_stop`, `range_stop`, `length_stop`, `length_start_stop`, `length_start_stop_step`, `test_range_exhaustive`, `test_max_len` | 1/1 matched (target 2) | _none_ | 0/8 | 10 | 102510.0 |
-| 101 | `stdlib.partial` | `stdlib.Partial [ZERO]` | 0.00 | 4/12 matched (target 7) | `partial`, `fmt`, `eq`, `test_simple`, `test_star_to_partial`, `test_start_to_returned_func`, `test_no_args_to_partial`, `test_typecheck_bug` | 3/5 matched (target 3) | `Frozen`, `Canonical` | 0/6 | 10 | 101710.0 |
-| 102 | `alloc.allocator` | `alloc.Allocator [ZERO]` | 0.00 | 11/18 matched (target 15) | `fmt`, `default`, `drop`, `test_small`, `test_big`, `random_iteration`, `test_many` | 2/3 matched (target 2) | `Item` | 0/4 | 8 | 82110.0 |
-| 103 | `tuple.unpack` | `tuple.Unpack [ZERO]` | 0.00 | 1/5 matched | `default`, `starlark_type_repr`, `into_iter`, `test_unpack` | 1/5 matched (target 1) | `Canonical`, `Error`, `Item`, `IntoIter` | 0/1 | 8 | 81010.0 |
-| 104 | `type_compiled.compiled` | `type_compiled.Compiled [ZERO]` | 0.00 | 33/39 matched (target 48) | `fmt`, `check_matches`, `starlark_type_repr`, `alloc_value`, `hash`, `eq` | 5/7 matched (target 12) | `StaticType`, `Canonical` | - | 8 | 84610.0 |
-| 105 | `dict.methods` | `dict.Methods [ZERO]` | 0.00 | 10/17 matched (target 12) | `test_error_codes`, `test_dict_add`, `test_dict_with_duplicates`, `test_dict_update_with_self_pos`, `test_dict_update_with_self_as_kwargs`, `test_frozen_dict_cannot_be_updated_with_self_pos`, `test_frozen_dict_cannot_be_updated_with_self_as_kwargs` | 0/0 matched | _none_ | 0/7 | 7 | 71710.0 |
-| 106 | `docs.parse` | `docs.Parse [ZERO]` | 0.00 | 8/15 matched (target 11) | `parses_starlark_docstring`, `parses_rust_docstring`, `parses_and_removes_sections_from_starlark_docstring`, `parses_and_removes_sections_from_rust_docstring`, `arg`, `parses_starlark_function_docstring`, `parses_rust_function_docstring` | 1/1 matched | _none_ | 0/7 | 7 | 71610.0 |
-| 107 | `funcs.other` | `funcs.Other [ZERO]` | 0.00 | 12/19 matched (target 13) | `r#type`, `test_abs`, `test_constants`, `test_chr`, `test_hash`, `test_int`, `test_tuple` | 0/0 matched (target 1) | _none_ | 0/6 | 7 | 71910.0 |
-| 108 | `layout.complex` | `layout.Complex [ZERO]` | 0.00 | 9/13 matched (target 15) | `unpack_value_impl`, `fmt`, `test_module`, `test_unpack` | 1/4 matched (target 1) | `Canonical`, `Error`, `Frozen` | 0/2 | 7 | 71710.0 |
-| 109 | `profile.aggregated` | `profile.Aggregated [ZERO]` | 0.00 | 17/24 matched (target 35) | `normalize_for_golden_tests`, `fmt`, `total_alloc_count`, `test_stacks_collect`, `test_stacks_collect_retained`, `test_merge`, `make` | 8/8 matched (target 10) | _none_ | 0/6 | 7 | 73210.0 |
-| 110 | `record.ty_record_type` | `record.TyRecordType [ZERO]` | 0.00 | 0/7 matched (target 0) | `test_good`, `test_fail_compile_time`, `test_fail_runtime_time`, `test_record_instance_typechecker_ty`, `test_typecheck_field_pass`, `test_typecheck_field_fail`, `test_typecheck_record_type_call` | 1/1 matched | _none_ | 0/7 | 7 | 70810.0 |
-| 111 | `string.simd` | `string.Simd [ZERO] [PROVENANCE-FALLBACK]` | 0.00 | 1/8 matched (target 4) | `splat`, `load_unaligned`, `store_unaligned`, `cmplt`, `cmpeq`, `or`, `movemask` | 2/2 matched | _none_ | - | 7 | 71010.0 |
-| 112 | `structs.value` | `structs.Value [ZERO]` | 0.00 | 14/21 matched (target 30) | `iter_frozen`, `fmt`, `test_repr`, `test_repr_cycle`, `test_to_json_cycle`, `test_to_json`, `test_comparison_bug` | 1/1 matched (target 3) | _none_ | 0/5 | 7 | 72210.0 |
-| 113 | `tuple.value` | `tuple.Value [ZERO]` | 0.00 | 24/31 matched (target 37) | `fmt`, `new`, `offset_of_content`, `typechecker_ty`, `test_to_str`, `test_repr_cycle`, `test_tuple_ellipsis_runtime` | 3/3 matched | _none_ | 0/3 | 7 | 73410.0 |
-| 114 | `typed.string` | `typed.String [ZERO]` | 0.00 | 8/15 matched (target 59) | `borrow`, `equivalent`, `eq`, `hash`, `partial_cmp`, `cmp`, `test_string_hashes` | 3/3 matched (target 4) | _none_ | 0/1 | 7 | 71810.0 |
-| 115 | `adapter.implementation` | `adapter.Implementation [ZERO]` | 0.00 | 17/23 matched (target 27) | `prepare_dap_adapter`, `fmt`, `new`, `continue_`, `breakpoint`, `resolve_breakpoints` | 6/6 matched (target 10) | _none_ | - | 6 | 62910.0 |
-| 116 | `assert.assert` | `assert.Assert [STUB]` | 0.00 | 44/50 matched (target 66) | `r#true`, `new`, `fail_golden`, `fail_skip_typecheck`, `fails_skip_typecheck`, `is_true_skip_typecheck` | 2/2 matched | _none_ | 0/4 | 6 | 65210.0 |
-| 117 | `bc.instrs` | `bc.Instrs [ZERO]` | 0.00 | 19/24 matched (target 29) | `handle`, `drop`, `opcodes`, `fmt`, `display` | 3/4 matched (target 3) | `HandlerImpl` | 0/2 | 6 | 62810.0 |
-| 118 | `bigint.convert` | `bigint.Convert [ZERO]` | 0.00 | 4/8 matched (target 27) | `test_unpack_int_error`, `module`, `takes_i32`, `takes_i64` | 0/2 matched (target 7) | `Canonical`, `Error` | 0/4 | 6 | 61010.0 |
-| 119 | `compiler.scope` | `compiler.Scope [ZERO]` | 0.00 | 48/51 matched (target 70) | `from`, `assign_ident_impl`, `new` | 17/20 matched (target 28) | `StmtCollectDefines`, `AssignIdentCollect`, `AssignTargetCollectDefinesLvalue` | - | 6 | 67110.0 |
-| 120 | `heap.send` | `heap.Send [ZERO]` | 0.00 | 2/5 matched (target 6) | `deref`, `deref_mut`, `fmt` | 3/6 matched (target 3) | `Sealed`, `Target`, `StaticType` | - | 6 | 61110.0 |
-| 121 | `list.unpack` | `list.Unpack [ZERO]` | 0.00 | 3/5 matched (target 8) | `into_iter`, `test_unpack` | 1/5 matched (target 3) | `Canonical`, `Error`, `Item`, `IntoIter` | 0/1 | 6 | 61010.0 |
-| 122 | `allocator.bumpalo` | `allocator.Bumpalo [ZERO]` | 0.00 | 6/8 matched (target 6) | `next`, `size_hint` | 0/3 matched (target 1) | `ChunkIteratorWrapper`, `Item`, `ChunkRevIterator` | - | 5 | 51110.0 |
-| 123 | `debug.inspect` | `debug.Inspect [ZERO]` | 0.00 | 4/9 matched (target 4) | `debugger`, `debug_inspect_stack`, `debug_inspect_variables`, `test_debug_stack`, `test_debug_variables` | 0/0 matched | _none_ | 0/5 | 5 | 50910.0 |
-| 124 | `environment.modules` | `environment.Modules [ZERO]` | 0.00 | 38/43 matched (target 48) | `test_send_sync`, `test_gen_heap_summary_profile`, `test_frozen_module_from_globals`, `some_globals`, `foo` | 4/4 matched (target 6) | _none_ | 0/5 | 5 | 54710.0 |
-| 125 | `params.spec` | `params.Spec [ZERO]` | 0.00 | 33/38 matched (target 34) | `as_value`, `collect_impl`, `collect_into_impl`, `can_fill_with_args_impl`, `parser_impl` | 6/6 matched (target 11) | _none_ | - | 5 | 54410.0 |
-| 126 | `profile.stmt` | `profile.Stmt [ZERO]` | 0.00 | 13/17 matched (target 20) | `r#gen`, `test_coverage`, `test_empty`, `test_merge` | 8/9 matched | `Data` | 0/3 | 5 | 52610.0 |
-| 127 | `typing.iter` | `typing.Iter [ZERO]` | 0.00 | 3/6 matched (target 5) | `test_iterable_runtime`, `test_iterable_compile_time_pass`, `test_iterable_compile_time_fail` | 2/4 matched (target 2) | `NonInstantiable`, `Canonical` | 0/3 | 5 | 51010.0 |
-| 128 | `values.owned` | `values.Owned [ZERO]` | 0.00 | 26/29 matched (target 34) | `fmt`, `downcast_starlark`, `deref` | 3/5 matched | `Canonical`, `Target` | - | 5 | 53410.0 |
-| 129 | `values.unpack` | `values.Unpack [ZERO]` | 0.00 | 8/9 matched (target 14) | `error` | 3/7 matched | `IncorrectType`, `IncorrectParameterTypeWithExpected`, `IncorrectParameterTypeNamedWithExpected`, `Error` | - | 5 | 51610.0 |
-| 130 | `avalues.static_` | `avalues.Static [ZERO]` | 0.00 | 8/9 matched | `test_alloc_static_simple` | 2/5 matched (target 2) | `StarlarkValue`, `ExtraElem`, `MySimpleValue` | 0/1 | 4 | 41410.0 |
-| 131 | `bc.addr` | `bc.Addr [ZERO]` | 0.00 | 20/23 matched (target 35) | `add_assign`, `get_instr_mut`, `sub_usize` | 5/6 matched (target 5) | `Output` | - | 4 | 42910.0 |
-| 132 | `dict.alloc` | `dict.Alloc [ZERO]` | 0.00 | 0/3 matched (target 1) | `starlark_type_repr`, `alloc_value`, `alloc_frozen_value` | 1/2 matched (target 1) | `Canonical` | - | 4 | 40510.0 |
-| 133 | `heap.repr` | `heap.Repr [ZERO]` | 0.00 | 23/27 matched (target 35) | `hash`, `eq`, `as_avalue_or_header`, `from_payload_ptr_mut` | 5/5 matched (target 8) | _none_ | - | 4 | 43210.0 |
-| 134 | `list.methods` | `list.Methods [ZERO]` | 0.00 | 7/11 matched (target 13) | `list_methods`, `test_error_codes`, `test_index`, `recursive_list` | 0/0 matched | _none_ | 0/3 | 4 | 41110.0 |
-| 135 | `params.parser` | `params.Parser [ZERO]` | 0.00 | 5/9 matched (target 5) | `test_documentation`, `test_parameters_str`, `test`, `test_can_fill_with_args` | 1/1 matched | _none_ | 0/4 | 4 | 41010.0 |
-| 136 | `profile.typecheck` | `profile.Typecheck [ZERO]` | 0.00 | 5/8 matched (target 6) | `r#gen`, `test_typecheck_profile`, `test_typecheck_profile_merge` | 4/5 matched | `Data` | 0/2 | 4 | 41310.0 |
-| 137 | `set.set` | `set.Set [ZERO]` | 0.00 | 1/5 matched (target 1) | `set`, `test_set_type_as_type_compile_time`, `test_return_set_type_as_type_compile_time`, `test_set_type_as_type_run_time` | 0/0 matched | _none_ | 0/3 | 4 | 40510.0 |
-| 138 | `string.methods` | `string.Methods [ZERO]` | 0.00 | 37/41 matched (target 64) | `test_error_codes`, `test_count`, `test_find`, `test_opaque_iterator` | 1/1 matched (target 4) | _none_ | 0/4 | 4 | 44210.0 |
-| 139 | `structs.alloc` | `structs.Alloc [ZERO]` | 0.00 | 0/3 matched (target 0) | `starlark_type_repr`, `alloc_value`, `alloc_frozen_value` | 1/2 matched (target 1) | `Canonical` | - | 4 | 40510.0 |
-| 140 | `typing.custom` | `typing.Custom [ZERO]` | 0.00 | 31/35 matched (target 49) | `eq`, `hash`, `partial_cmp`, `cmp` | 3/3 matched (target 5) | _none_ | - | 4 | 43810.0 |
-| 141 | `bc.opcode` | `bc.Opcode [ZERO]` | 0.00 | 6/7 matched (target 10) | `opcode_count` | 3/5 matched (target 3) | `ByNumber`, `FindOpcode` | 0/1 | 3 | 31210.0 |
-| 142 | `bc.repr` | `bc.Repr [ZERO]` | 0.00 | 4/6 matched (target 5) | `size_of_repr`, `handle` | 2/3 matched (target 2) | `HandlerImpl` | - | 3 | 30910.0 |
-| 143 | `debug.evaluate` | `debug.Evaluate [ZERO]` | 0.00 | 1/4 matched (target 1) | `debugger`, `debug_evaluate`, `test_debug_evaluate` | 0/0 matched | _none_ | 0/3 | 3 | 30410.0 |
-| 144 | `list.refs` | `list.Refs [ZERO]` | 0.00 | 9/9 matched (target 29) | _none_ | 2/5 matched (target 10) | `Target`, `Canonical`, `Error` | - | 3 | 31410.0 |
-| 145 | `string.alloc_unpack` | `string.AllocUnpack [ZERO]` | 0.00 | 5/6 matched (target 9) | `unpack_value_impl` | 0/2 matched (target 1) | `Canonical`, `Error` | - | 3 | 30810.0 |
-| 146 | `symbol.map` | `symbol.Map [ZERO]` | 0.00 | 9/12 matched (target 11) | `fmt`, `new`, `with_capacity` | 1/1 matched | _none_ | - | 3 | 31310.0 |
-| 147 | `type_compiled.globals` | `type_compiled.Globals [ZERO]` | 0.00 | 1/4 matched (target 1) | `eval_type`, `isinstance`, `test_typechecking` | 0/0 matched | _none_ | 0/1 | 3 | 30410.0 |
-| 148 | `type_compiled.matcher` | `type_compiled.Matcher [ZERO]` | 0.00 | 10/10 matched (target 13) | _none_ | 4/7 matched | `TypeMatcher`, `TypeMatcherBoxAlloc`, `Result` | - | 3 | 31710.0 |
-| 149 | `typing.never` | `typing.Never [ZERO]` | 0.00 | 4/6 matched (target 7) | `test_never_runtime`, `test_never_compile_time` | 2/3 matched (target 2) | `Canonical` | 0/2 | 3 | 30910.0 |
-| 150 | `values.typing.ty` | `kotlin.io.github.kotlinmania.starlark.values.typing.Ty [ZERO]` | 0.00 | 2/5 matched (target 4) | `test_isinstance`, `test_pass`, `test_fail_compile_time` | 1/1 matched | _none_ | 0/3 | 3 | 30610.0 |
-| 151 | `avalues.array` | `avalues.Array [ZERO]` | 0.00 | 9/9 matched (target 17) | _none_ | 2/4 matched (target 2) | `StarlarkValue`, `ExtraElem` | - | 2 | 21310.0 |
-| 152 | `avalues.complex` | `avalues.Complex [ZERO]` | 0.00 | 6/6 matched (target 17) | _none_ | 3/5 matched (target 4) | `StarlarkValue`, `ExtraElem` | - | 2 | 21110.0 |
-| 153 | `avalues.tuple` | `avalues.Tuple [ZERO]` | 0.00 | 8/8 matched (target 17) | _none_ | 2/4 matched (target 2) | `StarlarkValue`, `ExtraElem` | - | 2 | 21210.0 |
-| 154 | `bc.call` | `bc.Call [ZERO]` | 0.00 | 3/4 matched (target 15) | `fmt` | 4/5 matched (target 8) | `Args` | - | 2 | 20910.0 |
-| 155 | `bc.instr_arg` | `bc.InstrArg [ZERO]` | 0.00 | 4/5 matched (target 84) | `fmt` | 3/4 matched (target 42) | `HandlerImpl` | - | 2 | 20910.0 |
-| 156 | `bc.stack_ptr` | `bc.StackPtr [ZERO]` | 0.00 | 10/11 matched (target 25) | `add` | 7/8 matched (target 7) | `Output` | - | 2 | 21910.0 |
-| 157 | `bool.type_repr` | `bool.TypeRepr [ZERO]` | 0.00 | 0/1 matched | `starlark_type_repr` | 0/1 matched (target 0) | `Canonical` | - | 2 | 20210.0 |
-| 158 | `build` | `starlark.Build [ZERO]` | 0.00 | 0/2 matched (target 0) | `main`, `rust_nightly` | 0/0 matched (target 1) | _none_ | - | 2 | 20210.0 |
-| 159 | `collections.maybe_uninit_backport` | `collections.MaybeUninitBackport [ZERO]` | 0.00 | 2/3 matched (target 2) | `drop` | 0/1 matched (target 0) | `Guard` | - | 2 | 20410.0 |
-| 160 | `compiler.def` | `compiler.Def [ZERO]` | 0.00 | 38/39 matched (target 46) | `fmt` | 12/13 matched (target 18) | `Frozen` | - | 2 | 25210.0 |
-| 161 | `compiler.expr` | `compiler.Expr [ZERO]` | 0.00 | 59/59 matched (target 63) | _none_ | 9/11 matched (target 56) | `AstLiteralCompile`, `CompilerExprUtil` | - | 2 | 27010.0 |
-| 162 | `eval.bc.compiler.stmt` | `kotlin.io.github.kotlinmania.starlark.eval.bc.compiler.Stmt [ZERO]` | 0.00 | 8/10 matched (target 11) | `write_if_then`, `write_if_else` | 0/0 matched | _none_ | - | 2 | 21010.0 |
-| 163 | `funcs.min_max` | `funcs.MinMax [ZERO]` | 0.00 | 3/5 matched (target 3) | `max`, `min` | 0/0 matched | _none_ | - | 2 | 20510.0 |
-| 164 | `heap.call_enter_exit` | `heap.CallEnterExit [ZERO]` | 0.00 | 0/1 matched (target 4) | `drop` | 5/6 matched (target 5) | `Canonical` | - | 2 | 20710.0 |
-| 165 | `intern.interner` | `intern.Interner [ZERO]` | 0.00 | 1/3 matched (target 5) | `test_intern`, `test_string_value_intern` | 2/2 matched | _none_ | 0/2 | 2 | 20510.0 |
-| 166 | `list.globals` | `list.Globals [ZERO]` | 0.00 | 4/5 matched | `list` | 0/1 matched | `ListType` | - | 2 | 20610.0 |
-| 167 | `profile.summary_by_function` | `profile.SummaryByFunction [ZERO]` | 0.00 | 9/10 matched | `drop_non_drop` | 2/3 matched (target 2) | `RowKind` | 0/1 | 2 | 21310.0 |
-| 168 | `set.refs` | `set.Refs [ZERO]` | 0.00 | 5/5 matched (target 19) | _none_ | 3/5 matched (target 13) | `Canonical`, `Error` | - | 2 | 21010.0 |
-| 169 | `structs.refs` | `structs.Refs [ZERO]` | 0.00 | 5/5 matched (target 8) | _none_ | 2/4 matched | `Canonical`, `Error` | - | 2 | 20910.0 |
-| 170 | `types.function` | `types.Function [ZERO]` | 0.00 | 12/13 matched (target 28) | `new` | 11/12 matched (target 14) | `Canonical` | - | 2 | 22510.0 |
-| 171 | `typing.any` | `typing.Any [ZERO]` | 0.00 | 2/4 matched | `test_any_runtime`, `test_any_compile_time` | 1/1 matched | _none_ | 0/2 | 2 | 20510.0 |
-| 172 | `values.index` | `values.Index [ZERO]` | 0.00 | 4/6 matched (target 5) | `test_convert_index`, `test_apply_slice` | 0/0 matched | _none_ | 0/2 | 2 | 20610.0 |
-| 173 | `values.traits` | `values.Traits [ZERO]` | 0.00 | 55/56 matched (target 55) | `please_use_starlark_type_macro` | 2/3 matched (target 2) | `Canonical` | - | 2 | 25910.0 |
-| 174 | `values.type_repr` | `values.TypeRepr [ZERO]` | 0.00 | 2/3 matched (target 6) | `test_canonical_for_complex_value` | 2/3 matched (target 6) | `Canonical` | 0/1 | 2 | 20610.0 |
-| 175 | `alloc.per_thread` | `alloc.PerThread [ZERO]` | 0.00 | 5/6 matched (target 5) | `test_release_partial` | 1/1 matched | _none_ | 0/1 | 1 | 10710.0 |
-| 176 | `compiler.if_compiler` | `compiler.IfCompiler [ZERO]` | 0.00 | 5/6 matched (target 5) | `wr` | 0/0 matched | _none_ | - | 1 | 10610.0 |
-| 177 | `debug.adapter` | `debug.Adapter [ZERO]` | 0.00 | 21/22 matched (target 23) | `fmt` | 14/14 matched (target 29) | _none_ | - | 1 | 13610.0 |
-| 178 | `dict.globals` | `dict.Globals [ZERO]` | 0.00 | 2/3 matched (target 4) | `dict` | 0/0 matched | _none_ | - | 1 | 10310.0 |
-| 179 | `docs` | `docs.Docs [ZERO]` | 0.00 | 12/13 matched (target 16) | `default` | 10/10 matched (target 15) | _none_ | - | 1 | 12310.0 |
-| 180 | `eval.bc.compiler.call` | `kotlin.io.github.kotlinmania.starlark.eval.bc.compiler.Call [ZERO]` | 0.00 | 4/5 matched (target 8) | `mark_definitely_assigned_after` | 0/0 matched (target 3) | _none_ | - | 1 | 10510.0 |
-| 181 | `float.globals` | `float.Globals [ZERO]` | 0.00 | 1/2 matched (target 1) | `float` | 0/0 matched (target 4) | _none_ | - | 1 | 10210.0 |
-| 182 | `int.globals` | `int.Globals [ZERO]` | 0.00 | 1/2 matched | `int` | 0/0 matched | _none_ | - | 1 | 10210.0 |
-| 183 | `profile.by_type` | `profile.ByType [ZERO]` | 0.00 | 5/6 matched (target 7) | `normalize_for_golden_tests` | 1/1 matched | _none_ | 0/1 | 1 | 10710.0 |
-| 184 | `record.instance` | `record.Instance [ZERO]` | 0.00 | 12/13 matched (target 18) | `fmt` | 1/1 matched (target 3) | _none_ | - | 1 | 11410.0 |
-| 185 | `structs.structs` | `structs.Structs [ZERO]` | 0.00 | 3/4 matched (target 3) | `r#struct` | 1/1 matched | _none_ | - | 1 | 10510.0 |
-| 186 | `values.recursive_repr_or_json_guard` | `values.RecursiveReprOrJsonGuard [ZERO]` | 0.00 | 2/3 matched (target 5) | `drop` | 4/4 matched | _none_ | - | 1 | 10710.0 |
-| 187 | `__derive_refs` | `deriverefs.DeriveRefs [STUB] [PROVENANCE-FALLBACK]` | 0.00 | 0/0 matched | _none_ | 0/0 matched (target 1) | _none_ | - | 0 | 10.0 |
-| 188 | `__derive_refs.components` | `deriverefs.Components [ZERO] [PROVENANCE-FALLBACK]` | 0.00 | 3/3 matched | _none_ | 1/1 matched | _none_ | - | 0 | 410.0 |
-| 189 | `bc.for_loop` | `bc.ForLoop [ZERO]` | 0.00 | 0/0 matched (target 2) | _none_ | 1/1 matched | _none_ | - | 0 | 110.0 |
-| 190 | `bc.writer` | `bc.Writer [ZERO]` | 0.00 | 42/42 matched (target 44) | _none_ | 4/4 matched | _none_ | - | 0 | 4610.0 |
-| 191 | `compiler.assign` | `compiler.Assign [ZERO]` | 0.00 | 2/2 matched | _none_ | 0/0 matched | _none_ | - | 0 | 210.0 |
-| 192 | `compiler.error` | `compiler.Error [ZERO] [PROVENANCE-FALLBACK]` | 0.00 | 2/2 matched (target 24) | _none_ | 1/1 matched (target 14) | _none_ | - | 0 | 310.0 |
-| 193 | `compiler.types` | `compiler.Types [ZERO]` | 0.00 | 8/8 matched | _none_ | 1/1 matched (target 7) | _none_ | - | 0 | 910.0 |
-| 194 | `docs.code` | `docs.Code [ZERO]` | 0.00 | 7/7 matched (target 14) | _none_ | 0/0 matched | _none_ | - | 0 | 710.0 |
-| 195 | `docs.markdown` | `docs.Markdown [ZERO]` | 0.00 | 18/18 matched (target 19) | _none_ | 2/2 matched | _none_ | - | 0 | 2010.0 |
-| 196 | `environment` | `starlark.Environment [ZERO]` | 0.00 | 0/0 matched | _none_ | 1/1 matched (target 5) | _none_ | - | 0 | 110.0 |
-| 197 | `environment.names` | `environment.Names [ZERO]` | 0.00 | 13/13 matched (target 14) | _none_ | 2/2 matched | _none_ | - | 0 | 1510.0 |
-| 198 | `errors` | `starlark.Errors [STUB]` | 0.00 | 0/0 matched | _none_ | 0/0 matched | _none_ | - | 0 | 10.0 |
-| 199 | `eval.bc.compiler.def` | `kotlin.io.github.kotlinmania.starlark.eval.bc.compiler.Def [ZERO]` | 0.00 | 2/2 matched | _none_ | 0/0 matched | _none_ | - | 0 | 210.0 |
-| 200 | `eval.bc.compiler.expr` | `kotlin.io.github.kotlinmania.starlark.eval.bc.compiler.Expr [ZERO]` | 0.00 | 15/15 matched (target 16) | _none_ | 0/0 matched | _none_ | - | 0 | 1510.0 |
-| 201 | `eval.runtime` | `eval.Runtime [STUB]` | 0.00 | 0/0 matched | _none_ | 0/0 matched | _none_ | - | 0 | 10.0 |
-| 202 | `fuzz_targets.starlark` | `fuzztargets.Starlark [ZERO] [PROVENANCE-FALLBACK]` | 0.00 | 2/2 matched (target 3) | _none_ | 0/0 matched | _none_ | - | 0 | 210.0 |
-| 203 | `layout.avalues` | `layout.AValues [STUB]` | 0.00 | 0/0 matched | _none_ | 0/0 matched | _none_ | - | 0 | 10.0 |
-| 204 | `layout.static_string` | `layout.StaticString [ZERO]` | 0.00 | 5/5 matched | _none_ | 1/1 matched (target 2) | _none_ | - | 0 | 610.0 |
-| 205 | `macros` | `starlark.Macros [ZERO]` | 0.00 | 0/0 matched (target 9) | _none_ | 0/0 matched (target 9) | _none_ | - | 0 | 10.0 |
-| 206 | `pagable` | `starlark.Pagable [STUB]` | 0.00 | 0/0 matched | _none_ | 0/0 matched | _none_ | - | 0 | 10.0 |
-| 207 | `pagable.vtable_register` | `pagable.VtableRegister [ZERO]` | 0.00 | 0/0 matched (target 3) | _none_ | 0/0 matched | _none_ | - | 0 | 10.0 |
-| 208 | `stdlib.funcs` | `stdlib.Funcs [STUB]` | 0.00 | 0/0 matched | _none_ | 0/0 matched | _none_ | - | 0 | 10.0 |
-| 209 | `string.globals` | `string.Globals [ZERO]` | 0.00 | 5/5 matched | _none_ | 0/0 matched | _none_ | - | 0 | 510.0 |
-| 210 | `string.iter` | `string.Iter [ZERO]` | 0.00 | 3/3 matched (target 6) | _none_ | 1/1 matched | _none_ | - | 0 | 410.0 |
-| 211 | `syntax` | `starlark.Syntax [STUB]` | 0.00 | 0/0 matched | _none_ | 0/0 matched | _none_ | - | 0 | 10.0 |
-| 212 | `type_compiled.matchers` | `type_compiled.Matchers [ZERO]` | 0.00 | 3/3 matched (target 25) | _none_ | 23/23 matched | _none_ | - | 0 | 2610.0 |
-| 213 | `typing.error` | `typing.Error [ZERO]` | 0.00 | 9/9 matched (target 25) | _none_ | 5/5 matched (target 10) | _none_ | - | 0 | 1410.0 |
-| 214 | `typing.fill_types_for_lint` | `typing.FillTypesForLint [ZERO]` | 0.00 | 39/39 matched (target 40) | _none_ | 3/3 matched | _none_ | - | 0 | 4210.0 |
-| 215 | `typing.oracle` | `typing.Oracle [STUB]` | 0.00 | 0/0 matched | _none_ | 0/0 matched | _none_ | - | 0 | 10.0 |
-| 216 | `unused_loads.remove` | `unusedloads.Remove [ZERO]` | 0.00 | 4/4 matched | _none_ | 1/1 matched | _none_ | - | 0 | 510.0 |
-| 217 | `util` | `starlark.Util [STUB]` | 0.00 | 0/0 matched | _none_ | 0/0 matched | _none_ | - | 0 | 10.0 |
-| 218 | `values.types` | `values.Types [STUB]` | 0.00 | 0/0 matched | _none_ | 0/0 matched | _none_ | - | 0 | 10.0 |
-| 219 | `values.typing` | `values.Typing [STUB]` | 0.00 | 0/0 matched | _none_ | 0/0 matched | _none_ | - | 0 | 10.0 |
-| 220 | `types.type_instance_id` | `types.TypeInstanceId` | 0.00 | 0/1 matched (target 2) | `r#gen` | 1/1 matched | _none_ | - | 1 | 9010210.0 |
-| 221 | `tuple.rust_tuple` | `tuple.RustTuple` | 0.00 | 0/4 matched (target 11) | `alloc_value`, `alloc_frozen_value`, `starlark_type_repr`, `unpack_value_impl` | 0/2 matched (target 0) | `Canonical`, `Error` | - | 6 | 60610.0 |
-| 222 | `bool.unpack` | `bool.Unpack` | 0.00 | 0/1 matched | `unpack_value_impl` | 0/1 matched (target 0) | `Error` | - | 2 | 20210.0 |
-| 223 | `enumeration.ty_enum_type` | `enumeration.TyEnumType` | 0.00 | 0/2 matched (target 3) | `eq`, `hash` | 1/1 matched | _none_ | - | 2 | 20310.0 |
-| 224 | `pagable.error` | `pagable.Error` | 0.00 | 0/1 matched | `from` | 1/1 matched (target 2) | _none_ | - | 1 | 10210.0 |
-| 225 | `runtime.visit_span` | `runtime.VisitSpan` | 0.00 | 0/1 matched (target 19) | `visit_spans` | 1/1 matched | _none_ | - | 1 | 10210.0 |
-| 226 | `any` | `starlark.Any` | 0.04 | 2/12 matched (target 3) | `static_type_id`, `static_type_of`, `is`, `test_can_convert`, `convert_value`, `convert_any`, `test_any_lifetime`, `test`, `test_provides_static_type_id`, `test_provides_static_type_when_type_parameter_has_bound_with_lifetime` | 3/15 matched (target 37) | `StaticType`, `Value`, `Value2`, `Aaa`, `Bbb`, `Ccc`, `LifetimeTypeConst`, `TypeWithConstraint`, `TypeWhichDoesNotImplementAnyLifetime`, `TypeWithStaticLifetime`, `My`, `FooBar` | 0/7 | 22 | 8222709.5 |
-| 227 | `stdlib.json` | `stdlib.Json` | 0.04 | 2/11 matched (target 24) | `alloc_value`, `alloc_frozen_value`, `json`, `encode`, `decode`, `test_json_encode`, `test_json_decode`, `test_json_very_large_int`, `test_json_128bit_and_beyond` | 0/1 matched (target 11) | `Canonical` | 0/4 | 10 | 101209.6 |
-| 228 | `analysis` | `starlark.Analysis` | 0.05 | 1/12 matched (target 1) | `module`, `test_lint_suppressions_keyword_matching`, `test_lint_suppressions_fn_with_many_issues`, `test_lint_suppressions_preceding_whitespace`, `test_lint_suppressions_with_space_separator`, `test_lint_suppressions_multiline_span`, `test_lint_suppressions_small_span`, `test_lint_suppressions_data`, `test_lint_suppressions_line_before`, `test_lint_suppressions_line_before_windows_newlines`, `test_lint_suppressions_inside_fn` | 1/1 matched | _none_ | 0/11 | 11 | 111309.5 |
-| 229 | `enumeration.globals` | `enumeration.Globals` | 0.12 | 1/5 matched (target 1) | `r#enum`, `test_enum`, `test_enum_equality`, `test_enum_repr` | 0/0 matched | _none_ | 0/3 | 4 | 40508.8 |
-| 230 | `stdlib.extra` | `stdlib.Extra` | 0.14 | 5/16 matched (target 21) | `fmt`, `print`, `pprint`, `pstr`, `prepr`, `test_filter`, `test_map`, `test_debug`, `test_print`, `test_pstr`, `test_prepr` | 3/4 matched (target 3) | `PrintHandlerImpl` | 0/6 | 12 | 122008.6 |
-| 231 | `profile.mode` | `profile.Mode` | 0.15 | 1/4 matched | `fmt`, `name`, `from_str` | 1/2 matched (target 1) | `Err` | - | 4 | 40608.5 |
-| 232 | `bool.globals` | `bool.Globals` | 0.19 | 1/2 matched (target 1) | `bool` | 0/0 matched | _none_ | - | 1 | 10208.1 |
-| 233 | `int.i32` | `int.I32` | 0.23 | 2/4 matched (target 5) | `alloc_value`, `alloc_frozen_value` | 0/2 matched (target 1) | `Canonical`, `Error` | - | 4 | 40607.7 |
-| 234 | `profile.csv` | `profile.Csv` | 0.24 | 6/10 matched (target 7) | `new`, `format_for_csv`, `test_csv_writer`, `test_quote_str_for_csv` | 1/3 matched (target 2) | `Impl`, `CsvValue` | 0/2 | 6 | 61307.6 |
-| 235 | `wasm` | `starlark.Wasm` | 0.25 | 1/1 matched | _none_ | 0/0 matched | _none_ | - | 0 | 107.5 |
-| 236 | `typing.small_arc_vec_or_static` | `typing.SmallArcVecOrStatic` | 0.25 | 3/10 matched | `default`, `deref`, `eq`, `hash`, `partial_cmp`, `cmp`, `into_iter` | 2/5 matched (target 4) | `Target`, `Item`, `IntoIter` | - | 10 | 101507.5 |
-| 237 | `typing.type_type` | `typing.TypeType` | 0.27 | 2/5 matched (target 3) | `test`, `module`, `takes_type` | 1/3 matched (target 1) | `Canonical`, `Error` | 0/3 | 5 | 2050807.2 |
-| 238 | `analysis.types` | `analysis.Types` | 0.30 | 4/7 matched | `fmt`, `new`, `from` | 2/5 matched (target 2) | `LintWarning`, `LintT`, `EvalSeverity` | - | 6 | 61207.0 |
-| 239 | `range.globals` | `range.Globals` | 0.30 | 1/2 matched (target 1) | `range` | 0/0 matched | _none_ | - | 1 | 10207.0 |
-| 240 | `namespace.globals` | `namespace.Globals` | 0.30 | 1/2 matched (target 1) | `namespace` | 0/0 matched | _none_ | - | 1 | 10207.0 |
-| 241 | `stdlib.internal` | `stdlib.Internal` | 0.31 | 2/4 matched (target 2) | `ty_of_value_debug`, `test_ty_of_value_debug` | 0/0 matched | _none_ | 0/1 | 2 | 20406.9 |
-| 242 | `typing.small_arc_vec` | `typing.SmallArcVec` | 0.31 | 4/11 matched (target 16) | `deref`, `default`, `partial_cmp`, `cmp`, `hash`, `fmt`, `from_iter` | 2/3 matched (target 5) | `Target` | - | 8 | 81406.9 |
-| 243 | `tuple.globals` | `tuple.Globals` | 0.31 | 1/2 matched (target 1) | `tuple` | 0/0 matched | _none_ | - | 1 | 10206.9 |
-| 244 | `__derive_refs.invoke_macro_error` | `deriverefs.InvokeMacroError [PROVENANCE-FALLBACK]` | 0.31 | 1/1 matched | _none_ | 1/1 matched | _none_ | - | 0 | 206.9 |
-| 245 | `num.globals` | `num.Globals` | 0.32 | 1/2 matched (target 1) | `abs` | 0/0 matched | _none_ | - | 1 | 10206.8 |
-| 246 | `num.value` | `num.Value` | 0.32 | 11/22 matched (target 27) | `eq`, `partial_cmp`, `cmp`, `add`, `sub`, `mul`, `test_from_value`, `test_conversion_to_float`, `test_conversion_to_int`, `test_hashing`, `test_eq` | 3/4 matched (target 6) | `Output` | 0/5 | 12 | 122606.8 |
-| 247 | `typing.user` | `typing.User` | 0.32 | 13/27 matched (target 26) | `eq`, `partial_cmp`, `cmp`, `hash`, `get_type_starlark_repr`, `alloc_value`, `typechecker_ty`, `eval_type`, `invoke`, `globals`, `fruit`, `mk_fruit`, `test_intersect_with_abstract_type`, `test_ty_user_intersects_with_base_starlark_value` | 5/8 matched | `AbstractPlant`, `FruitCallable`, `Fruit` | 0/10 | 17 | 173506.8 |
-| 248 | `util.refcell` | `refcell.RefCell` | 0.32 | 1/2 matched (target 11) | `test_unleak_borrow` | 0/0 matched (target 3) | _none_ | 0/1 | 1 | 20010206.0 |
-| 249 | `float.unpack` | `float.Unpack` | 0.33 | 2/3 matched | `test_unpack_float` | 1/3 matched (target 1) | `Canonical`, `Error` | 0/1 | 3 | 30606.7 |
-| 250 | `dict.traits` | `dict.Traits` | 0.33 | 4/4 matched (target 7) | _none_ | 0/2 matched (target 6) | `Canonical`, `Error` | - | 2 | 20606.7 |
-| 251 | `heap.maybe_uninit_slice_util` | `heap.MaybeUninitSliceUtil` | 0.34 | 1/2 matched (target 1) | `drop` | 0/1 matched (target 0) | `WriteRemOnDrop` | - | 2 | 20306.6 |
-| 252 | `collections.aligned_padded_str` | `alignedpaddedstr.AlignedPaddedStr` | 0.34 | 2/3 matched (target 4) | `eq` | 1/1 matched | _none_ | - | 1 | 2010406.6 |
-| 253 | `values.demand` | `values.Demand` | 0.37 | 4/7 matched (target 5) | `payload`, `provide`, `test_trait_downcast` | 1/4 matched (target 1) | `SomeTrait`, `StaticType`, `MyValue` | 0/3 | 6 | 4061106.2 |
-| 254 | `list.list_type` | `list.ListType` | 0.37 | 1/2 matched (target 5) | `unpack_value_impl` | 1/3 matched (target 1) | `Canonical`, `Error` | - | 3 | 3030506.2 |
-| 255 | `profile.alloc_counts` | `profile.AllocCounts` | 0.40 | 1/4 matched (target 5) | `normalize_for_golden_tests`, `add_assign`, `add` | 1/2 matched (target 1) | `Output` | 0/1 | 4 | 4040606.0 |
-| 256 | `util.arc_or_static` | `util.ArcOrStatic` | 0.42 | 5/10 matched (target 9) | `fmt`, `eq`, `partial_cmp`, `cmp`, `hash` | 2/3 matched (target 4) | `Target` | - | 6 | 2061305.9 |
-| 257 | `bc.definitely_assigned` | `bc.DefinitelyAssigned` | 0.42 | 2/4 matched (target 7) | `new`, `assert_smaller_then` | 1/1 matched | _none_ | - | 2 | 20505.8 |
-| 258 | `string.dot_format` | `string.DotFormat` | 0.43 | 7/11 matched (target 7) | `format_capture_for_test`, `test_format_capture`, `test_format`, `test_parse_format_one` | 1/1 matched | _none_ | 0/4 | 4 | 1041205.7 |
-| 259 | `analysis.underscore` | `analysis.Underscore` | 0.44 | 8/13 matched (target 14) | `lint`, `about`, `module`, `test_lint_inappropriate_underscore`, `test_lint_use_ignored` | 1/1 matched (target 3) | _none_ | 0/4 | 5 | 51405.6 |
-| 260 | `namespace.value` | `namespace.Value` | 0.44 | 9/15 matched (target 23) | `new`, `fmt`, `test_repr`, `test_repr_cycle`, `test_to_json_cycle`, `test_kwargs` | 2/2 matched (target 4) | _none_ | 0/4 | 6 | 61705.6 |
-| 261 | `analysis.performance` | `analysis.Performance` | 0.45 | 6/10 matched (target 14) | `lint`, `module`, `test_lint_matches_dict_issue`, `test_lint_matches_any_function` | 1/1 matched (target 4) | _none_ | 0/3 | 4 | 41105.5 |
-| 262 | `stdlib.breakpoint` | `stdlib.Breakpoint` | 0.45 | 11/17 matched (target 13) | `global`, `breakpoint`, `reset_global_state`, `test_breakpoint_real`, `test_breakpoint_mock`, `test_breakpoint_disabled` | 5/6 matched | `Handler` | 0/4 | 7 | 1072305.5 |
-| 263 | `enumeration.value` | `enumeration.Value` | 0.46 | 6/9 matched (target 10) | `fmt`, `index`, `value` | 1/1 matched (target 8) | _none_ | - | 3 | 31005.4 |
-| 264 | `analysis.names` | `analysis.Names` | 0.48 | 21/35 matched (target 31) | `new`, `ident`, `assign_ident`, `lint`, `about`, `test_lint_unused`, `test_lint_duplicate_assign`, `test_lint_unassigned`, `test_lint_undefined`, `test_early_fail`, `test_assign_for_next`, `test_flow_control`, `test_lambda_capture`, `test_global_defined_later` | 7/8 matched (target 13) | `AstStrExt` | 0/10 | 15 | 154305.2 |
-| 265 | `analysis.dubious` | `analysis.Dubious` | 0.48 | 7/12 matched (target 19) | `lint`, `module`, `about`, `test_lint_duplicate_keys`, `test_lint_identifier_as_statement` | 1/2 matched (target 8) | `Key` | 0/4 | 6 | 61405.2 |
-| 266 | `avalues.list` | `avalues.List` | 0.48 | 9/10 matched (target 19) | `alloc_list_concat` | 2/4 matched (target 2) | `StarlarkValue`, `ExtraElem` | - | 3 | 31405.2 |
-| 267 | `environment.module_dump` | `environment.ModuleDump` | 0.48 | 1/1 matched (target 2) | _none_ | 0/0 matched | _none_ | - | 0 | 105.2 |
-| 268 | `bool.value` | `bool.Value` | 0.49 | 8/9 matched | `fmt` | 1/1 matched | _none_ | - | 1 | 11005.1 |
-| 269 | `types.any_complex` | `types.AnyComplex` | 0.49 | 4/7 matched | `fmt`, `test_any_complex`, `freeze` | 1/5 matched (target 1) | `Canonical`, `UnfrozenData`, `Frozen`, `FrozenData` | 0/2 | 7 | 1071205.1 |
-| 270 | `tuple.alloc` | `tuple.Alloc` | 0.49 | 3/5 matched (target 3) | `test_alloc_tuple`, `test_alloc_frozen_tuple` | 1/2 matched (target 1) | `Canonical` | 0/2 | 3 | 30705.1 |
-| 271 | `runtime.inlined_frame` | `runtime.InlinedFrame` | 0.50 | 5/9 matched (target 6) | `eq`, `test_inline_into`, `make_span`, `assert_stack` | 3/3 matched | _none_ | 0/3 | 4 | 41205.0 |
-| 272 | `bc.native_function` | `bc.NativeFunction` | 0.51 | 3/4 matched | `fun` | 1/1 matched | _none_ | - | 1 | 4010505.0 |
-| 273 | `dict.refs` | `dict.Refs` | 0.51 | 7/9 matched (target 13) | `from_value`, `deref` | 4/7 matched (target 11) | `Target`, `Canonical`, `Error` | - | 5 | 51604.9 |
-| 274 | `profile.bc` | `profile.Bc` | 0.52 | 12/19 matched (target 24) | `sum`, `add_assign`, `default`, `test_smoke`, `test_smoke_2`, `test_bc_profile_data_merge`, `test_bc_pairs_profile_data_merge` | 9/10 matched (target 13) | `Data` | 0/4 | 8 | 82904.8 |
-| 275 | `analysis.flow` | `analysis.Flow` | 0.52 | 16/24 matched (target 31) | `lint`, `module`, `about`, `test_lint_returns`, `test_lint_unreachable`, `test_lint_redundant`, `test_lint_misplaced_load`, `test_lint_no_effect` | 1/1 matched (target 11) | _none_ | 0/7 | 8 | 82504.8 |
-| 276 | `types.ellipsis` | `types.Ellipsis` | 0.55 | 2/3 matched (target 4) | `test_ellipsis` | 1/1 matched | _none_ | 0/1 | 1 | 4010404.5 |
-| 277 | `analysis.find_call_name` | `analysis.FindCallName` | 0.55 | 2/3 matched (target 8) | `finds_function_calls_with_name_kwarg` | 1/1 matched | _none_ | 0/1 | 1 | 10404.5 |
-| 278 | `dict.unpack` | `dict.Unpack` | 0.55 | 2/3 matched | `unpack_value_impl` | 1/3 matched (target 1) | `Canonical`, `Error` | - | 3 | 30604.5 |
-| 279 | `profile.data` | `profile.Data` | 0.55 | 4/6 matched (target 5) | `_assert_profile_data_send_sync`, `_assert_send_sync` | 3/3 matched (target 18) | _none_ | - | 2 | 20904.5 |
-| 280 | `typing.callable_param` | `typing.CallableParam` | 0.56 | 16/20 matched (target 27) | `fmt`, `pf`, `new_named_only`, `test_param_spec_display` | 5/6 matched (target 10) | `ParamSpecDisplay` | 0/1 | 5 | 52604.4 |
-| 281 | `analysis.incompatible` | `analysis.Incompatible` | 0.58 | 10/14 matched (target 17) | `lint`, `module`, `test_lint_incompatible`, `test_lint_duplicate_top_level_assign` | 1/1 matched (target 3) | _none_ | 0/3 | 4 | 41504.2 |
-| 282 | `typing.callable` | `typing.Callable` | 0.58 | 6/7 matched (target 10) | `fmt` | 1/2 matched (target 1) | `TyCallableInner` | - | 2 | 20904.2 |
-| 283 | `profile.flamegraph` | `profile.Flamegraph` | 0.59 | 6/10 matched (target 13) | `new`, `test_flamegraph_writer`, `test_flamegraph_data`, `test_merge` | 3/3 matched | _none_ | 0/3 | 4 | 41304.1 |
-| 284 | `types.unbound` | `types.Unbound` | 0.60 | 3/4 matched | `fmt` | 1/1 matched (target 3) | _none_ | - | 1 | 10504.0 |
-| 285 | `bc.bytecode` | `bc.Bytecode` | 0.60 | 6/7 matched (target 11) | `handle` | 1/2 matched (target 1) | `HandlerImpl` | - | 2 | 20904.0 |
-| 286 | `typing.interface` | `typing.Interface` | 0.60 | 3/3 matched | _none_ | 1/1 matched | _none_ | - | 0 | 5000404.0 |
-| 287 | `oracle.traits` | `oracle.Traits` | 0.60 | 1/1 matched (target 3) | _none_ | 2/2 matched | _none_ | - | 0 | 304.0 |
-| 288 | `profile.time_flame` | `profile.TimeFlame` | 0.60 | 15/19 matched (target 18) | `r#gen`, `test_time_flame_works_inside_frozen_module`, `register_sleep`, `sleep` | 10/11 matched (target 15) | `Data` | 0/3 | 5 | 53004.0 |
-| 289 | `typing.arc_ty` | `typing.ArcTy` | 0.60 | 6/7 matched (target 16) | `fmt` | 3/4 matched (target 10) | `Target` | - | 2 | 5021104.0 |
-| 290 | `compiler.args` | `compiler.Args` | 0.60 | 10/11 matched | `args` | 1/2 matched (target 1) | `Never` | - | 2 | 21304.0 |
-| 291 | `values.starlark_type_id` | `values.StarlarkTypeId` | 0.61 | 5/6 matched (target 7) | `eq` | 2/2 matched | _none_ | - | 1 | 7010804.0 |
-| 292 | `values.error` | `values.Error` | 0.62 | 4/5 matched | `from` | 2/2 matched (target 20) | _none_ | - | 1 | 17010704.0 |
-| 293 | `symbol.symbol` | `symbol.Symbol` | 0.63 | 7/9 matched (target 11) | `fmt`, `eq` | 1/1 matched | _none_ | - | 2 | 21003.7 |
-| 294 | `typing.structs` | `typing.Structs` | 0.63 | 7/8 matched (target 9) | `fmt` | 2/2 matched | _none_ | - | 1 | 1011003.7 |
-| 295 | `tuple.refs` | `tuple.Refs` | 0.64 | 6/7 matched (target 15) | `unpack_value_impl` | 2/4 matched (target 2) | `Canonical`, `Error` | - | 3 | 31103.6 |
-| 296 | `runtime.frame_span` | `runtime.FrameSpan` | 0.65 | 3/4 matched | `fmt` | 1/1 matched | _none_ | - | 1 | 26010504.0 |
-| 297 | `namespace.typing` | `namespace.Typing` | 0.65 | 6/7 matched (target 8) | `fmt` | 3/3 matched | _none_ | - | 1 | 11003.5 |
-| 298 | `layout.vtable` | `layout.Vtable` | 0.67 | 60/67 matched (target 65) | `value_ptr`, `value_ref`, `drop_in_place`, `fmt`, `as_allocative`, `total_memory_for_profile`, `as_serialize` | 4/6 matched (target 4) | `GetTypeId`, `GetAllocativeKey` | - | 9 | 97303.3 |
-| 299 | `environment.slots` | `environment.Slots` | 0.67 | 8/8 matched (target 10) | _none_ | 3/3 matched | _none_ | - | 0 | 1103.3 |
-| 300 | `compiler.call` | `compiler.Call` | 0.67 | 13/13 matched (target 14) | _none_ | 1/1 matched | _none_ | - | 0 | 1403.3 |
-| 301 | `profile.profiler_type` | `profile.ProfilerType` | 0.69 | 1/1 matched | _none_ | 2/2 matched | _none_ | - | 0 | 6000303.0 |
-| 302 | `type_compiled.type_matcher_factory` | `type_compiled.TypeMatcherFactory` | 0.69 | 3/3 matched (target 6) | _none_ | 3/3 matched | _none_ | - | 0 | 7000603.0 |
-| 303 | `compiler.def_inline` | `compiler.DefInline` | 0.70 | 9/10 matched (target 9) | `new` | 4/4 matched (target 6) | _none_ | - | 1 | 11403.0 |
-| 304 | `runtime.file_loader` | `runtime.FileLoader` | 0.70 | 1/1 matched (target 2) | _none_ | 3/3 matched | _none_ | - | 0 | 2000403.0 |
-| 305 | `types.any` | `types.Any` | 0.71 | 4/5 matched | `fmt` | 1/2 matched (target 1) | `Canonical` | - | 2 | 20702.9 |
-| 306 | `none.globals` | `none.Globals` | 0.71 | 1/1 matched | _none_ | 0/0 matched | _none_ | - | 0 | 102.9 |
-| 307 | `compiler.opt_ctx` | `compiler.OptCtx` | 0.71 | 5/5 matched (target 13) | _none_ | 2/2 matched (target 4) | _none_ | - | 0 | 7000703.0 |
-| 308 | `layout.value_not_special` | `layout.ValueNotSpecial` | 0.72 | 6/6 matched (target 7) | _none_ | 1/1 matched | _none_ | - | 0 | 702.8 |
-| 309 | `scope.scope_resolver_globals` | `scope.ScopeResolverGlobals` | 0.72 | 3/3 matched | _none_ | 1/1 matched | _none_ | - | 0 | 5000403.0 |
+| 1 | `typing.starlark_value` | `typing.StarlarkValue [ZERO]` | 0.00 | 29/34 matched (target 43) | `fmt`, `eq`, `hash`, `partial_cmp`, `cmp` | 4/4 matched (target 5) | _none_ | - | 5 | 76053808.0 |
+| 2 | `runtime.evaluator` | `runtime.Evaluator [ZERO]` | 0.00 | 58/60 matched (target 63) | `drop`, `add_diagnostics` | 7/7 matched (target 17) | _none_ | - | 2 | 56026712.0 |
+| 3 | `values.trace` | `values.Trace [ZERO]` | 0.00 | 1/1 matched (target 43) | _none_ | 1/1 matched | _none_ | - | 0 | 52000208.0 |
+| 4 | `values.freeze` | `values.Freeze [ZERO]` | 0.00 | 1/1 matched (target 31) | _none_ | 1/2 matched (target 6) | `Frozen` | - | 1 | 42010312.0 |
+| 5 | `values.alloc_value` | `values.AllocValue [ZERO]` | 0.00 | 2/2 matched (target 5) | _none_ | 4/4 matched | _none_ | - | 0 | 42000608.0 |
+| 6 | `layout.freezer` | `layout.Freezer [ZERO]` | 0.00 | 5/5 matched | _none_ | 1/1 matched | _none_ | - | 0 | 36000608.0 |
+| 7 | `values.frozen_ref` | `values.FrozenRef [ZERO]` | 0.00 | 17/17 matched (target 23) | _none_ | 2/4 matched (target 2) | `Target`, `Frozen` | - | 2 | 27022110.0 |
+| 8 | `none.none_type` | `none.NoneType [ZERO]` | 0.00 | 11/11 matched (target 16) | _none_ | 1/2 matched | `Error` | - | 1 | 27011310.0 |
+| 9 | `runtime.arguments` | `runtime.Arguments [ZERO]` | 0.00 | 26/30 matched (target 49) | `test_parameter_unpack`, `f`, `test_parameter_no_named`, `test_names_map_repeated_name_in_arg_names` | 8/8 matched (target 16) | _none_ | 0/4 | 4 | 25043810.0 |
+| 10 | `typing.type_compiled` | `type_compiled.TypeCompiled [STUB]` | 0.00 | 0/0 matched | _none_ | 0/0 matched | _none_ | - | 0 | 22000010.0 |
+| 11 | `environment.globals` | `environment.Globals [ZERO]` | 0.00 | 30/35 matched (target 38) | `get`, `test_send_sync`, `register_foo`, `foo`, `test_doc_hidden` | 5/5 matched | _none_ | 0/5 | 5 | 21054010.0 |
+| 12 | `derive.module` | `syntax.AstModule [ZERO] [PROVENANCE-FALLBACK]` | 0.00 | 0/0 matched (target 21) | _none_ | 0/0 matched (target 3) | _none_ | - | 0 | 21000010.0 |
+| 13 | `values.value_of_unchecked` | `values.ValueOfUnchecked [ZERO]` | 0.00 | 12/18 matched (target 17) | `fmt`, `test_cast_example`, `test_frozen_value_of_unchecked_send_sync`, `assert_send_sync`, `test_frozen_value_of_unchecked_covariant`, `_assert_covariant` | 3/7 matched (target 4) | `Canonical`, `Frozen`, `Error`, `ReprNotSendSync` | 0/5 | 10 | 20102510.0 |
+| 14 | `environment.methods` | `environment.Methods [ZERO]` | 0.00 | 17/19 matched (target 21) | `test_set_attribute`, `get_methods` | 3/4 matched (target 3) | `Magic` | 0/2 | 3 | 17032310.0 |
+| 15 | `values.iter` | `values.Iter [ZERO] [PROVENANCE-FALLBACK]` | 0.00 | 4/5 matched (target 84) | `drop` | 1/2 matched (target 14) | `Item` | - | 2 | 17020710.0 |
+| 16 | `collections.symbol` | `collections.Symbol [STUB]` | 0.00 | 0/0 matched | _none_ | 0/0 matched | _none_ | - | 0 | 15000010.0 |
+| 17 | `private` | `starlark.Private [ZERO]` | 0.00 | 0/0 matched | _none_ | 1/1 matched | _none_ | - | 0 | 15000110.0 |
+| 18 | `layout.avalue` | `layout.AValue [ZERO]` | 0.00 | 6/8 matched (target 11) | `tuple_cycle_freeze`, `test_try_freeze_directly` | 3/3 matched | _none_ | 0/2 | 2 | 14021110.0 |
+| 19 | `layout.const_frozen_string` | `layout.ConstFrozenString [ZERO]` | 0.00 | 0/2 matched (target 1) | `test_const_frozen_string_for_short_strings`, `test_const_frozen_string` | 0/0 matched | _none_ | 0/2 | 2 | 12020210.0 |
+| 20 | `typing.tuple` | `typing.Tuple [ZERO]` | 0.00 | 5/6 matched (target 9) | `fmt` | 1/1 matched (target 3) | _none_ | - | 1 | 12010710.0 |
+| 21 | `int.inline_int` | `int.InlineInt [ZERO]` | 0.00 | 25/34 matched (target 43) | `fmt`, `testing_new`, `try_from_impl`, `bitand`, `bitor`, `bitxor`, `eq`, `partial_cmp`, `test_min_max_for_bits` | 2/5 matched (target 6) | `Error`, `Output`, `Canonical` | 0/2 | 12 | 11123910.0 |
+| 22 | `int.pointer_i32` | `int.PointerI32 [ZERO]` | 0.00 | 28/31 matched (target 34) | `eq`, `fmt`, `serialize` | 1/2 matched | `Canonical` | - | 4 | 9043310.0 |
+| 23 | `layout.aligned_size` | `layout.AlignedSize [ZERO]` | 0.00 | 6/13 matched (target 15) | `layout`, `ptr_diff`, `add`, `sub`, `mul`, `test_checked_next_power_of_two`, `test_sub` | 1/2 matched (target 1) | `Output` | 0/2 | 8 | 8081510.0 |
+| 24 | `cast` | `starlark.Cast [ZERO]` | 0.00 | 3/3 matched (target 4) | _none_ | 0/0 matched | _none_ | - | 0 | 8000310.0 |
+| 25 | `eval.compiler` | `eval.Compiler [ZERO]` | 0.00 | 6/6 matched | _none_ | 1/1 matched | _none_ | - | 0 | 8000710.0 |
+| 26 | `types.bigint` | `types.Bigint [ZERO]` | 0.00 | 29/73 matched (target 35) | `unpack_integer`, `eq`, `test_parse`, `test_str`, `test_repr`, `test_equals`, `test_plus`, `test_compare_big_big`, `test_compare_big_small`, `test_compare_big_float`, `test_add_big`, `test_add_big_small`, `test_add_big_float`, `test_mul_big`, `test_mul_big_small`, `test_mul_big_float`, `test_div_big`, `test_div_big_small`, `test_div_big_float`, `test_floor_div_big`, `test_floor_div_big_small`, `test_floor_div_big_float`, `test_percent_big`, `test_percent_big_small`, `test_percent_big_float`, `test_bit_and_big`, `test_bit_and_big_small`, `test_bit_and_float`, `test_bit_or_big`, `test_bit_or_big_small`, `test_bit_or_float`, `test_bit_xor_big`, `test_bit_xor_big_small`, `test_bit_xor_float`, `test_bit_not`, `test_left_shift`, `test_left_shift_small`, `test_left_shift_float`, `test_right_shift`, `test_right_shift_small`, `test_right_shift_float`, `test_int_function`, `test_hash`, `test_int_type_matches_bigint` | 1/1 matched | _none_ | 0/42 | 44 | 7447410.0 |
+| 27 | `runtime.frozen_file_span` | `runtime.FrozenFileSpan [ZERO]` | 0.00 | 9/10 matched | `fmt` | 1/1 matched | _none_ | - | 1 | 7011110.0 |
+| 28 | `runtime.small_duration` | `runtime.SmallDuration [ZERO]` | 0.00 | 4/7 matched (target 9) | `from_millis`, `add_assign`, `add` | 1/2 matched (target 1) | `Output` | 0/1 | 4 | 6040910.0 |
+| 29 | `dict.dict_type` | `dict.DictType [ZERO]` | 0.00 | 1/2 matched (target 4) | `unpack_value_impl` | 1/3 matched (target 1) | `Canonical`, `Error` | - | 3 | 6030510.0 |
+| 30 | `typing.typecheck` | `typing.Typecheck [STUB]` | 0.00 | 2/5 matched | `fmt`, `find_bindings_by_name`, `find_first_binding` | 2/2 matched (target 3) | _none_ | 0/2 | 3 | 6030710.0 |
+| 31 | `values.freeze_error` | `values.FreezeError [ZERO]` | 0.00 | 3/4 matched (target 6) | `from` | 3/4 matched (target 3) | `FreezeResult` | - | 2 | 6020810.0 |
+| 32 | `layout.value_alloc_size` | `layout.ValueAllocSize [ZERO]` | 0.00 | 4/5 matched | `layout` | 1/1 matched | _none_ | - | 1 | 6010610.0 |
+| 33 | `compiler.stmt` | `compiler.Stmt [ZERO]` | 0.00 | 25/25 matched (target 28) | _none_ | 7/7 matched (target 24) | _none_ | - | 0 | 6003210.0 |
+| 34 | `values.layout` | `values.Layout [STUB]` | 0.00 | 0/0 matched | _none_ | 0/0 matched | _none_ | - | 0 | 6000010.0 |
+| 35 | `tests.def` | `typing.DefParamIndices [ZERO] [PROVENANCE-FALLBACK]` | 0.00 | 0/14 matched (target 4) | `test_lambda`, `test_frozen_lambda`, `test_nested_def_1`, `test_nested_def_2`, `test_nested_def_3`, `test_lambda_capture_from_module`, `test_lambda_capture_from_def`, `test_lambda_capture_reassigned_from_def`, `test_def_freeze`, `test_frozen_lambda_nest`, `test_context_captured`, `test_lambda_errors`, `test_lambda_errors_nested`, `test_double_capture_and_freeze` | 0/0 matched (target 1) | _none_ | 0/14 | 14 | 5141410.0 |
+| 36 | `types.array` | `types.Array [ZERO]` | 0.00 | 23/32 matched (target 24) | `fmt`, `offset_of_content`, `ptr_at`, `mut_ptr_at`, `get_unchecked`, `is_special`, `serialize`, `debug`, `display` | 2/2 matched | _none_ | 0/2 | 9 | 5093410.0 |
+| 37 | `eval.bc` | `bc.Bc [STUB]` | 0.00 | 0/0 matched | _none_ | 0/0 matched | _none_ | - | 0 | 5000010.0 |
+| 38 | `enumeration.enum_type` | `enumeration.EnumType [ZERO]` | 0.00 | 21/36 matched (target 24) | `fmt`, `r#type`, `values`, `test_enum_type_as_type_pass`, `test_enum_type_fail_runtime`, `test_enum_type_fail_compile_time`, `test_enum_is_callable`, `test_enum_value_index`, `test_enum_value_index_correct_type`, `test_enum_index`, `test_enum_index_fail`, `test_enum_call`, `test_enum_attribute_access`, `test_enum_attribute_access_invalid`, `test_enum_attribute_access_type` | 4/8 matched (target 6) | `EnumCell`, `TyEnumDataOpt`, `Frozen`, `Canonical` | 0/12 | 19 | 4194410.0 |
+| 39 | `types.starlark_value_as_type` | `types.StarlarkValueAsType [ZERO]` | 0.00 | 6/13 matched (target 8) | `fmt`, `new`, `compiler_args_globals`, `compiler_args`, `test_pass`, `test_fail_compile_time`, `test_fail_runtime` | 2/4 matched (target 2) | `Canonical`, `CompilerArgs` | 0/5 | 9 | 4091710.0 |
+| 40 | `bc.frame` | `bc.Frame [ZERO]` | 0.00 | 16/24 matched (target 31) | `eq`, `null`, `is_inititalized`, `frame`, `frame_mut`, `offset_of_slots`, `locals_uninit`, `stack_uninit` | 2/2 matched | _none_ | - | 8 | 4082610.0 |
+| 41 | `values.value_of` | `values.ValueOf [ZERO]` | 0.00 | 4/6 matched (target 5) | `deref`, `fmt` | 1/4 matched (target 1) | `Target`, `Canonical`, `Error` | - | 5 | 4051010.0 |
+| 42 | `record.record_type` | `record.RecordType [ZERO]` | 0.00 | 15/22 matched (target 18) | `fmt`, `r#type`, `test_record_type_as_type_pass`, `test_record_type_as_type_compile_time`, `test_record_type_as_type_runtime`, `test_anon_record`, `test_missing_field_error` | 2/8 matched (target 2) | `RecordCell`, `TyRecordDataOpt`, `RecordType`, `FrozenRecordType`, `Frozen`, `Canonical` | 0/5 | 13 | 3133010.0 |
+| 43 | `alloc.chunk` | `alloc.Chunk [ZERO]` | 0.00 | 11/19 matched (target 18) | `fmt`, `begin`, `ptr_eq`, `drop`, `clone`, `counter_overflow`, `test_empty`, `test_alloc_release` | 2/3 matched (target 2) | `ChunkDataEmpty` | 0/3 | 9 | 3092210.0 |
+| 44 | `stdlib.call_stack` | `stdlib.CallStack [ZERO] [PROVENANCE-FALLBACK]` | 0.00 | 7/13 matched (target 14) | `fmt`, `global`, `test_simple`, `test_strip_one`, `test_strip_all`, `test_call_stack_frame` | 1/1 matched (target 2) | _none_ | 0/4 | 6 | 3061410.0 |
+| 45 | `errors.did_you_mean` | `errors.DidYouMean [ZERO]` | 0.00 | 1/6 matched (target 2) | `prefixes`, `typos`, `best`, `very_short`, `earlier_variants_are_more_important` | 0/0 matched | _none_ | 0/5 | 5 | 3050610.0 |
+| 46 | `list.alloc` | `list.Alloc [ZERO]` | 0.00 | 0/3 matched (target 0) | `starlark_type_repr`, `alloc_value`, `alloc_frozen_value` | 1/2 matched (target 1) | `Canonical` | - | 4 | 3040510.0 |
+| 47 | `compiler.constants` | `compiler.Constants [ZERO]` | 0.00 | 1/3 matched (target 5) | `eq`, `test_constants` | 2/2 matched | _none_ | 0/1 | 2 | 3020510.0 |
+| 48 | `profile.instant` | `profile.Instant [ZERO]` | 0.00 | 3/4 matched (target 9) | `sub` | 1/2 matched (target 1) | `Output` | - | 2 | 3020610.0 |
+| 49 | `values.unpack_and_discard` | `values.UnpackAndDiscard [ZERO]` | 0.00 | 2/2 matched | _none_ | 1/3 matched (target 1) | `Canonical`, `Error` | - | 2 | 3020510.0 |
+| 50 | `sealed` | `starlark.Sealed [ZERO]` | 0.00 | 0/0 matched | _none_ | 1/1 matched | _none_ | - | 0 | 3000110.0 |
+| 51 | `types.record` | `types.Record [ZERO]` | 0.00 | 0/0 matched | _none_ | 0/0 matched | _none_ | - | 0 | 3000010.0 |
+| 52 | `compiler.small_vec_1` | `compiler.SmallVec1 [ZERO]` | 0.00 | 4/11 matched (target 9) | `fmt`, `eq`, `hash`, `partial_cmp`, `cmp`, `deref`, `into_iter` | 1/4 matched (target 3) | `Target`, `Item`, `IntoIter` | - | 10 | 2101510.0 |
+| 53 | `layout.const_type_id` | `layout.ConstTypeId [ZERO]` | 0.00 | 2/5 matched (target 4) | `fmt`, `eq`, `hash` | 1/1 matched | _none_ | - | 3 | 2030610.0 |
+| 54 | `runtime.rust_loc` | `runtime.RustLoc [ZERO]` | 0.00 | 0/3 matched (target 1) | `rust_loc_globals`, `invoke`, `test_rust_loc` | 0/0 matched | _none_ | 0/3 | 3 | 2030310.0 |
+| 55 | `values.owned_frozen_ref` | `values.OwnedFrozenRef [ZERO]` | 0.00 | 10/12 matched (target 19) | `fmt`, `deref` | 2/3 matched (target 2) | `Target` | - | 3 | 2031510.0 |
+| 56 | `avalues.str_` | `avalues.Str [ZERO]` | 0.00 | 11/11 matched (target 15) | _none_ | 1/3 matched (target 1) | `StarlarkValue`, `ExtraElem` | - | 2 | 2021410.0 |
+| 57 | `values.stack_guard` | `values.StackGuard [ZERO]` | 0.00 | 3/4 matched | `drop` | 1/1 matched | _none_ | - | 1 | 2010510.0 |
+| 58 | `collections.string_pool` | `collections.StringPool [ZERO]` | 0.00 | 2/2 matched | _none_ | 1/1 matched | _none_ | - | 0 | 2000310.0 |
+| 59 | `def_inline.local_as_value` | `def_inline.LocalAsValue [ZERO]` | 0.00 | 1/1 matched (target 2) | _none_ | 1/1 matched | _none_ | - | 0 | 2000210.0 |
+| 60 | `profile.string_index` | `profile.StringIndex [ZERO]` | 0.00 | 2/2 matched | _none_ | 2/2 matched | _none_ | - | 0 | 2000410.0 |
+| 61 | `values.thin_box_slice_frozen_value` | `values.ThinBoxSliceFrozenValue [STUB]` | 0.00 | 0/0 matched | _none_ | 0/0 matched | _none_ | - | 0 | 2000010.0 |
+| 62 | `heap.arena` | `heap.Arena [ZERO]` | 0.00 | 18/37 matched (target 23) | `max`, `next`, `write_black_hole`, `debug_assert_extra_is_empty`, `write`, `write_no_extra`, `alloc_uninit`, `bump_for_type`, `iter_chunk`, `drop`, `visit`, `visit_bump`, `to_repr`, `mk_str`, `reserve_str`, `test_trait_arena_iteration`, `drop_with_blackhole`, `test_allocated_summary`, `test_is_empty` | 4/7 matched (target 6) | `ChunkIter`, `Item`, `ArenaUninit` | 0/7 | 22 | 1224410.0 |
+| 63 | `collections.alloca` | `collections.Alloca [ZERO]` | 0.00 | 5/22 matched (target 5) | `alloc`, `ptr`, `end`, `size_words`, `drop`, `new`, `with_capacity`, `assert_state`, `allocate_more`, `rem_in_words_to_rem_in_t`, `len_in_to_to_len_in_words`, `test_rem_in_words_to_rem_in_t`, `test_len_in_t_to_len_in_words`, `test_alloca`, `trigger_bug`, `test_alloca_bug_not_aligned`, `test_alloca_concat` | 1/4 matched (target 1) | `Buffer`, `Align`, `DropSliceGuard` | 0/6 | 20 | 1202610.0 |
+| 64 | `stdlib` | `starlark.Stdlib [ZERO]` | 0.00 | 3/14 matched (target 3) | `test_no_arg`, `global`, `nop`, `test_value_attributes`, `get_methods`, `equals`, `unpack_value_impl`, `globals`, `methods`, `invert1`, `invert2` | 1/3 matched (target 1) | `Bool2`, `Error` | 0/11 | 13 | 1131710.0 |
+| 65 | `string.interpolation` | `string.Interpolation [ZERO]` | 0.00 | 4/12 matched (target 6) | `test_incomplete_format`, `test_unsupported_format_character`, `test_parse_percent_s_one`, `test_type_support_d`, `test_type_support_o`, `test_type_support_x`, `test_type_support_e`, `test_int_min` | 4/4 matched (target 20) | _none_ | 0/8 | 8 | 1081610.0 |
+| 66 | `types.list_or_tuple` | `types.ListOrTuple [ZERO]` | 0.00 | 1/5 matched | `default`, `starlark_type_repr`, `into_iter`, `test_unpack` | 1/5 matched (target 1) | `Canonical`, `Error`, `Item`, `IntoIter` | 0/1 | 8 | 1081010.0 |
+| 67 | `layout.pointer` | `layout.Pointer [ZERO]` | 0.00 | 25/32 matched (target 46) | `fmt`, `_test_lifetime_covariant`, `from_usize_unchecked`, `to_usize`, `unpack`, `test_int_tag`, `check` | 5/5 matched | _none_ | 0/1 | 7 | 1073710.0 |
+| 68 | `types.any_array` | `types.AnyArray [ZERO]` | 0.00 | 3/7 matched | `fmt`, `drop`, `test_drop`, `test_allocation_size` | 1/3 matched (target 1) | `Canonical`, `IncrementOnDrop` | 0/2 | 6 | 1061010.0 |
+| 69 | `util.rtabort` | `util.Rtabort [ZERO]` | 0.00 | 2/6 matched (target 3) | `drop`, `_test_compiles_fixed_string`, `_test_compiles_with_format_args`, `test_rtabort` | 0/1 matched (target 0) | `AbortOnDrop` | 0/3 | 5 | 1050710.0 |
+| 70 | `bc.if_debug` | `bc.IfDebug [ZERO]` | 0.00 | 5/8 matched (target 9) | `eq`, `partial_cmp`, `cmp` | 1/1 matched | _none_ | - | 3 | 1030910.0 |
+| 71 | `util.non_static_type_id` | `util.NonStaticTypeId [ZERO]` | 0.00 | 1/3 matched (target 1) | `get_type_id`, `test_non_static_type_id` | 0/1 matched (target 0) | `NonStaticAny` | 0/1 | 3 | 1030410.0 |
+| 72 | `avalues.simple` | `avalues.Simple [ZERO]` | 0.00 | 8/8 matched (target 11) | _none_ | 1/3 matched (target 1) | `StarlarkValue`, `ExtraElem` | - | 2 | 1021110.0 |
+| 73 | `record.field` | `record.Field [ZERO]` | 0.00 | 4/5 matched (target 10) | `fmt` | 0/1 matched | `FieldGen` | - | 2 | 1020610.0 |
+| 74 | `runtime.cheap_call_stack` | `runtime.CheapCallStack [ZERO]` | 0.00 | 15/17 matched | `fmt`, `default` | 3/3 matched (target 6) | _none_ | - | 2 | 1022010.0 |
+| 75 | `structs.unordered_hasher` | `structs.UnorderedHasher [ZERO]` | 0.00 | 3/5 matched (target 3) | `_write`, `test_unordered_hasher` | 1/1 matched | _none_ | 0/1 | 2 | 1020610.0 |
+| 76 | `heap.fast_cell` | `heap.FastCell [ZERO]` | 0.00 | 6/7 matched | `drop` | 1/1 matched | _none_ | - | 1 | 1010810.0 |
+| 77 | `read_line` | `starlark.ReadLine [ZERO]` | 0.00 | 2/2 matched | _none_ | 1/2 matched (target 1) | `NoRustyline` | - | 1 | 1010410.0 |
+| 78 | `typing.bindings` | `typing.Bindings [STUB]` | 0.00 | 7/8 matched (target 18) | `get_for_clause` | 3/3 matched (target 18) | _none_ | - | 1 | 1011110.0 |
+| 79 | `types.int` | `types.Int [ZERO]` | 0.00 | 0/0 matched | _none_ | 0/0 matched | _none_ | - | 0 | 1000010.0 |
+| 80 | `typing` | `starlark.Typing [STUB]` | 0.00 | 0/0 matched | _none_ | 0/0 matched | _none_ | - | 0 | 1000010.0 |
+| 81 | `typing.function` | `typing.Function [STUB]` | 0.00 | 12/12 matched (target 24) | _none_ | 3/3 matched | _none_ | - | 0 | 1001510.0 |
+| 82 | `set.methods` | `set.Methods [STUB]` | 0.00 | 18/68 matched (target 19) | `test_empty`, `test_single`, `test_eq`, `test_clear`, `test_type`, `test_iter`, `test_bool_true`, `test_bool_false`, `test_union`, `test_union_empty`, `test_union_iter`, `test_union_ordering_mixed`, `test_intersection`, `test_intersection_empty`, `test_intersection_iter`, `test_intersection_order`, `test_symmetric_difference`, `test_symmetric_difference_empty`, `test_symmetric_difference_iter`, `test_symmetric_difference_ord`, `test_add`, `test_add_empty`, `test_add_existing`, `test_add_order`, `test_remove`, `test_remove_empty`, `test_remove_not_existing`, `test_discard`, `test_discard_multiple_times`, `test_pop`, `test_pop_empty`, `test_difference`, `test_difference_iter`, `test_difference_order`, `test_difference_empty_lhs`, `test_difference_empty_rhs`, `test_is_superset`, `test_is_not_superset`, `test_is_not_superset_empty_lhs`, `test_is_superset_empty_rhs`, `test_is_superset_iter`, `test_is_subset`, `test_is_not_subset`, `test_is_subset_empty_lhs`, `test_is_not_subset_empty_rhs`, `test_is_subset_iter`, `test_update`, `test_update_empty`, `test_update_self`, `test_update_frozen_set_cannot_be_updated_with_self` | 1/1 matched (target 3) | _none_ | 0/50 | 50 | 506910.0 |
+| 83 | `string.str_type` | `string.StrType [ZERO]` | 0.00 | 2/47 matched (target 25) | `freeze`, `deref`, `eq`, `partial_cmp`, `cmp`, `fmt`, `payload_len_for_len`, `new`, `as_str`, `as_aligned_padded_str`, `get_hash`, `as_str_hashed`, `len`, `is_empty`, `offset_of_content`, `repr`, `is_special`, `get_methods`, `collect_repr`, `to_bool`, `write_hash`, `equals`, `compare`, `at`, `length`, `is_in`, `slice`, `start_stop_to_none_or`, `add`, `mul`, `rmul`, `percent`, `typechecker_ty`, `serialize`, `test_string_corruption`, `test_escape_characters`, `test_string_hash`, `test_zero_length_string_hash_is_not_zero`, `test_string_len`, `test_arithmetic_on_string`, `test_slice_string`, `test_string_is_in`, `test_successive_add`, `test_string_index`, `test_str` | 0/4 matched (target 0) | `StarlarkStrN`, `StarlarkStr`, `Frozen`, `Target` | 0/11 | 49 | 495110.0 |
+| 84 | `int.int_or_big` | `int.IntOrBig [STUB]` | 0.00 | 24/46 matched (target 57) | `starlark_type_repr`, `from_str`, `unpack_value_impl`, `bitand`, `bitor`, `bitxor`, `neg`, `add`, `sub`, `mul`, `partial_cmp`, `cmp`, `eq`, `int`, `test_floor_div_big`, `test_floor_div_big_small`, `test_floor_div_small_big`, `test_floor_div_small`, `test_percent_big`, `test_percent_big_small`, `test_percent_small_big`, `test_percent_small` | 3/7 matched (target 11) | `Canonical`, `Err`, `Error`, `Output` | 0/9 | 26 | 265310.0 |
+| 85 | `thin_box_slice_frozen_value.thin_box` | `thinboxslicefrozenvalue.ThinBox [ZERO]` | 0.00 | 6/29 matched (target 11) | `offset_of_data`, `get_reserved_tag_bit_count`, `get_unshifted_tag_bit_mask`, `get_tag_bit_mask`, `get_max_short_len`, `layout_for_len`, `get_tag_bits`, `as_ptr`, `as_nonnull_ptr`, `from_inner`, `deref`, `deref_mut`, `assume_init`, `default`, `fmt`, `eq`, `partial_cmp`, `hash`, `visit`, `test_empty`, `test_from_iter_sized`, `test_from_iter_unknown_size`, `test_stress` | 1/3 matched (target 1) | `ThinBoxSliceLayout`, `Target` | 0/4 | 25 | 253210.0 |
+| 86 | `set.value` | `set.Value [ZERO]` | 0.00 | 30/50 matched (target 47) | `fmt`, `test_bit_or`, `test_bit_or_lhs_empty`, `test_bit_or_rhs_empty`, `test_bit_or_fail_iter`, `test_bit_or_ord`, `test_bit_and`, `test_bit_and_lhs_empty`, `test_bit_and_rhs_empty`, `test_bit_and_ord`, `test_bit_and_fail_iter`, `test_bit_xor`, `test_bit_xor_ord`, `test_bit_xor_lhs_empty`, `test_bit_xor_rhs_empty`, `test_bit_xor_fail_iter`, `test_sub`, `test_sub_empty_lhs`, `test_sub_empty_rhs`, `test_sub_fail_iter` | 6/9 matched (target 6) | `Canonical`, `Frozen`, `ContentRef` | 0/19 | 23 | 235910.0 |
+| 87 | `values.typing.callable` | `kotlin.io.github.kotlinmania.starlark.values.typing.Callable [ZERO]` | 0.00 | 12/32 matched (target 31) | `clone`, `fmt`, `trace`, `_assert_sync_send`, `_assert`, `test_callable_runtime`, `test_callable_pass_compile_time`, `test_callable_fail_compile_time`, `my_module`, `accept_f`, `test_native_callable_pass`, `test_native_callable_fail_compile_time_wrong_param_type`, `test_native_callable_fail_compile_time_wrong_param_count`, `test_typing_callable_pass`, `test_typing_callable_fail_compile_time_wrong_param_type`, `test_typing_callable_fail_compile_time_wrong_param_count`, `test_callable_checked_runtime`, `module`, `good`, `bad` | 5/8 matched (target 6) | `Canonical`, `Error`, `Frozen` | 0/15 | 23 | 234010.0 |
+| 88 | `float.float` | `float.Float [ZERO]` | 0.00 | 26/39 matched (target 33) | `fmt`, `non_finite`, `test_write_non_finite`, `decimal`, `test_write_decimal`, `scientific`, `test_write_scientific`, `compact`, `test_write_compact`, `test_arithmetic_operators`, `test_dictionary_key`, `test_comparisons`, `test_comparisons_by_sorting` | 1/3 matched (target 1) | `Canonical`, `Error` | 0/12 | 15 | 154210.0 |
+| 89 | `layout.typed` | `layout.ValueTyped [ZERO]` | 0.00 | 21/31 matched (target 44) | `fmt`, `serialize`, `eq`, `deref`, `unpack_value_impl`, `int`, `test_unpack_value_for_frozen_value_typed`, `module`, `mutable`, `takes_frozen_value_typed` | 2/7 matched (target 2) | `Frozen`, `Target`, `Canonical`, `Error`, `NotFrozenError` | 0/5 | 15 | 153810.0 |
+| 90 | `scope.payload` | `scope.Payload [ZERO]` | 0.00 | 0/7 matched (target 0) | `map_load`, `map_ident`, `map_ident_assign`, `map_def`, `map_type_expr`, `from_ast`, `resolved_binding_id` | 9/17 matched (target 14) | `LoadPayload`, `IdentPayload`, `IdentAssignPayload`, `DefPayload`, `TypeExprPayload`, `CompilerAstMap`, `CstStmtFromAst`, `CstAssignIdentExt` | - | 15 | 152410.0 |
+| 91 | `thin_box_slice_frozen_value.packed_impl` | `thinboxslicefrozenvalue.PackedImpl [ZERO]` | 0.00 | 4/18 matched (target 8) | `new_allocated`, `unpack`, `drop`, `visit`, `deref`, `default`, `fmt`, `eq`, `across_lengths`, `test_strings`, `test_ints`, `test_mixed_types`, `test_default`, `test_empty` | 2/3 matched (target 2) | `Target` | 0/6 | 15 | 152110.0 |
+| 92 | `string.repr` | `string.Repr [ZERO]` | 0.00 | 9/22 matched (target 11) | `or4`, `push_vec_tail`, `test_to_repr`, `test_string_repr`, `test`, `test_to_repr_long_smoke`, `string_repr_for_test`, `to_repr_sse`, `to_repr_no_escape_all_lengths`, `to_repr_tail_escape_all_lengths`, `to_repr_middle_escape_all_lengths`, `test_chunk_non_ascii_or_need_escape`, `load` | 1/1 matched | _none_ | 0/11 | 13 | 132310.0 |
+| 93 | `dict.value` | `dict.Value [ZERO]` | 0.00 | 43/52 matched (target 79) | `fmt`, `hash`, `get_type_value_static`, `_assert_coerce`, `dict_methods`, `serialize`, `test_mutate_dict`, `test_get_str`, `test_repr_cycle` | 7/10 matched | `Canonical`, `Frozen`, `ContentRef` | 0/3 | 12 | 126210.0 |
+| 94 | `list.value` | `list.Value [ZERO]` | 0.00 | 46/56 matched (target 96) | `fmt`, `error`, `starlark_type_repr`, `test_to_str`, `test_repr_cycle`, `test_mutate_list`, `test_arithmetic_on_list`, `test_value_alias`, `test_mutating_imports`, `test_compare` | 6/8 matched (target 9) | `List`, `Canonical` | 0/7 | 12 | 126410.0 |
+| 95 | `pagable.vtable_registry` | `pagable.VtableRegistry [ZERO]` | 0.00 | 3/13 matched (target 6) | `fmt`, `registered_type_ids`, `test_simple_type_is_registered`, `test_complex_type_frozen_is_registered`, `test_lookup_nonexistent_type`, `test_starlark_str_is_registered`, `test_frozen_tuple_is_registered`, `test_frozen_list_is_registered`, `test_type_compiled_non_generic_matcher_is_registered`, `test_type_compiled_generic_matcher_is_registered` | 2/4 matched (target 3) | `TestSimpleType`, `TestComplexGen` | 0/9 | 12 | 121710.0 |
+| 96 | `record.globals` | `record.Globals [ZERO]` | 0.00 | 1/12 matched (target 1) | `record`, `field`, `test_record_pass`, `test_record_fail_0`, `test_record_fail_1`, `test_record_fail_2`, `test_record_fail_3`, `test_record_fail_4`, `test_record_fail_5`, `test_record_equality`, `test_field_invalid` | 0/0 matched | _none_ | 0/9 | 11 | 111210.0 |
+| 97 | `alloc.chain` | `alloc.Chain [ZERO]` | 0.00 | 14/22 matched (target 19) | `drop`, `test_default`, `test_new_drop`, `test_new_drop_many`, `test_split_at`, `test_split_at_len`, `test_split_at_zero`, `test_depth` | 3/5 matched (target 3) | `Item`, `ResetSplitAtZeroTest` | 0/7 | 10 | 102710.0 |
+| 98 | `heap.heap_type` | `heap.HeapType [ZERO]` | 0.00 | 37/47 matched (target 68) | `fmt`, `_test_frozen_heap_ref_send_sync`, `hash`, `eq`, `test_send_sync`, `test_string_reallocated_on_heap`, `test_interned_string_equal`, `validate_str_interning`, `append_x`, `test_interned_str_starlark` | 8/8 matched (target 9) | _none_ | 0/6 | 10 | 105510.0 |
+| 99 | `range.range_type` | `range.RangeType [ZERO]` | 0.00 | 14/24 matched (target 21) | `fmt`, `eq`, `range`, `range_start_stop`, `range_stop`, `length_stop`, `length_start_stop`, `length_start_stop_step`, `test_range_exhaustive`, `test_max_len` | 1/1 matched (target 2) | _none_ | 0/8 | 10 | 102510.0 |
+| 100 | `stdlib.partial` | `stdlib.Partial [ZERO]` | 0.00 | 4/12 matched (target 7) | `partial`, `fmt`, `eq`, `test_simple`, `test_star_to_partial`, `test_start_to_returned_func`, `test_no_args_to_partial`, `test_typecheck_bug` | 3/5 matched (target 3) | `Frozen`, `Canonical` | 0/6 | 10 | 101710.0 |
+| 101 | `alloc.allocator` | `alloc.Allocator [ZERO]` | 0.00 | 11/18 matched (target 15) | `fmt`, `default`, `drop`, `test_small`, `test_big`, `random_iteration`, `test_many` | 2/3 matched (target 2) | `Item` | 0/4 | 8 | 82110.0 |
+| 102 | `tuple.unpack` | `tuple.Unpack [ZERO]` | 0.00 | 1/5 matched | `default`, `starlark_type_repr`, `into_iter`, `test_unpack` | 1/5 matched (target 1) | `Canonical`, `Error`, `Item`, `IntoIter` | 0/1 | 8 | 81010.0 |
+| 103 | `type_compiled.compiled` | `type_compiled.Compiled [ZERO]` | 0.00 | 33/39 matched (target 48) | `fmt`, `check_matches`, `starlark_type_repr`, `alloc_value`, `hash`, `eq` | 5/7 matched (target 12) | `StaticType`, `Canonical` | - | 8 | 84610.0 |
+| 104 | `dict.methods` | `dict.Methods [ZERO]` | 0.00 | 10/17 matched (target 12) | `test_error_codes`, `test_dict_add`, `test_dict_with_duplicates`, `test_dict_update_with_self_pos`, `test_dict_update_with_self_as_kwargs`, `test_frozen_dict_cannot_be_updated_with_self_pos`, `test_frozen_dict_cannot_be_updated_with_self_as_kwargs` | 0/0 matched | _none_ | 0/7 | 7 | 71710.0 |
+| 105 | `docs.parse` | `docs.Parse [ZERO]` | 0.00 | 8/15 matched (target 11) | `parses_starlark_docstring`, `parses_rust_docstring`, `parses_and_removes_sections_from_starlark_docstring`, `parses_and_removes_sections_from_rust_docstring`, `arg`, `parses_starlark_function_docstring`, `parses_rust_function_docstring` | 1/1 matched | _none_ | 0/7 | 7 | 71610.0 |
+| 106 | `funcs.other` | `funcs.Other [ZERO]` | 0.00 | 12/19 matched (target 13) | `r#type`, `test_abs`, `test_constants`, `test_chr`, `test_hash`, `test_int`, `test_tuple` | 0/0 matched (target 1) | _none_ | 0/6 | 7 | 71910.0 |
+| 107 | `layout.complex` | `layout.Complex [ZERO]` | 0.00 | 9/13 matched (target 15) | `unpack_value_impl`, `fmt`, `test_module`, `test_unpack` | 1/4 matched (target 1) | `Canonical`, `Error`, `Frozen` | 0/2 | 7 | 71710.0 |
+| 108 | `profile.aggregated` | `profile.Aggregated [ZERO]` | 0.00 | 17/24 matched (target 35) | `normalize_for_golden_tests`, `fmt`, `total_alloc_count`, `test_stacks_collect`, `test_stacks_collect_retained`, `test_merge`, `make` | 8/8 matched (target 10) | _none_ | 0/6 | 7 | 73210.0 |
+| 109 | `record.ty_record_type` | `record.TyRecordType [ZERO]` | 0.00 | 0/7 matched (target 0) | `test_good`, `test_fail_compile_time`, `test_fail_runtime_time`, `test_record_instance_typechecker_ty`, `test_typecheck_field_pass`, `test_typecheck_field_fail`, `test_typecheck_record_type_call` | 1/1 matched | _none_ | 0/7 | 7 | 70810.0 |
+| 110 | `string.simd` | `string.Simd [ZERO] [PROVENANCE-FALLBACK]` | 0.00 | 1/8 matched (target 4) | `splat`, `load_unaligned`, `store_unaligned`, `cmplt`, `cmpeq`, `or`, `movemask` | 2/2 matched | _none_ | - | 7 | 71010.0 |
+| 111 | `structs.value` | `structs.Value [ZERO]` | 0.00 | 14/21 matched (target 30) | `iter_frozen`, `fmt`, `test_repr`, `test_repr_cycle`, `test_to_json_cycle`, `test_to_json`, `test_comparison_bug` | 1/1 matched (target 3) | _none_ | 0/5 | 7 | 72210.0 |
+| 112 | `tuple.value` | `tuple.Value [ZERO]` | 0.00 | 24/31 matched (target 37) | `fmt`, `new`, `offset_of_content`, `typechecker_ty`, `test_to_str`, `test_repr_cycle`, `test_tuple_ellipsis_runtime` | 3/3 matched | _none_ | 0/3 | 7 | 73410.0 |
+| 113 | `typed.string` | `typed.String [ZERO]` | 0.00 | 8/15 matched (target 59) | `borrow`, `equivalent`, `eq`, `hash`, `partial_cmp`, `cmp`, `test_string_hashes` | 3/3 matched (target 4) | _none_ | 0/1 | 7 | 71810.0 |
+| 114 | `adapter.implementation` | `adapter.Implementation [ZERO]` | 0.00 | 17/23 matched (target 27) | `prepare_dap_adapter`, `fmt`, `new`, `continue_`, `breakpoint`, `resolve_breakpoints` | 6/6 matched (target 10) | _none_ | - | 6 | 62910.0 |
+| 115 | `assert.assert` | `assert.Assert [STUB]` | 0.00 | 44/50 matched (target 66) | `r#true`, `new`, `fail_golden`, `fail_skip_typecheck`, `fails_skip_typecheck`, `is_true_skip_typecheck` | 2/2 matched | _none_ | 0/4 | 6 | 65210.0 |
+| 116 | `bc.instrs` | `bc.Instrs [ZERO]` | 0.00 | 19/24 matched (target 29) | `handle`, `drop`, `opcodes`, `fmt`, `display` | 3/4 matched (target 3) | `HandlerImpl` | 0/2 | 6 | 62810.0 |
+| 117 | `bigint.convert` | `bigint.Convert [ZERO]` | 0.00 | 4/8 matched (target 27) | `test_unpack_int_error`, `module`, `takes_i32`, `takes_i64` | 0/2 matched (target 7) | `Canonical`, `Error` | 0/4 | 6 | 61010.0 |
+| 118 | `compiler.scope` | `compiler.Scope [ZERO]` | 0.00 | 48/51 matched (target 70) | `from`, `assign_ident_impl`, `new` | 17/20 matched (target 28) | `StmtCollectDefines`, `AssignIdentCollect`, `AssignTargetCollectDefinesLvalue` | - | 6 | 67110.0 |
+| 119 | `heap.send` | `heap.Send [ZERO]` | 0.00 | 2/5 matched (target 6) | `deref`, `deref_mut`, `fmt` | 3/6 matched (target 3) | `Sealed`, `Target`, `StaticType` | - | 6 | 61110.0 |
+| 120 | `list.unpack` | `list.Unpack [ZERO]` | 0.00 | 3/5 matched (target 8) | `into_iter`, `test_unpack` | 1/5 matched (target 3) | `Canonical`, `Error`, `Item`, `IntoIter` | 0/1 | 6 | 61010.0 |
+| 121 | `allocator.bumpalo` | `allocator.Bumpalo [ZERO]` | 0.00 | 6/8 matched (target 6) | `next`, `size_hint` | 0/3 matched (target 1) | `ChunkIteratorWrapper`, `Item`, `ChunkRevIterator` | - | 5 | 51110.0 |
+| 122 | `debug.inspect` | `debug.Inspect [ZERO]` | 0.00 | 4/9 matched (target 4) | `debugger`, `debug_inspect_stack`, `debug_inspect_variables`, `test_debug_stack`, `test_debug_variables` | 0/0 matched | _none_ | 0/5 | 5 | 50910.0 |
+| 123 | `environment.modules` | `environment.Modules [ZERO]` | 0.00 | 38/43 matched (target 48) | `test_send_sync`, `test_gen_heap_summary_profile`, `test_frozen_module_from_globals`, `some_globals`, `foo` | 4/4 matched (target 6) | _none_ | 0/5 | 5 | 54710.0 |
+| 124 | `profile.stmt` | `profile.Stmt [ZERO]` | 0.00 | 13/17 matched (target 20) | `r#gen`, `test_coverage`, `test_empty`, `test_merge` | 8/9 matched | `Data` | 0/3 | 5 | 52610.0 |
+| 125 | `typing.iter` | `typing.Iter [ZERO]` | 0.00 | 3/6 matched (target 5) | `test_iterable_runtime`, `test_iterable_compile_time_pass`, `test_iterable_compile_time_fail` | 2/4 matched (target 2) | `NonInstantiable`, `Canonical` | 0/3 | 5 | 51010.0 |
+| 126 | `values.owned` | `values.Owned [ZERO]` | 0.00 | 26/29 matched (target 34) | `fmt`, `downcast_starlark`, `deref` | 3/5 matched | `Canonical`, `Target` | - | 5 | 53410.0 |
+| 127 | `values.unpack` | `values.Unpack [ZERO]` | 0.00 | 8/9 matched (target 14) | `error` | 3/7 matched | `IncorrectType`, `IncorrectParameterTypeWithExpected`, `IncorrectParameterTypeNamedWithExpected`, `Error` | - | 5 | 51610.0 |
+| 128 | `avalues.static_` | `avalues.Static [ZERO]` | 0.00 | 8/9 matched | `test_alloc_static_simple` | 2/5 matched (target 2) | `StarlarkValue`, `ExtraElem`, `MySimpleValue` | 0/1 | 4 | 41410.0 |
+| 129 | `bc.addr` | `bc.Addr [ZERO]` | 0.00 | 20/23 matched (target 35) | `add_assign`, `get_instr_mut`, `sub_usize` | 5/6 matched (target 5) | `Output` | - | 4 | 42910.0 |
+| 130 | `dict.alloc` | `dict.Alloc [ZERO]` | 0.00 | 0/3 matched (target 1) | `starlark_type_repr`, `alloc_value`, `alloc_frozen_value` | 1/2 matched (target 1) | `Canonical` | - | 4 | 40510.0 |
+| 131 | `heap.repr` | `heap.Repr [ZERO]` | 0.00 | 23/27 matched (target 35) | `hash`, `eq`, `as_avalue_or_header`, `from_payload_ptr_mut` | 5/5 matched (target 8) | _none_ | - | 4 | 43210.0 |
+| 132 | `list.methods` | `list.Methods [ZERO]` | 0.00 | 7/11 matched (target 13) | `list_methods`, `test_error_codes`, `test_index`, `recursive_list` | 0/0 matched | _none_ | 0/3 | 4 | 41110.0 |
+| 133 | `params.parser` | `params.Parser [ZERO]` | 0.00 | 5/9 matched (target 5) | `test_documentation`, `test_parameters_str`, `test`, `test_can_fill_with_args` | 1/1 matched | _none_ | 0/4 | 4 | 41010.0 |
+| 134 | `params.spec` | `params.Spec [ZERO]` | 0.00 | 34/38 matched (target 35) | `collect_impl`, `collect_into_impl`, `can_fill_with_args_impl`, `parser_impl` | 6/6 matched (target 11) | _none_ | - | 4 | 44410.0 |
+| 135 | `profile.typecheck` | `profile.Typecheck [ZERO]` | 0.00 | 5/8 matched (target 6) | `r#gen`, `test_typecheck_profile`, `test_typecheck_profile_merge` | 4/5 matched | `Data` | 0/2 | 4 | 41310.0 |
+| 136 | `set.set` | `set.Set [ZERO]` | 0.00 | 1/5 matched (target 1) | `set`, `test_set_type_as_type_compile_time`, `test_return_set_type_as_type_compile_time`, `test_set_type_as_type_run_time` | 0/0 matched | _none_ | 0/3 | 4 | 40510.0 |
+| 137 | `string.methods` | `string.Methods [ZERO]` | 0.00 | 37/41 matched (target 64) | `test_error_codes`, `test_count`, `test_find`, `test_opaque_iterator` | 1/1 matched (target 4) | _none_ | 0/4 | 4 | 44210.0 |
+| 138 | `structs.alloc` | `structs.Alloc [ZERO]` | 0.00 | 0/3 matched (target 0) | `starlark_type_repr`, `alloc_value`, `alloc_frozen_value` | 1/2 matched (target 1) | `Canonical` | - | 4 | 40510.0 |
+| 139 | `typing.custom` | `typing.Custom [ZERO]` | 0.00 | 31/35 matched (target 49) | `eq`, `hash`, `partial_cmp`, `cmp` | 3/3 matched (target 5) | _none_ | - | 4 | 43810.0 |
+| 140 | `bc.opcode` | `bc.Opcode [ZERO]` | 0.00 | 6/7 matched (target 10) | `opcode_count` | 3/5 matched (target 3) | `ByNumber`, `FindOpcode` | 0/1 | 3 | 31210.0 |
+| 141 | `bc.repr` | `bc.Repr [ZERO]` | 0.00 | 4/6 matched (target 5) | `size_of_repr`, `handle` | 2/3 matched (target 2) | `HandlerImpl` | - | 3 | 30910.0 |
+| 142 | `debug.evaluate` | `debug.Evaluate [ZERO]` | 0.00 | 1/4 matched (target 1) | `debugger`, `debug_evaluate`, `test_debug_evaluate` | 0/0 matched | _none_ | 0/3 | 3 | 30410.0 |
+| 143 | `list.refs` | `list.Refs [ZERO]` | 0.00 | 9/9 matched (target 29) | _none_ | 2/5 matched (target 10) | `Target`, `Canonical`, `Error` | - | 3 | 31410.0 |
+| 144 | `string.alloc_unpack` | `string.AllocUnpack [ZERO]` | 0.00 | 5/6 matched (target 9) | `unpack_value_impl` | 0/2 matched (target 1) | `Canonical`, `Error` | - | 3 | 30810.0 |
+| 145 | `symbol.map` | `symbol.Map [ZERO]` | 0.00 | 9/12 matched (target 11) | `fmt`, `new`, `with_capacity` | 1/1 matched | _none_ | - | 3 | 31310.0 |
+| 146 | `type_compiled.globals` | `type_compiled.Globals [ZERO]` | 0.00 | 1/4 matched (target 1) | `eval_type`, `isinstance`, `test_typechecking` | 0/0 matched | _none_ | 0/1 | 3 | 30410.0 |
+| 147 | `type_compiled.matcher` | `type_compiled.Matcher [ZERO]` | 0.00 | 10/10 matched (target 13) | _none_ | 4/7 matched | `TypeMatcher`, `TypeMatcherBoxAlloc`, `Result` | - | 3 | 31710.0 |
+| 148 | `typing.never` | `typing.Never [ZERO]` | 0.00 | 4/6 matched (target 7) | `test_never_runtime`, `test_never_compile_time` | 2/3 matched (target 2) | `Canonical` | 0/2 | 3 | 30910.0 |
+| 149 | `values.typing.ty` | `kotlin.io.github.kotlinmania.starlark.values.typing.Ty [ZERO]` | 0.00 | 2/5 matched (target 4) | `test_isinstance`, `test_pass`, `test_fail_compile_time` | 1/1 matched | _none_ | 0/3 | 3 | 30610.0 |
+| 150 | `avalues.array` | `avalues.Array [ZERO]` | 0.00 | 9/9 matched (target 17) | _none_ | 2/4 matched (target 2) | `StarlarkValue`, `ExtraElem` | - | 2 | 21310.0 |
+| 151 | `avalues.complex` | `avalues.Complex [ZERO]` | 0.00 | 6/6 matched (target 17) | _none_ | 3/5 matched (target 4) | `StarlarkValue`, `ExtraElem` | - | 2 | 21110.0 |
+| 152 | `avalues.tuple` | `avalues.Tuple [ZERO]` | 0.00 | 8/8 matched (target 17) | _none_ | 2/4 matched (target 2) | `StarlarkValue`, `ExtraElem` | - | 2 | 21210.0 |
+| 153 | `bc.call` | `bc.Call [ZERO]` | 0.00 | 3/4 matched (target 15) | `fmt` | 4/5 matched (target 8) | `Args` | - | 2 | 20910.0 |
+| 154 | `bc.instr_arg` | `bc.InstrArg [ZERO]` | 0.00 | 4/5 matched (target 84) | `fmt` | 3/4 matched (target 42) | `HandlerImpl` | - | 2 | 20910.0 |
+| 155 | `bc.stack_ptr` | `bc.StackPtr [ZERO]` | 0.00 | 10/11 matched (target 25) | `add` | 7/8 matched (target 7) | `Output` | - | 2 | 21910.0 |
+| 156 | `bool.type_repr` | `bool.TypeRepr [ZERO]` | 0.00 | 0/1 matched | `starlark_type_repr` | 0/1 matched (target 0) | `Canonical` | - | 2 | 20210.0 |
+| 157 | `build` | `starlark.Build [ZERO]` | 0.00 | 0/2 matched (target 0) | `main`, `rust_nightly` | 0/0 matched (target 1) | _none_ | - | 2 | 20210.0 |
+| 158 | `collections.maybe_uninit_backport` | `collections.MaybeUninitBackport [ZERO]` | 0.00 | 2/3 matched (target 2) | `drop` | 0/1 matched (target 0) | `Guard` | - | 2 | 20410.0 |
+| 159 | `compiler.def` | `compiler.Def [ZERO]` | 0.00 | 38/39 matched (target 46) | `fmt` | 12/13 matched (target 18) | `Frozen` | - | 2 | 25210.0 |
+| 160 | `compiler.expr` | `compiler.Expr [ZERO]` | 0.00 | 59/59 matched (target 63) | _none_ | 9/11 matched (target 56) | `AstLiteralCompile`, `CompilerExprUtil` | - | 2 | 27010.0 |
+| 161 | `eval.bc.compiler.stmt` | `kotlin.io.github.kotlinmania.starlark.eval.bc.compiler.Stmt [ZERO]` | 0.00 | 8/10 matched (target 11) | `write_if_then`, `write_if_else` | 0/0 matched | _none_ | - | 2 | 21010.0 |
+| 162 | `funcs.min_max` | `funcs.MinMax [ZERO]` | 0.00 | 3/5 matched (target 3) | `max`, `min` | 0/0 matched | _none_ | - | 2 | 20510.0 |
+| 163 | `heap.call_enter_exit` | `heap.CallEnterExit [ZERO]` | 0.00 | 0/1 matched (target 4) | `drop` | 5/6 matched (target 5) | `Canonical` | - | 2 | 20710.0 |
+| 164 | `intern.interner` | `intern.Interner [ZERO]` | 0.00 | 1/3 matched (target 5) | `test_intern`, `test_string_value_intern` | 2/2 matched | _none_ | 0/2 | 2 | 20510.0 |
+| 165 | `list.globals` | `list.Globals [ZERO]` | 0.00 | 4/5 matched | `list` | 0/1 matched | `ListType` | - | 2 | 20610.0 |
+| 166 | `profile.summary_by_function` | `profile.SummaryByFunction [ZERO]` | 0.00 | 9/10 matched | `drop_non_drop` | 2/3 matched (target 2) | `RowKind` | 0/1 | 2 | 21310.0 |
+| 167 | `set.refs` | `set.Refs [ZERO]` | 0.00 | 5/5 matched (target 19) | _none_ | 3/5 matched (target 13) | `Canonical`, `Error` | - | 2 | 21010.0 |
+| 168 | `structs.refs` | `structs.Refs [ZERO]` | 0.00 | 5/5 matched (target 8) | _none_ | 2/4 matched | `Canonical`, `Error` | - | 2 | 20910.0 |
+| 169 | `types.function` | `types.Function [ZERO]` | 0.00 | 12/13 matched (target 28) | `new` | 11/12 matched (target 14) | `Canonical` | - | 2 | 22510.0 |
+| 170 | `typing.any` | `typing.Any [ZERO]` | 0.00 | 2/4 matched | `test_any_runtime`, `test_any_compile_time` | 1/1 matched | _none_ | 0/2 | 2 | 20510.0 |
+| 171 | `values.index` | `values.Index [ZERO]` | 0.00 | 4/6 matched (target 5) | `test_convert_index`, `test_apply_slice` | 0/0 matched | _none_ | 0/2 | 2 | 20610.0 |
+| 172 | `values.traits` | `values.Traits [ZERO]` | 0.00 | 55/56 matched (target 55) | `please_use_starlark_type_macro` | 2/3 matched (target 2) | `Canonical` | - | 2 | 25910.0 |
+| 173 | `values.type_repr` | `values.TypeRepr [ZERO]` | 0.00 | 2/3 matched (target 6) | `test_canonical_for_complex_value` | 2/3 matched (target 6) | `Canonical` | 0/1 | 2 | 20610.0 |
+| 174 | `alloc.per_thread` | `alloc.PerThread [ZERO]` | 0.00 | 5/6 matched (target 5) | `test_release_partial` | 1/1 matched | _none_ | 0/1 | 1 | 10710.0 |
+| 175 | `compiler.if_compiler` | `compiler.IfCompiler [ZERO]` | 0.00 | 5/6 matched (target 5) | `wr` | 0/0 matched | _none_ | - | 1 | 10610.0 |
+| 176 | `debug.adapter` | `debug.Adapter [ZERO]` | 0.00 | 21/22 matched (target 23) | `fmt` | 14/14 matched (target 29) | _none_ | - | 1 | 13610.0 |
+| 177 | `dict.globals` | `dict.Globals [ZERO]` | 0.00 | 2/3 matched (target 4) | `dict` | 0/0 matched | _none_ | - | 1 | 10310.0 |
+| 178 | `docs` | `docs.Docs [ZERO]` | 0.00 | 12/13 matched (target 16) | `default` | 10/10 matched (target 15) | _none_ | - | 1 | 12310.0 |
+| 179 | `eval.bc.compiler.call` | `kotlin.io.github.kotlinmania.starlark.eval.bc.compiler.Call [ZERO]` | 0.00 | 4/5 matched (target 8) | `mark_definitely_assigned_after` | 0/0 matched (target 3) | _none_ | - | 1 | 10510.0 |
+| 180 | `float.globals` | `float.Globals [ZERO]` | 0.00 | 1/2 matched (target 1) | `float` | 0/0 matched (target 4) | _none_ | - | 1 | 10210.0 |
+| 181 | `int.globals` | `int.Globals [ZERO]` | 0.00 | 1/2 matched | `int` | 0/0 matched | _none_ | - | 1 | 10210.0 |
+| 182 | `profile.by_type` | `profile.ByType [ZERO]` | 0.00 | 5/6 matched (target 7) | `normalize_for_golden_tests` | 1/1 matched | _none_ | 0/1 | 1 | 10710.0 |
+| 183 | `record.instance` | `record.Instance [ZERO]` | 0.00 | 12/13 matched (target 18) | `fmt` | 1/1 matched (target 3) | _none_ | - | 1 | 11410.0 |
+| 184 | `structs.structs` | `structs.Structs [ZERO]` | 0.00 | 3/4 matched (target 3) | `r#struct` | 1/1 matched | _none_ | - | 1 | 10510.0 |
+| 185 | `values.recursive_repr_or_json_guard` | `values.RecursiveReprOrJsonGuard [ZERO]` | 0.00 | 2/3 matched (target 5) | `drop` | 4/4 matched | _none_ | - | 1 | 10710.0 |
+| 186 | `__derive_refs` | `deriverefs.DeriveRefs [STUB] [PROVENANCE-FALLBACK]` | 0.00 | 0/0 matched | _none_ | 0/0 matched (target 1) | _none_ | - | 0 | 10.0 |
+| 187 | `__derive_refs.components` | `deriverefs.Components [ZERO] [PROVENANCE-FALLBACK]` | 0.00 | 3/3 matched | _none_ | 1/1 matched | _none_ | - | 0 | 410.0 |
+| 188 | `bc.for_loop` | `bc.ForLoop [ZERO]` | 0.00 | 0/0 matched (target 2) | _none_ | 1/1 matched | _none_ | - | 0 | 110.0 |
+| 189 | `bc.writer` | `bc.Writer [ZERO]` | 0.00 | 42/42 matched (target 44) | _none_ | 4/4 matched | _none_ | - | 0 | 4610.0 |
+| 190 | `compiler.assign` | `compiler.Assign [ZERO]` | 0.00 | 2/2 matched | _none_ | 0/0 matched | _none_ | - | 0 | 210.0 |
+| 191 | `compiler.error` | `compiler.Error [ZERO] [PROVENANCE-FALLBACK]` | 0.00 | 2/2 matched (target 24) | _none_ | 1/1 matched (target 14) | _none_ | - | 0 | 310.0 |
+| 192 | `compiler.types` | `compiler.Types [ZERO]` | 0.00 | 8/8 matched | _none_ | 1/1 matched (target 7) | _none_ | - | 0 | 910.0 |
+| 193 | `docs.code` | `docs.Code [ZERO]` | 0.00 | 7/7 matched (target 14) | _none_ | 0/0 matched | _none_ | - | 0 | 710.0 |
+| 194 | `docs.markdown` | `docs.Markdown [ZERO]` | 0.00 | 18/18 matched (target 19) | _none_ | 2/2 matched | _none_ | - | 0 | 2010.0 |
+| 195 | `environment` | `starlark.Environment [ZERO]` | 0.00 | 0/0 matched | _none_ | 1/1 matched (target 5) | _none_ | - | 0 | 110.0 |
+| 196 | `environment.names` | `environment.Names [ZERO]` | 0.00 | 13/13 matched (target 14) | _none_ | 2/2 matched | _none_ | - | 0 | 1510.0 |
+| 197 | `errors` | `starlark.Errors [STUB]` | 0.00 | 0/0 matched | _none_ | 0/0 matched | _none_ | - | 0 | 10.0 |
+| 198 | `eval.bc.compiler.def` | `kotlin.io.github.kotlinmania.starlark.eval.bc.compiler.Def [ZERO]` | 0.00 | 2/2 matched | _none_ | 0/0 matched | _none_ | - | 0 | 210.0 |
+| 199 | `eval.bc.compiler.expr` | `kotlin.io.github.kotlinmania.starlark.eval.bc.compiler.Expr [ZERO]` | 0.00 | 15/15 matched (target 16) | _none_ | 0/0 matched | _none_ | - | 0 | 1510.0 |
+| 200 | `eval.runtime` | `eval.Runtime [STUB]` | 0.00 | 0/0 matched | _none_ | 0/0 matched | _none_ | - | 0 | 10.0 |
+| 201 | `fuzz_targets.starlark` | `fuzztargets.Starlark [ZERO] [PROVENANCE-FALLBACK]` | 0.00 | 2/2 matched (target 3) | _none_ | 0/0 matched | _none_ | - | 0 | 210.0 |
+| 202 | `layout.avalues` | `layout.AValues [STUB]` | 0.00 | 0/0 matched | _none_ | 0/0 matched | _none_ | - | 0 | 10.0 |
+| 203 | `layout.static_string` | `layout.StaticString [ZERO]` | 0.00 | 5/5 matched | _none_ | 1/1 matched (target 2) | _none_ | - | 0 | 610.0 |
+| 204 | `macros` | `starlark.Macros [ZERO]` | 0.00 | 0/0 matched (target 9) | _none_ | 0/0 matched (target 9) | _none_ | - | 0 | 10.0 |
+| 205 | `pagable` | `starlark.Pagable [STUB]` | 0.00 | 0/0 matched | _none_ | 0/0 matched | _none_ | - | 0 | 10.0 |
+| 206 | `pagable.vtable_register` | `pagable.VtableRegister [ZERO]` | 0.00 | 0/0 matched (target 3) | _none_ | 0/0 matched | _none_ | - | 0 | 10.0 |
+| 207 | `stdlib.funcs` | `stdlib.Funcs [STUB]` | 0.00 | 0/0 matched | _none_ | 0/0 matched | _none_ | - | 0 | 10.0 |
+| 208 | `string.globals` | `string.Globals [ZERO]` | 0.00 | 5/5 matched | _none_ | 0/0 matched | _none_ | - | 0 | 510.0 |
+| 209 | `string.iter` | `string.Iter [ZERO]` | 0.00 | 3/3 matched (target 6) | _none_ | 1/1 matched | _none_ | - | 0 | 410.0 |
+| 210 | `syntax` | `starlark.Syntax [STUB]` | 0.00 | 0/0 matched | _none_ | 0/0 matched | _none_ | - | 0 | 10.0 |
+| 211 | `type_compiled.matchers` | `type_compiled.Matchers [ZERO]` | 0.00 | 3/3 matched (target 25) | _none_ | 23/23 matched | _none_ | - | 0 | 2610.0 |
+| 212 | `typing.error` | `typing.Error [ZERO]` | 0.00 | 9/9 matched (target 25) | _none_ | 5/5 matched (target 10) | _none_ | - | 0 | 1410.0 |
+| 213 | `typing.fill_types_for_lint` | `typing.FillTypesForLint [ZERO]` | 0.00 | 39/39 matched (target 40) | _none_ | 3/3 matched | _none_ | - | 0 | 4210.0 |
+| 214 | `typing.oracle` | `typing.Oracle [STUB]` | 0.00 | 0/0 matched | _none_ | 0/0 matched | _none_ | - | 0 | 10.0 |
+| 215 | `unused_loads.remove` | `unusedloads.Remove [ZERO]` | 0.00 | 4/4 matched | _none_ | 1/1 matched | _none_ | - | 0 | 510.0 |
+| 216 | `util` | `starlark.Util [STUB]` | 0.00 | 0/0 matched | _none_ | 0/0 matched | _none_ | - | 0 | 10.0 |
+| 217 | `values.types` | `values.Types [STUB]` | 0.00 | 0/0 matched | _none_ | 0/0 matched | _none_ | - | 0 | 10.0 |
+| 218 | `values.typing` | `values.Typing [STUB]` | 0.00 | 0/0 matched | _none_ | 0/0 matched | _none_ | - | 0 | 10.0 |
+| 219 | `types.type_instance_id` | `types.TypeInstanceId` | 0.00 | 0/1 matched (target 2) | `r#gen` | 1/1 matched | _none_ | - | 1 | 9010210.0 |
+| 220 | `tuple.rust_tuple` | `tuple.RustTuple` | 0.00 | 0/4 matched (target 11) | `alloc_value`, `alloc_frozen_value`, `starlark_type_repr`, `unpack_value_impl` | 0/2 matched (target 0) | `Canonical`, `Error` | - | 6 | 60610.0 |
+| 221 | `bool.unpack` | `bool.Unpack` | 0.00 | 0/1 matched | `unpack_value_impl` | 0/1 matched (target 0) | `Error` | - | 2 | 20210.0 |
+| 222 | `enumeration.ty_enum_type` | `enumeration.TyEnumType` | 0.00 | 0/2 matched (target 3) | `eq`, `hash` | 1/1 matched | _none_ | - | 2 | 20310.0 |
+| 223 | `pagable.error` | `pagable.Error` | 0.00 | 0/1 matched | `from` | 1/1 matched (target 2) | _none_ | - | 1 | 10210.0 |
+| 224 | `runtime.visit_span` | `runtime.VisitSpan` | 0.00 | 0/1 matched (target 19) | `visit_spans` | 1/1 matched | _none_ | - | 1 | 10210.0 |
+| 225 | `any` | `starlark.Any` | 0.04 | 2/12 matched (target 3) | `static_type_id`, `static_type_of`, `is`, `test_can_convert`, `convert_value`, `convert_any`, `test_any_lifetime`, `test`, `test_provides_static_type_id`, `test_provides_static_type_when_type_parameter_has_bound_with_lifetime` | 3/15 matched (target 37) | `StaticType`, `Value`, `Value2`, `Aaa`, `Bbb`, `Ccc`, `LifetimeTypeConst`, `TypeWithConstraint`, `TypeWhichDoesNotImplementAnyLifetime`, `TypeWithStaticLifetime`, `My`, `FooBar` | 0/7 | 22 | 8222709.5 |
+| 226 | `stdlib.json` | `stdlib.Json` | 0.04 | 2/11 matched (target 24) | `alloc_value`, `alloc_frozen_value`, `json`, `encode`, `decode`, `test_json_encode`, `test_json_decode`, `test_json_very_large_int`, `test_json_128bit_and_beyond` | 0/1 matched (target 11) | `Canonical` | 0/4 | 10 | 101209.6 |
+| 227 | `analysis` | `starlark.Analysis` | 0.05 | 1/12 matched (target 1) | `module`, `test_lint_suppressions_keyword_matching`, `test_lint_suppressions_fn_with_many_issues`, `test_lint_suppressions_preceding_whitespace`, `test_lint_suppressions_with_space_separator`, `test_lint_suppressions_multiline_span`, `test_lint_suppressions_small_span`, `test_lint_suppressions_data`, `test_lint_suppressions_line_before`, `test_lint_suppressions_line_before_windows_newlines`, `test_lint_suppressions_inside_fn` | 1/1 matched | _none_ | 0/11 | 11 | 111309.5 |
+| 228 | `enumeration.globals` | `enumeration.Globals` | 0.12 | 1/5 matched (target 1) | `r#enum`, `test_enum`, `test_enum_equality`, `test_enum_repr` | 0/0 matched | _none_ | 0/3 | 4 | 40508.8 |
+| 229 | `stdlib.extra` | `stdlib.Extra` | 0.14 | 5/16 matched (target 21) | `fmt`, `print`, `pprint`, `pstr`, `prepr`, `test_filter`, `test_map`, `test_debug`, `test_print`, `test_pstr`, `test_prepr` | 3/4 matched (target 3) | `PrintHandlerImpl` | 0/6 | 12 | 122008.6 |
+| 230 | `profile.mode` | `profile.Mode` | 0.15 | 1/4 matched | `fmt`, `name`, `from_str` | 1/2 matched (target 1) | `Err` | - | 4 | 40608.5 |
+| 231 | `bool.globals` | `bool.Globals` | 0.19 | 1/2 matched (target 1) | `bool` | 0/0 matched | _none_ | - | 1 | 10208.1 |
+| 232 | `int.i32` | `int.I32` | 0.23 | 2/4 matched (target 5) | `alloc_value`, `alloc_frozen_value` | 0/2 matched (target 1) | `Canonical`, `Error` | - | 4 | 40607.7 |
+| 233 | `profile.csv` | `profile.Csv` | 0.24 | 6/10 matched (target 7) | `new`, `format_for_csv`, `test_csv_writer`, `test_quote_str_for_csv` | 1/3 matched (target 2) | `Impl`, `CsvValue` | 0/2 | 6 | 61307.6 |
+| 234 | `wasm` | `starlark.Wasm` | 0.25 | 1/1 matched | _none_ | 0/0 matched | _none_ | - | 0 | 107.5 |
+| 235 | `typing.small_arc_vec_or_static` | `typing.SmallArcVecOrStatic` | 0.25 | 3/10 matched | `default`, `deref`, `eq`, `hash`, `partial_cmp`, `cmp`, `into_iter` | 2/5 matched (target 4) | `Target`, `Item`, `IntoIter` | - | 10 | 101507.5 |
+| 236 | `typing.type_type` | `typing.TypeType` | 0.27 | 2/5 matched (target 3) | `test`, `module`, `takes_type` | 1/3 matched (target 1) | `Canonical`, `Error` | 0/3 | 5 | 2050807.2 |
+| 237 | `analysis.types` | `analysis.Types` | 0.30 | 4/7 matched | `fmt`, `new`, `from` | 2/5 matched (target 2) | `LintWarning`, `LintT`, `EvalSeverity` | - | 6 | 61207.0 |
+| 238 | `range.globals` | `range.Globals` | 0.30 | 1/2 matched (target 1) | `range` | 0/0 matched | _none_ | - | 1 | 10207.0 |
+| 239 | `namespace.globals` | `namespace.Globals` | 0.30 | 1/2 matched (target 1) | `namespace` | 0/0 matched | _none_ | - | 1 | 10207.0 |
+| 240 | `stdlib.internal` | `stdlib.Internal` | 0.31 | 2/4 matched (target 2) | `ty_of_value_debug`, `test_ty_of_value_debug` | 0/0 matched | _none_ | 0/1 | 2 | 20406.9 |
+| 241 | `typing.small_arc_vec` | `typing.SmallArcVec` | 0.31 | 4/11 matched (target 16) | `deref`, `default`, `partial_cmp`, `cmp`, `hash`, `fmt`, `from_iter` | 2/3 matched (target 5) | `Target` | - | 8 | 81406.9 |
+| 242 | `tuple.globals` | `tuple.Globals` | 0.31 | 1/2 matched (target 1) | `tuple` | 0/0 matched | _none_ | - | 1 | 10206.9 |
+| 243 | `__derive_refs.invoke_macro_error` | `deriverefs.InvokeMacroError [PROVENANCE-FALLBACK]` | 0.31 | 1/1 matched | _none_ | 1/1 matched | _none_ | - | 0 | 206.9 |
+| 244 | `num.globals` | `num.Globals` | 0.32 | 1/2 matched (target 1) | `abs` | 0/0 matched | _none_ | - | 1 | 10206.8 |
+| 245 | `num.value` | `num.Value` | 0.32 | 11/22 matched (target 27) | `eq`, `partial_cmp`, `cmp`, `add`, `sub`, `mul`, `test_from_value`, `test_conversion_to_float`, `test_conversion_to_int`, `test_hashing`, `test_eq` | 3/4 matched (target 6) | `Output` | 0/5 | 12 | 122606.8 |
+| 246 | `typing.user` | `typing.User` | 0.32 | 13/27 matched (target 26) | `eq`, `partial_cmp`, `cmp`, `hash`, `get_type_starlark_repr`, `alloc_value`, `typechecker_ty`, `eval_type`, `invoke`, `globals`, `fruit`, `mk_fruit`, `test_intersect_with_abstract_type`, `test_ty_user_intersects_with_base_starlark_value` | 5/8 matched | `AbstractPlant`, `FruitCallable`, `Fruit` | 0/10 | 17 | 173506.8 |
+| 247 | `util.refcell` | `refcell.RefCell` | 0.32 | 1/2 matched (target 11) | `test_unleak_borrow` | 0/0 matched (target 3) | _none_ | 0/1 | 1 | 20010206.0 |
+| 248 | `float.unpack` | `float.Unpack` | 0.33 | 2/3 matched | `test_unpack_float` | 1/3 matched (target 1) | `Canonical`, `Error` | 0/1 | 3 | 30606.7 |
+| 249 | `dict.traits` | `dict.Traits` | 0.33 | 4/4 matched (target 7) | _none_ | 0/2 matched (target 6) | `Canonical`, `Error` | - | 2 | 20606.7 |
+| 250 | `heap.maybe_uninit_slice_util` | `heap.MaybeUninitSliceUtil` | 0.34 | 1/2 matched (target 1) | `drop` | 0/1 matched (target 0) | `WriteRemOnDrop` | - | 2 | 20306.6 |
+| 251 | `collections.aligned_padded_str` | `alignedpaddedstr.AlignedPaddedStr` | 0.34 | 2/3 matched (target 4) | `eq` | 1/1 matched | _none_ | - | 1 | 2010406.6 |
+| 252 | `values.demand` | `values.Demand` | 0.37 | 4/7 matched (target 5) | `payload`, `provide`, `test_trait_downcast` | 1/4 matched (target 1) | `SomeTrait`, `StaticType`, `MyValue` | 0/3 | 6 | 4061106.2 |
+| 253 | `list.list_type` | `list.ListType` | 0.37 | 1/2 matched (target 5) | `unpack_value_impl` | 1/3 matched (target 1) | `Canonical`, `Error` | - | 3 | 3030506.2 |
+| 254 | `profile.alloc_counts` | `profile.AllocCounts` | 0.40 | 1/4 matched (target 5) | `normalize_for_golden_tests`, `add_assign`, `add` | 1/2 matched (target 1) | `Output` | 0/1 | 4 | 4040606.0 |
+| 255 | `util.arc_or_static` | `util.ArcOrStatic` | 0.42 | 5/10 matched (target 9) | `fmt`, `eq`, `partial_cmp`, `cmp`, `hash` | 2/3 matched (target 4) | `Target` | - | 6 | 2061305.9 |
+| 256 | `bc.definitely_assigned` | `bc.DefinitelyAssigned` | 0.42 | 2/4 matched (target 7) | `new`, `assert_smaller_then` | 1/1 matched | _none_ | - | 2 | 20505.8 |
+| 257 | `string.dot_format` | `string.DotFormat` | 0.43 | 7/11 matched (target 7) | `format_capture_for_test`, `test_format_capture`, `test_format`, `test_parse_format_one` | 1/1 matched | _none_ | 0/4 | 4 | 1041205.7 |
+| 258 | `analysis.underscore` | `analysis.Underscore` | 0.44 | 8/13 matched (target 14) | `lint`, `about`, `module`, `test_lint_inappropriate_underscore`, `test_lint_use_ignored` | 1/1 matched (target 3) | _none_ | 0/4 | 5 | 51405.6 |
+| 259 | `namespace.value` | `namespace.Value` | 0.44 | 9/15 matched (target 23) | `new`, `fmt`, `test_repr`, `test_repr_cycle`, `test_to_json_cycle`, `test_kwargs` | 2/2 matched (target 4) | _none_ | 0/4 | 6 | 61705.6 |
+| 260 | `analysis.performance` | `analysis.Performance` | 0.45 | 6/10 matched (target 14) | `lint`, `module`, `test_lint_matches_dict_issue`, `test_lint_matches_any_function` | 1/1 matched (target 4) | _none_ | 0/3 | 4 | 41105.5 |
+| 261 | `stdlib.breakpoint` | `stdlib.Breakpoint` | 0.45 | 11/17 matched (target 13) | `global`, `breakpoint`, `reset_global_state`, `test_breakpoint_real`, `test_breakpoint_mock`, `test_breakpoint_disabled` | 5/6 matched | `Handler` | 0/4 | 7 | 1072305.5 |
+| 262 | `enumeration.value` | `enumeration.Value` | 0.46 | 6/9 matched (target 10) | `fmt`, `index`, `value` | 1/1 matched (target 8) | _none_ | - | 3 | 31005.4 |
+| 263 | `analysis.names` | `analysis.Names` | 0.48 | 21/35 matched (target 31) | `new`, `ident`, `assign_ident`, `lint`, `about`, `test_lint_unused`, `test_lint_duplicate_assign`, `test_lint_unassigned`, `test_lint_undefined`, `test_early_fail`, `test_assign_for_next`, `test_flow_control`, `test_lambda_capture`, `test_global_defined_later` | 7/8 matched (target 13) | `AstStrExt` | 0/10 | 15 | 154305.2 |
+| 264 | `analysis.dubious` | `analysis.Dubious` | 0.48 | 7/12 matched (target 19) | `lint`, `module`, `about`, `test_lint_duplicate_keys`, `test_lint_identifier_as_statement` | 1/2 matched (target 8) | `Key` | 0/4 | 6 | 61405.2 |
+| 265 | `avalues.list` | `avalues.List` | 0.48 | 9/10 matched (target 19) | `alloc_list_concat` | 2/4 matched (target 2) | `StarlarkValue`, `ExtraElem` | - | 3 | 31405.2 |
+| 266 | `environment.module_dump` | `environment.ModuleDump` | 0.48 | 1/1 matched (target 2) | _none_ | 0/0 matched | _none_ | - | 0 | 105.2 |
+| 267 | `bool.value` | `bool.Value` | 0.49 | 8/9 matched | `fmt` | 1/1 matched | _none_ | - | 1 | 11005.1 |
+| 268 | `types.any_complex` | `types.AnyComplex` | 0.49 | 4/7 matched | `fmt`, `test_any_complex`, `freeze` | 1/5 matched (target 1) | `Canonical`, `UnfrozenData`, `Frozen`, `FrozenData` | 0/2 | 7 | 1071205.1 |
+| 269 | `tuple.alloc` | `tuple.Alloc` | 0.49 | 3/5 matched (target 3) | `test_alloc_tuple`, `test_alloc_frozen_tuple` | 1/2 matched (target 1) | `Canonical` | 0/2 | 3 | 30705.1 |
+| 270 | `runtime.inlined_frame` | `runtime.InlinedFrame` | 0.50 | 5/9 matched (target 6) | `eq`, `test_inline_into`, `make_span`, `assert_stack` | 3/3 matched | _none_ | 0/3 | 4 | 41205.0 |
+| 271 | `bc.native_function` | `bc.NativeFunction` | 0.51 | 3/4 matched | `fun` | 1/1 matched | _none_ | - | 1 | 4010505.0 |
+| 272 | `dict.refs` | `dict.Refs` | 0.51 | 7/9 matched (target 13) | `from_value`, `deref` | 4/7 matched (target 11) | `Target`, `Canonical`, `Error` | - | 5 | 51604.9 |
+| 273 | `profile.bc` | `profile.Bc` | 0.52 | 12/19 matched (target 24) | `sum`, `add_assign`, `default`, `test_smoke`, `test_smoke_2`, `test_bc_profile_data_merge`, `test_bc_pairs_profile_data_merge` | 9/10 matched (target 13) | `Data` | 0/4 | 8 | 82904.8 |
+| 274 | `analysis.flow` | `analysis.Flow` | 0.52 | 16/24 matched (target 31) | `lint`, `module`, `about`, `test_lint_returns`, `test_lint_unreachable`, `test_lint_redundant`, `test_lint_misplaced_load`, `test_lint_no_effect` | 1/1 matched (target 11) | _none_ | 0/7 | 8 | 82504.8 |
+| 275 | `types.ellipsis` | `types.Ellipsis` | 0.55 | 2/3 matched (target 4) | `test_ellipsis` | 1/1 matched | _none_ | 0/1 | 1 | 4010404.5 |
+| 276 | `analysis.find_call_name` | `analysis.FindCallName` | 0.55 | 2/3 matched (target 8) | `finds_function_calls_with_name_kwarg` | 1/1 matched | _none_ | 0/1 | 1 | 10404.5 |
+| 277 | `dict.unpack` | `dict.Unpack` | 0.55 | 2/3 matched | `unpack_value_impl` | 1/3 matched (target 1) | `Canonical`, `Error` | - | 3 | 30604.5 |
+| 278 | `profile.data` | `profile.Data` | 0.55 | 4/6 matched (target 5) | `_assert_profile_data_send_sync`, `_assert_send_sync` | 3/3 matched (target 18) | _none_ | - | 2 | 20904.5 |
+| 279 | `typing.callable_param` | `typing.CallableParam` | 0.56 | 16/20 matched (target 27) | `fmt`, `pf`, `new_named_only`, `test_param_spec_display` | 5/6 matched (target 10) | `ParamSpecDisplay` | 0/1 | 5 | 52604.4 |
+| 280 | `analysis.incompatible` | `analysis.Incompatible` | 0.58 | 10/14 matched (target 17) | `lint`, `module`, `test_lint_incompatible`, `test_lint_duplicate_top_level_assign` | 1/1 matched (target 3) | _none_ | 0/3 | 4 | 41504.2 |
+| 281 | `typing.callable` | `typing.Callable` | 0.58 | 6/7 matched (target 10) | `fmt` | 1/2 matched (target 1) | `TyCallableInner` | - | 2 | 20904.2 |
+| 282 | `profile.flamegraph` | `profile.Flamegraph` | 0.59 | 6/10 matched (target 13) | `new`, `test_flamegraph_writer`, `test_flamegraph_data`, `test_merge` | 3/3 matched | _none_ | 0/3 | 4 | 41304.1 |
+| 283 | `types.unbound` | `types.Unbound` | 0.60 | 3/4 matched | `fmt` | 1/1 matched (target 3) | _none_ | - | 1 | 10504.0 |
+| 284 | `bc.bytecode` | `bc.Bytecode` | 0.60 | 6/7 matched (target 11) | `handle` | 1/2 matched (target 1) | `HandlerImpl` | - | 2 | 20904.0 |
+| 285 | `typing.interface` | `typing.Interface` | 0.60 | 3/3 matched | _none_ | 1/1 matched | _none_ | - | 0 | 5000404.0 |
+| 286 | `oracle.traits` | `oracle.Traits` | 0.60 | 1/1 matched (target 3) | _none_ | 2/2 matched | _none_ | - | 0 | 304.0 |
+| 287 | `profile.time_flame` | `profile.TimeFlame` | 0.60 | 15/19 matched (target 18) | `r#gen`, `test_time_flame_works_inside_frozen_module`, `register_sleep`, `sleep` | 10/11 matched (target 15) | `Data` | 0/3 | 5 | 53004.0 |
+| 288 | `typing.arc_ty` | `typing.ArcTy` | 0.60 | 6/7 matched (target 16) | `fmt` | 3/4 matched (target 10) | `Target` | - | 2 | 5021104.0 |
+| 289 | `compiler.args` | `compiler.Args` | 0.60 | 10/11 matched | `args` | 1/2 matched (target 1) | `Never` | - | 2 | 21304.0 |
+| 290 | `values.starlark_type_id` | `values.StarlarkTypeId` | 0.61 | 5/6 matched (target 7) | `eq` | 2/2 matched | _none_ | - | 1 | 7010804.0 |
+| 291 | `values.error` | `values.Error` | 0.62 | 4/5 matched | `from` | 2/2 matched (target 20) | _none_ | - | 1 | 17010704.0 |
+| 292 | `symbol.symbol` | `symbol.Symbol` | 0.63 | 7/9 matched (target 11) | `fmt`, `eq` | 1/1 matched | _none_ | - | 2 | 21003.7 |
+| 293 | `typing.structs` | `typing.Structs` | 0.63 | 7/8 matched (target 9) | `fmt` | 2/2 matched | _none_ | - | 1 | 1011003.7 |
+| 294 | `tuple.refs` | `tuple.Refs` | 0.64 | 6/7 matched (target 15) | `unpack_value_impl` | 2/4 matched (target 2) | `Canonical`, `Error` | - | 3 | 31103.6 |
+| 295 | `runtime.frame_span` | `runtime.FrameSpan` | 0.65 | 3/4 matched | `fmt` | 1/1 matched | _none_ | - | 1 | 26010504.0 |
+| 296 | `namespace.typing` | `namespace.Typing` | 0.65 | 6/7 matched (target 8) | `fmt` | 3/3 matched | _none_ | - | 1 | 11003.5 |
+| 297 | `layout.vtable` | `layout.Vtable` | 0.67 | 60/67 matched (target 65) | `value_ptr`, `value_ref`, `drop_in_place`, `fmt`, `as_allocative`, `total_memory_for_profile`, `as_serialize` | 4/6 matched (target 4) | `GetTypeId`, `GetAllocativeKey` | - | 9 | 97303.3 |
+| 298 | `environment.slots` | `environment.Slots` | 0.67 | 8/8 matched (target 10) | _none_ | 3/3 matched | _none_ | - | 0 | 1103.3 |
+| 299 | `compiler.call` | `compiler.Call` | 0.67 | 13/13 matched (target 14) | _none_ | 1/1 matched | _none_ | - | 0 | 1403.3 |
+| 300 | `profile.profiler_type` | `profile.ProfilerType` | 0.69 | 1/1 matched | _none_ | 2/2 matched | _none_ | - | 0 | 6000303.0 |
+| 301 | `type_compiled.type_matcher_factory` | `type_compiled.TypeMatcherFactory` | 0.69 | 3/3 matched (target 6) | _none_ | 3/3 matched | _none_ | - | 0 | 7000603.0 |
+| 302 | `compiler.def_inline` | `compiler.DefInline` | 0.70 | 9/10 matched (target 9) | `new` | 4/4 matched (target 6) | _none_ | - | 1 | 11403.0 |
+| 303 | `runtime.file_loader` | `runtime.FileLoader` | 0.70 | 1/1 matched (target 2) | _none_ | 3/3 matched | _none_ | - | 0 | 2000403.0 |
+| 304 | `types.any` | `types.Any` | 0.71 | 4/5 matched | `fmt` | 1/2 matched (target 1) | `Canonical` | - | 2 | 20702.9 |
+| 305 | `none.globals` | `none.Globals` | 0.71 | 1/1 matched | _none_ | 0/0 matched | _none_ | - | 0 | 102.9 |
+| 306 | `compiler.opt_ctx` | `compiler.OptCtx` | 0.71 | 5/5 matched (target 13) | _none_ | 2/2 matched (target 4) | _none_ | - | 0 | 7000703.0 |
+| 307 | `layout.value_not_special` | `layout.ValueNotSpecial` | 0.72 | 6/6 matched (target 7) | _none_ | 1/1 matched | _none_ | - | 0 | 702.8 |
+| 308 | `scope.scope_resolver_globals` | `scope.ScopeResolverGlobals` | 0.72 | 3/3 matched | _none_ | 1/1 matched | _none_ | - | 0 | 5000403.0 |
+| 309 | `layout.value` | `layout.Value` | 0.72 | 105/118 matched (target 158) | `fmt`, `eq`, `testing_new_int`, `display_for_type_error`, `_test_send_sync`, `test_downcast_ref`, `test_unpack_i32`, `test_unpack_frozen`, `test_unpack_bigint`, `test_to_json_value`, `test_display_for_type_error`, `test_check_callable_with_none`, `test_check_callable_with_good_function` | 7/9 matched (target 10) | `Canonical`, `String` | 0/9 | 15 | 178162704.0 |
 | 310 | `typing.basic` | `typing.Basic` | 0.72 | 18/19 matched (target 20) | `fmt` | 1/1 matched (target 11) | _none_ | - | 1 | 12002.8 |
 | 311 | `__derive_refs.parse_args` | `deriverefs.ParseArgs [PROVENANCE-FALLBACK]` | 0.72 | 8/8 matched | _none_ | 0/0 matched | _none_ | - | 0 | 802.8 |
 | 312 | `none.none_or` | `none.NoneOr` | 0.73 | 7/7 matched (target 9) | _none_ | 1/3 matched (target 4) | `Canonical`, `Error` | - | 2 | 6021002.5 |
@@ -406,7 +406,6 @@ Every matched file is listed from lowest function body/parameter similarity upwa
 
 ## Cheat Detection / Scoring Failures
 
-- `layout.value` -> `layout.Value [ZERO]`: function-by-function score forced to 0. Value.kt: snake_case identifier `val_ref` in Kotlin comments; Value.kt: unchecked cast suppression hiding transliteration work in Kotlin code; Value.kt: translator-note comment (`Kotlin:`) in Kotlin comments; Value.kt: Rust lifetime explanation in Kotlin comments; Value.kt: Rust-only type/unsafe terminology in Kotlin comments
 - `typing.starlark_value` -> `typing.StarlarkValue [ZERO]`: function-by-function score forced to 0. StarlarkValue.kt: snake_case identifier `starlark_type_id` in Kotlin comments
 - `runtime.evaluator` -> `runtime.Evaluator [ZERO]`: function-by-function score forced to 0. Evaluator.kt: snake_case identifier `before_stmt` in Kotlin comments; Evaluator.kt: Rust lifetime explanation in Kotlin comments
 - `values.trace` -> `values.Trace [ZERO]`: function-by-function score forced to 0. Trace.kt: Rust lifetime explanation in Kotlin comments; Trace.kt: Rust-only type/unsafe terminology in Kotlin comments
@@ -530,7 +529,6 @@ Every matched file is listed from lowest function body/parameter similarity upwa
 - `allocator.bumpalo` -> `allocator.Bumpalo [ZERO]`: function-by-function score forced to 0. Bumpalo.kt: translator-note comment (`Kotlin:`) in Kotlin comments
 - `debug.inspect` -> `debug.Inspect [ZERO]`: function-by-function score forced to 0. Inspect.kt: snake_case identifier `call_stack` in Kotlin comments
 - `environment.modules` -> `environment.Modules [ZERO]`: function-by-function score forced to 0. Modules.kt: snake_case identifier `starlark_module` in Kotlin comments; Modules.kt: Rust `fn` declaration in Kotlin comments; Modules.kt: Rust `pub` item in Kotlin comments; Modules.kt: Rust attribute syntax in Kotlin comments; Modules.kt: Rust lifetime explanation in Kotlin comments
-- `params.spec` -> `params.Spec [ZERO]`: function-by-function score forced to 0. Spec.kt: snake_case identifier `no_args` in Kotlin comments
 - `profile.stmt` -> `profile.Stmt [ZERO]`: function-by-function score forced to 0. Stmt.kt: snake_case identifier `last_span` in Kotlin comments; Stmt.kt: Rust-only type/unsafe terminology in Kotlin comments
 - `typing.iter` -> `typing.Iter [ZERO]`: function-by-function score forced to 0. Iter.kt: snake_case identifier `HAS_eval_type` in Kotlin code; Iter.kt: score-padding suppression annotation `@Suppress` in Kotlin code
 - `values.owned` -> `values.Owned [ZERO]`: function-by-function score forced to 0. Owned.kt: Rust lifetime explanation in Kotlin comments
@@ -541,6 +539,7 @@ Every matched file is listed from lowest function body/parameter similarity upwa
 - `heap.repr` -> `heap.Repr [ZERO]`: function-by-function score forced to 0. Repr.kt: snake_case identifier `forward_ptr` in Kotlin comments; Repr.kt: Rust-only type/unsafe terminology in Kotlin comments
 - `list.methods` -> `list.Methods [ZERO]`: function-by-function score forced to 0. Methods.kt: snake_case identifier `starlark_syntax` in Kotlin comments; Methods.kt: Rust `let` binding in Kotlin comments; Methods.kt: Rust attribute syntax in Kotlin comments
 - `params.parser` -> `params.Parser [ZERO]`: function-by-function score forced to 0. Parser.kt: snake_case identifier `get_next` in Kotlin comments
+- `params.spec` -> `params.Spec [ZERO]`: function-by-function score forced to 0. Spec.kt: snake_case identifier `no_args` in Kotlin comments
 - `profile.typecheck` -> `profile.Typecheck [ZERO]`: function-by-function score forced to 0. Typecheck.kt: snake_case identifier `by_function` in Kotlin comments
 - `set.set` -> `set.Set [ZERO]`: function-by-function score forced to 0. Set.kt: snake_case identifier `starlark_module` in Kotlin comments; Set.kt: Rust attribute syntax in Kotlin comments
 - `string.methods` -> `string.Methods [ZERO]`: function-by-function score forced to 0. Methods.kt: snake_case identifier `is_true` in Kotlin comments; Methods.kt: Rust lifetime explanation in Kotlin comments
@@ -630,7 +629,6 @@ Every matched file is listed from lowest function body/parameter similarity upwa
 
 These files need significant work:
 
-- `layout.value` -> `layout.Value [ZERO]` (0.00, 178 deps)
 - `typing.starlark_value` -> `typing.StarlarkValue [ZERO]` (0.00, 76 deps)
 - `runtime.evaluator` -> `runtime.Evaluator [ZERO]` (0.00, 56 deps)
 - `values.trace` -> `values.Trace [ZERO]` (0.00, 52 deps)
@@ -754,7 +752,6 @@ These files need significant work:
 - `allocator.bumpalo` -> `allocator.Bumpalo [ZERO]` (0.00)
 - `debug.inspect` -> `debug.Inspect [ZERO]` (0.00)
 - `environment.modules` -> `environment.Modules [ZERO]` (0.00)
-- `params.spec` -> `params.Spec [ZERO]` (0.00)
 - `profile.stmt` -> `profile.Stmt [ZERO]` (0.00)
 - `typing.iter` -> `typing.Iter [ZERO]` (0.00)
 - `values.owned` -> `values.Owned [ZERO]` (0.00)
@@ -765,6 +762,7 @@ These files need significant work:
 - `heap.repr` -> `heap.Repr [ZERO]` (0.00)
 - `list.methods` -> `list.Methods [ZERO]` (0.00)
 - `params.parser` -> `params.Parser [ZERO]` (0.00)
+- `params.spec` -> `params.Spec [ZERO]` (0.00)
 - `profile.typecheck` -> `profile.Typecheck [ZERO]` (0.00)
 - `set.set` -> `set.Set [ZERO]` (0.00)
 - `string.methods` -> `string.Methods [ZERO]` (0.00)
@@ -925,7 +923,7 @@ present in the Rust source file.
 
 | Source | Target | Missing types | Examples |
 |--------|--------|---------------|----------|
-| `layout.value` | `layout.Value [ZERO]` | 3/9 | `DisplayWithTypeImpl`, `Canonical`, `String` |
+| `layout.value` | `layout.Value` | 2/9 | `Canonical`, `String` |
 | `values.freeze` | `values.Freeze [ZERO]` | 1/2 | `Frozen` |
 | `compiler.span` | `compiler.Span` | 1/2 | `Target` |
 | `values.frozen_ref` | `values.FrozenRef [ZERO]` | 2/4 | `Target`, `Frozen` |
@@ -1029,8 +1027,8 @@ present in the Rust source file.
 | `avalues.list` | `avalues.List` | 2/4 | `StarlarkValue`, `ExtraElem` |
 | `bc.opcode` | `bc.Opcode [ZERO]` | 2/5 | `ByNumber`, `FindOpcode` |
 | `tuple.refs` | `tuple.Refs` | 2/4 | `Canonical`, `Error` |
-| `typing.never` | `typing.Never [ZERO]` | 1/3 | `Canonical` |
 | `bc.repr` | `bc.Repr [ZERO]` | 1/3 | `HandlerImpl` |
+| `typing.never` | `typing.Never [ZERO]` | 1/3 | `Canonical` |
 | `string.alloc_unpack` | `string.AllocUnpack [ZERO]` | 2/2 | `Canonical`, `Error` |
 | `tuple.alloc` | `tuple.Alloc` | 1/2 | `Canonical` |
 | `float.unpack` | `float.Unpack` | 2/3 | `Canonical`, `Error` |
@@ -1178,7 +1176,7 @@ present in the Rust source file.
 
 There is missing documentation that is hurting overall scoring.
 
-**Documentation coverage:** 9668 / 12684 lines (76%)
+**Documentation coverage:** 9665 / 12684 lines (76%)
 
 Documentation gaps (>20%), complete list:
 
