@@ -10,7 +10,7 @@ This list is complete and includes function/type detail for every matched file. 
 
 | Rank | Source | Target | Function similarity | Deps | Functions | Missing functions | Types | Missing types | SymDeficit | SrcSymbols | Priority |
 |------|--------|--------|------------|------|-----------|-------------------|-------|---------------|-----------|------------|----------|
-| 1 | `layout.value` | `layout.Value [ZERO]` | 0.00 | 178 | 106/118 matched (target 158) | `fmt`, `eq`, `testing_new_int`, `_test_send_sync`, `test_downcast_ref`, `test_unpack_i32`, `test_unpack_frozen`, `test_unpack_bigint`, `test_to_json_value`, `test_display_for_type_error`, `test_check_callable_with_none`, `test_check_callable_with_good_function` | 6/9 matched | `DisplayWithTypeImpl`, `Canonical`, `String` | 15 | 127 | 178162720.0 |
+| 1 | `layout.value` | `layout.Value` | 0.72 | 178 | 105/118 matched (target 158) | `fmt`, `eq`, `testing_new_int`, `display_for_type_error`, `_test_send_sync`, `test_downcast_ref`, `test_unpack_i32`, `test_unpack_frozen`, `test_unpack_bigint`, `test_to_json_value`, `test_display_for_type_error`, `test_check_callable_with_none`, `test_check_callable_with_good_function` | 7/9 matched (target 10) | `Canonical`, `String` | 15 | 127 | 178162704.0 |
 | 2 | `typing.ty` | `typing.Ty` | 0.75 | 109 | 49/50 matched (target 57) | `fmt` | 4/4 matched (target 6) | _none_ | 1 | 54 | 109015400.0 |
 | 3 | `typing.starlark_value` | `typing.StarlarkValue [ZERO]` | 0.00 | 76 | 29/34 matched (target 43) | `fmt`, `eq`, `hash`, `partial_cmp`, `cmp` | 4/4 matched (target 5) | _none_ | 5 | 38 | 76053808.0 |
 | 4 | `params.display` | `params.Display` | 0.75 | 76 | 4/4 matched | _none_ | 3/3 matched (target 8) | _none_ | 0 | 7 | 76000704.0 |
@@ -167,8 +167,8 @@ This list is complete and includes function/type detail for every matched file. 
 | 155 | `structs.value` | `structs.Value [ZERO]` | 0.00 | 0 | 14/21 matched (target 30) | `iter_frozen`, `fmt`, `test_repr`, `test_repr_cycle`, `test_to_json_cycle`, `test_to_json`, `test_comparison_bug` | 1/1 matched (target 3) | _none_ | 7 | 22 | 72210.0 |
 | 156 | `funcs.other` | `funcs.Other [ZERO]` | 0.00 | 0 | 12/19 matched (target 13) | `r#type`, `test_abs`, `test_constants`, `test_chr`, `test_hash`, `test_int`, `test_tuple` | 0/0 matched (target 1) | _none_ | 7 | 19 | 71910.0 |
 | 157 | `typed.string` | `typed.String [ZERO]` | 0.00 | 0 | 8/15 matched (target 59) | `borrow`, `equivalent`, `eq`, `hash`, `partial_cmp`, `cmp`, `test_string_hashes` | 3/3 matched (target 4) | _none_ | 7 | 18 | 71810.0 |
-| 158 | `dict.methods` | `dict.Methods [ZERO]` | 0.00 | 0 | 10/17 matched (target 12) | `test_error_codes`, `test_dict_add`, `test_dict_with_duplicates`, `test_dict_update_with_self_pos`, `test_dict_update_with_self_as_kwargs`, `test_frozen_dict_cannot_be_updated_with_self_pos`, `test_frozen_dict_cannot_be_updated_with_self_as_kwargs` | 0/0 matched | _none_ | 7 | 17 | 71710.0 |
-| 159 | `layout.complex` | `layout.Complex [ZERO]` | 0.00 | 0 | 9/13 matched (target 15) | `unpack_value_impl`, `fmt`, `test_module`, `test_unpack` | 1/4 matched (target 1) | `Canonical`, `Error`, `Frozen` | 7 | 17 | 71710.0 |
+| 158 | `layout.complex` | `layout.Complex [ZERO]` | 0.00 | 0 | 9/13 matched (target 15) | `unpack_value_impl`, `fmt`, `test_module`, `test_unpack` | 1/4 matched (target 1) | `Canonical`, `Error`, `Frozen` | 7 | 17 | 71710.0 |
+| 159 | `dict.methods` | `dict.Methods [ZERO]` | 0.00 | 0 | 10/17 matched (target 12) | `test_error_codes`, `test_dict_add`, `test_dict_with_duplicates`, `test_dict_update_with_self_pos`, `test_dict_update_with_self_as_kwargs`, `test_frozen_dict_cannot_be_updated_with_self_pos`, `test_frozen_dict_cannot_be_updated_with_self_as_kwargs` | 0/0 matched | _none_ | 7 | 17 | 71710.0 |
 | 160 | `docs.parse` | `docs.Parse [ZERO]` | 0.00 | 0 | 8/15 matched (target 11) | `parses_starlark_docstring`, `parses_rust_docstring`, `parses_and_removes_sections_from_starlark_docstring`, `parses_and_removes_sections_from_rust_docstring`, `arg`, `parses_starlark_function_docstring`, `parses_rust_function_docstring` | 1/1 matched | _none_ | 7 | 16 | 71610.0 |
 | 161 | `string.simd` | `string.Simd [ZERO] [PROVENANCE-FALLBACK]` | 0.00 | 0 | 1/8 matched (target 4) | `splat`, `load_unaligned`, `store_unaligned`, `cmplt`, `cmpeq`, `or`, `movemask` | 2/2 matched | _none_ | 7 | 10 | 71010.0 |
 | 162 | `record.ty_record_type` | `record.TyRecordType [ZERO]` | 0.00 | 0 | 0/7 matched (target 0) | `test_good`, `test_fail_compile_time`, `test_fail_runtime_time`, `test_record_instance_typechecker_ty`, `test_typecheck_field_pass`, `test_typecheck_field_fail`, `test_typecheck_record_type_call` | 1/1 matched | _none_ | 7 | 8 | 70810.0 |
@@ -185,17 +185,17 @@ This list is complete and includes function/type detail for every matched file. 
 | 173 | `bigint.convert` | `bigint.Convert [ZERO]` | 0.00 | 0 | 4/8 matched (target 27) | `test_unpack_int_error`, `module`, `takes_i32`, `takes_i64` | 0/2 matched (target 7) | `Canonical`, `Error` | 6 | 10 | 61010.0 |
 | 174 | `tuple.rust_tuple` | `tuple.RustTuple` | 0.00 | 0 | 0/4 matched (target 11) | `alloc_value`, `alloc_frozen_value`, `starlark_type_repr`, `unpack_value_impl` | 0/2 matched (target 0) | `Canonical`, `Error` | 6 | 6 | 60610.0 |
 | 175 | `environment.modules` | `environment.Modules [ZERO]` | 0.00 | 0 | 38/43 matched (target 48) | `test_send_sync`, `test_gen_heap_summary_profile`, `test_frozen_module_from_globals`, `some_globals`, `foo` | 4/4 matched (target 6) | _none_ | 5 | 47 | 54710.0 |
-| 176 | `params.spec` | `params.Spec [ZERO]` | 0.00 | 0 | 33/38 matched (target 34) | `as_value`, `collect_impl`, `collect_into_impl`, `can_fill_with_args_impl`, `parser_impl` | 6/6 matched (target 11) | _none_ | 5 | 44 | 54410.0 |
-| 177 | `values.owned` | `values.Owned [ZERO]` | 0.00 | 0 | 26/29 matched (target 34) | `fmt`, `downcast_starlark`, `deref` | 3/5 matched | `Canonical`, `Target` | 5 | 34 | 53410.0 |
-| 178 | `profile.time_flame` | `profile.TimeFlame` | 0.60 | 0 | 15/19 matched (target 18) | `r#gen`, `test_time_flame_works_inside_frozen_module`, `register_sleep`, `sleep` | 10/11 matched (target 15) | `Data` | 5 | 30 | 53004.0 |
-| 179 | `profile.stmt` | `profile.Stmt [ZERO]` | 0.00 | 0 | 13/17 matched (target 20) | `r#gen`, `test_coverage`, `test_empty`, `test_merge` | 8/9 matched | `Data` | 5 | 26 | 52610.0 |
-| 180 | `typing.callable_param` | `typing.CallableParam` | 0.56 | 0 | 16/20 matched (target 27) | `fmt`, `pf`, `new_named_only`, `test_param_spec_display` | 5/6 matched (target 10) | `ParamSpecDisplay` | 5 | 26 | 52604.4 |
-| 181 | `values.unpack` | `values.Unpack [ZERO]` | 0.00 | 0 | 8/9 matched (target 14) | `error` | 3/7 matched | `IncorrectType`, `IncorrectParameterTypeWithExpected`, `IncorrectParameterTypeNamedWithExpected`, `Error` | 5 | 16 | 51610.0 |
-| 182 | `dict.refs` | `dict.Refs` | 0.51 | 0 | 7/9 matched (target 13) | `from_value`, `deref` | 4/7 matched (target 11) | `Target`, `Canonical`, `Error` | 5 | 16 | 51604.9 |
-| 183 | `analysis.underscore` | `analysis.Underscore` | 0.44 | 0 | 8/13 matched (target 14) | `lint`, `about`, `module`, `test_lint_inappropriate_underscore`, `test_lint_use_ignored` | 1/1 matched (target 3) | _none_ | 5 | 14 | 51405.6 |
-| 184 | `allocator.bumpalo` | `allocator.Bumpalo [ZERO]` | 0.00 | 0 | 6/8 matched (target 6) | `next`, `size_hint` | 0/3 matched (target 1) | `ChunkIteratorWrapper`, `Item`, `ChunkRevIterator` | 5 | 11 | 51110.0 |
-| 185 | `typing.iter` | `typing.Iter [ZERO]` | 0.00 | 0 | 3/6 matched (target 5) | `test_iterable_runtime`, `test_iterable_compile_time_pass`, `test_iterable_compile_time_fail` | 2/4 matched (target 2) | `NonInstantiable`, `Canonical` | 5 | 10 | 51010.0 |
-| 186 | `debug.inspect` | `debug.Inspect [ZERO]` | 0.00 | 0 | 4/9 matched (target 4) | `debugger`, `debug_inspect_stack`, `debug_inspect_variables`, `test_debug_stack`, `test_debug_variables` | 0/0 matched | _none_ | 5 | 9 | 50910.0 |
+| 176 | `values.owned` | `values.Owned [ZERO]` | 0.00 | 0 | 26/29 matched (target 34) | `fmt`, `downcast_starlark`, `deref` | 3/5 matched | `Canonical`, `Target` | 5 | 34 | 53410.0 |
+| 177 | `profile.time_flame` | `profile.TimeFlame` | 0.60 | 0 | 15/19 matched (target 18) | `r#gen`, `test_time_flame_works_inside_frozen_module`, `register_sleep`, `sleep` | 10/11 matched (target 15) | `Data` | 5 | 30 | 53004.0 |
+| 178 | `profile.stmt` | `profile.Stmt [ZERO]` | 0.00 | 0 | 13/17 matched (target 20) | `r#gen`, `test_coverage`, `test_empty`, `test_merge` | 8/9 matched | `Data` | 5 | 26 | 52610.0 |
+| 179 | `typing.callable_param` | `typing.CallableParam` | 0.56 | 0 | 16/20 matched (target 27) | `fmt`, `pf`, `new_named_only`, `test_param_spec_display` | 5/6 matched (target 10) | `ParamSpecDisplay` | 5 | 26 | 52604.4 |
+| 180 | `values.unpack` | `values.Unpack [ZERO]` | 0.00 | 0 | 8/9 matched (target 14) | `error` | 3/7 matched | `IncorrectType`, `IncorrectParameterTypeWithExpected`, `IncorrectParameterTypeNamedWithExpected`, `Error` | 5 | 16 | 51610.0 |
+| 181 | `dict.refs` | `dict.Refs` | 0.51 | 0 | 7/9 matched (target 13) | `from_value`, `deref` | 4/7 matched (target 11) | `Target`, `Canonical`, `Error` | 5 | 16 | 51604.9 |
+| 182 | `analysis.underscore` | `analysis.Underscore` | 0.44 | 0 | 8/13 matched (target 14) | `lint`, `about`, `module`, `test_lint_inappropriate_underscore`, `test_lint_use_ignored` | 1/1 matched (target 3) | _none_ | 5 | 14 | 51405.6 |
+| 183 | `allocator.bumpalo` | `allocator.Bumpalo [ZERO]` | 0.00 | 0 | 6/8 matched (target 6) | `next`, `size_hint` | 0/3 matched (target 1) | `ChunkIteratorWrapper`, `Item`, `ChunkRevIterator` | 5 | 11 | 51110.0 |
+| 184 | `typing.iter` | `typing.Iter [ZERO]` | 0.00 | 0 | 3/6 matched (target 5) | `test_iterable_runtime`, `test_iterable_compile_time_pass`, `test_iterable_compile_time_fail` | 2/4 matched (target 2) | `NonInstantiable`, `Canonical` | 5 | 10 | 51010.0 |
+| 185 | `debug.inspect` | `debug.Inspect [ZERO]` | 0.00 | 0 | 4/9 matched (target 4) | `debugger`, `debug_inspect_stack`, `debug_inspect_variables`, `test_debug_stack`, `test_debug_variables` | 0/0 matched | _none_ | 5 | 9 | 50910.0 |
+| 186 | `params.spec` | `params.Spec [ZERO]` | 0.00 | 0 | 34/38 matched (target 35) | `collect_impl`, `collect_into_impl`, `can_fill_with_args_impl`, `parser_impl` | 6/6 matched (target 11) | _none_ | 4 | 44 | 44410.0 |
 | 187 | `string.methods` | `string.Methods [ZERO]` | 0.00 | 0 | 37/41 matched (target 64) | `test_error_codes`, `test_count`, `test_find`, `test_opaque_iterator` | 1/1 matched (target 4) | _none_ | 4 | 42 | 44210.0 |
 | 188 | `typing.custom` | `typing.Custom [ZERO]` | 0.00 | 0 | 31/35 matched (target 49) | `eq`, `hash`, `partial_cmp`, `cmp` | 3/3 matched (target 5) | _none_ | 4 | 38 | 43810.0 |
 | 189 | `heap.repr` | `heap.Repr [ZERO]` | 0.00 | 0 | 23/27 matched (target 35) | `hash`, `eq`, `as_avalue_or_header`, `from_payload_ptr_mut` | 5/5 matched (target 8) | _none_ | 4 | 32 | 43210.0 |
@@ -222,8 +222,8 @@ This list is complete and includes function/type detail for every matched file. 
 | 210 | `bc.opcode` | `bc.Opcode [ZERO]` | 0.00 | 0 | 6/7 matched (target 10) | `opcode_count` | 3/5 matched (target 3) | `ByNumber`, `FindOpcode` | 3 | 12 | 31210.0 |
 | 211 | `tuple.refs` | `tuple.Refs` | 0.64 | 0 | 6/7 matched (target 15) | `unpack_value_impl` | 2/4 matched (target 2) | `Canonical`, `Error` | 3 | 11 | 31103.6 |
 | 212 | `enumeration.value` | `enumeration.Value` | 0.46 | 0 | 6/9 matched (target 10) | `fmt`, `index`, `value` | 1/1 matched (target 8) | _none_ | 3 | 10 | 31005.4 |
-| 213 | `typing.never` | `typing.Never [ZERO]` | 0.00 | 0 | 4/6 matched (target 7) | `test_never_runtime`, `test_never_compile_time` | 2/3 matched (target 2) | `Canonical` | 3 | 9 | 30910.0 |
-| 214 | `bc.repr` | `bc.Repr [ZERO]` | 0.00 | 0 | 4/6 matched (target 5) | `size_of_repr`, `handle` | 2/3 matched (target 2) | `HandlerImpl` | 3 | 9 | 30910.0 |
+| 213 | `bc.repr` | `bc.Repr [ZERO]` | 0.00 | 0 | 4/6 matched (target 5) | `size_of_repr`, `handle` | 2/3 matched (target 2) | `HandlerImpl` | 3 | 9 | 30910.0 |
+| 214 | `typing.never` | `typing.Never [ZERO]` | 0.00 | 0 | 4/6 matched (target 7) | `test_never_runtime`, `test_never_compile_time` | 2/3 matched (target 2) | `Canonical` | 3 | 9 | 30910.0 |
 | 215 | `string.alloc_unpack` | `string.AllocUnpack [ZERO]` | 0.00 | 0 | 5/6 matched (target 9) | `unpack_value_impl` | 0/2 matched (target 1) | `Canonical`, `Error` | 3 | 8 | 30810.0 |
 | 216 | `tuple.alloc` | `tuple.Alloc` | 0.49 | 0 | 3/5 matched (target 3) | `test_alloc_tuple`, `test_alloc_frozen_tuple` | 1/2 matched (target 1) | `Canonical` | 3 | 7 | 30705.1 |
 | 217 | `values.typing.ty` | `kotlin.io.github.kotlinmania.starlark.values.typing.Ty [ZERO]` | 0.00 | 0 | 2/5 matched (target 4) | `test_isinstance`, `test_pass`, `test_fail_compile_time` | 1/1 matched | _none_ | 3 | 6 | 30610.0 |
@@ -377,7 +377,6 @@ This list is complete and includes function/type detail for every matched file. 
 
 ## Cheat Detection / Scoring Failures
 
-- `layout.value` -> `layout.Value [ZERO]`: function-by-function score forced to 0. Value.kt: snake_case identifier `val_ref` in Kotlin comments; Value.kt: unchecked cast suppression hiding transliteration work in Kotlin code; Value.kt: translator-note comment (`Kotlin:`) in Kotlin comments; Value.kt: Rust lifetime explanation in Kotlin comments; Value.kt: Rust-only type/unsafe terminology in Kotlin comments
 - `typing.starlark_value` -> `typing.StarlarkValue [ZERO]`: function-by-function score forced to 0. StarlarkValue.kt: snake_case identifier `starlark_type_id` in Kotlin comments
 - `runtime.evaluator` -> `runtime.Evaluator [ZERO]`: function-by-function score forced to 0. Evaluator.kt: snake_case identifier `before_stmt` in Kotlin comments; Evaluator.kt: Rust lifetime explanation in Kotlin comments
 - `values.trace` -> `values.Trace [ZERO]`: function-by-function score forced to 0. Trace.kt: Rust lifetime explanation in Kotlin comments; Trace.kt: Rust-only type/unsafe terminology in Kotlin comments
@@ -486,8 +485,8 @@ This list is complete and includes function/type detail for every matched file. 
 - `structs.value` -> `structs.Value [ZERO]`: function-by-function score forced to 0. Value.kt: snake_case identifier `HAS_equals` in Kotlin code; Value.kt: snake_case identifier `of_value` in Kotlin comments; Value.kt: Rust lifetime explanation in Kotlin comments
 - `funcs.other` -> `funcs.Other [ZERO]`: function-by-function score forced to 0. Other.kt: Rust lifetime explanation in Kotlin comments
 - `typed.string` -> `typed.String [ZERO]`: function-by-function score forced to 0. String.kt: snake_case identifier `HAS_equals` in Kotlin code
-- `dict.methods` -> `dict.Methods [ZERO]`: function-by-function score forced to 0. Methods.kt: Rust lifetime explanation in Kotlin comments
 - `layout.complex` -> `layout.Complex [ZERO]`: function-by-function score forced to 0. Complex.kt: snake_case identifier `new_err` in Kotlin comments; Complex.kt: score-padding suppression annotation `@Suppress` in Kotlin code; Complex.kt: translator-note comment (`Kotlin:`) in Kotlin comments; Complex.kt: Rust lifetime explanation in Kotlin comments
+- `dict.methods` -> `dict.Methods [ZERO]`: function-by-function score forced to 0. Methods.kt: Rust lifetime explanation in Kotlin comments
 - `docs.parse` -> `docs.Parse [ZERO]`: function-by-function score forced to 0. Parse.kt: snake_case identifier `some_function` in Kotlin comments; Parse.kt: Rust attribute syntax in Kotlin comments
 - `string.simd` -> `string.Simd [ZERO] [PROVENANCE-FALLBACK]`: function-by-function score forced to 0. Simd.kt: snake_case identifier `x86_64` in Kotlin comments; Simd.kt: snake_case identifier `find_hash_in_array_without_simd` in Kotlin comments
 - `record.ty_record_type` -> `record.TyRecordType [ZERO]`: function-by-function score forced to 0. TyRecordType.kt: Rust `pub` item in Kotlin comments; TyRecordType.kt: Rust attribute syntax in Kotlin comments; no target functions found; report scoring is function-by-function only
@@ -499,13 +498,13 @@ This list is complete and includes function/type detail for every matched file. 
 - `list.unpack` -> `list.Unpack [ZERO]`: function-by-function score forced to 0. Unpack.kt: snake_case identifier `unpack_value_opt` in Kotlin comments; Unpack.kt: Rust `let` binding in Kotlin comments; Unpack.kt: Rust attribute syntax in Kotlin comments; Unpack.kt: Rust lifetime explanation in Kotlin comments
 - `bigint.convert` -> `bigint.Convert [ZERO]`: function-by-function score forced to 0. Convert.kt: Rust-only type/unsafe terminology in Kotlin comments
 - `environment.modules` -> `environment.Modules [ZERO]`: function-by-function score forced to 0. Modules.kt: snake_case identifier `starlark_module` in Kotlin comments; Modules.kt: Rust `fn` declaration in Kotlin comments; Modules.kt: Rust `pub` item in Kotlin comments; Modules.kt: Rust attribute syntax in Kotlin comments; Modules.kt: Rust lifetime explanation in Kotlin comments
-- `params.spec` -> `params.Spec [ZERO]`: function-by-function score forced to 0. Spec.kt: snake_case identifier `no_args` in Kotlin comments
 - `values.owned` -> `values.Owned [ZERO]`: function-by-function score forced to 0. Owned.kt: Rust lifetime explanation in Kotlin comments
 - `profile.stmt` -> `profile.Stmt [ZERO]`: function-by-function score forced to 0. Stmt.kt: snake_case identifier `last_span` in Kotlin comments; Stmt.kt: Rust-only type/unsafe terminology in Kotlin comments
 - `values.unpack` -> `values.Unpack [ZERO]`: function-by-function score forced to 0. Unpack.kt: snake_case identifier `starlark_module` in Kotlin comments
 - `allocator.bumpalo` -> `allocator.Bumpalo [ZERO]`: function-by-function score forced to 0. Bumpalo.kt: translator-note comment (`Kotlin:`) in Kotlin comments
 - `typing.iter` -> `typing.Iter [ZERO]`: function-by-function score forced to 0. Iter.kt: snake_case identifier `HAS_eval_type` in Kotlin code; Iter.kt: score-padding suppression annotation `@Suppress` in Kotlin code
 - `debug.inspect` -> `debug.Inspect [ZERO]`: function-by-function score forced to 0. Inspect.kt: snake_case identifier `call_stack` in Kotlin comments
+- `params.spec` -> `params.Spec [ZERO]`: function-by-function score forced to 0. Spec.kt: snake_case identifier `no_args` in Kotlin comments
 - `string.methods` -> `string.Methods [ZERO]`: function-by-function score forced to 0. Methods.kt: snake_case identifier `is_true` in Kotlin comments; Methods.kt: Rust lifetime explanation in Kotlin comments
 - `typing.custom` -> `typing.Custom [ZERO]`: function-by-function score forced to 0. Custom.kt: snake_case identifier `validate_call` in Kotlin comments; Custom.kt: Rust `fn` declaration in Kotlin comments; Custom.kt: Rust `pub` item in Kotlin comments; Custom.kt: Rust-only type/unsafe terminology in Kotlin comments
 - `heap.repr` -> `heap.Repr [ZERO]`: function-by-function score forced to 0. Repr.kt: snake_case identifier `forward_ptr` in Kotlin comments; Repr.kt: Rust-only type/unsafe terminology in Kotlin comments
@@ -521,8 +520,8 @@ This list is complete and includes function/type detail for every matched file. 
 - `list.refs` -> `list.Refs [ZERO]`: function-by-function score forced to 0. Refs.kt: snake_case identifier `from_value` in Kotlin comments; Refs.kt: Rust lifetime explanation in Kotlin comments
 - `symbol.map` -> `symbol.Map [ZERO]`: function-by-function score forced to 0. Map.kt: Rust-only type/unsafe terminology in Kotlin comments
 - `bc.opcode` -> `bc.Opcode [ZERO]`: function-by-function score forced to 0. Opcode.kt: snake_case identifier `dispatch_all` in Kotlin comments
-- `typing.never` -> `typing.Never [ZERO]`: function-by-function score forced to 0. Never.kt: snake_case identifier `HAS_eval_type` in Kotlin code; Never.kt: score-padding suppression annotation `@Suppress` in Kotlin code
 - `bc.repr` -> `bc.Repr [ZERO]`: function-by-function score forced to 0. Repr.kt: snake_case identifier `align_of` in Kotlin comments
+- `typing.never` -> `typing.Never [ZERO]`: function-by-function score forced to 0. Never.kt: snake_case identifier `HAS_eval_type` in Kotlin code; Never.kt: score-padding suppression annotation `@Suppress` in Kotlin code
 - `string.alloc_unpack` -> `string.AllocUnpack [ZERO]`: function-by-function score forced to 0. AllocUnpack.kt: snake_case identifier `alloc_frozen_string_value` in Kotlin comments
 - `values.typing.ty` -> `kotlin.io.github.kotlinmania.starlark.values.typing.Ty [ZERO]`: function-by-function score forced to 0. Ty.kt: snake_case identifier `HAS_eval_type` in Kotlin code
 - `debug.evaluate` -> `debug.Evaluate [ZERO]`: function-by-function score forced to 0. Evaluate.kt: snake_case identifier `module_env` in Kotlin comments
@@ -600,15 +599,6 @@ This list is complete and includes function/type detail for every matched file. 
 ## Critical Issues (Function Similarity < 0.60 with Dependencies)
 
 These files need immediate attention:
-
-- **layout.value** → `layout.Value [ZERO]`
-  - Function similarity: 0.00
-  - Dependencies: 178
-  - Functions: 106/118 matched (target 158)
-  - Missing functions: `fmt`, `eq`, `testing_new_int`, `_test_send_sync`, `test_downcast_ref`, `test_unpack_i32`, `test_unpack_frozen`, `test_unpack_bigint`, `test_to_json_value`, `test_display_for_type_error`, `test_check_callable_with_none`, `test_check_callable_with_good_function`
-  - Types: 6/9 matched
-  - Missing types: `DisplayWithTypeImpl`, `Canonical`, `String`
-  - Scoring failure: Value.kt: snake_case identifier `val_ref` in Kotlin comments; Value.kt: unchecked cast suppression hiding transliteration work in Kotlin code; Value.kt: translator-note comment (`Kotlin:`) in Kotlin comments; Value.kt: Rust lifetime explanation in Kotlin comments; Value.kt: Rust-only type/unsafe terminology in Kotlin comments
 
 - **typing.starlark_value** → `typing.StarlarkValue [ZERO]`
   - Function similarity: 0.00
