@@ -126,11 +126,6 @@ private fun debugValue(typ: String, v: Value): String {
     // When value is being moved during GC or freeze,
     // `Value` pointee is not a proper value, but a GC-related information.
     // Regular operations like `.toRepr()` crash, but `Debug` should work.
-    // In Rust:
-    //   if let Some(x) = v.0.unpack_ptr() {
-    //       if let AValueOrForwardUnpack::Forward(fwd) = x.unpack() {
-    //           return f.debug_tuple(typ).field(&fwd).finish();
-    //   f.debug_tuple(typ).field(v.get_ref().as_debug()).finish()
     val ptrOpt = v.ptr.unpackPtrOpt()
     if (ptrOpt != null) {
         try {
@@ -152,8 +147,7 @@ private fun debugValue(typ: String, v: Value): String {
 }
 
 /**
- * A Starlark value. The lifetime argument `'v` in Rust corresponds to the [Heap] it is stored on.
- * In Kotlin, lifetime management is handled by the garbage collector.
+ * A Starlark value stored on a [Heap].
  *
  * Many of the methods simply forward to the underlying [StarlarkValue].
  * The [toString] method is equivalent to the `repr()` function in Starlark.
@@ -181,7 +175,7 @@ class Value internal constructor(
         internal fun <T : AValue> newRepr(x: AValueRepr<AValueImpl<T>>): Value = newPtr(x.header, x.header.vtable.isStr)
 
         /**
-         * Create a new [Value] from a raw usize with string tag.
+         * Create a new [Value] from a raw pointer word with string tag.
          */
         internal fun newPtrUsizeWithStrTag(x: Long): Value = Value(Pointer.newUnfrozenUsizeWithStrTag(x))
 
@@ -216,7 +210,7 @@ class Value internal constructor(
         internal fun newEmptyTuple(): Value = FrozenValue.newEmptyTuple().toValue()
 
         /**
-         * Turn a [FrozenValue] into a [Value]. See the safety warnings on
+         * Turn a [FrozenValue] into a [Value]. See the ownership notes on
          * `OwnedFrozenValue`.
          */
         fun newFrozen(x: FrozenValue): Value {
@@ -232,11 +226,9 @@ class Value internal constructor(
     }
 
     /**
-     * Cast the lifetime of this value. In Kotlin there are no lifetimes,
-     * so this is effectively a no-op identity function.
+     * Return this value with the same runtime identity.
      */
-    @Suppress("NOTHING_TO_INLINE")
-    internal inline fun castLifetime(): Value = this
+    internal fun castLifetime(): Value = this
 
     /**
      * Produce a [Value] regardless of the type you are starting with.
@@ -636,8 +628,7 @@ class Value internal constructor(
         }
         val frozenDef = downcastRef<FrozenDef>()
         if (frozenDef != null) {
-            // In Rust this is a transmute from ParametersSpec<FrozenValue> to ParametersSpec<Value>.
-            // In Kotlin with type erasure, an unchecked cast is equivalent.
+            // Frozen function parameters are immutable, so they can be viewed as value parameters.
             return frozenDef.parameters as ParametersSpec<Value>
         }
         return null
@@ -836,18 +827,12 @@ class Value internal constructor(
      *
      * Return an error if the value or any contained value does not support conversion to JSON.
      */
-    fun toJson(): Result<String> {
-        // In Rust: serde_json::to_string(&self).map_err(|e| anyhow::anyhow!(e))
-        return serializeImpl()
-    }
+    fun toJson(): Result<String> = serializeImpl()
 
     /**
      * Convert the value to a JSON value object.
      */
-    fun toJsonValue(): Result<Any> {
-        // In Rust: serde_json::to_value(self).map_err(|e| anyhow::anyhow!(e))
-        return serializeImpl()
-    }
+    fun toJsonValue(): Result<Any> = serializeImpl()
 
     internal fun serializeImpl(): Result<String> = toJsonStringImpl()
 
@@ -1436,8 +1421,7 @@ class Value internal constructor(
         }
     }
 
-    // In Rust, Display for Value reuses repr (strings display with quotes).
-    // This is equivalent to toRepr().
+    // Display reuses repr so strings display with quotes.
     override fun toString(): String = toRepr()
 
     override fun equals(other: Any?): Boolean {
@@ -1722,9 +1706,7 @@ class FrozenValue internal constructor(
 
     override fun fromFrozenValue(v: FrozenValue): ValueLike = v
 
-    override fun freeze(
-        @Suppress("unused") freezer: Freezer,
-    ): Result<FrozenValue> = Result.success(this)
+    override fun freeze(freezer: Freezer): Result<FrozenValue> = Result.success(this)
 
     // ValueLike interface requires non-reified KClass version
     override fun <T : StarlarkValue> downcastRef(clazz: KClass<T>): T? = toValue().downcastRef(clazz)
@@ -1739,12 +1721,10 @@ class FrozenValue internal constructor(
     internal inline fun <reified T : StarlarkValue> downcastRef(): T? = toValue().downcastRef<T>()
 }
 
-// then delegates to erased_serde::serialize(self.get_ref().as_serialize(), s).
 // The cycle detection logic is in Value.serializeImpl().
 @HiddenFromObjC
 internal fun Value.serialize(): Result<String> = serializeImpl()
 
-// Rust: self.to_value().serialize(s)
 @HiddenFromObjC
 internal fun FrozenValue.serialize(): Result<String> = toValue().serialize()
 

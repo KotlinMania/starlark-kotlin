@@ -50,8 +50,6 @@ private sealed class TyStarlarkValueError : Exception() {
 /**
  * VTable holding type-level information for a [TyStarlarkValue].
  *
- * In Rust this stores a static reference to type name, the `StarlarkValueVTable`,
- * and `StarlarkTypeId` fields for canonical type checking.
  * In Kotlin we store the type name, capability flags, and function references
  * for type-level dispatch.
  */
@@ -63,7 +61,7 @@ private class TyStarlarkValueVTable(
      * `starlark_type_id_check` is the canonical-of-canonical check.
      */
     val starlarkTypeIdCheck: StarlarkTypeId? = starlarkTypeId,
-    // Capability flags mirroring Rust's StarlarkValueVTable HAS_* constants.
+    // Capability flags for supported operations.
     val hasPlus: Boolean = false,
     val hasMinus: Boolean = false,
     val hasBitNot: Boolean = false,
@@ -73,7 +71,7 @@ private class TyStarlarkValueVTable(
     val hasIterate: Boolean = false,
     val hasIterateCollect: Boolean = false,
     val hasEvalType: Boolean = false,
-    // Function references for type-level dispatch (mirrors Rust vtable function pointers).
+    // Function references for type-level dispatch.
     val binOpTy: (TypingBinOp, TyBasic) -> Ty? = { _, _ -> null },
     val rbinOpTy: (TyBasic, TypingBinOp) -> Ty? = { _, _ -> null },
     val getMethods: () -> Methods? = { null },
@@ -100,9 +98,7 @@ private fun TypingBinOp.toOracle(): io.github.kotlinmania.starlark.typing.oracle
 /**
  * Pre-built vtables for known Starlark types.
  *
- * In Rust this is `TyStarlarkValueVTableGet<'v, T: StarlarkValue<'v>>` which uses
- * const generics to extract vtable data at compile time. In Kotlin we pre-build
- * vtables for all known types and provide a lookup mechanism.
+ * Kotlin pre-builds vtables for known types and provides a lookup mechanism.
  */
 private object TyStarlarkValueVTableGet {
     val INT_VTABLE =
@@ -252,16 +248,10 @@ private object TyStarlarkValueVTableGet {
 class TyStarlarkValue private constructor(
     private val vtable: TyStarlarkValueVTable,
 ) : Comparable<TyStarlarkValue> {
-    // -- Debug --
-    // Rust: impl Debug for TyStarlarkValue
     internal fun debugString(): String = "TyStarlarkValue { type_name: \"${vtable.typeName}\", .. }"
 
-    // -- Display --
-    // Rust: impl Display for TyStarlarkValue { fn fmt ... }
     override fun toString(): String = fmtWithConfig(TypeRenderConfig.Default)
 
-    // -- PartialEq / Eq --
-    // Rust: compares starlark_type_id
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other !is TyStarlarkValue) return false
@@ -274,12 +264,8 @@ class TyStarlarkValue private constructor(
         }
     }
 
-    // -- Hash --
-    // Rust: hashes type_name because type id is not stable
     override fun hashCode(): Int = vtable.typeName.hashCode()
 
-    // -- Ord --
-    // Rust: compares type_name lexicographically
     override fun compareTo(other: TyStarlarkValue): Int = vtable.typeName.compareTo(other.vtable.typeName)
 
     // Cannot have this check in constructor where it belongs because new() needs to be lightweight.
@@ -410,7 +396,6 @@ class TyStarlarkValue private constructor(
     /**
      * Validate that this type is callable.
      *
-     * In Rust: `fn validate_call(self, span: Span, oracle: TypingOracleCtx) -> Result<Ty, TypingError>`
      * Returns [Ty.any] if callable, error if not.
      */
     internal fun validateCall(
@@ -474,9 +459,8 @@ class TyStarlarkValue private constructor(
         /**
          * Create a type instance from a type name.
          *
-         * In Rust: `pub const fn new<'v, T: StarlarkValue<'v>>() -> TyStarlarkValue`
-         * In Kotlin, since `StarlarkValue.TYPE` is an instance property and we cannot
-         * extract it from a KClass alone, callers pass the type name string directly.
+         * Kotlin callers pass the type name string directly because the type marker
+         * is exposed through value instances rather than through a common class key.
          */
         fun new(typeName: String): TyStarlarkValue = TyStarlarkValue(TyStarlarkValueVTableGet.forType(typeName))
 

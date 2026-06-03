@@ -30,7 +30,7 @@ import io.github.kotlinmania.starlark.values.layout.Value
 import io.github.kotlinmania.starlark.values.typing.TypingNever
 import kotlin.ConsistentCopyVisibility
 
-// We only implement what this file needs: stable-ish escaping for strings.
+// Debug-style formatting with stable string escaping for this file's diagnostics.
 private fun format(value: Any?): String =
     when (value) {
         null -> "null"
@@ -82,8 +82,6 @@ data class Approximation(
  *
  * This is different handling of union types than in TypeScript for example;
  * TypeScript would consider such expression to be an error.
- *
- * Corresponds to Rust's `Ty` struct.
  */
 @ConsistentCopyVisibility
 data class Ty private constructor(
@@ -196,7 +194,6 @@ data class Ty private constructor(
         /**
          * Create a type from native callable components.
          *
-         * Corresponds to Rust's `Ty::from_native_callable_components`.
          */
         internal fun fromNativeCallableComponents(
             comp: NativeCallableComponents,
@@ -491,8 +488,6 @@ data class Ty private constructor(
 
 /**
  * Configuration for rendering types.
- *
- * Corresponds to Rust's `TypeRenderConfig` enum.
  */
 sealed class TypeRenderConfig {
     /** Uses the default rendering configuration. */
@@ -507,8 +502,6 @@ sealed class TypeRenderConfig {
 
 /**
  * Helper for displaying a [Ty] with a specific render configuration.
- *
- * Corresponds to Rust's `TyDisplay<'a>`.
  */
 class TyDisplay(
     private val ty: Ty,
@@ -519,8 +512,6 @@ class TyDisplay(
 
 /**
  * Try to merge adjacent elements in a list.
- *
- * Corresponds to Rust's `merge_adjacent` function.
  */
 private fun <T> mergeAdjacent(
     xs: List<T>,

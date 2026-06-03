@@ -90,7 +90,7 @@ class ValueTest {
         }
     }
 
-    // Note: This test requires assert::pass which evaluates Starlark code.
+    // Note: This test requires Assert.pass, which evaluates Starlark code.
     // The JSON serialization in Kotlin currently uses repr() as fallback,
     // so we test the basic mechanism rather than exact JSON output.
     @Test
@@ -107,7 +107,6 @@ class ValueTest {
             Value.newNone().toStringForTypeError(),
         )
 
-        // Rust: heap.alloc(AllocList(0..12345))
         // In Kotlin, allocate each int individually then create the list.
         Heap.temp { heap ->
             val items = (0 until 12345).map { i -> i.intAllocValue(heap) }
