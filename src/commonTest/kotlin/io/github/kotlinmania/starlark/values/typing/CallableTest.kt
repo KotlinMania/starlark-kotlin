@@ -1,37 +1,90 @@
-// port-lint: source tests:src/values/typing/callable.rs
+// port-lint: tests src/values/typing/callable.rs
 package io.github.kotlinmania.starlark.values.typing
 
 /*
- * Copyright 2018 The Starlark in Rust Authors.
+ * Copyright 2019 The Starlark in Rust Authors.
  * Copyright (c) Facebook, Inc. and its affiliates.
  * Copyright (c) 2025 Sydney Renee, The Solace Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not import this file except in compliance with the License.
+ * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
  *     https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 
 import io.github.kotlinmania.starlark.assert.Assert
 import io.github.kotlinmania.starlark.environment.GlobalsBuilder
+import io.github.kotlinmania.starlark.eval.runtime.Arguments
+import io.github.kotlinmania.starlark.eval.runtime.Evaluator
+import io.github.kotlinmania.starlark.typing.ParamSpec
+import io.github.kotlinmania.starlark.typing.Ty
+import io.github.kotlinmania.starlark.values.types.bigint.allocValue
 import io.github.kotlinmania.starlark.values.types.none.NoneType
+import io.github.kotlinmania.starlark.values.typing.callable.StarlarkCallableParamSpecNone
 import kotlin.test.Test
 
-class CallableTest {
+private fun myModule(globals: GlobalsBuilder) {
+    globals.setFunction(
+        name = "accept_f",
+        ty =
+            Ty.function(
+                ParamSpec.posOnly(listOf(Ty.callable(ParamSpec.posOnly(listOf(Ty.string())), Ty.int()))),
+                Ty.none(),
+            ),
+    ) { args: Arguments, eval: Evaluator ->
+        Result.success(NoneType)
+    }
+}
+
+internal class CallableTest {
+    @Test
+    fun testCallableRuntime() {
+        Assert.isTrue("isinstance(lambda: None, typing.Callable)")
+        Assert.isTrue("isinstance(len, typing.Callable)")
+        Assert.isTrue("Rec = record(); isinstance(Rec, typing.Callable)")
+        Assert.isFalse("isinstance(37, typing.Callable)")
+    }
+
+    @Test
+    fun testCallablePassCompileTime() {
+        Assert.pass(
+            """
+Rec = record()
+
+def foo(x: typing.Callable):
+    pass
+
+def bar():
+    foo(len)
+    foo(lambda x: 1)
+    foo(Rec)
+""",
+        )
+    }
+
+    @Test
+    fun testCallableFailCompileTime() {
+        Assert.fail(
+            """
+def foo(x: typing.Callable):
+    pass
+
+def bar():
+    foo(1)
+""",
+            "Expected type",
+        )
+    }
 
     @Test
     fun testNativeCallablePass() {
-        fun myModule(globals: GlobalsBuilder) {
-            fun acceptF(x: StarlarkCallable<StarlarkCallableParamAny, StarlarkTypeRepr>): Result<NoneType> {
-                x.toString()
-                return Result.success(NoneType)
-            }
-            globals.setFunction("accept_f") { args, _ ->
-                acceptF(args.positional<StarlarkCallable<StarlarkCallableParamAny, StarlarkTypeRepr>>(0))
-            }
-        }
-
         val a = Assert()
         a.globalsAdd(::myModule)
         a.pass(
@@ -46,32 +99,144 @@ def test():
     }
 
     @Test
-    fun testCallableCheckedRuntime() {
-        fun module(globals: GlobalsBuilder) {
-            fun acceptF(f: StarlarkCallableChecked<StarlarkCallableParamAny, StarlarkTypeRepr>): Result<NoneType> {
-                f.toString()
-                return Result.success(NoneType)
-            }
-            fun good(): Result<NoneType> = Result.success(NoneType)
-            fun bad(): Result<Int> = Result.success(10)
+    fun testNativeCallableFailCompileTimeWrongParamType() {
+        val a = Assert()
+        a.globalsAdd(::myModule)
+        a.fail(
+            """
+def f(x: list) -> int:
+    return 1
 
-            globals.setFunction("accept_f") { args, _ ->
-                acceptF(args.positional<StarlarkCallableChecked<StarlarkCallableParamAny, StarlarkTypeRepr>>(0))
+def test():
+    accept_f(f)
+""",
+            "Expected type `typing.Callable[[str], int]` but got",
+        )
+    }
+
+    @Test
+    fun testNativeCallableFailCompileTimeWrongParamCount() {
+        val a = Assert()
+        a.globalsAdd(::myModule)
+        a.fail(
+            """
+def f() -> int:
+    return 1
+
+def test():
+    accept_f(f)
+""",
+            "Expected type `typing.Callable[[str], int]` but got",
+        )
+    }
+
+    @Test
+    fun testTypingCallablePass() {
+        val a = Assert()
+        a.pass(
+            """
+def accept_f(x: typing.Callable[[str], int]) -> None:
+    pass
+
+def f(x: str) -> int:
+    return len(x)
+
+def test():
+    accept_f(f)
+""",
+        )
+    }
+
+    @Test
+    fun testTypingCallableFailCompileTimeWrongParamType() {
+        val a = Assert()
+        a.fail(
+            """
+def accept_f(x: typing.Callable[[str], int]) -> None:
+    pass
+
+def f(x: list) -> int:
+    return 1
+
+def test():
+    accept_f(f)
+""",
+            "Expected type `typing.Callable[[str], int]` but got",
+        )
+    }
+
+    @Test
+    fun testTypingCallableFailCompileTimeWrongParamCount() {
+        val a = Assert()
+        a.fail(
+            """
+def accept_f(x: typing.Callable[[str], int]) -> None:
+    pass
+
+def f() -> int:
+    return 1
+
+def test():
+    accept_f(f)
+""",
+            "Expected type `typing.Callable[[str], int]` but got",
+        )
+    }
+
+    @Test
+    fun testCallableCheckedRuntime() {
+        fun checkedModule(globals: GlobalsBuilder) {
+            globals.setFunction(
+                name = "accept_f",
+                ty =
+                    Ty.function(
+                        ParamSpec.posOnly(listOf(Ty.callable(ParamSpec.posOnly(emptyList(), emptyList()), Ty.none()))),
+                        Ty.none(),
+                    ),
+            ) { args: Arguments, eval: Evaluator ->
+                val v = args.positional1(eval.heap()).getOrThrow()
+                val unpacker = StarlarkCallableCheckedUnpackValue(StarlarkCallableParamSpecNone, NoneType)
+                unpacker.unpackNamedParam(v, "f")
+                Result.success(NoneType)
             }
-            globals.setFunction("good") { _, _ -> good() }
-            globals.setFunction("bad") { _, _ -> bad() }
+
+            globals.setFunction(
+                name = "good",
+                ty =
+                    Ty.function(
+                        ParamSpec.posOnly(emptyList(), emptyList()),
+                        Ty.none(),
+                    ),
+            ) { args: Arguments, eval: Evaluator ->
+                Result.success(NoneType)
+            }
+
+            globals.setFunction(
+                name = "bad",
+                ty =
+                    Ty.function(
+                        ParamSpec.posOnly(emptyList(), emptyList()),
+                        Ty.int(),
+                    ),
+            ) { args: Arguments, eval: Evaluator ->
+                Result.success(10.allocValue(eval.heap()))
+            }
         }
 
         val a = Assert()
-        a.globalsAdd(::module)
+        a.globalsAdd(::checkedModule)
 
         a.pass("accept_f(good)")
 
         a.fail(
             """
-accept_f(bad)
-""",
-            "Expected type",
+def test():
+    x = noop(bad) # Hide the type from static typechecker.
+    accept_f(x)
+
+test()
+        """,
+            "Type of parameter `f` doesn't match",
         )
     }
 }

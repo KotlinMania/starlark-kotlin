@@ -19,7 +19,6 @@ AST tasks: `/Volumes/stuff/projectmgt/.projectmgt-hub/astdistance/github.com_kot
 ## Actions
 
 - Review `port_status.json` under the port report dir for details.
-- Use `ast_distance --init-tasks ...` / `--assign` / `--complete` to drive line-by-line transliteration work.
 
 ---
 

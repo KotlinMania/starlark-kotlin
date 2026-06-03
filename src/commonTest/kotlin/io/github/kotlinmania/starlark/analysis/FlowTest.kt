@@ -1,4 +1,4 @@
-// port-lint: source tests:src/analysis/flow.rs
+// port-lint: tests src/analysis/flow.rs
 package io.github.kotlinmania.starlark.analysis
 
 /*
@@ -25,15 +25,13 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 
 class FlowTest {
-
-    private fun module(x: String): AstModule {
-        return AstModule.parse("X", x, Dialect.AllOptionsInternal).getOrThrow()
-    }
+    private fun module(x: String): AstModule = AstModule.parse("X", x, Dialect.AllOptionsInternal).getOrThrow()
 
     @Test
     fun testLintReturns() {
-        val m = module(
-            """
+        val m =
+            module(
+                """
 def no1() -> str:
     pass
 def no2():
@@ -61,8 +59,8 @@ def yes3():
     pass
 def yes4() -> str:
     fail("die")
-"""
-        )
+""",
+            )
         val res = mutableListOf<LintT<FlowIssue>>()
         stmt(m.codemap(), m.statement(), res)
         assertEquals(
@@ -73,8 +71,9 @@ def yes4() -> str:
 
     @Test
     fun testLintUnreachable() {
-        val m = module(
-            """
+        val m =
+            module(
+                """
 def test():
     return 1
     no1
@@ -108,8 +107,8 @@ def f():
     def g():
         return 5
     reachable
-"""
-        )
+""",
+            )
         val res = mutableListOf<LintT<FlowIssue>>()
         reachable(m.codemap(), m.statement(), res)
         assertEquals(
@@ -120,8 +119,9 @@ def f():
 
     @Test
     fun testLintRedundant() {
-        val m = module(
-            """
+        val m =
+            module(
+                """
 def test(): # 1
     foo
     return # bad: 3
@@ -151,20 +151,25 @@ def test7():
         if x:
             continue
         return
-"""
-        )
+""",
+            )
         val res = mutableListOf<LintT<FlowIssue>>()
         redundant(m.codemap(), m.statement(), res)
         assertEquals(
             listOf(3, 9, 19),
-            res.map { it.location.resolveSpan().begin.line },
+            res.map {
+                it.location
+                    .resolveSpan()
+                    .begin.line
+            },
         )
     }
 
     @Test
     fun testLintMisplacedLoad() {
-        val m = module(
-            """
+        val m =
+            module(
+                """
 load("a", "a")
 ""${'"'}
 this is some comment
@@ -174,8 +179,8 @@ load("b", "b")
 
 x = 1
 load("c", "b")
-"""
-        )
+""",
+            )
         val res = mutableListOf<LintT<FlowIssue>>()
         misplacedLoad(m.codemap(), m.statement(), res)
         assertEquals(1, res.size)
@@ -197,12 +202,21 @@ def foo():
 """
 
         val m = module(src)
-        val bad = src.lines()
-            .withIndex()
-            .filter { (_, line) -> "## BAD" in line }
-            .map { (i, _) -> i }
+        val bad =
+            src
+                .lines()
+                .withIndex()
+                .filter { (_, line) -> "## BAD" in line }
+                .map { (i, _) -> i }
         val res = mutableListOf<LintT<FlowIssue>>()
         noEffect(m.codemap(), m.statement(), res)
-        assertEquals(bad, res.map { it.location.resolveSpan().begin.line })
+        assertEquals(
+            bad,
+            res.map {
+                it.location
+                    .resolveSpan()
+                    .begin.line
+            },
+        )
     }
 }

@@ -1,4 +1,4 @@
-// port-lint: source tests:src/analysis/find_call_name.rs
+// port-lint: tests src/analysis/find_call_name.rs
 package io.github.kotlinmania.starlark.analysis
 
 /*
@@ -28,7 +28,6 @@ import kotlin.test.assertEquals
 import kotlin.test.assertNull
 
 class FindCallNameTest {
-
     @Test
     fun findsFunctionCallsWithNameKwarg() {
         val contents = """
@@ -42,11 +41,13 @@ def x(name = "foo_name"):
     pass
 """
 
-        val module = AstModule.parse(
-            "foo.star",
-            contents,
-            Dialect.AllOptionsInternal,
-        ).getOrThrow()
+        val module =
+            AstModule
+                .parse(
+                    "foo.star",
+                    contents,
+                    Dialect.AllOptionsInternal,
+                ).getOrThrow()
 
         assertEquals(
             ResolvedSpan(

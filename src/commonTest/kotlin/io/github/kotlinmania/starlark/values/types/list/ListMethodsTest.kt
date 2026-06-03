@@ -1,4 +1,4 @@
-// port-lint: source tests:src/values/types/list/methods.rs
+// port-lint: tests src/values/types/list/methods.rs
 package io.github.kotlinmania.starlark.values.types.list
 
 /*
@@ -23,7 +23,6 @@ import io.github.kotlinmania.starlark.assert.Assert
 import kotlin.test.Test
 
 class ListMethodsTest {
-
     @Test
     fun testErrorCodes() {
         Assert.fail(

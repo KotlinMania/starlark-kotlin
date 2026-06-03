@@ -1,4 +1,4 @@
-// port-lint: source tests:src/eval/runtime/profile/csv.rs
+// port-lint: tests src/eval/runtime/profile/csv.rs
 package io.github.kotlinmania.starlark.eval.runtime.profile
 
 /*
@@ -20,11 +20,12 @@ package io.github.kotlinmania.starlark.eval.runtime.profile
  */
 
 import io.github.kotlinmania.starlark.eval.runtime.SmallDuration
+import io.github.kotlinmania.starlark.eval.runtime.profile.csv.CsvWriter
+import io.github.kotlinmania.starlark.eval.runtime.profile.csv.quoteStrForCsv
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
 class CsvTest {
-
     @Test
     fun testCsvWriter() {
         val csv = CsvWriter(listOf("File", "Count", "Duration"))

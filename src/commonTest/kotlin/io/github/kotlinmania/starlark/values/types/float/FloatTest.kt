@@ -1,4 +1,4 @@
-// port-lint: source tests:src/values/types/float/float.rs
+// port-lint: tests src/values/types/float/float.rs
 package io.github.kotlinmania.starlark.values.types.float
 
 /*
@@ -7,7 +7,7 @@ package io.github.kotlinmania.starlark.values.types.float
  * Copyright (c) 2025 Sydney Renee, The Solace Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not import this file except in compliance with the License.
+ * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
  *     https://www.apache.org/licenses/LICENSE-2.0
@@ -20,9 +20,96 @@ package io.github.kotlinmania.starlark.values.types.float
  */
 
 import io.github.kotlinmania.starlark.assert.Assert
+import kotlin.math.E
+import kotlin.math.PI
 import kotlin.test.Test
+import kotlin.test.assertEquals
 
-class FloatTest {
+private fun nonFinite(f: Double): String {
+    val buffer = StringBuilder()
+    writeNonFinite(buffer, f)
+    return buffer.toString()
+}
+
+@Suppress("SameParameterValue")
+private fun decimal(f: Double): String {
+    val buffer = StringBuilder()
+    writeDecimal(buffer, f)
+    return buffer.toString()
+}
+
+private fun scientific(f: Double): String {
+    val buffer = StringBuilder()
+    writeScientific(buffer, f, 'e', false)
+    return buffer.toString()
+}
+
+private fun compact(f: Double): String {
+    val buffer = StringBuilder()
+    writeCompact(buffer, f, 'e')
+    return buffer.toString()
+}
+
+internal class FloatTest {
+    @Test
+    fun testWriteNonFinite() {
+        assertEquals("nan", nonFinite(Double.NaN))
+        assertEquals("+inf", nonFinite(Double.POSITIVE_INFINITY))
+        assertEquals("-inf", nonFinite(Double.NEGATIVE_INFINITY))
+    }
+
+    @Test
+    fun testWriteDecimal() {
+        assertEquals("nan", decimal(Double.NaN))
+        assertEquals("+inf", decimal(Double.POSITIVE_INFINITY))
+        assertEquals("-inf", decimal(Double.NEGATIVE_INFINITY))
+        assertEquals("0.000000", decimal(0.0))
+        assertEquals("3.141593", decimal(PI))
+        assertEquals("-2.718282", decimal(-E))
+        assertEquals("10000000000.000000", decimal(1e10))
+    }
+
+    @Test
+    fun testWriteScientific() {
+        assertEquals("nan", scientific(Double.NaN))
+        assertEquals("+inf", scientific(Double.POSITIVE_INFINITY))
+        assertEquals("-inf", scientific(Double.NEGATIVE_INFINITY))
+        assertEquals("0.000000e+00", scientific(0.0))
+        assertEquals("-0.000000e+00", scientific(-0.0))
+        assertEquals("1.230000e+45", scientific(1.23e45))
+        assertEquals("-3.140000e-145", scientific(-3.14e-145))
+        assertEquals("1.000000e+300", scientific(1e300))
+    }
+
+    @Test
+    fun testWriteCompact() {
+        assertEquals("nan", compact(Double.NaN))
+        assertEquals("+inf", compact(Double.POSITIVE_INFINITY))
+        assertEquals("-inf", compact(Double.NEGATIVE_INFINITY))
+        assertEquals("0.0", compact(0.0))
+        assertEquals("3.141592653589793", compact(PI))
+        assertEquals("-2.718281828459045", compact(-E))
+        assertEquals("1e+10", compact(1e10))
+        assertEquals("1.23e+45", compact(1.23e45))
+        assertEquals("-3.14e-145", compact(-3.14e-145))
+        assertEquals("1e+300", compact(1e300))
+    }
+
+    @Test
+    fun testArithmeticOperators() {
+        Assert.allTrue(
+            """
++1.0 == 1.0
+-1.0 == 0. - 1.
+1.0 + 2.0 == 3.0
+1.0 - 2.0 == -1.0
+2.0 * 3.0 == 6.0
+5.0 / 2.0 == 2.5
+5.0 % 3.0 == 2.0
+5.0 // 2.0 == 2.0
+""",
+        )
+    }
 
     @Test
     fun testDictionaryKey() {
@@ -34,14 +121,13 @@ assert_eq(x[0], 123)
 assert_eq(x[noop(0.0)], 123)
 assert_eq(x[noop(-0.0)], 123)
 assert_eq(1 in x, False)
-        """,
+""",
         )
     }
 
     @Test
     fun testComparisons() {
         val a = Assert()
-        // TODO(nga): fix and enable.
         a.disableStaticTypechecking()
         a.allTrue(
             """

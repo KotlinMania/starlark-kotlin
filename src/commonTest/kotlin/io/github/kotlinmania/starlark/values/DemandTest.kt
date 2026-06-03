@@ -1,4 +1,4 @@
-// port-lint: source tests:src/values/demand.rs
+// port-lint: tests src/values/demand.rs
 package io.github.kotlinmania.starlark.values
 
 /*
@@ -13,6 +13,8 @@ package io.github.kotlinmania.starlark.values
  *     https://www.apache.org/licenses/LICENSE-2.0
  */
 
+import io.github.kotlinmania.starlark.values.demand.Demand
+import io.github.kotlinmania.starlark.values.layout.avalues.simple.allocSimple
 import io.github.kotlinmania.starlark.values.layout.heap.Heap
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -20,16 +22,20 @@ import kotlin.test.assertNotNull
 import kotlin.test.assertNull
 
 class DemandTest {
-
     private interface SomeTrait {
         fun payload(): Int
     }
 
-    private class MyValue(val payload: Int) : StarlarkValue, SomeTrait {
+    private class MyValue(
+        val payload: Int,
+    ) : StarlarkValue,
+        SomeTrait {
         override val TYPE: String get() = "MyValue"
+
         override fun payload(): Int = payload
+
         override fun provide(demand: Demand) {
-            demand.provideValue<SomeTrait>(this)
+            demand.provideValue(this)
         }
     }
 

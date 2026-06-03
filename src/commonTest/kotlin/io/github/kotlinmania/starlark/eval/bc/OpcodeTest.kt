@@ -1,4 +1,6 @@
-// port-lint: source tests:src/eval/bc/opcode.rs
+// port-lint: tests src/eval/bc/opcode.rs
+@file:Suppress("USELESS_CAST")
+
 package io.github.kotlinmania.starlark.eval.bc
 
 /*
@@ -7,7 +9,7 @@ package io.github.kotlinmania.starlark.eval.bc
  * Copyright (c) 2025 Sydney Renee, The Solace Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not import this file except in compliance with the License.
+ * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
  *     https://www.apache.org/licenses/LICENSE-2.0
@@ -18,14 +20,13 @@ import kotlin.test.assertNotNull
 import kotlin.test.assertNull
 
 class OpcodeTest {
-
     @Test
     fun opcodeCount() {
         for (i in 0 until 10000) {
             if (i < BcOpcode.COUNT) {
-                assertNotNull(BcOpcode.byNumber(i))
+                assertNotNull(BcOpcode.byNumber(i.toUInt()))
             } else {
-                assertNull(BcOpcode.byNumber(i))
+                assertNull(BcOpcode.byNumber(i.toUInt()))
             }
         }
     }

@@ -1,4 +1,4 @@
-// port-lint: source tests:src/values/types/dict/methods.rs
+// port-lint: tests src/values/types/dict/methods.rs
 package io.github.kotlinmania.starlark.values.types.dict
 
 /*
@@ -23,7 +23,6 @@ import io.github.kotlinmania.starlark.assert.Assert
 import kotlin.test.Test
 
 class DictMethodsTest {
-
     @Test
     fun testErrorCodes() {
         Assert.fail("""x = {"one": 1}; x.pop("four")""", "not found")

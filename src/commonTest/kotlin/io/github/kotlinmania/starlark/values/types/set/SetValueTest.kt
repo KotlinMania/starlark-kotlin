@@ -1,4 +1,4 @@
-// port-lint: source tests:src/values/types/set/value.rs
+// port-lint: tests src/values/types/set/value.rs
 package io.github.kotlinmania.starlark.values.types.set
 
 /*
@@ -23,7 +23,6 @@ import io.github.kotlinmania.starlark.assert.Assert
 import kotlin.test.Test
 
 class SetValueTest {
-
     @Test
     fun testBitOr() {
         Assert.eq("set([1, 2, 3]) | set([3, 4])", "set([1, 2, 3, 4])")

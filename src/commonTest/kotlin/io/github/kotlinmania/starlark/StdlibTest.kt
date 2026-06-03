@@ -1,4 +1,4 @@
-// port-lint: source tests:src/stdlib.rs
+// port-lint: tests src/stdlib.rs
 package io.github.kotlinmania.starlark
 
 /*
@@ -21,13 +21,23 @@ package io.github.kotlinmania.starlark
 
 import io.github.kotlinmania.starlark.assert.Assert
 import io.github.kotlinmania.starlark.environment.GlobalsBuilder
+import io.github.kotlinmania.starlark.environment.Methods
 import io.github.kotlinmania.starlark.environment.MethodsBuilder
+import io.github.kotlinmania.starlark.environment.MethodsStatic
+import io.github.kotlinmania.starlark.typing.Ty
+import io.github.kotlinmania.starlark.typing.TyStarlarkValue
+import io.github.kotlinmania.starlark.values.AllocFrozenValue
+import io.github.kotlinmania.starlark.values.StarlarkValue
+import io.github.kotlinmania.starlark.values.layout.FrozenValue
+import io.github.kotlinmania.starlark.values.layout.Value
+import io.github.kotlinmania.starlark.values.layout.avalues.simple.allocSimple
+import io.github.kotlinmania.starlark.values.layout.heap.FrozenHeap
+import io.github.kotlinmania.starlark.values.layout.heap.Heap
 import io.github.kotlinmania.starlark.values.types.none.NoneType
 import kotlin.test.Test
 import kotlin.test.assertNotNull
 
 class StdlibTest {
-
     @Test
     fun testNoArg() {
         fun global(builder: GlobalsBuilder) {
@@ -44,25 +54,10 @@ class StdlibTest {
     fun testValueAttributes() {
         // Mirrors the Rust upstream pattern: a tiny `Bool2` value type with two
         // attribute methods, then a battery of dir/hasattr/getattr assertions.
-        // The Kotlin port wires the two attribute methods through MethodsBuilder
-        // by name; the Bool2 starlark value lives behind globalsAdd for parity.
-
-        fun methods(builder: MethodsBuilder) {
-            fun invert1(thisVal: io.github.kotlinmania.starlark.values.layout.Value): Result<io.github.kotlinmania.starlark.values.layout.Value> {
-                return Result.success(io.github.kotlinmania.starlark.values.layout.Value.newBool(!thisVal.unpackBool()!!))
-            }
-
-            fun invert2(thisVal: io.github.kotlinmania.starlark.values.layout.Value): Result<io.github.kotlinmania.starlark.values.layout.Value> {
-                return Result.success(io.github.kotlinmania.starlark.values.layout.Value.newBool(!thisVal.unpackBool()!!))
-            }
-
-            builder.setAttribute("invert1") { thisVal, _ -> invert1(thisVal) }
-            builder.setMethod("invert2") { eval, thisVal, _, _ -> invert2(thisVal) }
-        }
 
         fun globals(builder: GlobalsBuilder) {
-            builder.setConst("True2", io.github.kotlinmania.starlark.values.layout.Value.newBool(true))
-            builder.setConst("False2", io.github.kotlinmania.starlark.values.layout.Value.newBool(false))
+            builder.setConst("True2", Bool2(true))
+            builder.setConst("False2", Bool2(false))
         }
 
         val a = Assert()
@@ -83,5 +78,45 @@ getattr(True2, "invert1") == False2
 getattr(True2, "invert2")() == False2
 """,
         )
+    }
+}
+
+private class Bool2(
+    val value: Boolean,
+) : StarlarkValue,
+    AllocFrozenValue {
+    override val TYPE: String get() = "bool2"
+    override val HAS_equals: Boolean get() = true
+
+    override fun toString(): String = if (value) "True2" else "False2"
+
+    override fun starlarkTypeRepr(): Ty = Ty.starlarkValue(TyStarlarkValue.new(TYPE))
+
+    override fun getMethods(): Methods? = Companion.methodsStatic.methods(::methods)
+
+    override fun allocFrozenValue(heap: FrozenHeap): FrozenValue = heap.allocSimple(this)
+
+    override fun equals(other: Value): Result<Boolean> {
+        val otherBool = other.downcastRef<Bool2>() ?: return Result.success(false)
+        return Result.success(otherBool.value == value)
+    }
+
+    companion object {
+        private val methodsStatic = MethodsStatic()
+
+        fun methods(builder: MethodsBuilder) {
+            fun invert1(thisVal: Value, heap: Heap): Result<Value> =
+                Result.success(
+                    heap.allocSimple(Bool2(!thisVal.downcastRef<Bool2>()!!.value)),
+                )
+
+            fun invert2(thisVal: Value, heap: Heap): Result<Value> =
+                Result.success(
+                    heap.allocSimple(Bool2(!thisVal.downcastRef<Bool2>()!!.value)),
+                )
+
+            builder.setAttribute("invert1") { thisVal, heap -> invert1(thisVal, heap) }
+            builder.setMethod("invert2") { eval, thisVal, _, _ -> invert2(thisVal, eval.heap()) }
+        }
     }
 }

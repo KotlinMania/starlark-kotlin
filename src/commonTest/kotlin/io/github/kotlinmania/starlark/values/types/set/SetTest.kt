@@ -1,4 +1,4 @@
-// port-lint: source tests:src/values/types/set/set.rs
+// port-lint: tests src/values/types/set/set.rs
 package io.github.kotlinmania.starlark.values.types.set
 
 /*
@@ -7,7 +7,7 @@ package io.github.kotlinmania.starlark.values.types.set
  * Copyright (c) 2025 Sydney Renee, The Solace Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not import this file except in compliance with the License.
+ * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
  *     https://www.apache.org/licenses/LICENSE-2.0
@@ -22,8 +22,7 @@ package io.github.kotlinmania.starlark.values.types.set
 import io.github.kotlinmania.starlark.assert.Assert
 import kotlin.test.Test
 
-class SetTest {
-
+internal class SetTest {
     @Test
     fun testSetTypeAsTypeCompileTime() {
         Assert.fail(
@@ -35,8 +34,7 @@ s = set(['not_int'])
 
 f_fail_ct(s)
 """,
-            // Is it actually runtime or compile time error?
-            """Value `set(["not_int"])` of type `set` does not match the type annotation `set[int]` for argument `x`""",
+            "Value `set([\"not_int\"])` of type `set` does not match the type annotation `set[int]` for argument `x`",
         )
     }
 
@@ -49,8 +47,7 @@ def f_fail_ct(x: str) -> set[int]:
 
 f_fail_ct('not_int')
 """,
-            // Is it actually runtime or compile time error?
-            """Value `set(["not_int"])` of type `set` does not match the type annotation `set[int]` for return type""",
+            "Value `set([\"not_int\"])` of type `set` does not match the type annotation `set[int]` for return type",
         )
     }
 
@@ -65,7 +62,7 @@ s = set(['not_int'])
 
 noop(f_fail_rt)(s)
 """,
-            """Value `set(["not_int"])` of type `set` does not match the type annotation `set[int]` for argument `x`""",
+            "Value `set([\"not_int\"])` of type `set` does not match the type annotation `set[int]` for argument `x`",
         )
     }
 }

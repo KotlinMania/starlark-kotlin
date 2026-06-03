@@ -1,4 +1,4 @@
-// port-lint: source tests:src/analysis/incompatible.rs
+// port-lint: tests src/analysis/incompatible.rs
 package io.github.kotlinmania.starlark.analysis
 
 /*
@@ -25,10 +25,7 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 
 class IncompatibleTest {
-
-    private fun module(x: String): AstModule {
-        return AstModule.parse("bad.py", x, Dialect.AllOptionsInternal).getOrThrow()
-    }
+    private fun module(x: String): AstModule = AstModule.parse("bad.py", x, Dialect.AllOptionsInternal).getOrThrow()
 
     @Test
     fun testLintIncompatible() {
@@ -39,13 +36,13 @@ class IncompatibleTest {
 def foo():
     if type(x) == str and type(y) == type(list) and type(z) == foobar:
         pass
-"""
+""",
             ),
             res,
         )
         assertEquals(
             listOf(
-                "bad.py:3:8-22: Type check `(type(x) == str)` should be written `type(x) == type(\"\")`"
+                "bad.py:3:8-22: Type check `(type(x) == str)` should be written `type(x) == type(\"\")`",
             ),
             res.map { it.toString() },
         )
@@ -53,8 +50,9 @@ def foo():
 
     @Test
     fun testLintDuplicateTopLevelAssign() {
-        val m = module(
-            """
+        val m =
+            module(
+                """
 load("file", "foo", "no3", "no4")
 no1 = 1
 no1 = 4
@@ -68,16 +66,18 @@ def no2():
     x = 1
     x += 1
     return x
-"""
-        )
+""",
+            )
         val res = mutableListOf<LintT<Incompatibility>>()
         duplicateTopLevelAssignment(m, res)
-        val names = res.map { lt ->
-            when (val problem = lt.problem) {
-                is Incompatibility.DuplicateTopLevelAssign -> problem.name
-                else -> error("Unexpected lint")
-            }
-        }.sorted()
+        val names =
+            res
+                .map { lt ->
+                    when (val problem = lt.problem) {
+                        is Incompatibility.DuplicateTopLevelAssign -> problem.name
+                        else -> error("Unexpected lint")
+                    }
+                }.sorted()
         assertEquals(listOf("no1", "no1", "no2", "no3", "no4"), names)
     }
 }

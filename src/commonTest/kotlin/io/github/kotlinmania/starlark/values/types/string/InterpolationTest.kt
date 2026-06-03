@@ -1,4 +1,4 @@
-// port-lint: source tests:src/values/types/string/interpolation.rs
+// port-lint: tests src/values/types/string/interpolation.rs
 package io.github.kotlinmania.starlark.values.types.string
 
 /*
@@ -25,7 +25,6 @@ import kotlin.test.assertEquals
 import kotlin.test.assertNull
 
 class InterpolationTest {
-
     @Test
     fun testIncompleteFormat() {
         Assert.fail("'%' % ()", "Incomplete format")

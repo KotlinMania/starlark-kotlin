@@ -1,4 +1,4 @@
-// port-lint: source tests:src/analysis.rs
+// port-lint: tests src/analysis.rs
 package io.github.kotlinmania.starlark
 
 /*
@@ -27,15 +27,13 @@ import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
 class AnalysisTest {
-
-    private fun module(x: String): AstModule {
-        return AstModule.parse("X", x, Dialect.AllOptionsInternal).getOrThrow()
-    }
+    private fun module(x: String): AstModule = AstModule.parse("X", x, Dialect.AllOptionsInternal).getOrThrow()
 
     @Test
     fun testLintSuppressionsKeywordMatching() {
-        val m = module(
-            """
+        val m =
+            module(
+                """
 def good1() -> str: #starlark-lint-disable missing-return
     pass
 def bad1() -> str: # invalid suppression starlark-lint-disable missing-return
@@ -46,8 +44,8 @@ def good2() -> str:
     pass       # starlark-lint-disable  ,,missing-return, misplaced-load , missing-return ,,
 def bad3() -> str:
     pass       # # starlark-lint-disable missing-return # invalid prefix
-"""
-        )
+""",
+            )
         val res = m.lint(null)
         assertEquals(3, res.size)
         assertTrue("bad1" in res[0].problem)
@@ -57,8 +55,9 @@ def bad3() -> str:
 
     @Test
     fun testLintSuppressionsFnWithManyIssues() {
-        val m = module(
-            """
+        val m =
+            module(
+                """
 def bad1(items):
     a = all(items)
     b = all({"a": a for a in []})
@@ -78,8 +77,8 @@ def good1(items):
     h = all({"h": h for h in []})
     # starlark-lint-disable inefficient-bool-check
     i = any(list({})) # starlark-lint-disable unused-assign
-"""
-        )
+""",
+            )
         val res = m.lint(null)
         assertEquals(10, res.size)
         assertTrue("Unused assignment of `a`" in res[0].problem)
@@ -96,8 +95,9 @@ def good1(items):
 
     @Test
     fun testLintSuppressionsPrecedingWhitespace() {
-        val m = module(
-            """
+        val m =
+            module(
+                """
 def bad():
     a = 1
 
@@ -105,8 +105,8 @@ def good():
     # starlark-lint-disable unused-assign
     # extra comment
     b = 1
-"""
-        )
+""",
+            )
         val res = m.lint(null)
         assertEquals(1, res.size)
         assertTrue("Unused assignment of `a`" in res[0].problem)
@@ -114,27 +114,29 @@ def good():
 
     @Test
     fun testLintSuppressionsWithSpaceSeparator() {
-        val m = module(
-            """
+        val m =
+            module(
+                """
 def good():
     #    starlark-lint-disable unused-assign FIXME
     b = 1
-"""
-        )
+""",
+            )
         val res = m.lint(null)
         assertTrue(res.isEmpty())
     }
 
     @Test
     fun testLintSuppressionsMultilineSpan() {
-        val m = module(
-            """
+        val m =
+            module(
+                """
 def bad() -> str:
     pass
 def good() -> str:
     pass       # starlark-lint-disable missing-return
-"""
-        )
+""",
+            )
         val res = m.lint(null)
         assertEquals(1, res.size)
         assertTrue("bad" in res[0].problem)
@@ -142,14 +144,15 @@ def good() -> str:
 
     @Test
     fun testLintSuppressionsSmallSpan() {
-        val m = module(
-            """
+        val m =
+            module(
+                """
 load("@cell//t:rust_library.bzl", "rust_library") # starlark-lint-disable unused-load
 
 def bad() -> str:
     pass
-"""
-        )
+""",
+            )
         val res = m.lint(null)
         assertEquals(1, res.size)
         assertTrue("bad" in res[0].problem)
@@ -157,8 +160,9 @@ def bad() -> str:
 
     @Test
     fun testLintSuppressionsData() {
-        val m = module(
-            """
+        val m =
+            module(
+                """
 {no3: 1, no4: 2, yes: 3, no3: 3}
 
 # starlark-lint-disable duplicate-key
@@ -188,18 +192,19 @@ def bad() -> str:
     yes: 3,
     no3: 3
 }
-"""
-        )
+""",
+            )
         val res = m.lint(null)
         assertEquals(2, res.size)
-        assertEquals(Pos.new(2u), res[0].location.span.begin)
-        assertEquals(Pos.new(183u), res[1].location.span.begin)
+        assertEquals(Pos(2), res[0].location.span.begin)
+        assertEquals(Pos(183), res[1].location.span.begin)
     }
 
     @Test
     fun testLintSuppressionsLineBefore() {
-        val m = module(
-            """
+        val m =
+            module(
+                """
 # starlark-lint-disable unused-load
 load("@cell//buck/lib:rust_library.bzl", "rust_library")
 load("@cell//buck/lib:rust_binary.bzl", "rust_binary")
@@ -222,8 +227,8 @@ def good2() -> str:
 # starlark-lint-disable unused-load
 def good3() -> str:
     pass
-"""
-        )
+""",
+            )
         val res = m.lint(null)
         assertEquals(2, res.size)
         assertTrue("bad1" in res[0].problem)
@@ -232,18 +237,20 @@ def good3() -> str:
 
     @Test
     fun testLintSuppressionsLineBeforeWindowsNewlines() {
-        val src = module(
-            "# starlark-lint-disable unused-load\r\n" +
-                "load('@cell//buck/lib:rust_library.bzl', 'rust_library')"
-        )
+        val src =
+            module(
+                "# starlark-lint-disable unused-load\r\n" +
+                    "load('@cell//buck/lib:rust_library.bzl', 'rust_library')",
+            )
         val res = src.lint(null)
         assertTrue(res.isEmpty())
     }
 
     @Test
     fun testLintSuppressionsInsideFn() {
-        val m = module(
-            """
+        val m =
+            module(
+                """
 def bad1() -> str:
     pass
 
@@ -253,8 +260,8 @@ def good1() -> str:
 
 def good2() -> str:
     pass # starlark-lint-disable missing-return
-"""
-        )
+""",
+            )
         val res = m.lint(null)
         assertEquals(1, res.size)
         assertTrue("bad1" in res[0].problem)

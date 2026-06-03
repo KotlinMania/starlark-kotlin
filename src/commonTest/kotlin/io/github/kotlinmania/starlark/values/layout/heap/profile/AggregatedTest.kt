@@ -1,4 +1,6 @@
-// port-lint: source tests:src/values/layout/heap/profile/aggregated.rs
+// port-lint: tests src/values/layout/heap/profile/aggregated.rs
+@file:Suppress("USELESS_CAST")
+
 package io.github.kotlinmania.starlark.values.layout.heap.profile
 
 /*
@@ -20,20 +22,18 @@ package io.github.kotlinmania.starlark.values.layout.heap.profile
  */
 
 import io.github.kotlinmania.starlark.values.layout.Freezer
+import io.github.kotlinmania.starlark.values.layout.constFrozenString
 import io.github.kotlinmania.starlark.values.layout.heap.FrozenHeap
 import io.github.kotlinmania.starlark.values.layout.heap.Heap
 import io.github.kotlinmania.starlark.values.layout.heap.HeapKind
-import io.github.kotlinmania.starlark.values.layout.heap.profile.summaryByFunction.HeapSummaryByFunction
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
 class AggregatedTest {
-
-    private fun totalAllocCount(frame: StackFrame): Int {
-        return frame.allocs.total().count +
-            frame.callees.values.sumOf { c -> totalAllocCount(c) }
-    }
+    private fun totalAllocCount(frame: StackFrame): Int =
+        frame.allocs.total().count +
+            frame.callees.values().sumOf { c -> totalAllocCount(c) }
 
     @Test
     fun testStacksCollect() {
@@ -44,8 +44,11 @@ class AggregatedTest {
             heap.recordCallExit()
 
             val stacks = AggregateHeapProfileInfo.collect(heap, null)
-            assertTrue(stacks.root.allocs.summary.isEmpty())
-            assertEquals(1, stacks.root.callees.size)
+            assertTrue(
+                stacks.root.allocs.summary
+                    .isEmpty(),
+            )
+            assertEquals(1, stacks.root.callees.len())
             assertEquals(2, totalAllocCount(stacks.root))
         }
     }
@@ -61,17 +64,23 @@ class AggregatedTest {
 
             val frozenHeap = FrozenHeap.new()
             val freezer = Freezer(frozenHeap)
-            freezer.freeze(s0.toValue()).getOrThrow()
-            freezer.freeze(s1.toValue()).getOrThrow()
+            freezer.freeze(s0).getOrThrow()
+            freezer.freeze(s1).getOrThrow()
 
             val stacks = AggregateHeapProfileInfo.collect(heap, HeapKind.Frozen)
-            assertTrue(stacks.root.allocs.summary.isEmpty())
-            assertEquals(1, stacks.root.callees.size)
+            assertTrue(
+                stacks.root.allocs.summary
+                    .isEmpty(),
+            )
+            assertEquals(1, stacks.root.callees.len())
             // 3 allocated, 2 retained.
             assertEquals(
                 2,
-                stacks.root.callees.values.first()
-                    .allocs.summary["string"]!!.count,
+                stacks.root.callees
+                    .values()
+                    .first()
+                    .allocs.summary["string"]!!
+                    .count,
             )
             assertEquals(2, totalAllocCount(stacks.root))
         }
@@ -79,24 +88,23 @@ class AggregatedTest {
 
     @Test
     fun testMerge() {
-        fun make(): AggregateHeapProfileInfo {
-            return Heap.temp { heap ->
+        fun make(): AggregateHeapProfileInfo =
+            Heap.temp { heap ->
                 heap.recordCallEnter(constFrozenString("xx").toValue())
                 val s = heap.allocStr("abc")
                 heap.recordCallExit()
                 val frozenHeap = FrozenHeap.new()
                 val freezer = Freezer(frozenHeap)
-                freezer.freeze(s.toValue()).getOrThrow()
+                freezer.freeze(s).getOrThrow()
 
                 AggregateHeapProfileInfo.collect(heap, HeapKind.Frozen)
             }
-        }
 
         val merge = AggregateHeapProfileInfo.merge(listOf(make(), make(), make()))
         val summary = HeapSummaryByFunction.init(merge)
         assertEquals(1, summary.info().size)
         val (xxId, xxInfo) = summary.info()[0]
-        assertEquals("xx", xxId.toString())
-        assertEquals(3, xxInfo.alloc["string"]!!.count)
+        assertEquals("xx", xxId)
+        assertEquals(3, xxInfo.allocations["string"]!!.count)
     }
 }

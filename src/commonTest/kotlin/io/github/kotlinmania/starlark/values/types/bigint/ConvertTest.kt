@@ -1,4 +1,4 @@
-// port-lint: source tests:src/values/types/bigint/convert.rs
+// port-lint: tests src/values/types/bigint/convert.rs
 package io.github.kotlinmania.starlark.values.types.bigint
 
 /*
@@ -21,7 +21,8 @@ package io.github.kotlinmania.starlark.values.types.bigint
 
 import io.github.kotlinmania.starlark.assert.Assert
 import io.github.kotlinmania.starlark.environment.GlobalsBuilder
-import io.github.kotlinmania.starlark.values.none.NoneType
+import io.github.kotlinmania.starlark.values.types.int.I32UnpackValue
+import io.github.kotlinmania.starlark.values.types.none.NoneType
 import kotlin.test.Test
 
 class ConvertTest {
@@ -29,7 +30,6 @@ class ConvertTest {
     fun testUnpackIntError() {
         fun module(globals: GlobalsBuilder) {
             fun takesI32(i: Int): Result<NoneType> {
-                // Mirrors Rust `fn takes_i32(_i: i32) -> Result<NoneType>` — parameter
                 // is consumed only for type-binding by the unpacker.
                 i.toLong()
                 return Result.success(NoneType)
@@ -41,17 +41,11 @@ class ConvertTest {
             }
 
             globals.setFunction("takes_i32") { args, _ ->
-                val v = args.positional<Long>(0)
-                if (v < Int.MIN_VALUE || v > Int.MAX_VALUE) {
-                    Result.failure(Exception("Integer value is too big to fit in i32: $v"))
-                } else {
-                    takesI32(v.toInt())
-                }
+                takesI32(I32UnpackValue.unpackNamedParam(args.positionalAll()[0], "_i"))
             }
 
             globals.setFunction("takes_i64") { args, _ ->
-                val v = args.positional<Long>(0)
-                takesI64(v)
+                takesI64(I64UnpackValue.unpackNamedParam(args.positionalAll()[0], "_i"))
             }
         }
 

@@ -1,4 +1,4 @@
-// port-lint: source tests:src/values/typing/type_type.rs
+// port-lint: tests src/values/typing/type_type.rs
 package io.github.kotlinmania.starlark.values.typing
 
 /*
@@ -15,11 +15,13 @@ package io.github.kotlinmania.starlark.values.typing
 
 import io.github.kotlinmania.starlark.assert.Assert
 import io.github.kotlinmania.starlark.environment.GlobalsBuilder
+import io.github.kotlinmania.starlark.typing.ParamSpec
+import io.github.kotlinmania.starlark.typing.Ty
 import io.github.kotlinmania.starlark.values.types.none.NoneType
+import io.github.kotlinmania.starlark.values.typing.ty.AbstractType
 import kotlin.test.Test
 
 class TypeTypeTest {
-
     @Test
     fun test() {
         fun module(globals: GlobalsBuilder) {
@@ -27,8 +29,23 @@ class TypeTypeTest {
                 t.toString()
                 return Result.success(NoneType)
             }
-            globals.setFunction("takes_type") { args, _ ->
-                takesType(args.positional<TypeType>(0))
+            val TypeTypeUnpacker =
+                object : io.github.kotlinmania.starlark.values.UnpackValue<TypeType> {
+                    override fun starlarkTypeRepr(): Ty = AbstractType.starlarkTypeRepr()
+
+                    override fun unpackValueImpl(value: io.github.kotlinmania.starlark.values.layout.Value): Result<TypeType?> =
+                        Result.success(TypeType.unpackValue(value))
+                }
+            globals.setFunction(
+                name = "takes_type",
+                ty =
+                    Ty.function(
+                        ParamSpec.posOnly(listOf(AbstractType.starlarkTypeRepr())),
+                        Ty.none(),
+                    ),
+            ) { args, _ ->
+                val t = TypeTypeUnpacker.unpackNamedParam(args.positionalAll()[0], "_t")
+                takesType(t)
             }
         }
 

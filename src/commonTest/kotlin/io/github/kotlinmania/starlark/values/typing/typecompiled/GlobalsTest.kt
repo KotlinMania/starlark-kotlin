@@ -1,4 +1,4 @@
-// port-lint: source tests:src/values/typing/type_compiled/globals.rs
+// port-lint: tests src/values/typing/type_compiled/globals.rs
 package io.github.kotlinmania.starlark.values.typing.typecompiled
 
 /*
@@ -17,7 +17,6 @@ import io.github.kotlinmania.starlark.assert.Assert
 import kotlin.test.Test
 
 class GlobalsTest {
-
     @Test
     fun testTypechecking() {
         Assert.fail(
