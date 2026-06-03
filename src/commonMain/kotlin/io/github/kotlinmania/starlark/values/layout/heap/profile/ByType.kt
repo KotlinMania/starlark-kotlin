@@ -1,4 +1,3 @@
-@file:OptIn(kotlin.experimental.ExperimentalObjCRefinement::class)
 // port-lint: source src/values/layout/heap/profile/by_type.rs
 
 package io.github.kotlinmania.starlark.values.layout.heap.profile
@@ -23,7 +22,6 @@ package io.github.kotlinmania.starlark.values.layout.heap.profile
 
 import io.github.kotlinmania.starlark.values.layout.heap.profile.alloccounts.AllocCounts
 import io.github.kotlinmania.starlark.values.layout.heap.profile.alloccounts.sum
-import kotlin.native.HiddenFromObjC
 
 /**
  * Information about the data stored on a heap. Accessible through
@@ -39,8 +37,7 @@ class HeapSummary internal constructor(
     internal val summary: SmallMap<String, AllocCounts> = SmallMap(),
 ) {
     /** (Count, total size) by type. */
-    @HiddenFromObjC
-    internal fun summary(): Map<String, Pair<Int, Long>> {
+    fun summary(): Map<String, Pair<Int, Long>> {
         val result = mutableMapOf<String, Pair<Int, Long>>()
         for ((k, v) in summary) {
             result[k] = Pair(v.count, v.bytes)

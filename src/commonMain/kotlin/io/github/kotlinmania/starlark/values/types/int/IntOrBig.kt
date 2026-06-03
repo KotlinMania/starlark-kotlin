@@ -232,7 +232,7 @@ sealed class StarlarkInt {
         internal fun from(value: io.github.kotlinmania.starlark.syntax.lexer.TokenInt): StarlarkInt =
             when (value) {
                 is io.github.kotlinmania.starlark.syntax.lexer.TokenInt.I32 -> from(value.value)
-                is io.github.kotlinmania.starlark.syntax.lexer.TokenInt.BigInt -> from(value.value)
+                is io.github.kotlinmania.starlark.syntax.lexer.TokenInt.BigInt -> Big(value.value)
             }
     }
 }
