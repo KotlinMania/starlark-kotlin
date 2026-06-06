@@ -4,7 +4,6 @@ coroutines = "1.11.0"
 serialization = "1.11.0"
 datetime = "0.8.0"
 collectionsImmutable = "0.4.0"
-bignum = "0.3.10"
 androidKmp = "9.2.1"
 vanniktech = "0.36.0"
 detekt = "1.23.8"
@@ -24,7 +23,6 @@ kotlinx-serialization-core = { module = "org.jetbrains.kotlinx:kotlinx-serializa
 kotlinx-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "serialization" }
 kotlinx-datetime = { module = "org.jetbrains.kotlinx:kotlinx-datetime", version.ref = "datetime" }
 collections-immutable = { module = "org.jetbrains.kotlinx:kotlinx-collections-immutable", version.ref = "collectionsImmutable" }
-bignum = { module = "com.ionspin.kotlin:bignum", version.ref = "bignum" }
 
 [bundles]
 starlark-commonMain = [
@@ -33,5 +31,4 @@ starlark-commonMain = [
   "kotlinx-serialization-json",
   "kotlinx-datetime",
   "collections-immutable",
-  "bignum",
 ]

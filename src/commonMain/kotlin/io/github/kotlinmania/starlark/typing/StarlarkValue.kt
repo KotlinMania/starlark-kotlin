@@ -220,6 +220,26 @@ private object TyStarlarkValueVTableGet {
             typeName = "function",
             hasInvoke = true,
         )
+    val ENUM_VALUE_VTABLE =
+        TyStarlarkValueVTable(
+            typeName = "enum",
+            hasEvalType = true,
+            getMethods = {
+                io.github.kotlinmania.starlark.values.types.enumeration.value.enumValueMethods()
+            },
+        )
+    val ENUM_TYPE_VTABLE =
+        TyStarlarkValueVTable(
+            typeName = "function",
+            hasAt = true,
+            hasInvoke = true,
+            hasIterate = true,
+            hasIterateCollect = true,
+            hasEvalType = true,
+            getMethods = {
+                io.github.kotlinmania.starlark.values.types.enumeration.enumtype.enumTypeMethods()
+            },
+        )
 
     private val vtablesByName =
         mapOf(
@@ -509,6 +529,10 @@ class TyStarlarkValue private constructor(
         fun dict(): TyStarlarkValue = TyStarlarkValue(TyStarlarkValueVTableGet.DICT_VTABLE)
 
         fun set(): TyStarlarkValue = TyStarlarkValue(TyStarlarkValueVTableGet.SET_VTABLE)
+
+        fun enumValue(): TyStarlarkValue = TyStarlarkValue(TyStarlarkValueVTableGet.ENUM_VALUE_VTABLE)
+
+        fun enumType(): TyStarlarkValue = TyStarlarkValue(TyStarlarkValueVTableGet.ENUM_TYPE_VTABLE)
 
         /** Check if a vtable indicates the type is iterable. */
         private fun isIterable(vtable: TyStarlarkValueVTable): Boolean = vtable.hasIterate || vtable.hasIterateCollect

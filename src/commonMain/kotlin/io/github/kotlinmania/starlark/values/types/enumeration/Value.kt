@@ -88,10 +88,7 @@ class EnumValueGen(
 
     override fun writeHash(hasher: StarlarkHasher): Result<Unit> = value.writeHash(hasher)
 
-    override fun getMethods(): Methods {
-        val res = MethodsStatic()
-        return res.methods(::enumValueMethods)
-    }
+    override fun getMethods(): Methods = enumValueMethods()
 
     override fun typecheckerTy(): Ty? {
         val tyEnumType =
@@ -116,7 +113,11 @@ class EnumValueGen(
 typealias EnumValue = EnumValueGen
 typealias FrozenEnumValue = EnumValueGen
 
-fun enumValueMethods(methods: MethodsBuilder) {
+internal val ENUM_VALUE_METHODS_STATIC = MethodsStatic()
+
+internal fun enumValueMethods(): Methods = ENUM_VALUE_METHODS_STATIC.methods(::enumValueMethods)
+
+private fun enumValueMethods(methods: MethodsBuilder) {
     methods.setAttributeFn(
         name = "index",
         speculativeExecSafe = true,

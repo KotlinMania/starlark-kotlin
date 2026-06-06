@@ -39,7 +39,7 @@ group = providers.gradleProperty("project.group").getOrElse("io.github.kotlinman
 version = providers.gradleProperty("project.version").getOrElse("0.1.0-SNAPSHOT")
 val frameworkName = providers.gradleProperty("project.frameworkName").getOrElse("Unnamed")
 val projectNamespace = providers.gradleProperty("project.namespace").getOrElse("io.github.kotlinmania")
-val kotlinVersion = providers.gradleProperty("versions.kotlin").getOrElse("2.3.21")
+val kotlinVersion = providers.gradleProperty("versions.kotlin").getOrElse("2.4.0")
 val isCodeqlBuild = providers.gradleProperty("kotlinmania.codeql").map(String::toBoolean).getOrElse(false)
 val commonMainBundleName = providers.gradleProperty("project.dependencies.commonMainBundle").get()
 val commonMainDependencyBundle =
@@ -55,7 +55,6 @@ val commonOptIns =
         "kotlin.time.ExperimentalTime",
         "kotlin.concurrent.atomics.ExperimentalAtomicApi",
         "kotlin.ExperimentalUnsignedTypes",
-        "kotlinx.serialization.ExperimentalSerializationApi",
     )
 
 // ============================================================================
@@ -248,13 +247,12 @@ kotlin {
     applyDefaultHierarchyTemplate()
 
     compilerOptions {
-        languageVersion.set(KotlinVersion.KOTLIN_2_3)
-        apiVersion.set(KotlinVersion.KOTLIN_2_3)
+        languageVersion.set(KotlinVersion.KOTLIN_2_4)
+        apiVersion.set(KotlinVersion.KOTLIN_2_4)
         allWarningsAsErrors.set(!isCodeqlBuild)
         optIn.addAll(commonOptIns)
-        freeCompilerArgs.addAll(
-            "-Xexpect-actual-classes",
-        )
+        freeCompilerArgs.add("-Xexpect-actual-classes")
+        freeCompilerArgs.add("-Xsuppress-version-warnings")
     }
 
     val xcf = XCFramework(frameworkName)
@@ -313,15 +311,19 @@ kotlin {
         nodejs()
     }
 
-    // Swift Export bridge — Experimental per Kotlin 2.3.0 release notes.
-    // KGP 2.3.21 does not expose a public opt-in annotation; warnings (if any)
+    // Swift Export bridge — Experimental per Kotlin 2.4.0 release notes.
+    // KGP 2.4.0 does not expose a public opt-in annotation; warnings (if any)
     // arrive via KotlinToolingDiagnostics, not @RequiresOptIn.
     swiftExport {
         moduleName = frameworkName
         flattenPackage = projectNamespace
+        @OptIn(org.jetbrains.kotlin.gradle.swiftexport.ExperimentalSwiftExportDsl::class)
+        configure {
+            settings.put("enableCoroutinesSupport", "true")
+        }
     }
 
-    // Android KMP library. Block name is `android` — `androidLibrary` is deprecated in KGP 2.3.x.
+    // Android KMP library. Block name is `android` — `androidLibrary` is deprecated in current KGP.
     android {
         namespace = projectNamespace
         compileSdk = projectCompileSdk.toInt()
@@ -347,6 +349,12 @@ kotlin {
     }
 }
 
+tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompilationTask<*>>().configureEach {
+    if (name.startsWith("compileSwiftExport")) {
+        compilerOptions.allWarningsAsErrors.set(false)
+    }
+}
+
 // ============================================================================
 // Test logging
 // ============================================================================
@@ -365,9 +373,6 @@ tasks.withType<AbstractTestTask>().configureEach {
         showExceptions = true
         showStackTraces = true
         showStandardStreams = true
-    }
-    if (name.contains("BrowserTest")) {
-        failOnNoDiscoveredTests.set(false)
     }
 }
 
@@ -404,23 +409,7 @@ ktlint {
     }
     filter {
         exclude("**/build/**")
-        exclude("src/**/syntax/parser/Grammar.kt")
-        exclude("src/**/syntax/parser/GrammarReducers.kt")
         include("**/src/**/kotlin/**")
-    }
-}
-
-tasks.withType<org.jlleitschuh.gradle.ktlint.tasks.KtLintCheckTask>().configureEach {
-    exclude {
-        it.file.invariantSeparatorsPath.endsWith("/syntax/parser/Grammar.kt") ||
-            it.file.invariantSeparatorsPath.endsWith("/syntax/parser/GrammarReducers.kt")
-    }
-}
-
-tasks.withType<org.jlleitschuh.gradle.ktlint.tasks.KtLintFormatTask>().configureEach {
-    exclude {
-        it.file.invariantSeparatorsPath.endsWith("/syntax/parser/Grammar.kt") ||
-            it.file.invariantSeparatorsPath.endsWith("/syntax/parser/GrammarReducers.kt")
     }
 }
 
@@ -444,6 +433,17 @@ val wasmNodeVersion = providers.gradleProperty("wasm.node.version").getOrElse(no
 val yarnVersion = providers.gradleProperty("yarn.version").getOrElse("1.22.22")
 val wasmYarnVersion = providers.gradleProperty("wasm.yarn.version").getOrElse(yarnVersion)
 
+// webpack is pinned in kotlin-js-store/package.json — the single source of truth
+// that Dependabot updates natively. Gradle reads the version from there so the
+// yarn resolution and the NodeJsRootExtension pin always track the checked-in
+// store; a Dependabot bump of package.json/yarn.lock is honored rather than
+// overridden. (These two values previously lived in gradle.properties, which
+// Dependabot cannot see, so a bump there would silently revert the build.)
+@Suppress("UNCHECKED_CAST")
+val webpackVersion: String =
+    (groovy.json.JsonSlurper().parse(rootProject.file("kotlin-js-store/package.json")) as Map<String, Any>)
+        .let { it["dependencies"] as Map<String, Any> }["webpack"] as String
+
 rootProject.extensions.configure<NodeJsEnvSpec>("kotlinNodeJsSpec") { version.set(nodeVersion) }
 rootProject.extensions.configure<WasmNodeJsEnvSpec>("kotlinWasmNodeJsSpec") { version.set(wasmNodeVersion) }
 rootProject.extensions.configure<YarnRootEnvSpec>("kotlinYarnSpec") { version.set(yarnVersion) }
@@ -458,6 +458,11 @@ rootProject.extensions.configure<YarnRootExtension>("kotlinYarn") {
             resolution(pkg, ver)
             resolution("**/$pkg", ver)
         }
+    // webpack resolution sourced from kotlin-js-store/package.json (see above)
+    // rather than a yarn.resolution.webpack property, so it can never override a
+    // Dependabot bump of the store.
+    resolution("webpack", webpackVersion)
+    resolution("**/webpack", webpackVersion)
 }
 
 val patchedKarmaWebpackPackage =
@@ -469,7 +474,7 @@ val patchedKarmaWebpackPackage =
 // TODO: NodeJsRootExtension.versions.* is deprecated and will be removed when the spec-based
 //       NodeJsEnvSpec API gains equivalent properties. Track KGP release notes before removing.
 rootProject.extensions.configure<NodeJsRootExtension>("kotlinNodeJs") {
-    versions.webpack.version = providers.gradleProperty("node.webpack.version").getOrElse("5.106.2")
+    versions.webpack.version = webpackVersion
     versions.webpackCli.version = providers.gradleProperty("node.webpackCli.version").getOrElse("7.0.2")
     versions.karma.version = providers.gradleProperty("node.karma.version").getOrElse("npm:karma-maintained@6.4.7")
     versions.karmaWebpack.version = "file:$patchedKarmaWebpackPackage"
@@ -732,6 +737,23 @@ tasks.register("swiftExportSmokeTest") {
                 )
             }.assertNormalExitValue()
 
+        val generatedPackageSwift =
+            layout.buildDirectory
+                .file("SPMPackage/macosArm64/Debug/Package.swift")
+                .get()
+                .asFile
+        if (generatedPackageSwift.exists()) {
+            val text = generatedPackageSwift.readText()
+            if (!text.contains("platforms:")) {
+                generatedPackageSwift.writeText(
+                    text.replaceFirst(
+                        Regex("(name:\\s*\"[^\"]*\",)"),
+                        "\$1\n    platforms: [.macOS(.v14)],",
+                    ),
+                )
+            }
+        }
+
         execOperations
             .exec {
                 workingDir = layout.projectDirectory.dir("swift-test-harness").asFile
@@ -800,12 +822,4 @@ val fullTargetBuildTaskNames =
 
 tasks.named("build") {
     dependsOn(fullTargetBuildTaskNames)
-}
-
-tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinNativeLink>().configureEach {
-    doFirst {
-        val file = outputFile.get()
-        println("KOTLIN NATIVE LINK TASK: $name, OUTPUT: ${file.absolutePath}")
-        file.parentFile.mkdirs()
-    }
 }
