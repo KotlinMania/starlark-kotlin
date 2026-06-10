@@ -2,16 +2,9 @@
 package io.github.kotlinmania.starlark.values.types.enumeration.enumtype
 
 import io.github.kotlinmania.starlark.assert.Assert
-import kotlin.test.Ignore
 import kotlin.test.Test
 
 class EnumTypeTest {
-    // EnumTypeGen.exportAs() creates TyUser with TyUserIndex (indexable) but
-    // its TyStarlarkValue base uses FUNCTION_VTABLE (hasAt=false, hasIterate=false).
-    // The type checker rejects this: "Type `enum[Color]` specifies custom
-    // indexable, but underlying StarlarkValue is not indexable".
-    // Fix requires registering a proper vtable with hasAt=true and hasIterate=true.
-    @Ignore("EnumTypeGen vtable missing hasAt/hasIterate — TyUserError.IndexableNotIndexable")
     @Test
     fun testEnumTypeAsTypePass() {
         Assert().pass(
@@ -27,7 +20,6 @@ class EnumTypeTest {
         )
     }
 
-    @Ignore("EnumType.new() crashes with ClassCastException on StringValue")
     @Test
     fun testEnumTypeFailRuntime() {
         Assert().fail(
@@ -47,7 +39,6 @@ class EnumTypeTest {
         )
     }
 
-    @Ignore("EnumType.new() crashes with ClassCastException on StringValue")
     @Test
     fun testEnumTypeFailCompileTime() {
         Assert().fail(
@@ -65,7 +56,6 @@ class EnumTypeTest {
         )
     }
 
-    @Ignore("EnumType.new() crashes with ClassCastException on StringValue")
     @Test
     fun testEnumIsCallable() {
         Assert().pass(
@@ -81,7 +71,6 @@ class EnumTypeTest {
         )
     }
 
-    @Ignore("EnumType.new() crashes with ClassCastException on StringValue")
     @Test
     fun testEnumValueIndex() {
         Assert().pass(
@@ -98,7 +87,6 @@ class EnumTypeTest {
         )
     }
 
-    @Ignore("EnumType.new() crashes with ClassCastException on StringValue")
     @Test
     fun testEnumValueIndexCorrectType() {
         Assert().fail(
@@ -116,7 +104,6 @@ class EnumTypeTest {
         )
     }
 
-    @Ignore("EnumType.new() crashes with ClassCastException on StringValue")
     @Test
     fun testEnumIndex() {
         Assert().pass(
@@ -131,7 +118,6 @@ class EnumTypeTest {
         )
     }
 
-    @Ignore("EnumType.new() crashes with ClassCastException on StringValue")
     @Test
     fun testEnumIndexFail() {
         Assert().fail(
@@ -148,7 +134,6 @@ class EnumTypeTest {
         )
     }
 
-    @Ignore("EnumType.new() crashes with ClassCastException on StringValue")
     @Test
     fun testEnumCall() {
         Assert().fail(
@@ -165,7 +150,6 @@ class EnumTypeTest {
         )
     }
 
-    @Ignore("EnumType.new() crashes with ClassCastException on StringValue")
     @Test
     fun testEnumAttributeAccess() {
         Assert().pass(
@@ -190,7 +174,6 @@ class EnumTypeTest {
         )
     }
 
-    @Ignore("EnumType.new() crashes with ClassCastException on StringValue")
     @Test
     fun testEnumAttributeAccessInvalid() {
         Assert().fail(
@@ -206,7 +189,6 @@ class EnumTypeTest {
         )
     }
 
-    @Ignore("EnumType.new() crashes with ClassCastException on StringValue")
     @Test
     fun testEnumAttributeAccessType() {
         Assert().fail(

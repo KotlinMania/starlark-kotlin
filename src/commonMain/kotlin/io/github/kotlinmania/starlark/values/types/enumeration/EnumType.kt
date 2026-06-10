@@ -180,7 +180,7 @@ class EnumTypeGen internal constructor(
                     TyUser
                         .new(
                             variableName,
-                            TyStarlarkValue.new("enum"),
+                            TyStarlarkValue.enumValue(),
                             id,
                             TyUserParams(
                                 matcher = TypeMatcherFactory.new(EnumTypeMatcher(id = id)),
@@ -201,7 +201,7 @@ class EnumTypeGen internal constructor(
                     TyUser
                         .new(
                             "enum[$variableName]",
-                            TyStarlarkValue.new("function"),
+                            TyStarlarkValue.enumType(),
                             TypeInstanceId.gen(),
                             TyUserParams(
                                 fields =
@@ -280,6 +280,8 @@ typealias EnumType = EnumTypeGen
 typealias FrozenEnumType = EnumTypeGen
 
 private val enumTypeMethodsStatic = MethodsStatic()
+
+internal fun enumTypeMethods(): Methods = enumTypeMethodsStatic.methods(::enumTypeMethods)
 
 private fun enumTypeMethods(builder: MethodsBuilder) {
     builder.setAttributeFn(
