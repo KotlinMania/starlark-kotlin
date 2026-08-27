@@ -48,9 +48,9 @@ data class DocString(
  *
  * See the docs on [DocType] for the distinction between that type and this one.
  */
-class DocModule(
+class DocModule internal constructor(
     val docs: DocString? = null,
-    val members: SmallMap<String, DocItem> = SmallMap.new(),
+    internal val members: SmallMap<String, DocItem> = SmallMap.new(),
 ) {
     fun filter(predicate: (Pair<String, DocItem>) -> Boolean): DocModule {
         val filtered = SmallMap.new<String, DocItem>()
@@ -196,10 +196,10 @@ sealed class DocMember {
  * importantly because the members here are expected to be attributes on *values* of the type, not
  * on the type itself.
  */
-class DocType(
+class DocType internal constructor(
     val docs: DocString? = null,
     /** Name and details of each attr/function that can be accessed on this type. */
-    val members: SmallMap<String, DocMember> = SmallMap.new(),
+    internal val members: SmallMap<String, DocMember> = SmallMap.new(),
     val ty: Ty,
     @JsName("constructor_")
     val constructor: DocFunction? = null,

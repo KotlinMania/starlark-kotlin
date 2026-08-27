@@ -26,7 +26,7 @@ import io.github.kotlinmania.starlark.typing.Ty
  * Type parameter for [`StarlarkCallable`] or [`FrozenStarlarkCallable`]
  * describing the expected parameters of the callable.
  */
-interface StarlarkCallableParamSpec {
+internal interface StarlarkCallableParamSpec {
     /** Get the parameter specification for the callable. */
     fun params(): ParamSpec
 }
@@ -34,24 +34,24 @@ interface StarlarkCallableParamSpec {
 /** Indicates that a callable accepts any number of positional and keyword arguments. */
 
 /** `*args` and `**kwargs` parameters. */
-object StarlarkCallableParamAny : StarlarkCallableParamSpec {
+internal object StarlarkCallableParamAny : StarlarkCallableParamSpec {
     override fun params(): ParamSpec = ParamSpec.any()
 }
 
 /** No parameters. */
-object StarlarkCallableParamSpecNone : StarlarkCallableParamSpec {
+internal object StarlarkCallableParamSpecNone : StarlarkCallableParamSpec {
     override fun params(): ParamSpec = ParamSpec.posOnly(emptyList(), emptyList())
 }
 
 /** Single positional-only parameter. */
-class StarlarkCallableParamSpec1(
+internal class StarlarkCallableParamSpec1(
     private val a: Ty,
 ) : StarlarkCallableParamSpec {
     override fun params(): ParamSpec = ParamSpec.posOnly(listOf(a), emptyList())
 }
 
 /** Two positional-only parameters. */
-class StarlarkCallableParamSpec2(
+internal class StarlarkCallableParamSpec2(
     private val a: Ty,
     private val b: Ty,
 ) : StarlarkCallableParamSpec {
@@ -59,7 +59,7 @@ class StarlarkCallableParamSpec2(
 }
 
 /** Three positional-only parameters. */
-class StarlarkCallableParamSpec3(
+internal class StarlarkCallableParamSpec3(
     private val a: Ty,
     private val b: Ty,
     private val c: Ty,
@@ -68,7 +68,7 @@ class StarlarkCallableParamSpec3(
 }
 
 /** Four positional-only parameters. */
-class StarlarkCallableParamSpec4(
+internal class StarlarkCallableParamSpec4(
     private val a: Ty,
     private val b: Ty,
     private val c: Ty,

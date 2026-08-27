@@ -27,7 +27,7 @@ import io.github.kotlinmania.starlark.typing.Ty
 import io.github.kotlinmania.starlark.values.layout.Value
 
 /** Error that can be returned by [UnpackValue]. */
-interface UnpackValueError {
+internal interface UnpackValueError {
     /** Convert into a crate error. */
     fun intoError(): Error
 }
@@ -39,13 +39,13 @@ internal fun Error.asUnpackValueError(): UnpackValueError =
     }
 
 /** Never error. */
-interface UnpackValueErrorInfallible : UnpackValueError {
+internal interface UnpackValueErrorInfallible : UnpackValueError {
     /** Convert into a never type. */
     fun intoInfallible(): Nothing
 }
 
 /** [UnpackValueError] impl for [Either]. */
-class EitherUnpackValueError<A : UnpackValueError, B : UnpackValueError>(
+internal class EitherUnpackValueError<A : UnpackValueError, B : UnpackValueError>(
     private val either: Either<A, B>,
 ) : UnpackValueError {
     override fun intoError(): Error =
@@ -56,7 +56,7 @@ class EitherUnpackValueError<A : UnpackValueError, B : UnpackValueError>(
 }
 
 /** [UnpackValueErrorInfallible] impl for [Either]. */
-class EitherUnpackValueErrorInfallible<A : UnpackValueErrorInfallible, B : UnpackValueErrorInfallible>(
+internal class EitherUnpackValueErrorInfallible<A : UnpackValueErrorInfallible, B : UnpackValueErrorInfallible>(
     private val either: Either<A, B>,
 ) : UnpackValueErrorInfallible {
     override fun intoError(): Error =
@@ -162,7 +162,7 @@ internal class ValueUnpackValueImpl : UnpackValue<Value> {
 internal val ValueUnpackValue: UnpackValue<Value> = ValueUnpackValueImpl()
 
 /** [UnpackValue] impl for [Either]. */
-class EitherUnpackValue<TLeft, TRight>(
+internal class EitherUnpackValue<TLeft, TRight>(
     private val left: UnpackValue<TLeft>,
     private val right: UnpackValue<TRight>,
 ) : UnpackValue<Either<TLeft, TRight>> {

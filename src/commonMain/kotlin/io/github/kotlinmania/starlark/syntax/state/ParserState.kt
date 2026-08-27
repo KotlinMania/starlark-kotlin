@@ -6,7 +6,7 @@ import io.github.kotlinmania.starlark.syntax.dialect.Dialect
 import io.github.kotlinmania.starlark.typing.EvalException
 import io.github.kotlinmania.starlark.typing.StarlarkError
 
-class ParserState(
+internal class ParserState(
     val dialect: Dialect,
     val codemap: CodeMap,
     val errors: MutableList<EvalException>,

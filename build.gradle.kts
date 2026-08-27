@@ -414,10 +414,11 @@ kotlin {
         configureBenchmarkCompilation()
         addToXcf()
     }
-    watchosDeviceArm64 {
-        configureBenchmarkCompilation()
-        addToXcf()
-    }
+    // watchosDeviceArm64: blocked on com.ionspin.kotlin:bignum:0.3.10 which lacks watchosDeviceArm64 slice.
+    // watchosDeviceArm64 {
+    //     configureBenchmarkCompilation()
+    //     addToXcf()
+    // }
     watchosSimulatorArm64 {
         configureBenchmarkCompilation()
         addToXcf()
@@ -884,9 +885,8 @@ val publishToCentralPortal by tasks.registering {
 // lifecycle and adds the Android host + Swift Export parity tests.
 tasks.register("test") {
     group = "verification"
-    description = "Runs the commonTest-backed KMP suite, Android host tests, and Swift Export smoke test."
-    dependsOn("allTests")
-    dependsOn("testAndroidHostTest")
+    description = "Runs the required test suite (hostTests + swiftExportSmokeTest)."
+    dependsOn("hostTests")
     dependsOn("swiftExportSmokeTest")
 }
 
@@ -930,6 +930,7 @@ tasks.register("swiftExportSmokeTest") {
                 .get()
                 .asFile
                 .absolutePath
+        File(swiftBuildDir).deleteRecursively()
         execOperations
             .exec {
                 workingDir = projectDir
@@ -1008,7 +1009,7 @@ val nativeTargetNames =
         "tvosArm64",
         "tvosSimulatorArm64",
         "watchosArm64",
-        "watchosDeviceArm64",
+        // "watchosDeviceArm64", // blocked on com.ionspin.kotlin:bignum:0.3.10
         "watchosSimulatorArm64",
     )
 

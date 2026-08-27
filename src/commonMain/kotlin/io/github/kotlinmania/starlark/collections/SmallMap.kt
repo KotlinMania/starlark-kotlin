@@ -25,7 +25,7 @@ package io.github.kotlinmania.starlark.collections
  * Kotlin does not have an equivalent to `hashbrown::HashTable` in commonMain, so this port
  * keeps the same observable behaviour while using a simple insertion-ordered storage.
  */
-class SmallMap<K, V> internal constructor(
+internal class SmallMap<K, V> internal constructor(
     internal val entries: ArrayList<Entry<K, V>>,
 ) {
     internal data class Entry<K, V>(

@@ -90,7 +90,7 @@ fun partialStdlib(builder: GlobalsBuilder) {
 }
 
 /** Generic partial application value. */
-open class PartialGen<V : ValueLike, S : StringValueLike>(
+internal open class PartialGen<V : ValueLike, S : StringValueLike>(
     var func: V,
     // Always references a tuple.
     var pos: V,
@@ -219,7 +219,7 @@ open class PartialGen<V : ValueLike, S : StringValueLike>(
 private val PARTIAL_RUST_LOC = rustLoc("partial.kt", 1)
 
 /** Partial application with live values. */
-class Partial(
+internal class Partial internal constructor(
     func: Value,
     pos: Value,
     named: List<Value>,
@@ -256,7 +256,7 @@ class Partial(
 }
 
 /** Partial application with frozen values. */
-class FrozenPartial(
+internal class FrozenPartial internal constructor(
     func: io.github.kotlinmania.starlark.values.layout.FrozenValue,
     pos: io.github.kotlinmania.starlark.values.layout.FrozenValue,
     named: List<io.github.kotlinmania.starlark.values.layout.FrozenValue>,

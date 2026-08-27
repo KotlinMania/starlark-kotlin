@@ -98,7 +98,7 @@ internal class TypingCallableAt2(
  * Marker for a callable value. Can be used in function signatures
  * for better documentation and type checking.
  */
-class StarlarkCallable<P : StarlarkCallableParamSpec, R : StarlarkTypeRepr>(
+internal class StarlarkCallable<P : StarlarkCallableParamSpec, R : StarlarkTypeRepr>(
     val value: Value,
 ) : StarlarkTypeRepr,
     UnpackValue<StarlarkCallable<P, R>>,
@@ -137,7 +137,7 @@ class StarlarkCallable<P : StarlarkCallableParamSpec, R : StarlarkTypeRepr>(
 }
 
 /** Marker for a callable value. */
-class FrozenStarlarkCallable<P : StarlarkCallableParamSpec, R : StarlarkTypeRepr>(
+internal class FrozenStarlarkCallable<P : StarlarkCallableParamSpec, R : StarlarkTypeRepr>(
     val value: FrozenValue,
 ) : StarlarkTypeRepr,
     AllocFrozenValue {
@@ -159,7 +159,7 @@ class FrozenStarlarkCallable<P : StarlarkCallableParamSpec, R : StarlarkTypeRepr
     fun toCallable(): StarlarkCallable<P, R> = StarlarkCallable.uncheckedNew(value.toValue())
 }
 
-fun <P : StarlarkCallableParamSpec, R : StarlarkTypeRepr> StarlarkCallable<P, R>.freeze(
+internal fun <P : StarlarkCallableParamSpec, R : StarlarkTypeRepr> StarlarkCallable<P, R>.freeze(
     freezer: Freezer,
 ): Result<FrozenStarlarkCallable<P, R>> {
     val frozenValue = freezer.freeze(value).getOrElse { return Result.failure(it) }
@@ -180,7 +180,7 @@ fun <P : StarlarkCallableParamSpec, R : StarlarkTypeRepr> StarlarkCallable<P, R>
  * usually it is OK to use it for code executed once at top-level scope (like `rule()`),
  * but not for code executed many times (like `partial()`).
  */
-class StarlarkCallableChecked<P : StarlarkCallableParamSpec, R : StarlarkTypeRepr>(
+internal class StarlarkCallableChecked<P : StarlarkCallableParamSpec, R : StarlarkTypeRepr>(
     val value: Value,
 ) : StarlarkTypeRepr,
     UnpackValue<StarlarkCallableChecked<P, R>>,
@@ -209,7 +209,7 @@ class StarlarkCallableChecked<P : StarlarkCallableParamSpec, R : StarlarkTypeRep
     override fun allocValue(heap: Heap): Value = value
 }
 
-class StarlarkCallableCheckedUnpackValue<P : StarlarkCallableParamSpec, R : StarlarkTypeRepr>(
+internal class StarlarkCallableCheckedUnpackValue<P : StarlarkCallableParamSpec, R : StarlarkTypeRepr>(
     val paramSpec: P,
     val returnTypeRepr: R,
 ) : UnpackValue<StarlarkCallableChecked<P, R>> {

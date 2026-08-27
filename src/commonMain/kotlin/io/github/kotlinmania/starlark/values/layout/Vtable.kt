@@ -28,6 +28,7 @@ import io.github.kotlinmania.starlark.eval.runtime.Arguments
 import io.github.kotlinmania.starlark.eval.runtime.Evaluator
 import io.github.kotlinmania.starlark.typing.Ty
 import io.github.kotlinmania.starlark.values.StarlarkValue
+import io.github.kotlinmania.starlark.values.getAttrHashed
 import io.github.kotlinmania.starlark.values.demand.Demand
 import io.github.kotlinmania.starlark.values.layout.heap.AValueRepr
 import io.github.kotlinmania.starlark.values.layout.heap.Heap
@@ -42,7 +43,7 @@ import kotlin.reflect.KClass
  *
  * In Kotlin, this wraps a strongly typed value reference instead of a raw pointer.
  */
-class StarlarkValueRawPtr(
+internal class StarlarkValueRawPtr(
     /** The underlying value reference. */
     private val ptr: StarlarkValue,
 ) {
@@ -57,13 +58,13 @@ class StarlarkValueRawPtr(
 }
 
 /**
- * VTable for AValue operations.
+ * Vtable for dynamic dispatch over Starlark values.
  *
- * In Kotlin, instead of function pointers for dynamic dispatch, we hold
+ * In Kotlin, methods are dispatched virtually, but we retain this struct to provide
  * type metadata and delegate to the StarlarkValue interface directly.
  * This struct contains metadata and dispatch shims for all operations on a Starlark value.
  */
-class AValueVTable(
+internal class AValueVTable(
     // Common AValue fields.
     val staticTypeOfValue: ConstTypeId,
     val starlarkTypeId: StarlarkTypeId,

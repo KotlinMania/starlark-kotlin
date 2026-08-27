@@ -47,7 +47,7 @@ import io.github.kotlinmania.starlark.values.layout.heap.Heap
  * @param L The type of the backing iterable.
  * @property items The items to allocate into the new list.
  */
-class AllocList<L>(
+internal class AllocList<L>(
     val items: L,
 ) {
     /**

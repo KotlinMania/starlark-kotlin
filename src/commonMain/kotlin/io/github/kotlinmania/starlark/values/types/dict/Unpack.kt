@@ -30,7 +30,7 @@ import io.github.kotlinmania.starlark.values.layout.Value
  * There's an [UnpackValue] implementation for [SmallMap][io.github.kotlinmania.starlark.collections.SmallMap]
  * but this can be used when hashing of unpacked keys is not needed.
  */
-class UnpackDictEntries<K, V>(
+internal class UnpackDictEntries<K, V>(
     /** Entries of the dictionary. */
     val entries: MutableList<Pair<K, V>> = mutableListOf(),
 ) {

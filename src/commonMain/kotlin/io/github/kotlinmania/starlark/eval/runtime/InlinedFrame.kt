@@ -29,7 +29,7 @@ import io.github.kotlinmania.starlark.values.types.allocAny
  * When a function `a` is inlined into `b`, this struct contains
  * the inlined frame for expressions in `a` which now reside in `b`.
  */
-data class InlinedFrame(
+internal data class InlinedFrame(
     val span: FrameSpan,
     val funValue: FrozenValue,
 ) {
@@ -50,7 +50,7 @@ data class InlinedFrame(
 }
 
 /** Stack of inlined frames (maybe empty). */
-data class InlinedFrames(
+internal data class InlinedFrames(
     /** Linked list. */
     var frames: FrozenRef<InlinedFrame>? = null,
 ) {
@@ -111,7 +111,7 @@ data class InlinedFrames(
 }
 
 /** Heap allocator for `InlinedFrame` which attempts to reuse previous allocation. */
-class InlinedFrameAlloc(
+internal class InlinedFrameAlloc(
     private val frozenHeap: FrozenHeap,
 ) {
     private var lastAlloc: FrozenRef<InlinedFrame>? = null

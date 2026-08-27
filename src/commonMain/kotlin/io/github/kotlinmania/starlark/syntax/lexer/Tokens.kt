@@ -293,7 +293,7 @@ sealed class Token {
         }
 
     /** Wrap this token into the appropriate GrammarSymbol variant for the parser stack. */
-    fun toSymbol(): io.github.kotlinmania.starlark.syntax.parser.GrammarSymbol =
+    internal fun toSymbol(): io.github.kotlinmania.starlark.syntax.parser.GrammarSymbol =
         when (this) {
             is FloatToken ->
                 io.github.kotlinmania.starlark.syntax.parser.GrammarSymbol

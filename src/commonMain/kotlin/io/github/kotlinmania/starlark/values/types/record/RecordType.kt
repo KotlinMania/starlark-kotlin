@@ -119,7 +119,7 @@ class RecordTypeGen internal constructor(
 
     internal fun getTy(): TyRecordData? = tyRecordData
 
-    fun tyRecordData(): TyRecordData? = getTy()
+    internal fun tyRecordData(): TyRecordData? = getTy()
 
     fun instanceTy(): Ty =
         tyRecordData()?.tyRecord
@@ -271,7 +271,7 @@ class RecordTypeGen internal constructor(
         // Type aliases:
         // Kotlin: Use RecordTypeGen directly; frozen flag distinguishes.
 
-        fun new(fields: SmallMap<String, Field>): RecordTypeGen =
+        internal fun new(fields: SmallMap<String, Field>): RecordTypeGen =
             RecordTypeGen(
                 id = TypeInstanceId.gen(),
                 tyRecordData = null,

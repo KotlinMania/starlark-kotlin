@@ -239,7 +239,7 @@ class Arguments
          *
          * This operation fails if named argument names are not unique.
          */
-        fun namesMap(): Result<SmallMap<StringValue, Value>> {
+        internal fun namesMap(): Result<SmallMap<StringValue, Value>> {
             val kwargsResult = unpackKwargs()
             if (kwargsResult.isFailure) {
                 return Result.failure(kwargsResult.exceptionOrNull()!!)

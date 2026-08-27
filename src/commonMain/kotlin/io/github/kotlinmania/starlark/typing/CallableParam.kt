@@ -23,7 +23,7 @@ package io.github.kotlinmania.starlark.typing
 /**
  * Indication whether a parameter is required.
  */
-enum class ParamIsRequired {
+internal enum class ParamIsRequired {
     /** Parameter is required. */
     Yes,
 
@@ -34,7 +34,7 @@ enum class ParamIsRequired {
 /**
  * The type of a parameter — can be positional, by name, `*args` or `**kwargs`.
  */
-sealed class ParamMode : Comparable<ParamMode> {
+internal sealed class ParamMode : Comparable<ParamMode> {
     /** Parameter can only be passed by position. */
     data class PosOnly(
         val required: ParamIsRequired,
@@ -58,38 +58,35 @@ sealed class ParamMode : Comparable<ParamMode> {
     /** Parameter is `**kwargs`. */
     data object Kwargs : ParamMode()
 
-    override fun compareTo(other: ParamMode): Int {
-        val thisOrd = ordinal()
-        val otherOrd = other.ordinal()
-        if (thisOrd != otherOrd) return thisOrd.compareTo(otherOrd)
-        return when {
-            this is PosOnly && other is PosOnly -> this.required.compareTo(other.required)
+    override fun compareTo(other: ParamMode): Int =
+        when {
+            this is PosOnly && other is PosOnly -> required.compareTo(other.required)
+            this is PosOnly -> -1
+            other is PosOnly -> 1
             this is PosOrName && other is PosOrName -> {
-                val nameComp = this.name.compareTo(other.name)
-                if (nameComp != 0) nameComp else this.required.compareTo(other.required)
+                val cmp = name.compareTo(other.name)
+                if (cmp != 0) cmp else required.compareTo(other.required)
             }
+            this is PosOrName -> -1
+            other is PosOrName -> 1
             this is NameOnly && other is NameOnly -> {
-                val nameComp = this.name.compareTo(other.name)
-                if (nameComp != 0) nameComp else this.required.compareTo(other.required)
+                val cmp = name.compareTo(other.name)
+                if (cmp != 0) cmp else required.compareTo(other.required)
             }
-            else -> 0
-        }
-    }
-
-    private fun ordinal(): Int =
-        when (this) {
-            is PosOnly -> 0
-            is PosOrName -> 1
-            is NameOnly -> 2
-            is Args -> 3
-            is Kwargs -> 4
+            this is NameOnly -> -1
+            other is NameOnly -> 1
+            this is Args && other is Args -> 0
+            this is Args -> -1
+            other is Args -> 1
+            this is Kwargs && other is Kwargs -> 0
+            else -> 1
         }
 }
 
 /**
- * A parameter argument to a function.
+ * A parameter in a callable.
  */
-data class Param(
+internal data class Param(
     /** The type of parameter. */
     val mode: ParamMode,
     /**
@@ -161,7 +158,7 @@ data class Param(
 /**
  * Split view of a parameter spec for formatting and analysis.
  */
-data class ParamSpecSplit(
+internal data class ParamSpecSplit(
     val posOnly: List<Param>,
     val posOrNamed: List<Param>,
     val args: Param?,
@@ -172,7 +169,7 @@ data class ParamSpecSplit(
 /**
  * Callable parameter specification (e.g. positional only followed by `**kwargs`).
  */
-class ParamSpec private constructor(
+internal class ParamSpec private constructor(
     private val params: List<Param>,
     private val numPositional: Int,
     private val numPositionalOnly: Int,

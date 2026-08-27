@@ -42,7 +42,7 @@ import io.github.kotlinmania.starlark.values.layout.heap.Heap
  * val ls = frozenHeap.alloc(AllocTuple(listOf(1, 2, 3)))
  * ```
  */
-class AllocTuple<T>(
+internal class AllocTuple<T>(
     val items: Iterable<T>,
 ) : StarlarkTypeRepr,
     AllocValue,

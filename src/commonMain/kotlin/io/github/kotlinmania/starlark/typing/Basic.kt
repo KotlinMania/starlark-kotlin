@@ -103,7 +103,7 @@ sealed class TyBasic : Comparable<TyBasic> {
         /** Create a set type. */
         fun set(item: Ty): TyBasic = Set(ArcTy.new(item))
 
-        fun custom(custom: TyCustomImpl): TyBasic = Custom(TyCustom.new(custom))
+        internal fun custom(custom: TyCustomImpl): TyBasic = Custom(TyCustom.new(custom))
     }
 
     /**

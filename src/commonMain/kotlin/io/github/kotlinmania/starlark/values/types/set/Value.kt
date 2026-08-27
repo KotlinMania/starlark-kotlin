@@ -225,7 +225,7 @@ private const val SET_TYPE: String = "set"
  *
  * Corresponds to Rust's `SetData`.
  */
-class SetData internal constructor(
+internal class SetData internal constructor(
     /** The data stored by the set. */
     internal val content: SmallSet<Value>,
 ) : Trace {
@@ -273,7 +273,7 @@ class SetData internal constructor(
  *
  * Corresponds to Rust's `FrozenSetData`.
  */
-class FrozenSetData(
+internal class FrozenSetData(
     /** The data stored by the set. The values must all be hashable values. */
     internal val content: SmallSet<FrozenValue> = SmallSet(),
 ) : SetLike {
@@ -320,7 +320,7 @@ class FrozenSet internal constructor(
 ) : StarlarkValue by delegate,
     ComplexValue,
     Trace {
-    val inner: FrozenSetData get() = delegate.inner
+    internal val inner: FrozenSetData get() = delegate.inner
 
     override fun toString(): String = delegate.toString()
 
@@ -375,7 +375,7 @@ private fun setMethodsImpl(builder: io.github.kotlinmania.starlark.environment.M
  *
  * Corresponds to Rust's `SetLike` trait.
  */
-interface SetLike {
+internal interface SetLike {
     fun content(): SmallSet<Value>
 
     // These functions are unsafe for the same reason

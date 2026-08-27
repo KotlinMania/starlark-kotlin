@@ -25,7 +25,7 @@ import io.github.kotlinmania.starlark.collections.orderedmap.OrderedMap
 import io.github.kotlinmania.starlark.collections.orderedmap.sortKeys
 
 /** [OrderedMap] but with keys sorted. */
-class SortedMap<K, V> internal constructor(
+internal class SortedMap<K, V> internal constructor(
     private val map: OrderedMap<K, V>,
 ) : Iterable<Pair<K, V>> {
     companion object {

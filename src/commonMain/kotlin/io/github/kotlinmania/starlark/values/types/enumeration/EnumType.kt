@@ -126,7 +126,7 @@ class EnumTypeGen internal constructor(
 
     internal fun getTy(): TyEnumData? = tyEnumData
 
-    fun elements(): SmallMap<Value, Value> = elements
+    internal fun elements(): SmallMap<Value, Value> = elements
 
     fun tyEnumData(): TyEnumData? = getTy()
 

@@ -215,7 +215,7 @@ internal class StructGen<V> internal constructor(
 
     override fun getAttr(attribute: String, heap: Heap): Value? = getAttrHashed(Hashed.new(attribute), heap)
 
-    override fun getAttrHashed(attribute: Hashed<String>, heap: Heap): Value? = fields.getHashedByValue(attribute)?.asStructValueOrNull()
+    internal fun getAttrHashed(attribute: Hashed<String>, heap: Heap): Value? = fields.getHashedByValue(attribute)?.asStructValueOrNull()
 
     override fun writeHash(hasher: StarlarkHasher): Result<Unit> {
         // Must use unordered hash because equality is unordered,
@@ -275,7 +275,7 @@ class Struct internal constructor(
     ComplexValue,
     Trace,
     Freeze<FrozenStruct> {
-    val fields: SmallMap<String, Value> get() = delegate.fields
+    internal val fields: SmallMap<String, Value> get() = delegate.fields
 
     fun iter(): Sequence<Pair<String, Value>> = delegate.iter()
 
@@ -298,7 +298,7 @@ class Struct internal constructor(
 class FrozenStruct internal constructor(
     internal val delegate: StructGen<FrozenValue>,
 ) : io.github.kotlinmania.starlark.values.StarlarkValue by delegate {
-    val fields: SmallMap<String, FrozenValue> get() = delegate.fields
+    internal val fields: SmallMap<String, FrozenValue> get() = delegate.fields
 
     fun iter(): Sequence<Pair<String, FrozenValue>> = delegate.iter()
 

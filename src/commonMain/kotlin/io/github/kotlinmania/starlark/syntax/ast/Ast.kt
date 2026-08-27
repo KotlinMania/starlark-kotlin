@@ -25,57 +25,57 @@ import io.github.kotlinmania.starlark.codemap.Spanned
 import io.github.kotlinmania.starlark.syntax.lexer.TokenInt
 
 /** Payload types attached to AST nodes. */
-interface AstPayload
+internal interface AstPayload
 
 /** Payload attached to type-expression nodes. */
-interface TypeExprPayload
+internal interface TypeExprPayload
 
 /**
  * Default implementation of payload returned by the parser.
  */
-object AstNoPayload : AstPayload
+internal object AstNoPayload : AstPayload
 
 /** Default type-expression payload returned by the parser. */
-object AstNoTypeExprPayload : TypeExprPayload
+internal object AstNoTypeExprPayload : TypeExprPayload
 
-class Comma
+internal class Comma
 
-typealias Expr = ExprP<AstNoPayload>
-typealias TypeExpr = TypeExprP<AstNoPayload>
-typealias AssignTarget = AssignTargetP<AstNoPayload>
-typealias AssignIdent = AssignIdentP<AstNoPayload, Unit>
-typealias Ident = IdentP<AstNoPayload, Unit>
-typealias Clause = ClauseP<AstNoPayload>
-typealias ForClause = ForClauseP<AstNoPayload>
-typealias Argument = ArgumentP<AstNoPayload>
-typealias Parameter = ParameterP<AstNoPayload>
-typealias Load = LoadP<AstNoPayload, Unit>
-typealias Stmt = StmtP<AstNoPayload>
+internal typealias Expr = ExprP<AstNoPayload>
+internal typealias TypeExpr = TypeExprP<AstNoPayload>
+internal typealias AssignTarget = AssignTargetP<AstNoPayload>
+internal typealias AssignIdent = AssignIdentP<AstNoPayload, Unit>
+internal typealias Ident = IdentP<AstNoPayload, Unit>
+internal typealias Clause = ClauseP<AstNoPayload>
+internal typealias ForClause = ForClauseP<AstNoPayload>
+internal typealias Argument = ArgumentP<AstNoPayload>
+internal typealias Parameter = ParameterP<AstNoPayload>
+internal typealias Load = LoadP<AstNoPayload, Unit>
+internal typealias Stmt = StmtP<AstNoPayload>
 
-typealias AstExprP<P> = Spanned<ExprP<P>>
-typealias AstTypeExprP<P> = Spanned<TypeExprP<P>>
-typealias AstAssignTargetP<P> = Spanned<AssignTargetP<P>>
-typealias AstAssignIdentP<P, IAP> = Spanned<AssignIdentP<P, IAP>>
-typealias AstIdentP<P, IP> = Spanned<IdentP<P, IP>>
-typealias AstArgumentP<P> = Spanned<ArgumentP<P>>
-typealias AstParameterP<P> = Spanned<ParameterP<P>>
-typealias AstStmtP<P> = Spanned<StmtP<P>>
-typealias AstFStringP<P> = Spanned<FStringP<P>>
+internal typealias AstExprP<P> = Spanned<ExprP<P>>
+internal typealias AstTypeExprP<P> = Spanned<TypeExprP<P>>
+internal typealias AstAssignTargetP<P> = Spanned<AssignTargetP<P>>
+internal typealias AstAssignIdentP<P, IAP> = Spanned<AssignIdentP<P, IAP>>
+internal typealias AstIdentP<P, IP> = Spanned<IdentP<P, IP>>
+internal typealias AstArgumentP<P> = Spanned<ArgumentP<P>>
+internal typealias AstParameterP<P> = Spanned<ParameterP<P>>
+internal typealias AstStmtP<P> = Spanned<StmtP<P>>
+internal typealias AstFStringP<P> = Spanned<FStringP<P>>
 
-typealias AstExpr = AstExprP<AstNoPayload>
-typealias AstTypeExpr = AstTypeExprP<AstNoPayload>
-typealias AstAssignTarget = AstAssignTargetP<AstNoPayload>
-typealias AstAssignIdent = AstAssignIdentP<AstNoPayload, Unit>
-typealias AstIdent = AstIdentP<AstNoPayload, Unit>
-typealias AstArgument = AstArgumentP<AstNoPayload>
-typealias AstString = Spanned<String>
-typealias AstParameter = AstParameterP<AstNoPayload>
-typealias AstInt = Spanned<TokenInt>
-typealias AstFloat = Spanned<Double>
-typealias AstFString = AstFStringP<AstNoPayload>
-typealias AstStmt = AstStmtP<AstNoPayload>
+internal typealias AstExpr = AstExprP<AstNoPayload>
+internal typealias AstTypeExpr = AstTypeExprP<AstNoPayload>
+internal typealias AstAssignTarget = AstAssignTargetP<AstNoPayload>
+internal typealias AstAssignIdent = AstAssignIdentP<AstNoPayload, Unit>
+internal typealias AstIdent = AstIdentP<AstNoPayload, Unit>
+internal typealias AstArgument = AstArgumentP<AstNoPayload>
+internal typealias AstString = Spanned<String>
+internal typealias AstParameter = AstParameterP<AstNoPayload>
+internal typealias AstInt = Spanned<TokenInt>
+internal typealias AstFloat = Spanned<Double>
+internal typealias AstFString = AstFStringP<AstNoPayload>
+internal typealias AstStmt = AstStmtP<AstNoPayload>
 
-sealed class ArgumentP<P : AstPayload> {
+internal sealed class ArgumentP<P : AstPayload> {
     data class Positional<P : AstPayload>(
         val expr: AstExprP<P>,
     ) : ArgumentP<P>()
@@ -108,7 +108,7 @@ sealed class ArgumentP<P : AstPayload> {
         }
 }
 
-sealed class ParameterP<P : AstPayload> {
+internal sealed class ParameterP<P : AstPayload> {
     /** `/` marker. */
     class Slash<P : AstPayload> : ParameterP<P>()
 
@@ -143,7 +143,7 @@ sealed class ParameterP<P : AstPayload> {
         }
 }
 
-sealed class AstLiteral {
+internal sealed class AstLiteral {
     data class IntLit(
         val value: AstInt,
     ) : AstLiteral()
@@ -159,7 +159,7 @@ sealed class AstLiteral {
     object Ellipsis : AstLiteral()
 }
 
-data class LambdaP<P : AstPayload, DP>(
+internal data class LambdaP<P : AstPayload, DP>(
     val params: List<AstParameterP<P>>,
     val body: AstExprP<P>,
     var payload: DP,
@@ -174,11 +174,11 @@ data class LambdaP<P : AstPayload, DP>(
     }
 }
 
-data class CallArgsP<P : AstPayload>(
+internal data class CallArgsP<P : AstPayload>(
     val args: List<AstArgumentP<P>>,
 )
 
-sealed class ExprP<P : AstPayload> {
+internal sealed class ExprP<P : AstPayload> {
     data class Tuple<P : AstPayload>(
         val elements: List<AstExprP<P>>,
     ) : ExprP<P>()
@@ -278,12 +278,12 @@ sealed class ExprP<P : AstPayload> {
     ) : ExprP<P>()
 }
 
-data class TypeExprP<P : AstPayload>(
+internal data class TypeExprP<P : AstPayload>(
     val expr: AstExprP<P>,
     var payload: TypeExprPayload,
 )
 
-sealed class AssignTargetP<P : AstPayload> {
+internal sealed class AssignTargetP<P : AstPayload> {
     data class Tuple<P : AstPayload>(
         val elements: List<AstAssignTargetP<P>>,
     ) : AssignTargetP<P>()
@@ -303,23 +303,23 @@ sealed class AssignTargetP<P : AstPayload> {
     ) : AssignTargetP<P>()
 }
 
-data class AssignP<P : AstPayload>(
+internal data class AssignP<P : AstPayload>(
     val lhs: AstAssignTargetP<P>,
     val ty: AstTypeExprP<P>?,
     val rhs: AstExprP<P>,
 )
 
-data class AssignIdentP<P : AstPayload, IAP>(
+internal data class AssignIdentP<P : AstPayload, IAP>(
     val ident: String,
     var payload: IAP,
 )
 
-data class IdentP<P : AstPayload, IP>(
+internal data class IdentP<P : AstPayload, IP>(
     val ident: String,
     var payload: IP,
 )
 
-data class LoadArgP<P : AstPayload, IAP>(
+internal data class LoadArgP<P : AstPayload, IAP>(
     val local: AstAssignIdentP<P, IAP>,
     val their: AstString,
     val comma: Spanned<Comma>?,
@@ -329,18 +329,18 @@ data class LoadArgP<P : AstPayload, IAP>(
     fun spanWithTrailingComma(): Span = if (comma != null) span().merge(comma.span) else span()
 }
 
-data class LoadP<P : AstPayload, LP>(
+internal data class LoadP<P : AstPayload, LP>(
     val module: AstString,
     val args: List<LoadArgP<P, *>>,
     var payload: LP,
 )
 
-data class ForClauseP<P : AstPayload>(
+internal data class ForClauseP<P : AstPayload>(
     val varTarget: AstAssignTargetP<P>,
     val over: AstExprP<P>,
 )
 
-sealed class ClauseP<P : AstPayload> {
+internal sealed class ClauseP<P : AstPayload> {
     data class For<P : AstPayload>(
         val forClause: ForClauseP<P>,
     ) : ClauseP<P>()
@@ -350,7 +350,7 @@ sealed class ClauseP<P : AstPayload> {
     ) : ClauseP<P>()
 }
 
-enum class BinOp {
+internal enum class BinOp {
     Or,
     And,
     Equal,
@@ -374,7 +374,7 @@ enum class BinOp {
     RightShift,
 }
 
-enum class AssignOp {
+internal enum class AssignOp {
     Add,
     Subtract,
     Multiply,
@@ -388,9 +388,9 @@ enum class AssignOp {
     RightShift,
 }
 
-enum class Visibility { Private, Public }
+internal enum class Visibility { Private, Public }
 
-data class DefP<P : AstPayload, DP>(
+internal data class DefP<P : AstPayload, DP>(
     val name: AstAssignIdentP<P, *>,
     val params: List<AstParameterP<P>>,
     val returnType: AstTypeExprP<P>?,
@@ -405,18 +405,18 @@ data class DefP<P : AstPayload, DP>(
     }
 }
 
-data class ForP<P : AstPayload>(
+internal data class ForP<P : AstPayload>(
     val varTarget: AstAssignTargetP<P>,
     val over: AstExprP<P>,
     val body: AstStmtP<P>,
 )
 
-data class FStringP<P : AstPayload>(
+internal data class FStringP<P : AstPayload>(
     val format: AstString,
     val expressions: List<AstExprP<P>>,
 )
 
-sealed class StmtP<P : AstPayload> {
+internal sealed class StmtP<P : AstPayload> {
     fun visitTypeExprErrMut(f: (AstTypeExprP<P>) -> Unit) {
         when (this) {
             is Def<P, *> -> {
@@ -505,4 +505,5 @@ sealed class StmtP<P : AstPayload> {
         val loadStmt: LoadP<P, LP>,
     ) : StmtP<P>()
 }
-typealias Node<T> = Spanned<T>
+
+internal typealias Node<T> = Spanned<T>

@@ -7,6 +7,10 @@ collectionsImmutable = "0.5.1"
 androidKmp = "9.3.1"
 detekt = "1.23.8"
 ktlint = "14.2.0"
+bignum = "0.3.10"
+syn = "0.3.11"
+procMacro2 = "0.1.6"
+quote = "0.1.3"
 kotlinxBenchmark = "0.4.17"
 
 [plugins]
@@ -19,6 +23,10 @@ kotlinx-benchmark = { id = "org.jetbrains.kotlinx.benchmark", version.ref = "kot
 kotlin-allopen = { id = "org.jetbrains.kotlin.plugin.allopen", version.ref = "kotlin" }
 
 [libraries]
+bignum = { module = "com.ionspin.kotlin:bignum", version.ref = "bignum" }
+syn = { module = "io.github.kotlinmania:syn-kotlin", version.ref = "syn" }
+proc-macro2 = { module = "io.github.kotlinmania:proc-macro2-kotlin", version.ref = "procMacro2" }
+quote = { module = "io.github.kotlinmania:quote-kotlin", version.ref = "quote" }
 kotlinx-coroutines-core = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "coroutines" }
 kotlinx-serialization-core = { module = "org.jetbrains.kotlinx:kotlinx-serialization-core", version.ref = "serialization" }
 kotlinx-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "serialization" }
@@ -28,6 +36,10 @@ kotlinx-benchmark-runtime = { module = "org.jetbrains.kotlinx:kotlinx-benchmark-
 
 [bundles]
 starlark-commonMain = [
+  "bignum",
+  "syn",
+  "proc-macro2",
+  "quote",
   "kotlinx-coroutines-core",
   "kotlinx-serialization-core",
   "kotlinx-serialization-json",

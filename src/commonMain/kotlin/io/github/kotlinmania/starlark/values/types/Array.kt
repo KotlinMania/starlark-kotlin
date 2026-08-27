@@ -90,7 +90,7 @@ internal class Array(
     /** Get an array content. */
     fun content(): List<Value> = content
 
-    fun contentMut(): MutableList<Value> = content
+    internal fun contentMut(): MutableList<Value> = content
 
     fun setAt(index: Int, value: Value) {
         check(!iterCountIsNonZero())

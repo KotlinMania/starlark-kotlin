@@ -54,7 +54,7 @@ internal class TupleGen<V>(
     fun content(): List<V> = content
 
     /** Mutable access to tuple elements (used during construction). */
-    fun contentMut(): MutableList<V> {
+    internal fun contentMut(): MutableList<V> {
         @Suppress("UNCHECKED_CAST")
         return content as MutableList<V>
     }
@@ -170,7 +170,7 @@ class Tuple internal constructor(
 
     fun content(): List<Value> = delegate.content()
 
-    fun contentMut(): MutableList<Value> = delegate.contentMut()
+    internal fun contentMut(): MutableList<Value> = delegate.contentMut()
 
     fun iter(): Iterator<Value> = delegate.iter()
 

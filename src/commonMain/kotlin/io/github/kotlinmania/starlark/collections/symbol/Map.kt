@@ -49,7 +49,7 @@ import io.github.kotlinmania.starlark.collections.Hashed
  * by [Symbol] and string, without being limited by Kotlin's standard
  * map key constraints.
  */
-class SymbolMap<T> private constructor(
+internal class SymbolMap<T> private constructor(
     private val table: HashMap<ULong, MutableList<Pair<Symbol, T>>>,
     private var size: Int,
 ) {
@@ -93,14 +93,14 @@ class SymbolMap<T> private constructor(
     fun getStr(key: String): T? = getHashedStr(Hashed.new(key))
 
     /** Look up a value by pre-hashed string key. */
-    fun getHashedStr(key: Hashed<String>): T? {
+    internal fun getHashedStr(key: Hashed<String>): T? {
         val hash = key.hash().promote()
         val bucket = table[hash] ?: return null
         return bucket.firstOrNull { it.first.asStr() == key.key() }?.second
     }
 
     /** Look up a value by pre-hashed string value, using aligned padded string comparison. */
-    fun getHashedStringValue(key: Hashed<String>): T? {
+    internal fun getHashedStringValue(key: Hashed<String>): T? {
         val hash = key.hash().promote()
         val bucket = table[hash] ?: return null
         val keyAligned = Symbol.new(key.key()).asAlignedPaddedStr()

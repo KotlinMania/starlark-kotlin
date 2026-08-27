@@ -654,7 +654,7 @@ class Value internal constructor(
      *
      * For now it only returns parameter spec for `def` and `lambda`.
      */
-    fun parametersSpec(): ParametersSpec<Value>? {
+    internal fun parametersSpec(): ParametersSpec<Value>? {
         val def = downcastRef<Def>()
         if (def != null) {
             return def.parameters
@@ -1172,7 +1172,7 @@ class Value internal constructor(
     /**
      * Get the [Hashed] version of this [Value].
      */
-    override fun getHashed(): Result<Hashed<Value>> {
+    internal fun getHashed(): Result<Hashed<Value>> {
         val str = unpackStarlarkStr()
         val hash =
             try {
@@ -1764,25 +1764,6 @@ interface ValueLike : ValueLifetimeless {
     fun writeHash(hasher: StarlarkHasher): Result<Unit>
 
     /**
-     * Get hash value.
-     */
-    fun getHashed(): Result<Hashed<ValueLike>> {
-        val v = toValue()
-        val str = v.unpackStarlarkStr()
-        val hash =
-            try {
-                if (str != null) {
-                    str.getHash().getOrThrow()
-                } else {
-                    v.getHash().getOrThrow()
-                }
-            } catch (e: Exception) {
-                return Result.failure(e)
-            }
-        return Result.success(Hashed.newUnchecked(hash, this))
-    }
-
-    /**
      * `repr(x)`.
      */
     fun collectRepr(collector: StringBuilder)
@@ -1834,6 +1815,25 @@ interface ValueLike : ValueLifetimeless {
             )
         }
     }
+}
+
+/**
+ * Get hash value.
+ */
+internal fun ValueLike.getHashed(): Result<Hashed<ValueLike>> {
+    val v = toValue()
+    val str = v.unpackStarlarkStr()
+    val hash =
+        try {
+            if (str != null) {
+                str.getHash().getOrThrow()
+            } else {
+                v.getHash().getOrThrow()
+            }
+        } catch (e: Exception) {
+            return Result.failure(e)
+        }
+    return Result.success(Hashed.newUnchecked(hash, this))
 }
 
 // Static value references are imported from their defining modules.

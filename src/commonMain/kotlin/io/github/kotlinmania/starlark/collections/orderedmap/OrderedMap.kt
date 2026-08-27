@@ -29,7 +29,7 @@ import io.github.kotlinmania.starlark.collections.SmallMap
  * Unlike [SmallMap], two [OrderedMap]s are equal only when they contain the same
  * key-value pairs in the same iteration order.
  */
-class OrderedMap<K, V> internal constructor(
+internal class OrderedMap<K, V> internal constructor(
     internal val inner: SmallMap<K, V>,
 ) : Iterable<Pair<K, V>> {
     companion object {
@@ -154,12 +154,12 @@ class OrderedMap<K, V> internal constructor(
 }
 
 /** Sort the map by keys using natural order. */
-fun <K : Comparable<K>, V> OrderedMap<K, V>.sortKeys() {
+internal fun <K : Comparable<K>, V> OrderedMap<K, V>.sortKeys() {
     sortKeysWith(naturalOrder())
 }
 
 /** Compare two ordered maps lexicographically by their iteration order. */
-operator fun <K : Comparable<K>, V : Comparable<V>> OrderedMap<K, V>.compareTo(other: OrderedMap<K, V>): Int {
+internal operator fun <K : Comparable<K>, V : Comparable<V>> OrderedMap<K, V>.compareTo(other: OrderedMap<K, V>): Int {
     val thisIter = iter().iterator()
     val otherIter = other.iter().iterator()
     while (thisIter.hasNext() && otherIter.hasNext()) {

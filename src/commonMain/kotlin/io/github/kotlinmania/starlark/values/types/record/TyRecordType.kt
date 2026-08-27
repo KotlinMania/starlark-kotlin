@@ -30,7 +30,7 @@ import io.github.kotlinmania.starlark.values.layout.FrozenValue
  * #[doc(hidden)]
  * pub struct TyRecordData
  */
-class TyRecordData(
+internal class TyRecordData(
     /** Name of the record type. */
     internal val name: String,
     /** Type of record instance. */

@@ -51,7 +51,7 @@ import io.github.kotlinmania.starlark.values.types.dict.dictRefFromValue
 import io.github.kotlinmania.starlark.values.types.dict.getValue
 
 /** Describe parameter for [`ParametersSpec`]. */
-sealed class ParametersSpecParam<out V> {
+internal sealed class ParametersSpecParam<out V> {
     /** Parameter is required. */
     data object Required : ParametersSpecParam<Nothing>()
 
@@ -70,7 +70,7 @@ sealed class ParametersSpecParam<out V> {
         }
 }
 
-sealed class ParameterKind<out V> {
+internal sealed class ParameterKind<out V> {
     data object Required : ParameterKind<Nothing>()
 
     /**
@@ -252,7 +252,7 @@ internal class ParametersSpecBuilder<V>(
     }
 }
 
-fun ParametersSpec<FrozenValue>.asValue(): ParametersSpec<Value> =
+internal fun ParametersSpec<FrozenValue>.asValue(): ParametersSpec<Value> =
     ParametersSpec(
         functionName = functionName,
         paramKinds =
@@ -275,7 +275,7 @@ fun ParametersSpec<FrozenValue>.asValue(): ParametersSpec<Value> =
  * `*args`/`**kwargs` occur in well-formed locations.
  */
 // V = Value, or FrozenValue
-class ParametersSpec<V>(
+internal class ParametersSpec<V>(
     /** Only used in error messages */
     internal val functionName: String,
     /** Parameters in the order they occur. */

@@ -16,7 +16,7 @@ private fun MutableList<Triple<Int, GrammarSymbol, Int>>.popUnwrap(): Triple<Int
 }
 
 @Suppress("UNCHECKED_CAST", "UNUSED_VARIABLE")
-object GrammarReducers {
+internal object GrammarReducers {
     fun reduce(ruleId: Int, symbols: MutableList<Triple<Int, GrammarSymbol, Int>>, state: ParserState, lookaheadStart: Int?): Pair<Int, Int> {
         when (ruleId) {
             0 -> {

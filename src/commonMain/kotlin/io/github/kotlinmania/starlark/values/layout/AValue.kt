@@ -26,7 +26,7 @@ import io.github.kotlinmania.starlark.values.layout.heap.Tracer
 import io.github.kotlinmania.starlark.values.layout.heap.arena.MIN_ALLOC
 
 /** Extended vtable methods (those not covered by [StarlarkValue]). */
-interface AValue {
+internal interface AValue {
     /**
      * Certain types like `Tuple` or `StarlarkStr` have payload array
      * placed in a heap after `Self`. This is the type of an element of that array.
@@ -90,7 +90,7 @@ interface AValue {
 }
 
 /** A value with extended ([AValue]) vtable methods. */
-class AValueImpl<T : AValue>(
+internal class AValueImpl<T : AValue>(
     internal val value: StarlarkValue,
     internal val avalue: T,
 ) {

@@ -177,7 +177,7 @@ internal class ListGen<T>(
  *
  * Holds the mutable backing content with an iterator guard count.
  */
-class ListData(
+class ListData internal constructor(
     /** The data stored by the list. */
     private val content: MutableList<Value> = mutableListOf(),
 ) : ListLike,
@@ -200,7 +200,7 @@ class ListData(
         /** Type of list as frozen string value. */
         fun getTypeValueStatic(): String = TYPE
 
-        fun new(content: MutableList<Value>): ListData = ListData(content)
+        internal fun new(content: MutableList<Value>): ListData = ListData(content)
 
         fun fromValueMut(x: Value): Result<ListData> {
             val gen =

@@ -41,7 +41,7 @@ private enum class ParameterState {
     SeenStarStar,
 }
 
-fun validateParams(params: List<ValidateAstParameterP<*>>, parserState: ParserState) {
+internal fun validateParams(params: List<ValidateAstParameterP<*>>, parserState: ParserState) {
     val codemap = parserState.codemap
     if (!parserState.dialect.enableKeywordOnlyArguments) {
         for (param in params) {
@@ -413,7 +413,7 @@ private fun walkExprsInStmt(stmt: ValidateAstStmtP<*>, f: (ValidateAstExprP<*>) 
     }
 }
 
-fun validateModule(stmt: ValidateAstStmtP<*>, parserState: ParserState) {
+internal fun validateModule(stmt: ValidateAstStmtP<*>, parserState: ParserState) {
     fun f(
         stmt: ValidateAstStmtP<*>,
         topLevel: Boolean,

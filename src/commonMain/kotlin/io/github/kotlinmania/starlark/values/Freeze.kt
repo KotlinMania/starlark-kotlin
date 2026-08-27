@@ -48,14 +48,14 @@ fun <T, TFrozen> freezeNullable(
     freeze: (T, Freezer) -> FreezeResult<TFrozen>,
 ): FreezeResult<TFrozen?> = value.freeze(freezer, freeze)
 
-fun <K, V, KFrozen, VFrozen> freezeSmallMap(
+internal fun <K, V, KFrozen, VFrozen> freezeSmallMap(
     map: SmallMap<K, V>,
     freezer: Freezer,
     freezeKey: (K, Freezer) -> FreezeResult<KFrozen>,
     freezeValue: (V, Freezer) -> FreezeResult<VFrozen>,
 ): FreezeResult<SmallMap<KFrozen, VFrozen>> = map.freeze(freezer, freezeKey, freezeValue)
 
-fun <T, TFrozen> freezeSmallSet(
+internal fun <T, TFrozen> freezeSmallSet(
     set: SmallSet<T>,
     freezer: Freezer,
     freeze: (T, Freezer) -> FreezeResult<TFrozen>,

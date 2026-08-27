@@ -24,7 +24,7 @@ import io.github.kotlinmania.starlark.syntax.lexer.Token
 import io.github.kotlinmania.starlark.syntax.lexer.TokenFString
 import io.github.kotlinmania.starlark.syntax.lexer.TokenInt
 
-sealed class GrammarSymbol {
+internal sealed class GrammarSymbol {
     data class Variant0(
         val value: Token,
     ) : GrammarSymbol()
