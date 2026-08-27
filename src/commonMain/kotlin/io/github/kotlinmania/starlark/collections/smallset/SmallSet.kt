@@ -25,7 +25,7 @@ import io.github.kotlinmania.starlark.collections.Hashed
 /**
  * A set with deterministic iteration order.
  */
-class SmallSet<T> private constructor(
+internal class SmallSet<T> internal constructor(
     internal val entries: ArrayList<Hashed<T>>,
 ) {
     constructor() : this(ArrayList())

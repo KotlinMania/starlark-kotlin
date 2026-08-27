@@ -36,7 +36,7 @@ import io.github.kotlinmania.starlark.typing.StarlarkError
  *  - Reduce rule: ruleId = -(action) - 1
  *  - Accept: ruleId 296 or 297 (augmented start rules, not in GrammarReducers)
  */
-object Parser {
+internal object Parser {
     // Rule ID for the LALRPOP augmented start production (__Starlark = Starlark)
     private const val ACCEPT_RULE = 297
 

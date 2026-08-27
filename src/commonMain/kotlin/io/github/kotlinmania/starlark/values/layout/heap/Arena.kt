@@ -129,7 +129,7 @@ private fun vtableForValue(
 /**
  * Reservation tied to the lifetime of the heap.
  */
-class Reservation<T : AValue> internal constructor(
+internal class Reservation<T : AValue> internal constructor(
     private val arena: Arena,
     private val list: MutableList<AValueOrForward>,
     private val index: Int,

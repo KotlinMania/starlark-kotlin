@@ -55,13 +55,13 @@ sealed class TypeExprUnpackError(
 fun typeStrLiteralIsWildcard(s: String): Boolean = s == "" || s.startsWith('_')
 
 /** Path component of type. */
-data class TypePathP<P : AstPayload, IP>(
+internal data class TypePathP<P : AstPayload, IP>(
     val first: AstIdentP<P, IP>,
     val rem: List<Spanned<String>>,
 )
 
 /** This type should be used instead of `TypeExprP`, but a lot of code needs to be updated. */
-sealed class TypeExprUnpackP<P : AstPayload, IP> {
+internal sealed class TypeExprUnpackP<P : AstPayload, IP> {
     // Ellipsis
     class Ellipsis<P : AstPayload, IP> : TypeExprUnpackP<P, IP>()
 
@@ -297,6 +297,6 @@ sealed class TypeExprUnpackP<P : AstPayload, IP> {
  * Exception wrapper for WithDiagnostic results.
  * Used to convert Rust's Result<_, WithDiagnostic<E>> pattern to Kotlin exceptions.
  */
-class WithDiagnosticException(
+internal class WithDiagnosticException(
     val diagnostic: WithDiagnostic<TypeExprUnpackError>,
 ) : Exception(diagnostic.value.message)

@@ -24,7 +24,7 @@ import io.github.kotlinmania.starlark.typing.oracle.TypingOracleCtx
 import io.github.kotlinmania.starlark.values.typing.typecompiled.TypeMatcherAlloc
 
 /** Custom function typechecker. */
-interface TyCustomFunctionImpl {
+internal interface TyCustomFunctionImpl {
     fun isType(): Boolean = false
 
     fun validateCall(
@@ -38,7 +38,7 @@ interface TyCustomFunctionImpl {
     fun asFunction(): TyFunction? = null
 }
 
-class TyCustomFunction<F : TyCustomFunctionImpl>(
+internal class TyCustomFunction<F : TyCustomFunctionImpl>(
     val inner: F,
 ) : TyCustomImpl {
     override fun asName(): String? = "function"
@@ -85,21 +85,21 @@ class TyCustomFunction<F : TyCustomFunctionImpl>(
 }
 
 /** A function. */
-class TyFunction(
+internal class TyFunction(
     /** The `.type` property of the function, often `""`. */
     internal val typeAttr: Ty?,
     internal val callable: TyCallable,
 ) : TyCustomFunctionImpl {
     companion object {
         /** Constructor. */
-        fun newWithTypeAttr(params: ParamSpec, result: Ty, typeAttr: Ty): TyFunction =
+        internal fun newWithTypeAttr(params: ParamSpec, result: Ty, typeAttr: Ty): TyFunction =
             TyFunction(
                 typeAttr = typeAttr,
                 callable = TyCallable.new(params, result),
             )
 
         /** Constructor. */
-        fun new(params: ParamSpec, result: Ty): TyFunction =
+        internal fun new(params: ParamSpec, result: Ty): TyFunction =
             TyFunction(
                 typeAttr = null,
                 callable = TyCallable.new(params, result),

@@ -155,19 +155,19 @@ data class Ty private constructor(
         fun tupleOf(item: Ty): Ty = basic(TyBasic.Tuple(TyTuple.Of(ArcTy.new(item))))
 
         /** Create a function type. */
-        fun function(params: ParamSpec, result: Ty): Ty =
+        internal fun function(params: ParamSpec, result: Ty): Ty =
             tyFunction(TyFunction.new(params, result))
 
         /** Create a callable type. */
-        fun callable(params: ParamSpec, result: Ty): Ty =
+        internal fun callable(params: ParamSpec, result: Ty): Ty =
             basic(TyBasic.Callable(TyCallable.new(params, result)))
 
         /** Create a function type from a [TyFunction]. */
-        fun tyFunction(f: TyFunction): Ty =
+        internal fun tyFunction(f: TyFunction): Ty =
             custom(TyCustomFunction(f))
 
         /** Create a function, where the first argument is the result of `.type`. */
-        fun ctorFunction(typeAttr: Ty, params: ParamSpec, result: Ty): Ty =
+        internal fun ctorFunction(typeAttr: Ty, params: ParamSpec, result: Ty): Ty =
             custom(TyCustomFunction(TyFunction.newWithTypeAttr(params, result, typeAttr)))
 
         /** Function type that accepts any arguments and returns any result. */
@@ -177,11 +177,11 @@ data class Ty private constructor(
         fun anyStruct(): Ty = custom(TyStruct.any())
 
         /** Create a custom type. */
-        fun custom(t: TyCustomImpl): Ty =
+        internal fun custom(t: TyCustomImpl): Ty =
             basic(TyBasic.Custom(TyCustom.new(t)))
 
         /** Create a custom function type. */
-        fun customFunction(f: TyCustomFunctionImpl): Ty =
+        internal fun customFunction(f: TyCustomFunctionImpl): Ty =
             custom(TyCustomFunction(f))
 
         /** Type from the implementation of `StarlarkValue`. */
@@ -347,7 +347,7 @@ data class Ty private constructor(
      * This is exposed for buck2 providers implementation,
      * probably it does not do what you think.
      */
-    fun asFunction(): TyFunction? {
+    internal fun asFunction(): TyFunction? {
         val slice = iterUnion()
         return if (slice.size == 1) slice[0].asFunction() else null
     }

@@ -210,16 +210,16 @@ internal fun Dict.display(): String =
     fmtKeyedContainer("{", "}", ": ", iter())
 
 /** Define the dict type. */
-class Dict(
+class Dict internal constructor(
     /** The data stored by the dictionary. The keys must all be hashable values. */
-    val content: SmallMap<Value, Value>,
+    internal val content: SmallMap<Value, Value>,
 ) : Trace {
     companion object {
         /** The result of calling `type()` on dictionaries. */
         const val TYPE: String = "dict"
 
         /** This function is deprecated. Use [AllocDict] or [SmallMap] to allocate a new dictionary on the heap. */
-        fun new(content: SmallMap<Value, Value>): Dict = Dict(content)
+        internal fun new(content: SmallMap<Value, Value>): Dict = Dict(content)
 
         fun isDictType(x: KClass<*>): Boolean =
             x == FrozenDict::class || x == MutableDict::class
@@ -259,7 +259,7 @@ class Dict(
         content.iter().map { (l, r) -> Pair(l, r) }
 
     /** Iterate through the key/value pairs in the dictionary, but retaining the hash of the keys. */
-    fun iterHashed(): Sequence<Pair<Hashed<Value>, Value>> =
+    internal fun iterHashed(): Sequence<Pair<Hashed<Value>, Value>> =
         content.iterHashed().map { (l, r) -> Pair(l.copied(), r) }
 
     /** Iterator over keys. */
@@ -274,7 +274,7 @@ class Dict(
         key.getHashed().map { hashed -> getHashed(hashed) }
 
     /** Lookup the value by the given prehashed key. */
-    fun getHashed(key: Hashed<Value>): Value? =
+    internal fun getHashed(key: Hashed<Value>): Value? =
         content.getHashedByValue(key)
 
     /** Get the value associated with a particular string. Equivalent to allocating the
@@ -283,7 +283,7 @@ class Dict(
         content.get<ValueStr>(ValueStr(key))
 
     /** Like [getStr], but where you already have the hash. */
-    fun getStrHashed(key: Hashed<String>): Value? =
+    internal fun getStrHashed(key: Hashed<String>): Value? =
         content.getHashed(Hashed.newUnchecked(key.hash(), ValueStr(key.key())))
 
     /** Try to coerce all keys to strings. */
@@ -305,11 +305,11 @@ class Dict(
     }
 
     /** Insert a key/value pair into the dictionary. */
-    fun insertHashed(key: Hashed<Value>, value: Value): Value? =
+    internal fun insertHashed(key: Hashed<Value>, value: Value): Value? =
         content.insertHashed(key, value)
 
     /** Remove given key from the dictionary. */
-    fun removeHashed(key: Hashed<Value>): Value? =
+    internal fun removeHashed(key: Hashed<Value>): Value? =
         content.shiftRemoveHashed(key.asRef())
 
     /** Remove all elements from the dictionary. */
@@ -321,9 +321,9 @@ class Dict(
 internal fun Dict.allocValue(heap: Heap): Value =
     heap.allocComplex(MutableDict(DictGen(AtomicRef(this))))
 
-class FrozenDictData(
+internal class FrozenDictData(
     /** The data stored by the dictionary. The keys must all be hashable values. */
-    val content: SmallMap<FrozenValue, FrozenValue>,
+    internal val content: SmallMap<FrozenValue, FrozenValue>,
 ) {
     /** Iterate through the key/value pairs in the dictionary. */
     fun iter(): Sequence<Pair<FrozenValue, FrozenValue>> =
@@ -378,7 +378,7 @@ class FrozenDict internal constructor(
     internal val delegate: DictGen<FrozenDictData>,
 ) : ComplexValue by delegate,
     Trace {
-    val inner: FrozenDictData get() = delegate.inner
+    internal val inner: FrozenDictData get() = delegate.inner
 
     override fun trace(tracer: Tracer) {
         delegate.trace(tracer)
@@ -464,7 +464,7 @@ private fun freezeDictContent(
     return Result.success(frozenContent.getOrElse { return Result.failure(it) })
 }
 
-interface DictLike {
+internal interface DictLike {
     fun content(): SmallMap<Value, Value>
 
     // These functions are unsafe for the same reason
@@ -506,7 +506,7 @@ internal class RefCellDictLike(
         }
 }
 
-class FrozenDictDataDictLike(
+internal class FrozenDictDataDictLike(
     private val data: FrozenDictData,
 ) : DictLike {
     override fun content(): SmallMap<Value, Value> =

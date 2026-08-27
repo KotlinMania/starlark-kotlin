@@ -30,7 +30,7 @@ import io.github.kotlinmania.starlark.values.layout.Value
 import io.github.kotlinmania.starlark.values.layout.ValueAllocSize
 import io.github.kotlinmania.starlark.withLock
 
-class AValueHeader(
+internal class AValueHeader(
     var vtable: AValueVTable,
 ) {
     /**
@@ -141,7 +141,7 @@ class AValueHeader(
 internal val reprRegistry: MutableMap<Long, AValueRepr<*>> = mutableMapOf()
 
 // / How object is represented in arena.
-class AValueRepr<T>(
+internal class AValueRepr<T>(
     val header: AValueHeader,
     /** Payload of the object, i.e. the StarlarkValue. */
     val payload: T,

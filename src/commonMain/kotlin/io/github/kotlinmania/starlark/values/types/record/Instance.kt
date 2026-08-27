@@ -154,11 +154,9 @@ class RecordGen internal constructor(
         return equalsSlice(values, otherRecord.values) { x, y -> x.equals(y) }
     }
 
-    override fun getAttr(attribute: String, heap: Heap): Value? = getAttrHashed(Hashed.new(attribute), heap)
-
-    override fun getAttrHashed(attribute: Hashed<String>, heap: Heap): Value? {
+    override fun getAttr(attribute: String, heap: Heap): Value? {
         val fields = getRecordFields()
-        val i = fields.getIndexOf(attribute.key()) ?: return null
+        val i = fields.getIndexOf(attribute) ?: return null
         return values[i]
     }
 

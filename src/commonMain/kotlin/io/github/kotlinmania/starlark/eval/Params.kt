@@ -28,7 +28,7 @@ import io.github.kotlinmania.starlark.typing.Ty
  * Build both [ParametersSpec] (for parsing) and [ParamSpec] (for typechecking)
  * from a list of parameters.
  */
-fun <V> paramSpecs(
+internal fun <V> paramSpecs(
     functionName: String,
     posOnly: List<Triple<String, ParametersSpecParam<V>, Ty>>,
     posOrNamed: List<Triple<String, ParametersSpecParam<V>, Ty>>,

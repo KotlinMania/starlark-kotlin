@@ -29,7 +29,7 @@ import io.github.kotlinmania.starlark.eval.runtime.params.spec.ParametersSpec
 /**
  * A pre-hashed string used for efficient dictionary lookup.
  */
-class Symbol private constructor(
+internal class Symbol private constructor(
     private val hash: ULong,
     private val len: UInt,
     private val payload: LongArray,

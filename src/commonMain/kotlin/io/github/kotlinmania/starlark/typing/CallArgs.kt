@@ -25,7 +25,7 @@ import io.github.kotlinmania.starlark.codemap.Spanned
 /**
  * Function call arguments with type information.
  */
-class TyCallArgs(
+internal class TyCallArgs(
     internal val pos: List<Spanned<Ty>>,
     internal val named: List<Spanned<Pair<String, Ty>>>,
     /** In starlark, `*args` always come after all positional and named arguments. */

@@ -331,13 +331,6 @@ interface StarlarkValue {
     fun getAttr(attribute: String, heap: Heap): Value? = null
 
     /**
-     * A version of getAttr which takes `Hashed<String>` instead of `String`,
-     * thus implementation may reuse the hash of the string if this is called
-     * repeatedly with the same string.
-     */
-    fun getAttrHashed(attribute: Hashed<String>, heap: Heap): Value? = getAttr(attribute.key(), heap)
-
-    /**
      * Return true if an attribute of name `attribute` exists for the current value.
      *
      * Default implementation of this function delegates to getAttr.
@@ -460,3 +453,11 @@ interface StarlarkValue {
      */
     fun tryFreezeDirectly(freezer: Freezer): Result<FrozenValue>? = null
 }
+
+/**
+ * A version of getAttr which takes `Hashed<String>` instead of `String`,
+ * thus implementation may reuse the hash of the string if this is called
+ * repeatedly with the same string.
+ */
+internal fun StarlarkValue.getAttrHashed(attribute: Hashed<String>, heap: Heap): Value? = getAttr(attribute.key(), heap)
+

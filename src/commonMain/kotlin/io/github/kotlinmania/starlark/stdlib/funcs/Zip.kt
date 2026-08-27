@@ -32,7 +32,7 @@ import io.github.kotlinmania.starlark.values.layout.avalues.allocTuple
 import io.github.kotlinmania.starlark.values.layout.heap.Heap
 import io.github.kotlinmania.starlark.values.types.list.allocList
 
-class ZipType : TyCustomFunctionImpl {
+internal class ZipType : TyCustomFunctionImpl {
     override fun asCallable(): TyCallable = TyCallable.new(ParamSpec.args(Ty.iter(Ty.any())), Ty.list(Ty.any()))
 
     override fun validateCall(

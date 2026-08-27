@@ -30,7 +30,7 @@ class TyCallable private constructor(
 ) : Comparable<TyCallable> {
     companion object {
         // / Create a new callable type.
-        fun new(params: ParamSpec, result: Ty): TyCallable = TyCallable(params, result)
+        internal fun new(params: ParamSpec, result: Ty): TyCallable = TyCallable(params, result)
 
         private val ANY: TyCallable by lazy {
             TyCallable(ParamSpec.any(), Ty.any())

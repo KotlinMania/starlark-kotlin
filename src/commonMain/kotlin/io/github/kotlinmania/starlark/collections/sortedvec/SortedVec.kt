@@ -22,7 +22,7 @@ package io.github.kotlinmania.starlark.collections.sortedvec
 /**
  * Type which enforces that its elements are sorted. That's it.
  */
-class SortedVec<T : Comparable<T>> private constructor(
+internal class SortedVec<T : Comparable<T>> private constructor(
     private val vec: MutableList<T>,
 ) : Iterable<T>,
     Comparable<SortedVec<T>> {

@@ -26,7 +26,7 @@ import io.github.kotlinmania.starlark.collections.sortedvec.SortedVec
 import kotlin.comparisons.naturalOrder
 
 /** An immutable [SmallSet] with values guaranteed to be sorted. */
-class SortedSet<T : Comparable<T>> internal constructor(
+internal class SortedSet<T : Comparable<T>> internal constructor(
     private val inner: OrderedSet<T>,
 ) : Iterable<T> {
     companion object {

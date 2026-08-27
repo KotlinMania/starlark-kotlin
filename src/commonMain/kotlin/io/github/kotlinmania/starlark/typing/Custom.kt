@@ -54,7 +54,7 @@ enum class TypingBinOp(
 }
 
 /** Custom type implementation. [`Display`] must implement the representation of the type. */
-interface TyCustomImpl : Comparable<TyCustomImpl> {
+internal interface TyCustomImpl : Comparable<TyCustomImpl> {
     fun asName(): String?
 
     fun validateCall(span: Span, args: TyCallArgs, oracle: TypingOracleCtx): Result<Ty> =
@@ -225,7 +225,7 @@ class TyCustom internal constructor(
     internal val inner: TyCustomDyn,
 ) {
     companion object {
-        fun <T : TyCustomImpl> new(ty: T): TyCustom = TyCustom(TyCustomDynBridge(ty))
+        internal fun <T : TyCustomImpl> new(ty: T): TyCustom = TyCustom(TyCustomDynBridge(ty))
 
         /** Rust: `pub(crate) fn union2(x: TyCustom, y: TyCustom) -> Result<TyCustom, (TyCustom, TyCustom)>` */
         internal fun union2(x: TyCustom, y: TyCustom): Result<TyCustom> = x.inner.union2Dyn(y.inner).map { TyCustom(it) }
@@ -238,7 +238,7 @@ class TyCustom internal constructor(
 
     fun asCallableDyn(): TyCallable? = inner.asCallableDyn()
 
-    fun asFunctionDyn(): TyFunction? = inner.asFunctionDyn()
+    internal fun asFunctionDyn(): TyFunction? = inner.asFunctionDyn()
 
     internal fun validateCallDyn(span: Span, args: TyCallArgs, oracle: TypingOracleCtx): Result<Ty> =
         inner.validateCallDyn(span, args, oracle)

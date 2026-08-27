@@ -76,7 +76,7 @@ private enum class DialectError(
     Types("type annotations are not allowed in this dialect"),
 }
 
-object GrammarUtil {
+internal object GrammarUtil {
     /** Ensure we produce normalised Statements, rather than singleton Statements. */
     fun statements(xs: List<AstStmt>, begin: Int, end: Int): AstStmt =
         if (xs.size == 1) {

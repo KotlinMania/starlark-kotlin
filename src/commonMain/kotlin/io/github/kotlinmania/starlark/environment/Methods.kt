@@ -221,7 +221,7 @@ class MethodsBuilder private constructor(
     }
 
     /** Set a method. Only used by `starlark_module` macro. */
-    fun setMethod(
+    internal fun setMethod(
         name: String,
         components: NativeCallableComponents,
         sig: ParametersSpec<FrozenValue>,
@@ -250,7 +250,7 @@ class MethodsBuilder private constructor(
      * The lambda receives (Evaluator, Value, ParametersSpec, Arguments) -> Result<Value>
      * and is wrapped into the full method registration.
      */
-    fun setMethod(
+    internal fun setMethod(
         name: String,
         f: (Evaluator, Value, ParametersSpec<FrozenValue>, Arguments) -> Result<Value>,
     ) {

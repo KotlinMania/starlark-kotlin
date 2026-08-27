@@ -45,7 +45,7 @@ sealed class NativeSigArg {
         }
 }
 
-fun parameterSpec(
+internal fun parameterSpec(
     name: String,
     posOnly: List<NativeSigArg>,
     posOrNamed: List<NativeSigArg>,
@@ -63,4 +63,4 @@ fun parameterSpec(
     )
 
 /** [ParametersSpec] for a function which accepts `&Arguments`. */
-fun parameterSpecForArguments(name: String): ParametersSpec<FrozenValue> = parameterSpec(name, emptyList(), emptyList(), true, emptyList(), true)
+internal fun parameterSpecForArguments(name: String): ParametersSpec<FrozenValue> = parameterSpec(name, emptyList(), emptyList(), true, emptyList(), true)

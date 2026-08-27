@@ -146,7 +146,7 @@ internal class NamespaceGen<V> internal constructor(
     override fun getAttr(attribute: String, heap: Heap): Value? =
         getAttrHashed(Hashed.new(attribute), heap)
 
-    override fun getAttrHashed(attribute: Hashed<String>, heap: Heap): Value? {
+    internal fun getAttrHashed(attribute: Hashed<String>, heap: Heap): Value? {
         val v = fields.getHashedByValue(attribute) ?: return null
         return when (val raw = v.value) {
             is Value -> raw
@@ -216,7 +216,7 @@ class Namespace internal constructor(
     ComplexValue,
     Trace,
     Freeze<FrozenNamespace> {
-    val fields: SmallMap<String, MaybeDocHiddenValue<Value>> get() = delegate.fields
+    internal val fields: SmallMap<String, MaybeDocHiddenValue<Value>> get() = delegate.fields
 
     override fun toString(): String = delegate.toString()
 
@@ -239,7 +239,7 @@ class FrozenNamespace internal constructor(
 ) : StarlarkValue by delegate,
     ComplexValue,
     Trace {
-    val fields: SmallMap<String, MaybeDocHiddenValue<FrozenValue>> get() = delegate.fields
+    internal val fields: SmallMap<String, MaybeDocHiddenValue<FrozenValue>> get() = delegate.fields
 
     override fun toString(): String = delegate.toString()
 

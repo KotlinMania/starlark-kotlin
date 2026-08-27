@@ -70,7 +70,7 @@ internal data class AstModuleParts(
     val typecheck: Boolean,
 )
 
-class AstModule(
+class AstModule internal constructor(
     val codemap: CodeMap,
     internal var statement: AstStmt,
     val dialect: Dialect,

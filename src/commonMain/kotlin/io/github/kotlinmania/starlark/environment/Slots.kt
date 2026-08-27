@@ -41,7 +41,7 @@ class MutableSlots {
         fun new(): MutableSlots = MutableSlots()
     }
 
-    fun getSlotsMut(): MutableList<Value?> = slots
+    internal fun getSlotsMut(): MutableList<Value?> = slots
 
     fun getSlot(slot: ModuleSlotId): Value? = slots[slot.index]
 

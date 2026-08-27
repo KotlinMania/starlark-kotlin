@@ -61,7 +61,7 @@ data class DeserTypeId(
  * In Rust, these are collected at compile time via the `inventory` crate.
  * In Kotlin, entries are registered manually at initialization time.
  */
-class VTableRegistryEntry(
+internal class VTableRegistryEntry(
     /**
      * Deserialization type identifier.
      * Used as the key for vtable lookup during deserialization.
@@ -88,7 +88,7 @@ private object VTableRegistry {
  * Call this during module initialization for each type that needs vtable lookup
  * during deserialization.
  */
-fun registerVTableEntry(entry: VTableRegistryEntry) {
+internal fun registerVTableEntry(entry: VTableRegistryEntry) {
     VTableRegistry.registry[entry.deserTypeId] = entry.vtable
 }
 
@@ -96,7 +96,7 @@ fun registerVTableEntry(entry: VTableRegistryEntry) {
  * Look up a vtable by its deserialization type id.
  * Returns a failure result if the type is not registered.
  */
-fun lookupVtable(deserTypeId: DeserTypeId): Result<AValueVTable> =
+internal fun lookupVtable(deserTypeId: DeserTypeId): Result<AValueVTable> =
     VTableRegistry.registry[deserTypeId]?.let {
         Result.success(it)
     } ?: Result.failure(

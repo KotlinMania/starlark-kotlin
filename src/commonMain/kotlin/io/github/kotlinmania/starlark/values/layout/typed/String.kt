@@ -170,13 +170,13 @@ class FrozenStringValue(
     fun getHash(): StarlarkHashValue = StarlarkHashValue.new(str.value)
 
     /** Get self along with the hash. */
-    fun getHashed(): Hashed<FrozenStringValue> = Hashed.newUnchecked(getHash(), this)
+    internal fun getHashed(): Hashed<FrozenStringValue> = Hashed.newUnchecked(getHash(), this)
 
     /** Get the FrozenValue along with the hash. */
-    fun getHashedValue(): Hashed<FrozenValue> = Hashed.newUnchecked(getHash(), toFrozenValue())
+    internal fun getHashedValue(): Hashed<FrozenValue> = Hashed.newUnchecked(getHash(), toFrozenValue())
 
     /** Get the string reference along with the hash. */
-    fun getHashedStr(): Hashed<String> = Hashed.newUnchecked(getHash(), asStr())
+    internal fun getHashedStr(): Hashed<String> = Hashed.newUnchecked(getHash(), asStr())
 
     override fun toStringValue(): StringValue = StringValue(str, frozenValue.toValue())
 
@@ -242,13 +242,13 @@ class StringValue(
     }
 
     /** Get self along with the hash. */
-    fun getHashed(): Hashed<StringValue> = Hashed.newUnchecked(getHash(), this)
+    internal fun getHashed(): Hashed<StringValue> = Hashed.newUnchecked(getHash(), this)
 
     /** Get the string reference along with the hash. */
-    fun getHashedStr(): Hashed<String> = Hashed.newUnchecked(getHash(), asStr())
+    internal fun getHashedStr(): Hashed<String> = Hashed.newUnchecked(getHash(), asStr())
 
     /** Get the Value along with the hash. */
-    fun getHashedValue(): Hashed<Value> = Hashed.newUnchecked(getHash(), toValue())
+    internal fun getHashedValue(): Hashed<Value> = Hashed.newUnchecked(getHash(), toValue())
 
     /** If this string value is frozen, return it. */
     fun unpackFrozen(): FrozenStringValue? {

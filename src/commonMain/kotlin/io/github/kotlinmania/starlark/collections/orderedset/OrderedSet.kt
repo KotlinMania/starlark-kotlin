@@ -29,7 +29,7 @@ import io.github.kotlinmania.starlark.collections.smallset.SmallSet
  * Two [OrderedSet]s are equal only when they contain the same elements
  * in the same iteration order.
  */
-class OrderedSet<T : Comparable<T>> internal constructor(
+internal class OrderedSet<T : Comparable<T>> internal constructor(
     internal val inner: SmallSet<T>,
 ) : Iterable<T>,
     Comparable<OrderedSet<T>> {

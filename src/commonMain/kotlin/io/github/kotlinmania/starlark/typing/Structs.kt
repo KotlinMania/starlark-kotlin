@@ -30,7 +30,7 @@ private object StructMatcher : TypeMatcher {
 }
 
 /** Struct type. */
-data class TyStruct(
+internal data class TyStruct(
     /** The fields that are definitely present in the struct, with their types. */
     internal val fields: Map<String, Ty>,
     /**
