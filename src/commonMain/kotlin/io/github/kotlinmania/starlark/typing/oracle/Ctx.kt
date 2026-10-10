@@ -134,8 +134,11 @@ class TypingOracleCtx(
     internal fun indexedBasic(ty: TyBasic, i: Int): Ty =
         when (ty) {
             is TyBasic.Any -> Ty.any()
+
             is TyBasic.List -> ty.item.toTy()
+
             is TyBasic.Tuple -> ty.tuple.get(i) ?: Ty.never()
+
             // Not exactly sure what we should do here
             else -> Ty.any()
         }
@@ -260,10 +263,12 @@ class TypingOracleCtx(
                                 )
                             }
                         }
+
                         argsList.size == 1 -> {
                             val vr = validateType(argsList[0], param.ty)
                             if (vr.isFailure) return vr
                         }
+
                         else -> {
                             return kotlin.Result.failure(
                                 Exception(
@@ -280,6 +285,7 @@ class TypingOracleCtx(
                         }
                     }
                 }
+
                 is ParamMode.Args -> {
                     for (ty in argsList) {
                         // For an arg, we require the type annotation to be inner value,
@@ -288,6 +294,7 @@ class TypingOracleCtx(
                         if (vr.isFailure) return vr
                     }
                 }
+
                 is ParamMode.Kwargs -> {
                     for (ty in argsList) {
                         val vr = validateType(ty, param.ty)
@@ -315,8 +322,14 @@ class TypingOracleCtx(
         args: TyCallArgs,
     ): kotlin.Result<Ty> =
         when (function) {
-            is TyBasic.Any -> kotlin.Result.success(Ty.any())
-            is TyBasic.StarlarkValue -> function.value.validateCall(span, this)
+            is TyBasic.Any -> {
+                kotlin.Result.success(Ty.any())
+            }
+
+            is TyBasic.StarlarkValue -> {
+                function.value.validateCall(span, this)
+            }
+
             is TyBasic.List, is TyBasic.Dict, is TyBasic.Tuple, is TyBasic.Set -> {
                 kotlin.Result.failure(
                     Exception(
@@ -327,12 +340,19 @@ class TypingOracleCtx(
                     ),
                 )
             }
+
             is TyBasic.Iter, is TyBasic.TypeObject -> {
                 // Unknown type, may be callable.
                 kotlin.Result.success(Ty.any())
             }
-            is TyBasic.Callable -> function.callable.validateCall(span, args, this)
-            is TyBasic.Custom -> function.custom.validateCallDyn(span, args, this)
+
+            is TyBasic.Callable -> {
+                function.callable.validateCall(span, args, this)
+            }
+
+            is TyBasic.Custom -> {
+                function.custom.validateCallDyn(span, args, this)
+            }
         }
 
     internal fun validateCall(
@@ -409,8 +429,10 @@ class TypingOracleCtx(
         index: Spanned<TyBasic>,
     ): kotlin.Result<Ty> {
         return when (array) {
-            is TyBasic.Any, is TyBasic.Callable, is TyBasic.Iter, is TyBasic.TypeObject ->
+            is TyBasic.Any, is TyBasic.Callable, is TyBasic.Iter, is TyBasic.TypeObject -> {
                 kotlin.Result.success(Ty.any())
+            }
+
             is TyBasic.Tuple -> {
                 val ir = intersectsBasic(index.node, TyBasic.int())
                 if (ir.isFailure) return kotlin.Result.failure(ir.exceptionOrNull()!!)
@@ -419,6 +441,7 @@ class TypingOracleCtx(
                 }
                 kotlin.Result.success(array.tuple.itemTy())
             }
+
             is TyBasic.List -> {
                 val ir = intersectsBasic(index.node, TyBasic.int())
                 if (ir.isFailure) return kotlin.Result.failure(ir.exceptionOrNull()!!)
@@ -427,6 +450,7 @@ class TypingOracleCtx(
                 }
                 kotlin.Result.success(array.item.toTy())
             }
+
             is TyBasic.Dict -> {
                 val ir = intersects(Ty.basic(index.node), array.key.toTy())
                 if (ir.isFailure) return kotlin.Result.failure(ir.exceptionOrNull()!!)
@@ -435,6 +459,7 @@ class TypingOracleCtx(
                 }
                 kotlin.Result.success(array.value.toTy())
             }
+
             is TyBasic.Set -> {
                 val ir = intersects(Ty.basic(index.node), array.item.toTy())
                 if (ir.isFailure) return kotlin.Result.failure(ir.exceptionOrNull()!!)
@@ -443,10 +468,14 @@ class TypingOracleCtx(
                 }
                 kotlin.Result.success(array.item.toTy())
             }
-            is TyBasic.StarlarkValue ->
+
+            is TyBasic.StarlarkValue -> {
                 array.value.index(index.node)
-            is TyBasic.Custom ->
+            }
+
+            is TyBasic.Custom -> {
                 array.custom.indexDyn(index.node, this)
+            }
         }
     }
 
@@ -520,38 +549,56 @@ class TypingOracleCtx(
 
     private fun exprDotBasic(array: TyBasic, attr: String): kotlin.Result<Ty> =
         when (array) {
-            is TyBasic.Any, is TyBasic.Callable, is TyBasic.Iter, is TyBasic.TypeObject ->
+            is TyBasic.Any, is TyBasic.Callable, is TyBasic.Iter, is TyBasic.TypeObject -> {
                 kotlin.Result.success(Ty.any())
-            is TyBasic.StarlarkValue -> array.value.attr(attr)
-            is TyBasic.Tuple -> kotlin.Result.failure(TypingNoContextError)
-            is TyBasic.List ->
+            }
+
+            is TyBasic.StarlarkValue -> {
+                array.value.attr(attr)
+            }
+
+            is TyBasic.Tuple -> {
+                kotlin.Result.failure(TypingNoContextError)
+            }
+
+            is TyBasic.List -> {
                 when (attr) {
-                    "pop" ->
+                    "pop" -> {
                         kotlin.Result.success(
                             Ty.function(
                                 ParamSpec.posOnly(emptyList(), listOf(Ty.int())),
                                 array.item.toTy(),
                             ),
                         )
-                    "index" ->
+                    }
+
+                    "index" -> {
                         kotlin.Result.success(
                             Ty.function(
                                 ParamSpec.posOnly(listOf(array.item.toTy()), listOf(Ty.int())),
                                 Ty.int(),
                             ),
                         )
-                    "remove" ->
+                    }
+
+                    "remove" -> {
                         kotlin.Result.success(
                             Ty.function(
                                 ParamSpec.posOnly(listOf(array.item.toTy()), emptyList()),
                                 Ty.none(),
                             ),
                         )
-                    else -> TyStarlarkValue.new("list").attr(attr)
+                    }
+
+                    else -> {
+                        TyStarlarkValue.new("list").attr(attr)
+                    }
                 }
-            is TyBasic.Dict ->
+            }
+
+            is TyBasic.Dict -> {
                 when (attr) {
-                    "get" ->
+                    "get" -> {
                         kotlin.Result.success(
                             Ty.union2(
                                 Ty.function(
@@ -562,38 +609,57 @@ class TypingOracleCtx(
                                 Ty.function(ParamSpec.posOnly(listOf(array.key.toTy(), Ty.any()), emptyList()), Ty.any()),
                             ),
                         )
-                    "keys" ->
+                    }
+
+                    "keys" -> {
                         kotlin.Result.success(
                             Ty.function(
                                 ParamSpec.empty(),
                                 Ty.basic(TyBasic.List(array.key)),
                             ),
                         )
-                    "values" ->
+                    }
+
+                    "values" -> {
                         kotlin.Result.success(
                             Ty.function(
                                 ParamSpec.empty(),
                                 Ty.basic(TyBasic.List(array.value)),
                             ),
                         )
-                    "items" ->
+                    }
+
+                    "items" -> {
                         kotlin.Result.success(
                             Ty.function(
                                 ParamSpec.empty(),
                                 Ty.list(Ty.tuple(listOf(array.key.toTy(), array.value.toTy()))),
                             ),
                         )
-                    "popitem" ->
+                    }
+
+                    "popitem" -> {
                         kotlin.Result.success(
                             Ty.function(
                                 ParamSpec.empty(),
                                 Ty.tuple(listOf(array.key.toTy(), array.value.toTy())),
                             ),
                         )
-                    else -> TyStarlarkValue.new("dict").attr(attr)
+                    }
+
+                    else -> {
+                        TyStarlarkValue.new("dict").attr(attr)
+                    }
                 }
-            is TyBasic.Custom -> array.custom.attributeDyn(attr)
-            is TyBasic.Set -> TyStarlarkValue.new("set").attr(attr)
+            }
+
+            is TyBasic.Custom -> {
+                array.custom.attributeDyn(attr)
+            }
+
+            is TyBasic.Set -> {
+                TyStarlarkValue.new("set").attr(attr)
+            }
         }
 
     internal fun exprDot(span: Span, array: Ty, attr: String): kotlin.Result<Ty> {
@@ -622,7 +688,10 @@ class TypingOracleCtx(
                     kotlin.Result.failure(TypingNoContextError)
                 }
             }
-            else -> kotlin.Result.failure(TypingNoContextError)
+
+            else -> {
+                kotlin.Result.failure(TypingNoContextError)
+            }
         }
 
     internal fun exprUnOp(span: Span, ty: Ty, unOp: TypingUnOp): kotlin.Result<Ty> {
@@ -647,11 +716,15 @@ class TypingOracleCtx(
         rhs: Spanned<TyBasic>,
     ): kotlin.Result<Ty> {
         return when (lhs) {
-            is TyBasic.Any, is TyBasic.Iter, is TyBasic.Callable, is TyBasic.TypeObject ->
+            is TyBasic.Any, is TyBasic.Iter, is TyBasic.Callable, is TyBasic.TypeObject -> {
                 kotlin.Result.success(Ty.any())
-            is TyBasic.StarlarkValue ->
+            }
+
+            is TyBasic.StarlarkValue -> {
                 lhs.value.binOp(binOp, rhs.node)
-            is TyBasic.List ->
+            }
+
+            is TyBasic.List -> {
                 when (binOp) {
                     TyTypingBinOp.Less -> {
                         val ir = intersectsBasic(lhs, rhs.node)
@@ -662,6 +735,7 @@ class TypingOracleCtx(
                             kotlin.Result.failure(TypingNoContextError)
                         }
                     }
+
                     TyTypingBinOp.In -> {
                         val ir = intersects(lhs.item.toTy(), Ty.basic(rhs.node))
                         if (ir.isFailure) return kotlin.Result.failure(ir.exceptionOrNull()!!)
@@ -671,6 +745,7 @@ class TypingOracleCtx(
                             kotlin.Result.failure(TypingNoContextError)
                         }
                     }
+
                     TyTypingBinOp.Add -> {
                         val ir = intersectsBasic(rhs.node, TyBasic.anyList())
                         if (ir.isFailure) return kotlin.Result.failure(ir.exceptionOrNull()!!)
@@ -682,6 +757,7 @@ class TypingOracleCtx(
                             kotlin.Result.failure(TypingNoContextError)
                         }
                     }
+
                     TyTypingBinOp.Mul -> {
                         val ir = intersectsBasic(rhs.node, TyBasic.int())
                         if (ir.isFailure) return kotlin.Result.failure(ir.exceptionOrNull()!!)
@@ -691,11 +767,18 @@ class TypingOracleCtx(
                             kotlin.Result.failure(TypingNoContextError)
                         }
                     }
-                    else -> TyStarlarkValue.new("list").binOp(binOp, rhs.node)
+
+                    else -> {
+                        TyStarlarkValue.new("list").binOp(binOp, rhs.node)
+                    }
                 }
-            is TyBasic.Tuple ->
+            }
+
+            is TyBasic.Tuple -> {
                 TyStarlarkValue.new("tuple").binOp(binOp, rhs.node)
-            is TyBasic.Dict ->
+            }
+
+            is TyBasic.Dict -> {
                 when (binOp) {
                     TyTypingBinOp.BitOr -> {
                         val ir = intersectsBasic(rhs.node, TyBasic.anyDict())
@@ -711,6 +794,7 @@ class TypingOracleCtx(
                             kotlin.Result.failure(TypingNoContextError)
                         }
                     }
+
                     TyTypingBinOp.In -> {
                         val ir = intersects(Ty.basic(rhs.node), lhs.key.toTy())
                         if (ir.isFailure) return kotlin.Result.failure(ir.exceptionOrNull()!!)
@@ -720,11 +804,18 @@ class TypingOracleCtx(
                             kotlin.Result.failure(TypingNoContextError)
                         }
                     }
-                    else -> TyStarlarkValue.new("dict").binOp(binOp, rhs.node)
+
+                    else -> {
+                        TyStarlarkValue.new("dict").binOp(binOp, rhs.node)
+                    }
                 }
-            is TyBasic.Custom ->
+            }
+
+            is TyBasic.Custom -> {
                 lhs.custom.binOpDyn(binOp, rhs.node, this)
-            is TyBasic.Set ->
+            }
+
+            is TyBasic.Set -> {
                 when (binOp) {
                     TyTypingBinOp.In -> {
                         val ir = intersects(Ty.basic(rhs.node), lhs.item.toTy())
@@ -735,6 +826,7 @@ class TypingOracleCtx(
                             kotlin.Result.failure(TypingNoContextError)
                         }
                     }
+
                     TyTypingBinOp.BitXor, TyTypingBinOp.BitAnd, TyTypingBinOp.Sub, TyTypingBinOp.BitOr -> {
                         val ir = intersectsBasic(rhs.node, TyBasic.anySet())
                         if (ir.isFailure) return kotlin.Result.failure(ir.exceptionOrNull()!!)
@@ -749,8 +841,12 @@ class TypingOracleCtx(
                             kotlin.Result.failure(TypingNoContextError)
                         }
                     }
-                    else -> TyStarlarkValue.new("set").binOp(binOp, rhs.node)
+
+                    else -> {
+                        TyStarlarkValue.new("set").binOp(binOp, rhs.node)
+                    }
                 }
+            }
         }
     }
 
@@ -760,9 +856,11 @@ class TypingOracleCtx(
         rhs: TyBasic,
     ): kotlin.Result<Ty> {
         return when (rhs) {
-            is TyBasic.StarlarkValue ->
+            is TyBasic.StarlarkValue -> {
                 rhs.value.rbinOp(binOp, lhs)
-            is TyBasic.List ->
+            }
+
+            is TyBasic.List -> {
                 when (binOp) {
                     TyTypingBinOp.Mul -> {
                         val ir = intersectsBasic(lhs, TyBasic.int())
@@ -773,9 +871,14 @@ class TypingOracleCtx(
                             kotlin.Result.failure(TypingNoContextError)
                         }
                     }
-                    else -> TyStarlarkValue.new("list").rbinOp(binOp, lhs)
+
+                    else -> {
+                        TyStarlarkValue.new("list").rbinOp(binOp, lhs)
+                    }
                 }
-            is TyBasic.Tuple ->
+            }
+
+            is TyBasic.Tuple -> {
                 when (binOp) {
                     TyTypingBinOp.Mul -> {
                         val ir = intersectsBasic(lhs, TyBasic.int())
@@ -786,9 +889,16 @@ class TypingOracleCtx(
                             kotlin.Result.failure(TypingNoContextError)
                         }
                     }
-                    else -> TyStarlarkValue.tuple().rbinOp(binOp, lhs)
+
+                    else -> {
+                        TyStarlarkValue.tuple().rbinOp(binOp, lhs)
+                    }
                 }
-            else -> kotlin.Result.failure(TypingNoContextError)
+            }
+
+            else -> {
+                kotlin.Result.failure(TypingNoContextError)
+            }
         }
     }
 
@@ -883,30 +993,66 @@ class TypingOracleCtx(
                     kotlin.Result.success(Ty.union2(lhs.node, rhs.node))
                 }
             }
+
             BinOp.Equal, BinOp.NotEqual -> {
                 // It's not an error to compare two different types, but it is pointless
                 val vr = validateType(rhs, lhs.node)
                 if (vr.isFailure) return kotlin.Result.failure(vr.exceptionOrNull()!!)
                 kotlin.Result.success(boolRet)
             }
+
             BinOp.In, BinOp.NotIn -> {
                 // We dispatch `x in y` as y.__in__(x) as that's how we validate
                 exprBinOpTy(span, rhs, TyTypingBinOp.In, lhs)
             }
+
             BinOp.Less, BinOp.LessOrEqual, BinOp.Greater, BinOp.GreaterOrEqual -> {
                 exprBinOpTy(span, lhs, TyTypingBinOp.Less, rhs)
             }
-            BinOp.Subtract -> exprBinOpTy(span, lhs, TyTypingBinOp.Sub, rhs)
-            BinOp.Add -> exprBinOpTy(span, lhs, TyTypingBinOp.Add, rhs)
-            BinOp.Multiply -> exprBinOpTy(span, lhs, TyTypingBinOp.Mul, rhs)
-            BinOp.Percent -> exprBinOpTy(span, lhs, TyTypingBinOp.Percent, rhs)
-            BinOp.Divide -> exprBinOpTy(span, lhs, TyTypingBinOp.Div, rhs)
-            BinOp.FloorDivide -> exprBinOpTy(span, lhs, TyTypingBinOp.FloorDiv, rhs)
-            BinOp.BitAnd -> exprBinOpTy(span, lhs, TyTypingBinOp.BitAnd, rhs)
-            BinOp.BitOr -> exprBinOpTy(span, lhs, TyTypingBinOp.BitOr, rhs)
-            BinOp.BitXor -> exprBinOpTy(span, lhs, TyTypingBinOp.BitXor, rhs)
-            BinOp.LeftShift -> exprBinOpTy(span, lhs, TyTypingBinOp.LeftShift, rhs)
-            BinOp.RightShift -> exprBinOpTy(span, lhs, TyTypingBinOp.RightShift, rhs)
+
+            BinOp.Subtract -> {
+                exprBinOpTy(span, lhs, TyTypingBinOp.Sub, rhs)
+            }
+
+            BinOp.Add -> {
+                exprBinOpTy(span, lhs, TyTypingBinOp.Add, rhs)
+            }
+
+            BinOp.Multiply -> {
+                exprBinOpTy(span, lhs, TyTypingBinOp.Mul, rhs)
+            }
+
+            BinOp.Percent -> {
+                exprBinOpTy(span, lhs, TyTypingBinOp.Percent, rhs)
+            }
+
+            BinOp.Divide -> {
+                exprBinOpTy(span, lhs, TyTypingBinOp.Div, rhs)
+            }
+
+            BinOp.FloorDivide -> {
+                exprBinOpTy(span, lhs, TyTypingBinOp.FloorDiv, rhs)
+            }
+
+            BinOp.BitAnd -> {
+                exprBinOpTy(span, lhs, TyTypingBinOp.BitAnd, rhs)
+            }
+
+            BinOp.BitOr -> {
+                exprBinOpTy(span, lhs, TyTypingBinOp.BitOr, rhs)
+            }
+
+            BinOp.BitXor -> {
+                exprBinOpTy(span, lhs, TyTypingBinOp.BitXor, rhs)
+            }
+
+            BinOp.LeftShift -> {
+                exprBinOpTy(span, lhs, TyTypingBinOp.LeftShift, rhs)
+            }
+
+            BinOp.RightShift -> {
+                exprBinOpTy(span, lhs, TyTypingBinOp.RightShift, rhs)
+            }
         }
     }
 
@@ -976,14 +1122,17 @@ class TypingOracleCtx(
                 }
                 kotlin.Result.success(true)
             }
+
             xParts != null -> {
                 val (xP, xN) = xParts
                 paramsAllPosOnlyNamedOnlyIntersect(xP, xN, y)
             }
+
             yParts != null -> {
                 val (yP, yN) = yParts
                 paramsAllPosOnlyNamedOnlyIntersect(yP, yN, x)
             }
+
             else -> {
                 // The rest is hard to check, but required pos-only in signatures
                 // is what we need the most.
@@ -1033,42 +1182,70 @@ class TypingOracleCtx(
      */
     private fun intersectsOneSide(x: TyBasic, y: TyBasic): kotlin.Result<Boolean> {
         return when {
-            x is TyBasic.Any -> kotlin.Result.success(true)
-            x is TyBasic.List && y is TyBasic.List ->
+            x is TyBasic.Any -> {
+                kotlin.Result.success(true)
+            }
+
+            x is TyBasic.List && y is TyBasic.List -> {
                 intersects(x.item.toTy(), y.item.toTy())
-            x is TyBasic.List && y is TyBasic.StarlarkValue ->
+            }
+
+            x is TyBasic.List && y is TyBasic.StarlarkValue -> {
                 kotlin.Result.success(y.value.isList())
-            x is TyBasic.List ->
+            }
+
+            x is TyBasic.List -> {
                 kotlin.Result.success(false)
-            x is TyBasic.Set && y is TyBasic.Set ->
+            }
+
+            x is TyBasic.Set && y is TyBasic.Set -> {
                 intersects(x.item.toTy(), y.item.toTy())
-            x is TyBasic.Set && y is TyBasic.StarlarkValue ->
+            }
+
+            x is TyBasic.Set && y is TyBasic.StarlarkValue -> {
                 kotlin.Result.success(y.value.isSet())
-            x is TyBasic.Set ->
+            }
+
+            x is TyBasic.Set -> {
                 kotlin.Result.success(false)
+            }
+
             x is TyBasic.Dict && y is TyBasic.Dict -> {
                 val ki = intersects(x.key.toTy(), y.key.toTy())
                 if (ki.isFailure) return ki
                 if (!ki.getOrThrow()) return kotlin.Result.success(false)
                 intersects(x.value.toTy(), y.value.toTy())
             }
-            x is TyBasic.Dict && y is TyBasic.StarlarkValue ->
+
+            x is TyBasic.Dict && y is TyBasic.StarlarkValue -> {
                 kotlin.Result.success(y.value.isDict())
-            x is TyBasic.Dict ->
+            }
+
+            x is TyBasic.Dict -> {
                 kotlin.Result.success(false)
-            x is TyBasic.Tuple && y is TyBasic.Tuple ->
+            }
+
+            x is TyBasic.Tuple && y is TyBasic.Tuple -> {
                 kotlin.Result.success(
                     x.tuple.intersects(y.tuple) { a, b ->
                         val ir = intersects(a, b)
                         ir.isSuccess && ir.getOrThrow()
                     },
                 )
-            x is TyBasic.Tuple && y is TyBasic.StarlarkValue ->
+            }
+
+            x is TyBasic.Tuple && y is TyBasic.StarlarkValue -> {
                 kotlin.Result.success(y.value.isTuple())
-            x is TyBasic.Tuple ->
+            }
+
+            x is TyBasic.Tuple -> {
                 kotlin.Result.success(false)
-            x is TyBasic.Iter && y is TyBasic.Iter ->
+            }
+
+            x is TyBasic.Iter && y is TyBasic.Iter -> {
                 intersects(x.item.toTy(), y.item.toTy())
+            }
+
             x is TyBasic.Iter -> {
                 val yIterItem = iterItemBasic(y)
                 if (yIterItem.isSuccess) {
@@ -1077,6 +1254,7 @@ class TypingOracleCtx(
                     kotlin.Result.success(false)
                 }
             }
+
             y is TyBasic.Iter -> {
                 val xIterItem = iterItemBasic(x)
                 if (xIterItem.isSuccess) {
@@ -1085,25 +1263,43 @@ class TypingOracleCtx(
                     kotlin.Result.success(false)
                 }
             }
-            x is TyBasic.Callable && y is TyBasic.Callable ->
+
+            x is TyBasic.Callable && y is TyBasic.Callable -> {
                 callablesIntersect(x.callable, y.callable)
+            }
+
             x is TyBasic.Callable && y is TyBasic.Custom -> {
                 // Handled when custom is lhs
                 kotlin.Result.success(false)
             }
-            x is TyBasic.Callable ->
+
+            x is TyBasic.Callable -> {
                 kotlin.Result.success(false)
-            x is TyBasic.Custom ->
+            }
+
+            x is TyBasic.Custom -> {
                 x.custom.intersectsWith(y, this)
-            x is TyBasic.StarlarkValue && y is TyBasic.Callable ->
+            }
+
+            x is TyBasic.StarlarkValue && y is TyBasic.Callable -> {
                 kotlin.Result.success(x.value.isCallable())
-            x is TyBasic.StarlarkValue ->
+            }
+
+            x is TyBasic.StarlarkValue -> {
                 kotlin.Result.success(false)
-            x is TyBasic.TypeObject && y is TyBasic.StarlarkValue ->
+            }
+
+            x is TyBasic.TypeObject && y is TyBasic.StarlarkValue -> {
                 kotlin.Result.success(y.value.isType())
-            x is TyBasic.TypeObject ->
+            }
+
+            x is TyBasic.TypeObject -> {
                 kotlin.Result.success(true)
-            else -> kotlin.Result.success(false)
+            }
+
+            else -> {
+                kotlin.Result.success(false)
+            }
         }
     }
 }

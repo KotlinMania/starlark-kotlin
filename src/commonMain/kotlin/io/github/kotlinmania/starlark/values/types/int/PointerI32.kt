@@ -215,34 +215,55 @@ internal class PointerI32 internal constructor(
     // Rust: fn bit_and(&self, other: Value, heap: Heap<'v>) -> crate::Result<Value<'v>>
     override fun bitAnd(other: Value, heap: Heap): Result<Value> =
         when (val rhs = StarlarkIntRef.unpack(other)) {
-            null -> ValueError.unsupportedWith(INT_TYPE, "&", other)
-            is StarlarkIntRef.Small -> Result.success(Value.newInt(get() and rhs.value))
-            is StarlarkIntRef.Big ->
+            null -> {
+                ValueError.unsupportedWith(INT_TYPE, "&", other)
+            }
+
+            is StarlarkIntRef.Small -> {
+                Result.success(Value.newInt(get() and rhs.value))
+            }
+
+            is StarlarkIntRef.Big -> {
                 Result.success(
                     Num.Int(StarlarkInt.from(toBigInt() and rhs.value.get())).allocValue(heap),
                 )
+            }
         }
 
     // Rust: fn bit_or(&self, other: Value, heap: Heap<'v>) -> crate::Result<Value<'v>>
     override fun bitOr(other: Value, heap: Heap): Result<Value> =
         when (val rhs = StarlarkIntRef.unpack(other)) {
-            null -> ValueError.unsupportedWith(INT_TYPE, "|", other)
-            is StarlarkIntRef.Small -> Result.success(Value.newInt(get() or rhs.value))
-            is StarlarkIntRef.Big ->
+            null -> {
+                ValueError.unsupportedWith(INT_TYPE, "|", other)
+            }
+
+            is StarlarkIntRef.Small -> {
+                Result.success(Value.newInt(get() or rhs.value))
+            }
+
+            is StarlarkIntRef.Big -> {
                 Result.success(
                     Num.Int(StarlarkInt.from(toBigInt() or rhs.value.get())).allocValue(heap),
                 )
+            }
         }
 
     // Rust: fn bit_xor(&self, other: Value, heap: Heap<'v>) -> crate::Result<Value<'v>>
     override fun bitXor(other: Value, heap: Heap): Result<Value> =
         when (val rhs = StarlarkIntRef.unpack(other)) {
-            null -> ValueError.unsupportedWith(INT_TYPE, "^", other)
-            is StarlarkIntRef.Small -> Result.success(Value.newInt(get() xor rhs.value))
-            is StarlarkIntRef.Big ->
+            null -> {
+                ValueError.unsupportedWith(INT_TYPE, "^", other)
+            }
+
+            is StarlarkIntRef.Small -> {
+                Result.success(Value.newInt(get() xor rhs.value))
+            }
+
+            is StarlarkIntRef.Big -> {
                 Result.success(
                     Num.Int(StarlarkInt.from(toBigInt() xor rhs.value.get())).allocValue(heap),
                 )
+            }
         }
 
     // Rust: fn bit_not(&self, _heap: Heap<'v>) -> crate::Result<Value<'v>>

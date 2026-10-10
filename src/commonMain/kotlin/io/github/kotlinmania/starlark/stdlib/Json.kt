@@ -114,10 +114,14 @@ internal object JsonNumberTypeRepr : StarlarkTypeRepr {
  */
 private fun allocStarlarkInt(starlarkInt: StarlarkInt, heap: Heap): Value =
     when (starlarkInt) {
-        is StarlarkInt.Small ->
+        is StarlarkInt.Small -> {
             Value
                 .newInt(starlarkInt.value)
-        is StarlarkInt.Big -> starlarkInt.value.allocValue(heap)
+        }
+
+        is StarlarkInt.Big -> {
+            starlarkInt.value.allocValue(heap)
+        }
     }
 
 /**
@@ -127,10 +131,14 @@ private fun allocStarlarkInt(starlarkInt: StarlarkInt, heap: Heap): Value =
  */
 private fun allocFrozenStarlarkInt(starlarkInt: StarlarkInt, heap: FrozenHeap): FrozenValue =
     when (starlarkInt) {
-        is StarlarkInt.Small ->
+        is StarlarkInt.Small -> {
             FrozenValue
                 .newInt(starlarkInt.value)
-        is StarlarkInt.Big -> starlarkInt.value.allocFrozenValue(heap)
+        }
+
+        is StarlarkInt.Big -> {
+            starlarkInt.value.allocFrozenValue(heap)
+        }
     }
 
 /**
@@ -264,20 +272,34 @@ internal object JsonValueTypeRepr : StarlarkTypeRepr {
  */
 internal fun allocJsonValue(json: JsonValue, heap: Heap): Value =
     when (json) {
-        is JsonValue.Null ->
+        is JsonValue.Null -> {
             Value
                 .newNone()
-        is JsonValue.Bool ->
+        }
+
+        is JsonValue.Bool -> {
             Value
                 .newBool(json.value)
-        is JsonValue.Number -> allocJsonNumber(json.value, heap)
-        is JsonValue.Str -> heap.allocStr(json.value)
-        is JsonValue.Array -> heap.allocListIter(json.value.map { allocJsonValue(it, heap) })
-        is JsonValue.Object ->
+        }
+
+        is JsonValue.Number -> {
+            allocJsonNumber(json.value, heap)
+        }
+
+        is JsonValue.Str -> {
+            heap.allocStr(json.value)
+        }
+
+        is JsonValue.Array -> {
+            heap.allocListIter(json.value.map { allocJsonValue(it, heap) })
+        }
+
+        is JsonValue.Object -> {
             allocJsonMapOnHeap(
                 json.value.mapValues { allocJsonValue(it.value, heap) },
                 heap,
             )
+        }
     }
 
 // ---- AllocFrozenValue for JsonValue ----
@@ -289,20 +311,34 @@ internal fun allocJsonValue(json: JsonValue, heap: Heap): Value =
  */
 internal fun allocFrozenJsonValue(json: JsonValue, heap: FrozenHeap): FrozenValue =
     when (json) {
-        is JsonValue.Null ->
+        is JsonValue.Null -> {
             FrozenValue
                 .newNone()
-        is JsonValue.Bool ->
+        }
+
+        is JsonValue.Bool -> {
             FrozenValue
                 .newBool(json.value)
-        is JsonValue.Number -> allocFrozenJsonNumber(json.value, heap)
-        is JsonValue.Str -> heap.allocStr(json.value).toFrozenValue()
-        is JsonValue.Array -> heap.allocListIter(json.value.map { allocFrozenJsonValue(it, heap) })
-        is JsonValue.Object ->
+        }
+
+        is JsonValue.Number -> {
+            allocFrozenJsonNumber(json.value, heap)
+        }
+
+        is JsonValue.Str -> {
+            heap.allocStr(json.value).toFrozenValue()
+        }
+
+        is JsonValue.Array -> {
+            heap.allocListIter(json.value.map { allocFrozenJsonValue(it, heap) })
+        }
+
+        is JsonValue.Object -> {
             allocFrozenJsonMapOnHeap(
                 json.value.mapValues { allocFrozenJsonValue(it.value, heap) },
                 heap,
             )
+        }
     }
 
 // ---- StarlarkTypeRepr for JSON Map ----
@@ -401,7 +437,10 @@ private val jsonParser =
  */
 private fun jsonElementToJsonValue(element: JsonElement): JsonValue {
     return when (element) {
-        is JsonNull -> JsonValue.Null
+        is JsonNull -> {
+            JsonValue.Null
+        }
+
         is JsonPrimitive -> {
             if (element.isString) {
                 JsonValue.Str(element.content)
@@ -413,11 +452,16 @@ private fun jsonElementToJsonValue(element: JsonElement): JsonValue {
                 JsonValue.Number(JsonNumber(element.content))
             }
         }
-        is JsonArray -> JsonValue.Array(element.map { jsonElementToJsonValue(it) })
-        is JsonObject ->
+
+        is JsonArray -> {
+            JsonValue.Array(element.map { jsonElementToJsonValue(it) })
+        }
+
+        is JsonObject -> {
             JsonValue.Object(
                 element.entries.associate { (k, v) -> k to jsonElementToJsonValue(v) },
             )
+        }
     }
 }
 

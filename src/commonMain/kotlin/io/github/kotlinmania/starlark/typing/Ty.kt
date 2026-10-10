@@ -33,8 +33,11 @@ import kotlin.ConsistentCopyVisibility
 // Debug-style formatting with stable string escaping for this file's diagnostics.
 private fun format(value: Any?): String =
     when (value) {
-        null -> "null"
-        is String ->
+        null -> {
+            "null"
+        }
+
+        is String -> {
             buildString {
                 append('"')
                 for (ch in value) {
@@ -49,7 +52,11 @@ private fun format(value: Any?): String =
                 }
                 append('"')
             }
-        else -> value.toString()
+        }
+
+        else -> {
+            value.toString()
+        }
     }
 
 /**
@@ -269,6 +276,7 @@ data class Ty private constructor(
                         x is TyBasic.List && y is TyBasic.List -> {
                             Either.Left(TyBasic.List(ArcTy.union2(x.item, y.item)))
                         }
+
                         x is TyBasic.Dict && y is TyBasic.Dict -> {
                             Either.Left(
                                 TyBasic.Dict(
@@ -277,6 +285,7 @@ data class Ty private constructor(
                                 ),
                             )
                         }
+
                         x is TyBasic.Custom && y is TyBasic.Custom -> {
                             val result = TyCustom.union2(x.custom, y.custom)
                             if (result.isSuccess) {
@@ -285,7 +294,10 @@ data class Ty private constructor(
                                 Either.Right(Pair(x, y))
                             }
                         }
-                        else -> Either.Right(Pair(x, y))
+
+                        else -> {
+                            Either.Right(Pair(x, y))
+                        }
                     }
                 }
 
@@ -372,7 +384,10 @@ data class Ty private constructor(
         val xs = iterUnion()
         return when {
             // Optimize common case.
-            xs.size == 1 -> typecheck(xs[0])
+            xs.size == 1 -> {
+                typecheck(xs[0])
+            }
+
             else -> {
                 val good = mutableListOf<Ty>()
                 for (basic in xs) {
@@ -455,7 +470,10 @@ data class Ty private constructor(
     fun fmtWithConfig(config: TypeRenderConfig): String {
         val xs = iterUnion()
         return when {
-            xs.isEmpty() -> TypingNever.TYPE_NAME
+            xs.isEmpty() -> {
+                TypingNever.TYPE_NAME
+            }
+
             else -> {
                 val sb = StringBuilder()
                 for ((i, x) in xs.withIndex()) {
@@ -525,7 +543,10 @@ private fun <T> mergeAdjacent(
             last = x
         } else {
             when (val merged = f(l, x)) {
-                is Either.Left -> last = merged.value
+                is Either.Left -> {
+                    last = merged.value
+                }
+
                 is Either.Right -> {
                     val (left, right) = merged.value
                     res = res.push(left)

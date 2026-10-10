@@ -305,6 +305,7 @@ internal fun DocString.parseAndRemoveSections(
             sectionRe = STARLARK_SECTION_RE
             indentedRe = STARLARK_INDENTED_RE
         }
+
         DocStringKind.Rust -> {
             sectionRe = RUST_SECTION_RE
             indentedRe = RUST_INDENTED_RE

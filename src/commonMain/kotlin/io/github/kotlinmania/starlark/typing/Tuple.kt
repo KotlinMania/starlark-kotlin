@@ -76,28 +76,40 @@ sealed class TyTuple : Comparable<TyTuple> {
                 this.elems.size == other.elems.size &&
                     this.elems.zip(other.elems).all { (x, y) -> intersectsCheck(x, y) }
             }
+
             this is Of && other is Of -> {
                 intersectsCheck(this.item.toTy(), other.item.toTy())
             }
+
             // e.g. tuple[str, int] does not intersect with tuple[str, ...]
             this is Elems && other is Of -> {
                 this.elems.all { x -> intersectsCheck(x, other.item.toTy()) }
             }
+
             this is Of && other is Elems -> {
                 other.elems.all { x -> intersectsCheck(x, this.item.toTy()) }
             }
-            else -> false
+
+            else -> {
+                false
+            }
         }
 
     /** Allocate a runtime type matcher for this tuple type. */
     fun <R> matcher(factory: TypeMatcherAlloc<R>): R =
         when (this) {
-            is Elems ->
+            is Elems -> {
                 when (elems.size) {
                     // [] => type_compiled_factory.alloc(IsTupleElems0)
-                    0 -> factory.alloc(IsTupleElems0)
+                    0 -> {
+                        factory.alloc(IsTupleElems0)
+                    }
+
                     // [x0] => type_compiled_factory.alloc(IsTupleElems1(...))
-                    1 -> factory.alloc(IsTupleElems1(TypeMatcherBoxAlloc.ty(elems[0])))
+                    1 -> {
+                        factory.alloc(IsTupleElems1(TypeMatcherBoxAlloc.ty(elems[0])))
+                    }
+
                     // [x0, x1] => optimised 2-element path
                     2 -> {
                         factory.alloc(
@@ -107,6 +119,7 @@ sealed class TyTuple : Comparable<TyTuple> {
                             ),
                         )
                     }
+
                     // xs => general N-element path
                     else -> {
                         val matchers =
@@ -123,6 +136,8 @@ sealed class TyTuple : Comparable<TyTuple> {
                         factory.alloc(IsTupleElems(matchers))
                     }
                 }
+            }
+
             is Of -> {
                 if (item.isAny()) {
                     // tuple[any, ...] is the same as just "tuple"
@@ -137,35 +152,45 @@ sealed class TyTuple : Comparable<TyTuple> {
     /** Format with a custom rendering configuration. */
     fun fmtWithConfig(config: TypeRenderConfig): String =
         when (this) {
-            is Elems ->
+            is Elems -> {
                 when {
-                    elems.size == 1 -> "(${elems[0].fmtWithConfig(config)},)"
-                    else ->
+                    elems.size == 1 -> {
+                        "(${elems[0].fmtWithConfig(config)},)"
+                    }
+
+                    else -> {
                         elems.joinToString(
                             separator = ", ",
                             prefix = "(",
                             postfix = ")",
                         ) { it.fmtWithConfig(config) }
+                    }
                 }
-            is Of ->
+            }
+
+            is Of -> {
                 when {
                     item.isAny() -> "tuple"
                     else -> "tuple[${item.displayWith(config)}, ...]"
                 }
+            }
         }
 
     override fun toString(): String =
         when (this) {
-            is Elems ->
+            is Elems -> {
                 when {
                     elems.size == 1 -> "(${elems[0]},)"
                     else -> elems.joinToString(separator = ", ", prefix = "(", postfix = ")")
                 }
-            is Of ->
+            }
+
+            is Of -> {
                 when {
                     item.isAny() -> "tuple"
                     else -> "tuple[$item, ...]"
                 }
+            }
         }
 
     // Derived: Ord, PartialOrd
@@ -183,8 +208,14 @@ sealed class TyTuple : Comparable<TyTuple> {
                 }
                 0
             }
-            this is Of && other is Of -> this.item.compareTo(other.item)
-            else -> 0
+
+            this is Of && other is Of -> {
+                this.item.compareTo(other.item)
+            }
+
+            else -> {
+                0
+            }
         }
     }
 }

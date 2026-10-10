@@ -316,12 +316,30 @@ class GlobalsBuilder private constructor(
     fun setConst(name: String, value: Any) {
         val frozenValue =
             when (value) {
-                is AllocFrozenValue -> value.allocFrozenValue(heap)
-                is Int -> value.allocFrozenValue(heap)
-                is Long -> value.allocFrozenValue(heap)
-                is Boolean -> FrozenValue.newBool(value)
-                is String -> heap.allocStr(value).toFrozenValue()
-                is FrozenValue -> value
+                is AllocFrozenValue -> {
+                    value.allocFrozenValue(heap)
+                }
+
+                is Int -> {
+                    value.allocFrozenValue(heap)
+                }
+
+                is Long -> {
+                    value.allocFrozenValue(heap)
+                }
+
+                is Boolean -> {
+                    FrozenValue.newBool(value)
+                }
+
+                is String -> {
+                    heap.allocStr(value).toFrozenValue()
+                }
+
+                is FrozenValue -> {
+                    value
+                }
+
                 is Value -> {
                     val frozen = value.unpackFrozen()
                     if (frozen != null) {
@@ -333,7 +351,10 @@ class GlobalsBuilder private constructor(
                         freezer.freeze(value).getOrThrow()
                     }
                 }
-                else -> error("setConst: unsupported value type ${value::class.simpleName}")
+
+                else -> {
+                    error("setConst: unsupported value type ${value::class.simpleName}")
+                }
             }
         setInner(name, frozenValue, false)
     }
@@ -349,6 +370,7 @@ class GlobalsBuilder private constructor(
             null -> {
                 variables.insert(name, globalValue)
             }
+
             else -> {
                 val frozenName = heap.allocStr(name)
                 lastNamespace.insert(frozenName, globalValue)
@@ -476,12 +498,30 @@ class GlobalsBuilder private constructor(
         }
         return Result.success(
             when (result) {
-                null -> Value.newNone()
-                is Value -> result
-                is FrozenValue -> result.toValue()
-                is StringValue -> result.toValue()
-                is FrozenStringValue -> result.toValue()
-                is AllocValue -> result.allocValue(heap)
+                null -> {
+                    Value.newNone()
+                }
+
+                is Value -> {
+                    result
+                }
+
+                is FrozenValue -> {
+                    result.toValue()
+                }
+
+                is StringValue -> {
+                    result.toValue()
+                }
+
+                is FrozenStringValue -> {
+                    result.toValue()
+                }
+
+                is AllocValue -> {
+                    result.allocValue(heap)
+                }
+
                 is ComplexValue -> {
                     if (result !is Trace) {
                         return Result.failure(
@@ -496,18 +536,38 @@ class GlobalsBuilder private constructor(
                         heap.allocComplexNoFreeze(result)
                     }
                 }
-                is StarlarkValue -> heap.allocSimple(result)
-                is String -> result.allocValue(heap)
-                is Int -> result.allocValue(heap)
-                is Long -> result.allocValue(heap)
-                is Boolean -> result.allocValue(heap)
-                Unit -> Value.newNone()
-                else ->
+
+                is StarlarkValue -> {
+                    heap.allocSimple(result)
+                }
+
+                is String -> {
+                    result.allocValue(heap)
+                }
+
+                is Int -> {
+                    result.allocValue(heap)
+                }
+
+                is Long -> {
+                    result.allocValue(heap)
+                }
+
+                is Boolean -> {
+                    result.allocValue(heap)
+                }
+
+                Unit -> {
+                    Value.newNone()
+                }
+
+                else -> {
                     return Result.failure(
                         IllegalArgumentException(
                             "Cannot convert native function result of type ${result::class.simpleName} to Starlark value",
                         ),
                     )
+                }
             },
         )
     }

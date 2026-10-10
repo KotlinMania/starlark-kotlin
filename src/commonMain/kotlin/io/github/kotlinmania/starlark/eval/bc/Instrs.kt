@@ -329,6 +329,7 @@ internal class BcInstrs private constructor(
                     visitor(ip.offset(arg))
                 }
             }
+
             BcOpcode.IfBr, BcOpcode.IfNotBr -> {
                 if (arg is Pair<*, *>) {
                     val offset = arg.second
@@ -337,6 +338,7 @@ internal class BcInstrs private constructor(
                     }
                 }
             }
+
             BcOpcode.Iter, BcOpcode.Continue -> {
                 if (arg is List<*> && arg.size >= 5) {
                     val offset = arg[4]
@@ -345,6 +347,7 @@ internal class BcInstrs private constructor(
                     }
                 }
             }
+
             BcOpcode.Break -> {
                 if (arg is Pair<*, *>) {
                     val offset = arg.second
@@ -353,6 +356,7 @@ internal class BcInstrs private constructor(
                     }
                 }
             }
+
             else -> { /* Not a jump instruction */ }
         }
     }
@@ -487,10 +491,12 @@ internal class BcInstrsWriter {
                     check(existing == BcAddrOffset.FORWARD) { "Expected FORWARD, got $existing" }
                     newOffset
                 }
+
                 is Pair<*, *> -> {
                     check(existing.second == BcAddrOffset.FORWARD) { "Expected FORWARD in Pair.second, got ${existing.second}" }
                     Pair(existing.first, newOffset)
                 }
+
                 is List<*> -> {
                     val mutable = existing.toMutableList()
                     val fwdIndex = mutable.indexOfLast { it == BcAddrOffset.FORWARD }
@@ -498,7 +504,10 @@ internal class BcInstrsWriter {
                     mutable[fwdIndex] = newOffset
                     mutable
                 }
-                else -> error("patchAddr: unexpected arg type: ${existing::class.simpleName}")
+
+                else -> {
+                    error("patchAddr: unexpected arg type: ${existing::class.simpleName}")
+                }
             }
     }
 
@@ -551,18 +560,38 @@ private fun formatInstrArg(arg: Any?, endArg: BcInstrEndArg?): String {
         is Pair<*, *> -> {
             "${formatInstrArg(arg.first, endArg)} ${formatInstrArg(arg.second, endArg)}"
         }
+
         is SlotRangeTargetArg -> {
             "${formatInstrArg(arg.values, endArg)} ${formatInstrArg(arg.target, endArg)}"
         }
+
         is List<*> -> {
             arg.joinToString(" ") { formatInstrArg(it, endArg) }
         }
-        is BcSlotIn -> formatSlotWithName(arg.get(), endArg)
-        is BcSlotOut -> "->${formatSlotWithName(arg.get(), endArg)}"
-        is BcSlot -> formatSlotWithName(arg, endArg)
-        is BcAddrOffset -> "@${arg.value}"
-        is BcAddrOffsetNeg -> "-@${arg.value}"
-        else -> arg.toString()
+
+        is BcSlotIn -> {
+            formatSlotWithName(arg.get(), endArg)
+        }
+
+        is BcSlotOut -> {
+            "->${formatSlotWithName(arg.get(), endArg)}"
+        }
+
+        is BcSlot -> {
+            formatSlotWithName(arg, endArg)
+        }
+
+        is BcAddrOffset -> {
+            "@${arg.value}"
+        }
+
+        is BcAddrOffsetNeg -> {
+            "-@${arg.value}"
+        }
+
+        else -> {
+            arg.toString()
+        }
     }
 }
 

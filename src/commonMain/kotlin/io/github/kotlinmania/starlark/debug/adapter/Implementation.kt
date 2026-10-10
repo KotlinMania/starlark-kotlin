@@ -205,6 +205,7 @@ private class DapAdapterImpl(
                         vars.shiftRemove(scope.name)
                             ?: return@withCtx Result.failure(Exception("Local variable ${scope.name} not found"))
                     }
+
                     is Scope.Expr -> {
                         evaluateExpr(state, eval, scope.expression)
                             .getOrElse { return@withCtx Result.failure(it) }
@@ -311,24 +312,36 @@ private class DapAdapterEvalHookImpl private constructor(
                             .map { it.toBool() }
                             .getOrElse { true } // If failed to evaluate the condition, stop.
                     }
-                    breakpoint != null -> true
-                    else -> false
+
+                    breakpoint != null -> {
+                        true
+                    }
+
+                    else -> {
+                        false
+                    }
                 }
             }
 
         val stepStop =
             when (val s = step) {
-                null -> false
-                else ->
+                null -> {
+                    false
+                }
+
+                else -> {
                     when (s.first) {
                         StepKind.Into -> true
+
                         // These aren't quite right because we only get called before statements
                         // and so we could return from the current function and be in an expression
                         // that then calls another function without hitting a new statement in the
                         // outer function.
                         StepKind.Over -> eval.callStackCount() <= s.second
+
                         StepKind.Out -> eval.callStackCount() < s.second
                     }
+                }
             }
 
         if (stop || stepStop) {
@@ -341,15 +354,21 @@ private class DapAdapterEvalHookImpl private constructor(
                         // DapAdapter has been dropped so we'll continue.
                         break
                     }
-                    else ->
+
+                    else -> {
                         when (val next = msg.getOrThrow()(spanLoc, eval)) {
-                            Next.Continue -> break
+                            Next.Continue -> {
+                                break
+                            }
+
                             is Next.Step -> {
                                 step = Pair(next.kind, eval.callStackCount())
                                 break
                             }
+
                             Next.RemainPaused -> { /* continue loop */ }
                         }
+                    }
                 }
             }
         }

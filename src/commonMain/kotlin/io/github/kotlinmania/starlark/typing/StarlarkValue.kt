@@ -225,7 +225,8 @@ private object TyStarlarkValueVTableGet {
             typeName = "enum",
             hasEvalType = true,
             getMethods = {
-                io.github.kotlinmania.starlark.values.types.enumeration.value.enumValueMethods()
+                io.github.kotlinmania.starlark.values.types.enumeration.value
+                    .enumValueMethods()
             },
         )
     val ENUM_TYPE_VTABLE =
@@ -237,7 +238,8 @@ private object TyStarlarkValueVTableGet {
             hasIterateCollect = true,
             hasEvalType = true,
             getMethods = {
-                io.github.kotlinmania.starlark.values.types.enumeration.enumtype.enumTypeMethods()
+                io.github.kotlinmania.starlark.values.types.enumeration.enumtype
+                    .enumTypeMethods()
             },
         )
 

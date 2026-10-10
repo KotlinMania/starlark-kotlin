@@ -142,90 +142,172 @@ private fun dispatchInstruction(
     return when (opcode) {
         // --- No-flow instructions ---
         BcOpcode.Const -> noFlow(InstrConstImpl)
+
         BcOpcode.LoadLocal -> noFlow(InstrLoadLocalImpl)
+
         BcOpcode.LoadLocalCaptured -> noFlow(InstrLoadLocalCapturedImpl)
+
         BcOpcode.LoadModule -> noFlow(InstrLoadModuleImpl)
+
         BcOpcode.Mov -> noFlow(InstrMovImpl)
+
         BcOpcode.StoreLocalCaptured -> noFlow(InstrStoreLocalCapturedImpl)
+
         BcOpcode.StoreModule -> noFlow(InstrStoreModuleImpl)
+
         BcOpcode.StoreModuleAndExport -> noFlow(InstrStoreModuleAndExportImpl)
+
         BcOpcode.Unpack -> noFlow(InstrUnpackImpl)
+
         BcOpcode.ArrayIndex -> noFlow(InstrArrayIndexImpl)
+
         BcOpcode.SetArrayIndex -> noFlow(InstrSetArrayIndexImpl)
+
         BcOpcode.ArrayIndexSet -> noFlow(InstrArrayIndexSetImpl)
+
         BcOpcode.Slice -> noFlow(InstrSliceImpl)
+
         BcOpcode.ObjectField -> noFlow(InstrObjectFieldImpl)
+
         BcOpcode.SetObjectField -> noFlow(InstrSetObjectFieldImpl)
+
         BcOpcode.Eq -> noFlow(InstrEqImpl)
+
         BcOpcode.EqConst -> noFlow(InstrEqConstImpl)
+
         BcOpcode.EqPtr -> noFlow(InstrEqPtrImpl)
+
         BcOpcode.EqStr -> noFlow(InstrEqStrImpl)
+
         BcOpcode.EqInt -> noFlow(InstrEqIntImpl)
+
         BcOpcode.Not -> noFlow(InstrUnOpWrapper(InstrNotImpl))
+
         BcOpcode.Minus -> noFlow(InstrUnOpWrapper(InstrMinusImpl))
+
         BcOpcode.Plus -> noFlow(InstrUnOpWrapper(InstrPlusImpl))
+
         BcOpcode.BitNot -> noFlow(InstrUnOpWrapper(InstrBitNotImpl))
+
         BcOpcode.Less -> noFlow(InstrBinOpWrapper(InstrCompareWrapper(InstrLessImpl)))
+
         BcOpcode.Greater -> noFlow(InstrBinOpWrapper(InstrCompareWrapper(InstrGreaterImpl)))
+
         BcOpcode.LessOrEqual -> noFlow(InstrBinOpWrapper(InstrCompareWrapper(InstrLessOrEqualImpl)))
+
         BcOpcode.GreaterOrEqual -> noFlow(InstrBinOpWrapper(InstrCompareWrapper(InstrGreaterOrEqualImpl)))
+
         BcOpcode.In -> noFlow(InstrBinOpWrapper(InstrInImpl))
+
         BcOpcode.Add -> noFlow(InstrBinOpWrapper(InstrAddImpl))
+
         BcOpcode.AddAssign -> noFlow(InstrBinOpWrapper(InstrAddAssignImpl))
+
         BcOpcode.Sub -> noFlow(InstrBinOpWrapper(InstrSubImpl))
+
         BcOpcode.Multiply -> noFlow(InstrBinOpWrapper(InstrMultiplyImpl))
+
         BcOpcode.Percent -> noFlow(InstrBinOpWrapper(InstrPercentImpl))
+
         BcOpcode.PercentSOne -> noFlow(InstrPercentSOneImpl)
+
         BcOpcode.FormatOne -> noFlow(InstrFormatOneImpl)
+
         BcOpcode.Divide -> noFlow(InstrBinOpWrapper(InstrDivideImpl))
+
         BcOpcode.FloorDivide -> noFlow(InstrBinOpWrapper(InstrFloorDivideImpl))
+
         BcOpcode.BitAnd -> noFlow(InstrBinOpWrapper(InstrBitAndImpl))
+
         BcOpcode.BitOr -> noFlow(InstrBinOpWrapper(InstrBitOrImpl))
+
         BcOpcode.BitOrAssign -> noFlow(InstrBinOpWrapper(InstrBitOrAssignImpl))
+
         BcOpcode.BitXor -> noFlow(InstrBinOpWrapper(InstrBitXorImpl))
+
         BcOpcode.LeftShift -> noFlow(InstrBinOpWrapper(InstrLeftShiftImpl))
+
         BcOpcode.RightShift -> noFlow(InstrBinOpWrapper(InstrRightShiftImpl))
+
         BcOpcode.Len -> noFlow(InstrUnOpWrapper(InstrLenImpl))
+
         BcOpcode.TypeOp -> noFlow(InstrUnOpWrapper(InstrTypeImpl))
+
         BcOpcode.TypeIs -> noFlow(InstrTypeIsImpl)
+
         BcOpcode.IsInstance -> noFlow(InstrIsInstanceImpl)
+
         BcOpcode.TupleNPop -> noFlow(InstrTupleNPopImpl)
+
         BcOpcode.ListNew -> noFlow(InstrListNewImpl)
+
         BcOpcode.ListNPop -> noFlow(InstrListNPopImpl)
+
         BcOpcode.ListOfConsts -> noFlow(InstrListOfConstsImpl)
+
         BcOpcode.DictNew -> noFlow(InstrDictNewImpl)
+
         BcOpcode.DictNPop -> noFlow(InstrDictNPopImpl)
+
         BcOpcode.DictOfConsts -> noFlow(InstrDictOfConstsImpl)
+
         BcOpcode.DictConstKeys -> noFlow(InstrDictConstKeysImpl)
+
         BcOpcode.CheckType -> noFlow(InstrCheckTypeImpl)
+
         BcOpcode.ArrayIndex2 -> noFlow(InstrArrayIndex2Impl)
+
         BcOpcode.Def -> noFlow(InstrDefImpl)
+
         BcOpcode.Call -> noFlow(InstrCallImpl)
+
         BcOpcode.CallPos -> noFlow(InstrCallImpl)
+
         BcOpcode.CallFrozenDef -> noFlow(InstrCallFrozenDefImpl)
+
         BcOpcode.CallFrozenDefPos -> noFlow(InstrCallFrozenDefImpl)
+
         BcOpcode.CallFrozenNative -> noFlow(InstrCallFrozenGenericImpl)
+
         BcOpcode.CallFrozenNativePos -> noFlow(InstrCallFrozenGenericImpl)
+
         BcOpcode.CallFrozen -> noFlow(InstrCallFrozenGenericImpl)
+
         BcOpcode.CallFrozenPos -> noFlow(InstrCallFrozenGenericImpl)
+
         BcOpcode.CallMethod -> noFlow(InstrCallMethodImpl)
+
         BcOpcode.CallMethodPos -> noFlow(InstrCallMethodImpl)
+
         BcOpcode.CallMaybeKnownMethod -> noFlow(InstrCallMaybeKnownMethodImpl)
+
         BcOpcode.CallMaybeKnownMethodPos -> noFlow(InstrCallMaybeKnownMethodImpl)
+
         BcOpcode.PossibleGc -> noFlow(InstrPossibleGcImpl)
 
         // --- Flow control instructions ---
         BcOpcode.ComprListAppend -> InstrComprListAppend.run(eval, frame, ip, arg as Pair<BcSlotIn, BcSlotIn>)
+
         BcOpcode.ComprDictInsert -> InstrComprDictInsert.run(eval, frame, ip, arg as Triple<BcSlotIn, BcSlotIn, BcSlotIn>)
+
         BcOpcode.Br -> InstrBr.run(eval, frame, ip, arg as BcAddrOffset)
+
         BcOpcode.IfBr -> InstrIfBr.run(eval, frame, ip, arg as Pair<BcSlotIn, BcAddrOffset>)
+
         BcOpcode.IfNotBr -> InstrIfNotBr.run(eval, frame, ip, arg as Pair<BcSlotIn, BcAddrOffset>)
+
         BcOpcode.Iter -> InstrIter.run(eval, frame, ip, arg.toInstrIterArg())
+
         BcOpcode.Continue -> InstrContinue.run(eval, frame, ip, arg.toInstrContinueArg())
+
         BcOpcode.Break -> InstrBreak.run(eval, frame, ip, arg as Pair<BcSlotIn, BcAddrOffset>)
+
         BcOpcode.IterStop -> InstrIterStop.run(eval, frame, ip, arg as BcSlotIn)
+
         BcOpcode.Return -> InstrReturn.run(eval, frame, ip, arg as BcSlotIn)
+
         BcOpcode.ReturnConst -> InstrReturnConst.run(eval, frame, ip, arg as io.github.kotlinmania.starlark.values.layout.FrozenValue)
+
         BcOpcode.ReturnCheckType -> InstrReturnCheckType.run(eval, frame, ip, arg as BcSlotIn)
 
         // --- End pseudo-instruction ---
@@ -269,8 +351,14 @@ internal fun runBlock(
     var ip = startIp
     while (true) {
         when (val control = step(eval, ec, frame, ip, bcInstrs)) {
-            is InstrControl.Next -> ip = control.ip
-            is InstrControl.Return -> return Result.success(control.value)
+            is InstrControl.Next -> {
+                ip = control.ip
+            }
+
+            is InstrControl.Return -> {
+                return Result.success(control.value)
+            }
+
             is InstrControl.Err -> {
                 val evalException = Bc.wrapErrorForInstrPtr(ip, control.error, eval, bcInstrs)
                 return Result.failure(evalException)

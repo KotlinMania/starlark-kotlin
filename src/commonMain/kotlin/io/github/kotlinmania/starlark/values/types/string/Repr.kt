@@ -62,11 +62,26 @@ private fun pushEscapeCodePoint(codePoint: Int, buffer: StringBuilder) {
     // so use mix of Starlark spec and PEP-3138.
 
     when (codePoint) {
-        '\n'.code -> buffer.append("\\n")
-        '\r'.code -> buffer.append("\\r")
-        '\t'.code -> buffer.append("\\t")
-        '\\'.code -> buffer.append("\\\\")
-        '"'.code -> buffer.append("\\\"")
+        '\n'.code -> {
+            buffer.append("\\n")
+        }
+
+        '\r'.code -> {
+            buffer.append("\\r")
+        }
+
+        '\t'.code -> {
+            buffer.append("\\t")
+        }
+
+        '\\'.code -> {
+            buffer.append("\\\\")
+        }
+
+        '"'.code -> {
+            buffer.append("\\\"")
+        }
+
         // These branches are rare.
         else -> {
             when {
@@ -89,16 +104,22 @@ private fun needEscape(c: Char): Boolean = needEscapeCodePoint(c.code)
 private fun needEscapeCodePoint(codePoint: Int): Boolean =
     when {
         codePoint < 0x20 -> true
+
         codePoint == '"'.code -> true
+
         codePoint == '\\'.code -> true
+
         // Note 0x7f needs to be escaped.
         codePoint < 0x7f -> false
+
         // Now all 8bit characters are covered:
         codePoint <= 0xff -> true
+
         // Supplementary characters (> 0xFFFF) — always escape.
         // Kotlin Multiplatform doesn't have codepoint-level isLetterOrDigit,
         // so we conservatively escape all supplementary characters.
         codePoint > 0xFFFF -> true
+
         // Rust does not expose `is_printable`.
         // PEP-3138 goes long way defining precisely the Unicode groups which need escaping.
         // We could pick more character groups here,

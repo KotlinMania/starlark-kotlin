@@ -102,13 +102,17 @@ sealed class NumRef {
         // equal ints and floats should have the same hash
         if (i != null) return i.toULong()
         return when (this) {
-            is NumRef.Float -> floatHash(value.value)
-            is NumRef.Int ->
+            is NumRef.Float -> {
+                floatHash(value.value)
+            }
+
+            is NumRef.Int -> {
                 when (value) {
                     is StarlarkIntRef.Small -> {
                         // shouldn't happen - asInt() should have resulted in an int
                         value.value.toI32().toULong()
                     }
+
                     is StarlarkIntRef.Big -> {
                         // Not perfect, but OK: `1000000000000000000000003` and `1000000000000000000000005`
                         // flush to the same float, and neither is exact float,
@@ -116,6 +120,7 @@ sealed class NumRef {
                         floatHash(value.toF64())
                     }
                 }
+            }
         }
     }
 
@@ -229,13 +234,17 @@ sealed class NumRef {
          */
         fun unpackParam(value: Value): Result<NumRef> =
             when (val num = unpackValueImpl(value)) {
-                null ->
+                null -> {
                     Result.failure(
                         IllegalArgumentException(
                             "Type of parameters mismatch, expected `float | int`, actual `${value.toStringForTypeError()}`",
                         ),
                     )
-                else -> Result.success(num)
+                }
+
+                else -> {
+                    Result.success(num)
+                }
             }
     }
 }

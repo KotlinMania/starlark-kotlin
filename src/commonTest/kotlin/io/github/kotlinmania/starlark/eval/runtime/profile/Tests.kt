@@ -72,17 +72,38 @@ R = test()
                     val frozen = module.freeze().getOrThrow()
                     frozen.heapProfile().getOrThrow()
                 }
-                else -> eval.genProfile()
+
+                else -> {
+                    eval.genProfile()
+                }
             }
 
         val profile = profileData.profile
         when (profile) {
-            is ProfileDataImpl.HeapRetained -> profile.data.normalizeForGoldenTests()
-            is ProfileDataImpl.HeapAllocated -> profile.data.normalizeForGoldenTests()
-            is ProfileDataImpl.HeapFlameRetained -> profile.data.normalizeForGoldenTests()
-            is ProfileDataImpl.HeapFlameAllocated -> profile.data.normalizeForGoldenTests()
-            is ProfileDataImpl.HeapSummaryRetained -> profile.data.normalizeForGoldenTests()
-            is ProfileDataImpl.HeapSummaryAllocated -> profile.data.normalizeForGoldenTests()
+            is ProfileDataImpl.HeapRetained -> {
+                profile.data.normalizeForGoldenTests()
+            }
+
+            is ProfileDataImpl.HeapAllocated -> {
+                profile.data.normalizeForGoldenTests()
+            }
+
+            is ProfileDataImpl.HeapFlameRetained -> {
+                profile.data.normalizeForGoldenTests()
+            }
+
+            is ProfileDataImpl.HeapFlameAllocated -> {
+                profile.data.normalizeForGoldenTests()
+            }
+
+            is ProfileDataImpl.HeapSummaryRetained -> {
+                profile.data.normalizeForGoldenTests()
+            }
+
+            is ProfileDataImpl.HeapSummaryAllocated -> {
+                profile.data.normalizeForGoldenTests()
+            }
+
             else -> {}
         }
 
@@ -98,6 +119,7 @@ R = test()
                     profileData.genFlameData(),
                 )
             }
+
             else -> {}
         }
 
@@ -106,6 +128,7 @@ R = test()
             ProfileMode.HeapFlameAllocated,
             ProfileMode.TimeFlame,
             -> {}
+
             else -> {
                 goldenTestTemplate(
                     "src/eval/runtime/profile/golden/${mode.modeName().replace('-', '_')}.csv.golden",

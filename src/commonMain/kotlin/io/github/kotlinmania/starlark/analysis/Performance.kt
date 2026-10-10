@@ -106,7 +106,7 @@ private fun matchInefficientBoolCheck(
     val arg = argAst.node.expr.node
 
     when (arg) {
-        is ExprP.ListComprehension<*>, is ExprP.DictComprehension<*> ->
+        is ExprP.ListComprehension<*>, is ExprP.DictComprehension<*> -> {
             res.add(
                 LintT.new(
                     codemap,
@@ -114,6 +114,8 @@ private fun matchInefficientBoolCheck(
                     Performance.EagerAndInefficientBoolCheck(funcIdent),
                 ),
             )
+        }
+
         is ExprP.Call<*> -> {
             val innerFunc = arg.expr.node
             if (innerFunc is ExprP.Identifier<*, *>) {
@@ -132,6 +134,7 @@ private fun matchInefficientBoolCheck(
                 }
             }
         }
+
         else -> {}
     }
 }

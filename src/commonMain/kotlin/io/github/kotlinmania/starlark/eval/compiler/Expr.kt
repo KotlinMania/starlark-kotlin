@@ -164,11 +164,26 @@ internal sealed class Builtin1 {
 
     internal fun eval(v: FrozenValue, ctx: OptCtx): Value? =
         when (this) {
-            is Minus -> v.toValue().minus(ctx.heap()).getOrNull()
-            is Plus -> v.toValue().plus(ctx.heap()).getOrNull()
-            is BitNot -> v.toValue().bitNot(ctx.heap()).getOrNull()
-            is Not -> Value.newBool(!v.toValue().toBool())
-            is TypeIs -> Value.newBool(v.toValue().getTypeValue() == type)
+            is Minus -> {
+                v.toValue().minus(ctx.heap()).getOrNull()
+            }
+
+            is Plus -> {
+                v.toValue().plus(ctx.heap()).getOrNull()
+            }
+
+            is BitNot -> {
+                v.toValue().bitNot(ctx.heap()).getOrNull()
+            }
+
+            is Not -> {
+                Value.newBool(!v.toValue().toBool())
+            }
+
+            is TypeIs -> {
+                Value.newBool(v.toValue().getTypeValue() == type)
+            }
+
             is FormatOne -> {
                 val result =
                     io.github.kotlinmania.starlark.values.types.string.formatOne(
@@ -179,6 +194,7 @@ internal sealed class Builtin1 {
                     )
                 result.toValue()
             }
+
             is PercentSOne -> {
                 io.github.kotlinmania.starlark.values.types.string
                     .percentSOne(
@@ -189,7 +205,10 @@ internal sealed class Builtin1 {
                     ).getOrNull()
                     ?.toValue()
             }
-            is Dot -> ExprCompiled.compileTimeGetattr(v, field, ctx)?.toValue()
+
+            is Dot -> {
+                ExprCompiled.compileTimeGetattr(v, field, ctx)?.toValue()
+            }
         }
 }
 
@@ -427,7 +446,10 @@ internal sealed class ExprCompiled {
                 val builtin = this.op
                 if (builtin is Builtin1.TypeIs) Pair(this.expr, builtin.type) else null
             }
-            else -> null
+
+            else -> {
+                null
+            }
         }
 
     /** Expression is a frozen value which is builtin. */
@@ -489,11 +511,26 @@ internal sealed class ExprCompiled {
      */
     internal fun isPureInfallibleToBool(): Boolean? =
         when (this) {
-            is ValueExpr -> value.toValue().toBool()
-            is ListExpr -> if (elements.all { it.node.isPureInfallible() }) elements.isNotEmpty() else null
-            is TupleExpr -> if (elements.all { it.node.isPureInfallible() }) elements.isNotEmpty() else null
-            is DictExpr -> if (entries.isEmpty()) false else null
-            is Builtin1Expr -> if (op is Builtin1.Not) expr.node.isPureInfallibleToBool()?.let { !it } else null
+            is ValueExpr -> {
+                value.toValue().toBool()
+            }
+
+            is ListExpr -> {
+                if (elements.all { it.node.isPureInfallible() }) elements.isNotEmpty() else null
+            }
+
+            is TupleExpr -> {
+                if (elements.all { it.node.isPureInfallible() }) elements.isNotEmpty() else null
+            }
+
+            is DictExpr -> {
+                if (entries.isEmpty()) false else null
+            }
+
+            is Builtin1Expr -> {
+                if (op is Builtin1.Not) expr.node.isPureInfallibleToBool()?.let { !it } else null
+            }
+
             is LogicalBinOp -> {
                 val xVal = lhs.node.isPureInfallibleToBool()
                 val yVal = rhs.node.isPureInfallibleToBool()
@@ -505,7 +542,10 @@ internal sealed class ExprCompiled {
                     else -> null
                 }
             }
-            else -> null
+
+            else -> {
+                null
+            }
         }
 
     /** This expression is local slot. */
@@ -564,11 +604,13 @@ internal sealed class ExprCompiled {
 
         internal fun not(span: FrameSpan, expr: IrSpanned<ExprCompiled>): IrSpanned<ExprCompiled> =
             when (val node = expr.node) {
-                is ValueExpr ->
+                is ValueExpr -> {
                     IrSpanned(
                         node = ValueExpr(FrozenValue.newBool(!node.value.toValue().toBool())),
                         span = span,
                     )
+                }
+
                 // Collapse `not not e` to `e` only if `e` is known to produce a boolean.
                 is Builtin1Expr -> {
                     if (node.op is Builtin1.Not && node.expr.node.isDefinitelyBool()) {
@@ -580,11 +622,13 @@ internal sealed class ExprCompiled {
                         )
                     }
                 }
-                else ->
+
+                else -> {
                     IrSpanned(
                         node = Builtin1Expr(Builtin1.Not, expr),
                         span = span,
                     )
+                }
             }
 
         // ---------------------------------------------------------------
@@ -769,7 +813,10 @@ internal sealed class ExprCompiled {
             val condSpan = cond.span
             val condBool = ExprCompiledBool.new(cond)
             return when (val node = condBool.node) {
-                is ExprCompiledBool.Const -> if (node.value) t else f
+                is ExprCompiledBool.Const -> {
+                    if (node.value) t else f
+                }
+
                 is ExprCompiledBool.Expr -> {
                     when (val condExpr = node.expr) {
                         is Builtin1Expr -> {
@@ -784,9 +831,11 @@ internal sealed class ExprCompiled {
                                 )
                             }
                         }
+
                         is Seq -> {
                             seq(condExpr.first, ifExpr(condExpr.second, t, f))
                         }
+
                         else -> {
                             val fullCond = IrSpanned<ExprCompiled>(node = condExpr, span = condSpan)
                             val span = fullCond.span.merge(t.span).merge(f.span)
@@ -899,6 +948,7 @@ internal sealed class ExprCompiled {
                         Compr(compr)
                     }
                 }
+
                 is ComprCompiled.Dict -> {
                     if (compr.clauses.isNop()) {
                         DictExpr(emptyList())
@@ -935,14 +985,21 @@ internal sealed class ExprCompiled {
                 is MemberOrValue.Member -> {
                     val member = v.member
                     when (member) {
-                        is UnboundValue.Method ->
+                        is UnboundValue.Method -> {
                             ctx.frozenHeap().allocSimple(
                                 BoundMethodGen(member.method, left),
                             )
-                        is UnboundValue.Attr -> null
+                        }
+
+                        is UnboundValue.Attr -> {
+                            null
+                        }
                     }
                 }
-                is MemberOrValue.ValueResult -> v.value.unpackFrozen()
+
+                is MemberOrValue.ValueResult -> {
+                    v.value.unpackFrozen()
+                }
             }
         }
 
@@ -1045,6 +1102,7 @@ internal sealed class ExprCompiled {
                             .toFrozenValue(),
                     )
                 }
+
                 is TupleExpr -> {
                     if (node.elements.all { it.node.isPureInfallible() }) {
                         ValueExpr(constFrozenString(TupleGen.TYPE).toFrozenValue())
@@ -1052,6 +1110,7 @@ internal sealed class ExprCompiled {
                         typCall(span, v)
                     }
                 }
+
                 is ListExpr -> {
                     if (node.elements.all { it.node.isPureInfallible() }) {
                         ValueExpr(constFrozenString(ListData.TYPE).toFrozenValue())
@@ -1059,6 +1118,7 @@ internal sealed class ExprCompiled {
                         typCall(span, v)
                     }
                 }
+
                 is DictExpr -> {
                     if (node.entries.isEmpty()) {
                         ValueExpr(constFrozenString(Dict.TYPE).toFrozenValue())
@@ -1066,6 +1126,7 @@ internal sealed class ExprCompiled {
                         typCall(span, v)
                     }
                 }
+
                 is Builtin1Expr -> {
                     if ((node.op is Builtin1.Not || node.op is Builtin1.TypeIs) &&
                         node.expr.node.isPureInfallible()
@@ -1075,7 +1136,10 @@ internal sealed class ExprCompiled {
                         typCall(span, v)
                     }
                 }
-                else -> typCall(span, v)
+
+                else -> {
+                    typCall(span, v)
+                }
             }
 
         private fun typCall(span: FrameSpan, v: IrSpanned<ExprCompiled>): ExprCompiled =
@@ -1170,14 +1234,18 @@ private data class SpannedExprShortList(
 ) {
     fun asExprs(): List<IrSpanned<ExprCompiled>> =
         when (node) {
-            is ExprShortList.Exprs -> node.exprs
-            is ExprShortList.Constants ->
+            is ExprShortList.Exprs -> {
+                node.exprs
+            }
+
+            is ExprShortList.Constants -> {
                 node.constants.map { c ->
                     IrSpanned(
                         node = ExprCompiled.ValueExpr(c),
                         span = span,
                     )
                 }
+            }
         }
 }
 
@@ -1193,6 +1261,7 @@ private fun IrSpanned<ExprCompiled>.asShortList(): SpannedExprShortList? {
                 null
             }
         }
+
         is ExprCompiled.ValueExpr -> {
             val list = FrozenListData.fromFrozenValue(n.value) ?: return null
             if (list.len() <= maxLen) {
@@ -1201,7 +1270,10 @@ private fun IrSpanned<ExprCompiled>.asShortList(): SpannedExprShortList? {
                 null
             }
         }
-        else -> null
+
+        else -> {
+            null
+        }
     }
 }
 
@@ -1222,7 +1294,9 @@ internal fun IrSpanned<ExprCompiled>.optimize(ctx: OptCtx): IrSpanned<ExprCompil
             is ExprCompiled.ValueExpr,
             is ExprCompiled.Local,
             is ExprCompiled.LocalCaptured,
-            -> e
+            -> {
+                e
+            }
 
             is ExprCompiled.Module -> {
                 val frozen = ctx.frozenModule()?.getSlot(e.slot)
@@ -1246,7 +1320,9 @@ internal fun IrSpanned<ExprCompiled>.optimize(ctx: OptCtx): IrSpanned<ExprCompil
                 ExprCompiled.DictExpr(e.entries.map { (k, v) -> Pair(k.optimize(ctx), v.optimize(ctx)) })
             }
 
-            is ExprCompiled.Compr -> e.compr.optimize(ctx)
+            is ExprCompiled.Compr -> {
+                e.compr.optimize(ctx)
+            }
 
             is ExprCompiled.If -> {
                 val cond = IrSpanned(span = e.cond.span, node = e.cond.node).optimize(ctx)
@@ -1293,9 +1369,13 @@ internal fun IrSpanned<ExprCompiled>.optimize(ctx: OptCtx): IrSpanned<ExprCompil
                 ExprCompiled.index2(a, i0, i1)
             }
 
-            is ExprCompiled.Def -> e
+            is ExprCompiled.Def -> {
+                e
+            }
 
-            is ExprCompiled.Call -> e.call.node.optimize(ctx)
+            is ExprCompiled.Call -> {
+                e.call.node.optimize(ctx)
+            }
         }
     return IrSpanned(node = expr, span = span)
 }
@@ -1360,9 +1440,18 @@ private fun AstLiteral.compile(heap: FrozenHeap): FrozenValue =
                 is StarlarkInt.Big -> heap.allocSimple(si.value)
             }
         }
-        is AstLiteral.FloatLit -> StarlarkFloat(value.node).allocFrozenValue(heap)
-        is AstLiteral.StringLit -> heap.allocStrIntern(value.node).toFrozenValue()
-        is AstLiteral.Ellipsis -> heap.alloc(io.github.kotlinmania.starlark.values.types.ellipsis.Ellipsis)
+
+        is AstLiteral.FloatLit -> {
+            StarlarkFloat(value.node).allocFrozenValue(heap)
+        }
+
+        is AstLiteral.StringLit -> {
+            heap.allocStrIntern(value.node).toFrozenValue()
+        }
+
+        is AstLiteral.Ellipsis -> {
+            heap.alloc(io.github.kotlinmania.starlark.values.types.ellipsis.Ellipsis)
+        }
     }
 
 // ---------------------------------------------------------------------------
@@ -1376,7 +1465,10 @@ private fun <P : AstPayload> ExprP<P>.unpackStringLiteral(): String? =
             val lit = this.literal
             if (lit is AstLiteral.StringLit) lit.value.node else null
         }
-        else -> null
+
+        else -> {
+            null
+        }
     }
 
 /**
@@ -1405,6 +1497,7 @@ private fun <P : AstPayload> reducesToString(
                 @Suppress("UNCHECKED_CAST")
                 currentRight = leftNode.rhs as AstExprP<P>
             }
+
             else -> {
                 val y = currentLeft.node.unpackStringLiteral() ?: return null
                 results.add(y)
@@ -1531,6 +1624,7 @@ private fun Compiler.exprIdent(ident: CstIdent): ExprCompiled {
                         Captured.No -> ExprCompiled.Local(LocalSlotId(slot.id.index))
                     }
                 }
+
                 is Slot.Module -> {
                     // We can only inline variables if they were assigned once
                     // otherwise we might inline the wrong value.
@@ -1552,7 +1646,10 @@ private fun Compiler.exprIdent(ident: CstIdent): ExprCompiled {
                 }
             }
         }
-        is ResolvedIdent.Global -> ExprCompiled.ValueExpr(resolvedIdent.value)
+
+        is ResolvedIdent.Global -> {
+            ExprCompiled.ValueExpr(resolvedIdent.value)
+        }
     }
 }
 
@@ -1584,6 +1681,7 @@ internal fun Compiler.expr(
                     val ident = node.ident as CstIdent
                     exprIdent(ident)
                 }
+
                 is ExprP.Lambda<*, *> -> {
                     @Suppress("UNCHECKED_CAST")
                     val lambda = node.lambda as LambdaP<CstPayload, ScopeId>
@@ -1603,18 +1701,21 @@ internal fun Compiler.expr(
                         suite,
                     )
                 }
+
                 is ExprP.Tuple<*> -> {
                     @Suppress("UNCHECKED_CAST")
                     val elements = node.elements as List<CstExpr>
                     val xs = this.exprs(elements).getOrThrow()
                     ExprCompiled.tuple(xs, this.eval.moduleEnv.frozenHeap())
                 }
+
                 is ExprP.ListExpr<*> -> {
                     @Suppress("UNCHECKED_CAST")
                     val elements = node.elements as List<CstExpr>
                     val xs = this.exprs(elements).getOrThrow()
                     ExprCompiled.ListExpr(xs)
                 }
+
                 is ExprP.Dict<*> -> {
                     @Suppress("UNCHECKED_CAST")
                     val elements = node.elements as List<Pair<CstExpr, CstExpr>>
@@ -1624,6 +1725,7 @@ internal fun Compiler.expr(
                         }
                     ExprCompiled.DictExpr(xs)
                 }
+
                 is ExprP.If<*> -> {
                     @Suppress("UNCHECKED_CAST")
                     val cond = this.expr(node.cond as CstExpr).getOrThrow()
@@ -1635,12 +1737,14 @@ internal fun Compiler.expr(
                     val elseExpr = this.expr(node.v2 as CstExpr).getOrThrow()
                     return Result.success(ExprCompiled.ifExpr(cond, thenExpr, elseExpr))
                 }
+
                 is ExprP.Dot<*> -> {
                     @Suppress("UNCHECKED_CAST")
                     val left = this.expr(node.expr as CstExpr).getOrThrow()
                     val s = Symbol.new(node.field.node)
                     ExprCompiled.dot(left, s, this.optCtx())
                 }
+
                 is ExprP.Call<*> -> {
                     @Suppress("UNCHECKED_CAST")
                     val left = this.expr(node.expr as CstExpr).getOrThrow()
@@ -1649,6 +1753,7 @@ internal fun Compiler.expr(
                     val args = this.compileArgs(node.args as CallArgsP<CstPayload>).getOrThrow()
                     CallCompiled.call(span, left, args, this.optCtx())
                 }
+
                 is ExprP.Index<*> -> {
                     @Suppress("UNCHECKED_CAST")
                     val array = this.expr(node.expr as CstExpr).getOrThrow()
@@ -1657,6 +1762,7 @@ internal fun Compiler.expr(
                     val index = this.expr(node.index as CstExpr).getOrThrow()
                     ExprCompiled.index(array, index, this.optCtx())
                 }
+
                 is ExprP.Index2<*> -> {
                     @Suppress("UNCHECKED_CAST")
                     val array = this.expr(node.expr as CstExpr).getOrThrow()
@@ -1668,6 +1774,7 @@ internal fun Compiler.expr(
                     val index1 = this.expr(node.index1 as CstExpr).getOrThrow()
                     ExprCompiled.index2(array, index0, index1)
                 }
+
                 is ExprP.Slice<*> -> {
                     @Suppress("UNCHECKED_CAST")
                     val collection = this.expr(node.expr as CstExpr).getOrThrow()
@@ -1682,26 +1789,31 @@ internal fun Compiler.expr(
                     val stride = (node.step as CstExpr?)?.let { this.expr(it).getOrThrow() }
                     ExprCompiled.slice(span, collection, start, stop, stride, this.optCtx())
                 }
+
                 is ExprP.Not<*> -> {
                     @Suppress("UNCHECKED_CAST")
                     val inner = this.expr(node.expr as CstExpr).getOrThrow()
                     return Result.success(ExprCompiled.not(span, inner))
                 }
+
                 is ExprP.Minus<*> -> {
                     @Suppress("UNCHECKED_CAST")
                     val inner = this.expr(node.expr as CstExpr).getOrThrow()
                     ExprCompiled.unOp(span, Builtin1.Minus, inner, this.optCtx())
                 }
+
                 is ExprP.Plus<*> -> {
                     @Suppress("UNCHECKED_CAST")
                     val inner = this.expr(node.expr as CstExpr).getOrThrow()
                     ExprCompiled.unOp(span, Builtin1.Plus, inner, this.optCtx())
                 }
+
                 is ExprP.BitNot<*> -> {
                     @Suppress("UNCHECKED_CAST")
                     val inner = this.expr(node.expr as CstExpr).getOrThrow()
                     ExprCompiled.unOp(span, Builtin1.BitNot, inner, this.optCtx())
                 }
+
                 is ExprP.Op<*> -> {
                     @Suppress("UNCHECKED_CAST")
                     val reduced = reducesToString(node.op, node.lhs as CstExpr, node.rhs as CstExpr)
@@ -1726,16 +1838,43 @@ internal fun Compiler.expr(
                         val r = this.expr(right).getOrThrow()
 
                         when (node.op) {
-                            BinOp.Or -> return Result.success(ExprCompiled.logicalBinOp(ExprLogicalBinOp.Or, l, r))
-                            BinOp.And -> return Result.success(ExprCompiled.logicalBinOp(ExprLogicalBinOp.And, l, r))
-                            BinOp.Equal -> return Result.success(ExprCompiled.equals(l, r))
-                            BinOp.NotEqual -> return Result.success(ExprCompiled.not(span, ExprCompiled.equals(l, r)))
-                            BinOp.Less -> ExprCompiled.binOp(Builtin2.Compare(CompareOp.Less), l, r, this.optCtx())
-                            BinOp.Greater -> ExprCompiled.binOp(Builtin2.Compare(CompareOp.Greater), l, r, this.optCtx())
-                            BinOp.LessOrEqual -> ExprCompiled.binOp(Builtin2.Compare(CompareOp.LessOrEqual), l, r, this.optCtx())
-                            BinOp.GreaterOrEqual -> ExprCompiled.binOp(Builtin2.Compare(CompareOp.GreaterOrEqual), l, r, this.optCtx())
-                            BinOp.In -> ExprCompiled.binOp(Builtin2.In, l, r, this.optCtx())
-                            BinOp.NotIn ->
+                            BinOp.Or -> {
+                                return Result.success(ExprCompiled.logicalBinOp(ExprLogicalBinOp.Or, l, r))
+                            }
+
+                            BinOp.And -> {
+                                return Result.success(ExprCompiled.logicalBinOp(ExprLogicalBinOp.And, l, r))
+                            }
+
+                            BinOp.Equal -> {
+                                return Result.success(ExprCompiled.equals(l, r))
+                            }
+
+                            BinOp.NotEqual -> {
+                                return Result.success(ExprCompiled.not(span, ExprCompiled.equals(l, r)))
+                            }
+
+                            BinOp.Less -> {
+                                ExprCompiled.binOp(Builtin2.Compare(CompareOp.Less), l, r, this.optCtx())
+                            }
+
+                            BinOp.Greater -> {
+                                ExprCompiled.binOp(Builtin2.Compare(CompareOp.Greater), l, r, this.optCtx())
+                            }
+
+                            BinOp.LessOrEqual -> {
+                                ExprCompiled.binOp(Builtin2.Compare(CompareOp.LessOrEqual), l, r, this.optCtx())
+                            }
+
+                            BinOp.GreaterOrEqual -> {
+                                ExprCompiled.binOp(Builtin2.Compare(CompareOp.GreaterOrEqual), l, r, this.optCtx())
+                            }
+
+                            BinOp.In -> {
+                                ExprCompiled.binOp(Builtin2.In, l, r, this.optCtx())
+                            }
+
+                            BinOp.NotIn -> {
                                 ExprCompiled
                                     .not(
                                         span,
@@ -1744,20 +1883,55 @@ internal fun Compiler.expr(
                                             node = ExprCompiled.binOp(Builtin2.In, l, r, this.optCtx()),
                                         ),
                                     ).node
-                            BinOp.Subtract -> ExprCompiled.binOp(Builtin2.Sub, l, r, this.optCtx())
-                            BinOp.Add -> ExprCompiled.binOp(Builtin2.Add, l, r, this.optCtx())
-                            BinOp.Multiply -> ExprCompiled.binOp(Builtin2.Multiply, l, r, this.optCtx())
-                            BinOp.Percent -> ExprCompiled.binOp(Builtin2.Percent, l, r, this.optCtx())
-                            BinOp.Divide -> ExprCompiled.binOp(Builtin2.Divide, l, r, this.optCtx())
-                            BinOp.FloorDivide -> ExprCompiled.binOp(Builtin2.FloorDivide, l, r, this.optCtx())
-                            BinOp.BitAnd -> ExprCompiled.binOp(Builtin2.BitAnd, l, r, this.optCtx())
-                            BinOp.BitOr -> ExprCompiled.binOp(Builtin2.BitOr, l, r, this.optCtx())
-                            BinOp.BitXor -> ExprCompiled.binOp(Builtin2.BitXor, l, r, this.optCtx())
-                            BinOp.LeftShift -> ExprCompiled.binOp(Builtin2.LeftShift, l, r, this.optCtx())
-                            BinOp.RightShift -> ExprCompiled.binOp(Builtin2.RightShift, l, r, this.optCtx())
+                            }
+
+                            BinOp.Subtract -> {
+                                ExprCompiled.binOp(Builtin2.Sub, l, r, this.optCtx())
+                            }
+
+                            BinOp.Add -> {
+                                ExprCompiled.binOp(Builtin2.Add, l, r, this.optCtx())
+                            }
+
+                            BinOp.Multiply -> {
+                                ExprCompiled.binOp(Builtin2.Multiply, l, r, this.optCtx())
+                            }
+
+                            BinOp.Percent -> {
+                                ExprCompiled.binOp(Builtin2.Percent, l, r, this.optCtx())
+                            }
+
+                            BinOp.Divide -> {
+                                ExprCompiled.binOp(Builtin2.Divide, l, r, this.optCtx())
+                            }
+
+                            BinOp.FloorDivide -> {
+                                ExprCompiled.binOp(Builtin2.FloorDivide, l, r, this.optCtx())
+                            }
+
+                            BinOp.BitAnd -> {
+                                ExprCompiled.binOp(Builtin2.BitAnd, l, r, this.optCtx())
+                            }
+
+                            BinOp.BitOr -> {
+                                ExprCompiled.binOp(Builtin2.BitOr, l, r, this.optCtx())
+                            }
+
+                            BinOp.BitXor -> {
+                                ExprCompiled.binOp(Builtin2.BitXor, l, r, this.optCtx())
+                            }
+
+                            BinOp.LeftShift -> {
+                                ExprCompiled.binOp(Builtin2.LeftShift, l, r, this.optCtx())
+                            }
+
+                            BinOp.RightShift -> {
+                                ExprCompiled.binOp(Builtin2.RightShift, l, r, this.optCtx())
+                            }
                         }
                     }
                 }
+
                 is ExprP.ListComprehension<*> -> {
                     @Suppress("UNCHECKED_CAST")
                     this
@@ -1767,6 +1941,7 @@ internal fun Compiler.expr(
                             node.clauses as List<ClauseP<CstPayload>>,
                         ).getOrThrow()
                 }
+
                 is ExprP.DictComprehension<*> -> {
                     @Suppress("UNCHECKED_CAST")
                     this
@@ -1777,10 +1952,12 @@ internal fun Compiler.expr(
                             node.clauses as List<ClauseP<CstPayload>>,
                         ).getOrThrow()
                 }
+
                 is ExprP.Literal<*> -> {
                     val v = node.literal.compile(this.eval.moduleEnv.frozenHeap())
                     ExprCompiled.ValueExpr(v)
                 }
+
                 is ExprP.FString<*> -> {
                     @Suppress("UNCHECKED_CAST")
                     val fstring = node.fstring as Spanned<FStringP<CstPayload>>

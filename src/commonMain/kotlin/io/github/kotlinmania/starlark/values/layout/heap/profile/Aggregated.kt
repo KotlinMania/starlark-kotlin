@@ -153,10 +153,14 @@ internal class StackCollector(
                 unpacked is AValueOrForwardUnpack.Header && retained == null -> {
                     Value.newPtrQueryIsStr(unpacked.header)
                 }
+
                 unpacked is AValueOrForwardUnpack.Forward && retained != null -> {
                     unpacked.forward.forwardPtr().unpackValue(retained)
                 }
-                else -> return
+
+                else -> {
+                    return
+                }
             }
 
         val frame = current.lastOrNull() ?: return
@@ -370,12 +374,17 @@ internal class RetainedHeapProfile(
         ProfileData(
             profile =
                 when (mode) {
-                    RetainedHeapProfileMode.FlameAndSummary ->
+                    RetainedHeapProfileMode.FlameAndSummary -> {
                         ProfileDataImpl.HeapRetained(info.clone())
-                    RetainedHeapProfileMode.Flame ->
+                    }
+
+                    RetainedHeapProfileMode.Flame -> {
                         ProfileDataImpl.HeapFlameRetained(info.clone())
-                    RetainedHeapProfileMode.Summary ->
+                    }
+
+                    RetainedHeapProfileMode.Summary -> {
                         ProfileDataImpl.HeapSummaryRetained(info.clone())
+                    }
                 },
         )
 

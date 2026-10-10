@@ -98,8 +98,9 @@ private fun inappropriateUnderscore(
             }
             inappropriateUnderscore(codemap, s.def.body, false, res)
         }
+
         // Stmt::Assign(assign) if !top =>
-        is StmtP.Assign<AstNoPayload> ->
+        is StmtP.Assign<AstNoPayload> -> {
             if (!top) {
                 val assign = s.assign
                 val lhsNode = assign.lhs.node
@@ -117,10 +118,13 @@ private fun inappropriateUnderscore(
                     }
                 }
             }
-        else ->
+        }
+
+        else -> {
             x.visitStmtChildren { child ->
                 inappropriateUnderscore(codemap, child, top, res)
             }
+        }
     }
 }
 
@@ -136,8 +140,14 @@ private fun useIgnored(
             is StmtP.Assign<AstNoPayload> -> {
                 fun visitLvalue(target: AstAssignTarget) {
                     when (val targetNode = target.node) {
-                        is AssignTargetP.Tuple<AstNoPayload> -> targetNode.elements.forEach { visitLvalue(it) }
-                        is AssignTargetP.Identifier<AstNoPayload, *> -> defs.add(targetNode.ident.node.ident)
+                        is AssignTargetP.Tuple<AstNoPayload> -> {
+                            targetNode.elements.forEach { visitLvalue(it) }
+                        }
+
+                        is AssignTargetP.Identifier<AstNoPayload, *> -> {
+                            defs.add(targetNode.ident.node.ident)
+                        }
+
                         is AssignTargetP.Dot<AstNoPayload>,
                         is AssignTargetP.Index<AstNoPayload>,
                         -> {}
@@ -145,11 +155,18 @@ private fun useIgnored(
                 }
                 visitLvalue(s.assign.lhs)
             }
+
             is StmtP.AssignModify<AstNoPayload> -> {
                 fun visitLvalue(target: AstAssignTarget) {
                     when (val targetNode = target.node) {
-                        is AssignTargetP.Tuple<AstNoPayload> -> targetNode.elements.forEach { visitLvalue(it) }
-                        is AssignTargetP.Identifier<AstNoPayload, *> -> defs.add(targetNode.ident.node.ident)
+                        is AssignTargetP.Tuple<AstNoPayload> -> {
+                            targetNode.elements.forEach { visitLvalue(it) }
+                        }
+
+                        is AssignTargetP.Identifier<AstNoPayload, *> -> {
+                            defs.add(targetNode.ident.node.ident)
+                        }
+
                         is AssignTargetP.Dot<AstNoPayload>,
                         is AssignTargetP.Index<AstNoPayload>,
                         -> {}
@@ -157,13 +174,20 @@ private fun useIgnored(
                 }
                 visitLvalue(s.lhs)
             }
-            is StmtP.Def<AstNoPayload, *> -> defs.add(s.def.name.node.ident)
+
+            is StmtP.Def<AstNoPayload, *> -> {
+                defs.add(s.def.name.node.ident)
+            }
+
             is StmtP.Load<AstNoPayload, *> -> {
                 for (arg in s.loadStmt.args) {
                     defs.add(arg.local.node.ident)
                 }
             }
-            else -> x.visitStmtChildren { child -> rootDefinitions(child, defs) }
+
+            else -> {
+                x.visitStmtChildren { child -> rootDefinitions(child, defs) }
+            }
         }
     }
 
@@ -189,7 +213,10 @@ private fun useIgnored(
                     )
                 }
             }
-            else -> x.node.visitChildExprs { child -> checkExpr(codemap, child, roots, res) }
+
+            else -> {
+                x.node.visitChildExprs { child -> checkExpr(codemap, child, roots, res) }
+            }
         }
     }
 

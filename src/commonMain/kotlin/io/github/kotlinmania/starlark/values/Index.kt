@@ -113,7 +113,10 @@ internal fun convertSliceIndices(
             else -> unpackIntErr(stride).getOrElse { return Result.failure(it) }
         }
     return when (strideVal) {
-        0 -> Result.failure(ValueError.IndexOutOfBound(0))
+        0 -> {
+            Result.failure(ValueError.IndexOutOfBound(0))
+        }
+
         else -> {
             val defStart = if (strideVal < 0) len - 1 else 0
             val defEnd = if (strideVal < 0) -1 else len

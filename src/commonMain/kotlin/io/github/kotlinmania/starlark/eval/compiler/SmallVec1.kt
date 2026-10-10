@@ -56,22 +56,36 @@ internal sealed class SmallVec1<T> :
     // Caller must reassign: `self = self.extend(that)`
     fun extend(that: SmallVec1<T>): SmallVec1<T> =
         when {
-            this is Vec && this.values.isEmpty() -> that
-            that is Vec && that.values.isEmpty() -> this
-            this is One && that is One -> Vec(mutableListOf(this.value, that.value))
+            this is Vec && this.values.isEmpty() -> {
+                that
+            }
+
+            that is Vec && that.values.isEmpty() -> {
+                this
+            }
+
+            this is One && that is One -> {
+                Vec(mutableListOf(this.value, that.value))
+            }
+
             this is One && that is Vec -> {
                 that.values.add(0, this.value)
                 Vec(that.values)
             }
+
             this is Vec && that is One -> {
                 this.values.add(that.value)
                 Vec(this.values)
             }
+
             this is Vec && that is Vec -> {
                 this.values.addAll(that.values)
                 Vec(this.values)
             }
-            else -> error("unreachable")
+
+            else -> {
+                error("unreachable")
+            }
         }
 
     fun push(value: T): SmallVec1<T> = extend(One(value))

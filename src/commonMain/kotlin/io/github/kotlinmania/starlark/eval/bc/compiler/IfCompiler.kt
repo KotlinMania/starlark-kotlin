@@ -162,9 +162,11 @@ private fun writeCond(
                 f.add(addr)
             }
         }
+
         is ExprCompiled.LogicalBinOp -> {
             writeCondBinOp(node.lhs, node.rhs, node.op, maybeNot, t, f, bc)
         }
+
         else -> {
             cond.writeBcCb(bc) { condSlot, bc ->
                 val addr =

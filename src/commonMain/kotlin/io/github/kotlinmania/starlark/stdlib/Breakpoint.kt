@@ -147,7 +147,11 @@ private fun pickCommand(x: String, rl: BreakpointConsole): CommandFn? {
             rl.println("Unrecognised command, type :help for all commands")
             null
         }
-        poss.size == 1 -> poss[0].second
+
+        poss.size == 1 -> {
+            poss[0].second
+        }
+
         else -> {
             rl.println("Ambiguous command, could have been any of: ${poss.joinToString(" ") { it.first }}")
             null
@@ -164,8 +168,14 @@ private fun breakpointLoop(eval: Evaluator, rl: BreakpointConsole): State {
             if (cmd != null) {
                 when (cmd(eval, rl)) {
                     Next.Again -> {}
-                    Next.Resume -> return State.Allow
-                    Next.Fail -> throw RuntimeException("Selected :fail at breakpoint()")
+
+                    Next.Resume -> {
+                        return State.Allow
+                    }
+
+                    Next.Fail -> {
+                        throw RuntimeException("Selected :fail at breakpoint()")
+                    }
                 }
             }
         } else {

@@ -65,7 +65,10 @@ internal data class DictGen<T>(
 
     override fun toString(): String =
         when (val innerVal = inner.asDictLike()) {
-            null -> super.toString()
+            null -> {
+                super.toString()
+            }
+
             else -> {
                 fmtKeyedContainer("{", "}", ": ", innerVal.content().iter())
             }
@@ -361,8 +364,14 @@ internal fun FrozenDictData.toValueMap(): SmallMap<Value, Value> {
 
 private fun Any?.asDictLike(): DictLike? =
     when (this) {
-        is DictLike -> this
-        is FrozenDictData -> FrozenDictDataDictLike(this)
+        is DictLike -> {
+            this
+        }
+
+        is FrozenDictData -> {
+            FrozenDictDataDictLike(this)
+        }
+
         is AtomicRef<*> -> {
             val dict = value
             if (dict is Dict) {
@@ -371,7 +380,10 @@ private fun Any?.asDictLike(): DictLike? =
                 null
             }
         }
-        else -> null
+
+        else -> {
+            null
+        }
     }
 
 class FrozenDict internal constructor(

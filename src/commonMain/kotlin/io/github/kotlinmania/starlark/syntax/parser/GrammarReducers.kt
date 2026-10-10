@@ -28,6 +28,7 @@ internal object GrammarReducers {
                 symbols.add(Triple(__start, GrammarSymbol.Variant5(__nt as Token?), __end))
                 return 1 to 0
             }
+
             1 -> {
                 // // ","? =  => ActionFn(216);
                 val __start = lookaheadStart ?: symbols.lastOrNull()?.third ?: 0
@@ -36,6 +37,7 @@ internal object GrammarReducers {
                 symbols.add(Triple(__start, GrammarSymbol.Variant5(__nt as Token?), __end))
                 return 0 to 0
             }
+
             2 -> {
                 // // ";"? = ";" => ActionFn(205);
                 val __sym0 = symbols.popUnwrap()
@@ -45,6 +47,7 @@ internal object GrammarReducers {
                 symbols.add(Triple(__start, GrammarSymbol.Variant5(__nt as Token?), __end))
                 return 1 to 1
             }
+
             3 -> {
                 // // ";"? =  => ActionFn(206);
                 val __start = lookaheadStart ?: symbols.lastOrNull()?.third ?: 0
@@ -53,6 +56,7 @@ internal object GrammarReducers {
                 symbols.add(Triple(__start, GrammarSymbol.Variant5(__nt as Token?), __end))
                 return 0 to 1
             }
+
             4 -> {
                 // // "\n"* =  => ActionFn(196);
                 val __start = lookaheadStart ?: symbols.lastOrNull()?.third ?: 0
@@ -61,6 +65,7 @@ internal object GrammarReducers {
                 symbols.add(Triple(__start, GrammarSymbol.Variant6(__nt as List<Token>), __end))
                 return 0 to 2
             }
+
             5 -> {
                 // // "\n"* = "\n"+ => ActionFn(197);
                 val __sym0 = symbols.popUnwrap()
@@ -70,6 +75,7 @@ internal object GrammarReducers {
                 symbols.add(Triple(__start, GrammarSymbol.Variant6(__nt as List<Token>), __end))
                 return 1 to 2
             }
+
             6 -> {
                 // // "\n"+ = "\n" => ActionFn(186);
                 val __sym0 = symbols.popUnwrap()
@@ -79,6 +85,7 @@ internal object GrammarReducers {
                 symbols.add(Triple(__start, GrammarSymbol.Variant6(__nt as List<Token>), __end))
                 return 1 to 3
             }
+
             7 -> {
                 // // "\n"+ = "\n"+, "\n" => ActionFn(187);
                 val __sym1 = symbols.popUnwrap()
@@ -89,6 +96,7 @@ internal object GrammarReducers {
                 symbols.add(Triple(__start, GrammarSymbol.Variant6(__nt as List<Token>), __end))
                 return 2 to 3
             }
+
             8 -> {
                 // // (":" <Test?>) = ":", Test => ActionFn(263);
                 val __sym1 = symbols.popUnwrap()
@@ -99,6 +107,7 @@ internal object GrammarReducers {
                 symbols.add(Triple(__start, GrammarSymbol.Variant7(__nt as AstExpr?), __end))
                 return 2 to 4
             }
+
             9 -> {
                 // // (":" <Test?>) = ":" => ActionFn(264);
                 val __sym0 = symbols.popUnwrap()
@@ -108,6 +117,7 @@ internal object GrammarReducers {
                 symbols.add(Triple(__start, GrammarSymbol.Variant7(__nt as AstExpr?), __end))
                 return 1 to 4
             }
+
             10 -> {
                 // // (":" <Test?>)? = ":", Test => ActionFn(271);
                 val __sym1 = symbols.popUnwrap()
@@ -118,6 +128,7 @@ internal object GrammarReducers {
                 symbols.add(Triple(__start, GrammarSymbol.Variant8(__nt as AstExpr?), __end))
                 return 2 to 5
             }
+
             11 -> {
                 // // (":" <Test?>)? = ":" => ActionFn(272);
                 val __sym0 = symbols.popUnwrap()
@@ -127,6 +138,7 @@ internal object GrammarReducers {
                 symbols.add(Triple(__start, GrammarSymbol.Variant8(__nt as AstExpr?), __end))
                 return 1 to 5
             }
+
             12 -> {
                 // // (":" <Test?>)? =  => ActionFn(159);
                 val __start = lookaheadStart ?: symbols.lastOrNull()?.third ?: 0
@@ -135,6 +147,7 @@ internal object GrammarReducers {
                 symbols.add(Triple(__start, GrammarSymbol.Variant8(__nt as AstExpr?), __end))
                 return 0 to 5
             }
+
             13 -> {
                 // // (";" <SmallStmt>) = ";", SmallStmt => ActionFn(209);
                 val __sym1 = symbols.popUnwrap()
@@ -145,6 +158,7 @@ internal object GrammarReducers {
                 symbols.add(Triple(__start, GrammarSymbol.Variant9(__nt as AstStmt), __end))
                 return 2 to 6
             }
+
             14 -> {
                 // // (";" <SmallStmt>)* =  => ActionFn(207);
                 val __start = lookaheadStart ?: symbols.lastOrNull()?.third ?: 0
@@ -153,6 +167,7 @@ internal object GrammarReducers {
                 symbols.add(Triple(__start, GrammarSymbol.Variant10(__nt as List<AstStmt>), __end))
                 return 0 to 7
             }
+
             15 -> {
                 // // (";" <SmallStmt>)* = (";" <SmallStmt>)+ => ActionFn(208);
                 val __sym0 = symbols.popUnwrap()
@@ -162,6 +177,7 @@ internal object GrammarReducers {
                 symbols.add(Triple(__start, GrammarSymbol.Variant10(__nt as List<AstStmt>), __end))
                 return 1 to 7
             }
+
             16 -> {
                 // // (";" <SmallStmt>)+ = ";", SmallStmt => ActionFn(285);
                 val __sym1 = symbols.popUnwrap()
@@ -172,6 +188,7 @@ internal object GrammarReducers {
                 symbols.add(Triple(__start, GrammarSymbol.Variant10(__nt as List<AstStmt>), __end))
                 return 2 to 8
             }
+
             17 -> {
                 // // (";" <SmallStmt>)+ = (";" <SmallStmt>)+, ";", SmallStmt => ActionFn(286);
                 val __sym2 = symbols.popUnwrap()
@@ -183,6 +200,7 @@ internal object GrammarReducers {
                 symbols.add(Triple(__start, GrammarSymbol.Variant10(__nt as List<AstStmt>), __end))
                 return 3 to 8
             }
+
             18 -> {
                 // // (<Argument> ",") = Argument, "," => ActionFn(221);
                 val __sym1 = symbols.popUnwrap()
@@ -193,6 +211,7 @@ internal object GrammarReducers {
                 symbols.add(Triple(__start, GrammarSymbol.Variant11(__nt as AstArgument), __end))
                 return 2 to 9
             }
+
             19 -> {
                 // // (<Argument> ",")* =  => ActionFn(219);
                 val __start = lookaheadStart ?: symbols.lastOrNull()?.third ?: 0
@@ -201,6 +220,7 @@ internal object GrammarReducers {
                 symbols.add(Triple(__start, GrammarSymbol.Variant12(__nt as List<AstArgument>), __end))
                 return 0 to 10
             }
+
             20 -> {
                 // // (<Argument> ",")* = (<Argument> ",")+ => ActionFn(220);
                 val __sym0 = symbols.popUnwrap()
@@ -210,6 +230,7 @@ internal object GrammarReducers {
                 symbols.add(Triple(__start, GrammarSymbol.Variant12(__nt as List<AstArgument>), __end))
                 return 1 to 10
             }
+
             21 -> {
                 // // (<Argument> ",")+ = Argument, "," => ActionFn(291);
                 val __sym1 = symbols.popUnwrap()
@@ -220,6 +241,7 @@ internal object GrammarReducers {
                 symbols.add(Triple(__start, GrammarSymbol.Variant12(__nt as List<AstArgument>), __end))
                 return 2 to 11
             }
+
             22 -> {
                 // // (<Argument> ",")+ = (<Argument> ",")+, Argument, "," => ActionFn(292);
                 val __sym2 = symbols.popUnwrap()
@@ -231,6 +253,7 @@ internal object GrammarReducers {
                 symbols.add(Triple(__start, GrammarSymbol.Variant12(__nt as List<AstArgument>), __end))
                 return 3 to 11
             }
+
             23 -> {
                 // // (<DefParameter> ",") = DefParameter, "," => ActionFn(204);
                 val __sym1 = symbols.popUnwrap()
@@ -241,6 +264,7 @@ internal object GrammarReducers {
                 symbols.add(Triple(__start, GrammarSymbol.Variant13(__nt as AstParameter), __end))
                 return 2 to 12
             }
+
             24 -> {
                 // // (<DefParameter> ",")* =  => ActionFn(202);
                 val __start = lookaheadStart ?: symbols.lastOrNull()?.third ?: 0
@@ -249,6 +273,7 @@ internal object GrammarReducers {
                 symbols.add(Triple(__start, GrammarSymbol.Variant14(__nt as List<AstParameter>), __end))
                 return 0 to 13
             }
+
             25 -> {
                 // // (<DefParameter> ",")* = (<DefParameter> ",")+ => ActionFn(203);
                 val __sym0 = symbols.popUnwrap()
@@ -258,6 +283,7 @@ internal object GrammarReducers {
                 symbols.add(Triple(__start, GrammarSymbol.Variant14(__nt as List<AstParameter>), __end))
                 return 1 to 13
             }
+
             26 -> {
                 // // (<DefParameter> ",")+ = DefParameter, "," => ActionFn(295);
                 val __sym1 = symbols.popUnwrap()
@@ -268,6 +294,7 @@ internal object GrammarReducers {
                 symbols.add(Triple(__start, GrammarSymbol.Variant14(__nt as List<AstParameter>), __end))
                 return 2 to 14
             }
+
             27 -> {
                 // // (<DefParameter> ",")+ = (<DefParameter> ",")+, DefParameter, "," => ActionFn(296);
                 val __sym2 = symbols.popUnwrap()
@@ -279,6 +306,7 @@ internal object GrammarReducers {
                 symbols.add(Triple(__start, GrammarSymbol.Variant14(__nt as List<AstParameter>), __end))
                 return 3 to 14
             }
+
             28 -> {
                 // // (<DictEntry> ",") = DictEntry, "," => ActionFn(229);
                 val __sym1 = symbols.popUnwrap()
@@ -289,6 +317,7 @@ internal object GrammarReducers {
                 symbols.add(Triple(__start, GrammarSymbol.Variant15(__nt as Pair<AstExpr, AstExpr>), __end))
                 return 2 to 15
             }
+
             29 -> {
                 // // (<DictEntry> ",")* =  => ActionFn(227);
                 val __start = lookaheadStart ?: symbols.lastOrNull()?.third ?: 0
@@ -297,6 +326,7 @@ internal object GrammarReducers {
                 symbols.add(Triple(__start, GrammarSymbol.Variant16(__nt as List<Pair<AstExpr, AstExpr>>), __end))
                 return 0 to 16
             }
+
             30 -> {
                 // // (<DictEntry> ",")* = (<DictEntry> ",")+ => ActionFn(228);
                 val __sym0 = symbols.popUnwrap()
@@ -306,6 +336,7 @@ internal object GrammarReducers {
                 symbols.add(Triple(__start, GrammarSymbol.Variant16(__nt as List<Pair<AstExpr, AstExpr>>), __end))
                 return 1 to 16
             }
+
             31 -> {
                 // // (<DictEntry> ",")+ = DictEntry, "," => ActionFn(299);
                 val __sym1 = symbols.popUnwrap()
@@ -316,6 +347,7 @@ internal object GrammarReducers {
                 symbols.add(Triple(__start, GrammarSymbol.Variant16(__nt as List<Pair<AstExpr, AstExpr>>), __end))
                 return 2 to 17
             }
+
             32 -> {
                 // // (<DictEntry> ",")+ = (<DictEntry> ",")+, DictEntry, "," => ActionFn(300);
                 val __sym2 = symbols.popUnwrap()
@@ -327,6 +359,7 @@ internal object GrammarReducers {
                 symbols.add(Triple(__start, GrammarSymbol.Variant16(__nt as List<Pair<AstExpr, AstExpr>>), __end))
                 return 3 to 17
             }
+
             33 -> {
                 // // (<Expr> ",") = Expr, "," => ActionFn(214);
                 val __sym1 = symbols.popUnwrap()
@@ -337,6 +370,7 @@ internal object GrammarReducers {
                 symbols.add(Triple(__start, GrammarSymbol.Variant17(__nt as AstExpr), __end))
                 return 2 to 18
             }
+
             34 -> {
                 // // (<Expr> ",")* =  => ActionFn(212);
                 val __start = lookaheadStart ?: symbols.lastOrNull()?.third ?: 0
@@ -345,6 +379,7 @@ internal object GrammarReducers {
                 symbols.add(Triple(__start, GrammarSymbol.Variant18(__nt as List<AstExpr>), __end))
                 return 0 to 19
             }
+
             35 -> {
                 // // (<Expr> ",")* = (<Expr> ",")+ => ActionFn(213);
                 val __sym0 = symbols.popUnwrap()
@@ -354,6 +389,7 @@ internal object GrammarReducers {
                 symbols.add(Triple(__start, GrammarSymbol.Variant18(__nt as List<AstExpr>), __end))
                 return 1 to 19
             }
+
             36 -> {
                 // // (<Expr> ",")+ = Expr, "," => ActionFn(303);
                 val __sym1 = symbols.popUnwrap()
@@ -364,6 +400,7 @@ internal object GrammarReducers {
                 symbols.add(Triple(__start, GrammarSymbol.Variant18(__nt as List<AstExpr>), __end))
                 return 2 to 20
             }
+
             37 -> {
                 // // (<Expr> ",")+ = (<Expr> ",")+, Expr, "," => ActionFn(304);
                 val __sym2 = symbols.popUnwrap()
@@ -375,6 +412,7 @@ internal object GrammarReducers {
                 symbols.add(Triple(__start, GrammarSymbol.Variant18(__nt as List<AstExpr>), __end))
                 return 3 to 20
             }
+
             38 -> {
                 // // (<LambdaParameter> ",") = LambdaParameter, "," => ActionFn(236);
                 val __sym1 = symbols.popUnwrap()
@@ -385,6 +423,7 @@ internal object GrammarReducers {
                 symbols.add(Triple(__start, GrammarSymbol.Variant13(__nt as AstParameter), __end))
                 return 2 to 21
             }
+
             39 -> {
                 // // (<LambdaParameter> ",")* =  => ActionFn(234);
                 val __start = lookaheadStart ?: symbols.lastOrNull()?.third ?: 0
@@ -393,6 +432,7 @@ internal object GrammarReducers {
                 symbols.add(Triple(__start, GrammarSymbol.Variant14(__nt as List<AstParameter>), __end))
                 return 0 to 22
             }
+
             40 -> {
                 // // (<LambdaParameter> ",")* = (<LambdaParameter> ",")+ => ActionFn(235);
                 val __sym0 = symbols.popUnwrap()
@@ -402,6 +442,7 @@ internal object GrammarReducers {
                 symbols.add(Triple(__start, GrammarSymbol.Variant14(__nt as List<AstParameter>), __end))
                 return 1 to 22
             }
+
             41 -> {
                 // // (<LambdaParameter> ",")+ = LambdaParameter, "," => ActionFn(309);
                 val __sym1 = symbols.popUnwrap()
@@ -412,6 +453,7 @@ internal object GrammarReducers {
                 symbols.add(Triple(__start, GrammarSymbol.Variant14(__nt as List<AstParameter>), __end))
                 return 2 to 23
             }
+
             42 -> {
                 // // (<LambdaParameter> ",")+ = (<LambdaParameter> ",")+, LambdaParameter, "," => ActionFn(310);
                 val __sym2 = symbols.popUnwrap()
@@ -423,6 +465,7 @@ internal object GrammarReducers {
                 symbols.add(Triple(__start, GrammarSymbol.Variant14(__nt as List<AstParameter>), __end))
                 return 3 to 23
             }
+
             43 -> {
                 // // (<LoadStmtSyms> <Comma>) = LoadStmtSyms, Comma => ActionFn(173);
                 val __sym1 = symbols.popUnwrap()
@@ -433,6 +476,7 @@ internal object GrammarReducers {
                 symbols.add(Triple(__start, GrammarSymbol.Variant19(__nt as Pair<Pair<AstAssignIdent, AstString>, Spanned<Comma>>), __end))
                 return 2 to 24
             }
+
             44 -> {
                 // // (<LoadStmtSyms> <Comma>)* =  => ActionFn(171);
                 val __start = lookaheadStart ?: symbols.lastOrNull()?.third ?: 0
@@ -441,6 +485,7 @@ internal object GrammarReducers {
                 symbols.add(Triple(__start, GrammarSymbol.Variant20(__nt as List<Pair<Pair<AstAssignIdent, AstString>, Spanned<Comma>>>), __end))
                 return 0 to 25
             }
+
             45 -> {
                 // // (<LoadStmtSyms> <Comma>)* = (<LoadStmtSyms> <Comma>)+ => ActionFn(172);
                 val __sym0 = symbols.popUnwrap()
@@ -450,6 +495,7 @@ internal object GrammarReducers {
                 symbols.add(Triple(__start, GrammarSymbol.Variant20(__nt as List<Pair<Pair<AstAssignIdent, AstString>, Spanned<Comma>>>), __end))
                 return 1 to 25
             }
+
             46 -> {
                 // // (<LoadStmtSyms> <Comma>)+ = LoadStmtSyms, Comma => ActionFn(313);
                 val __sym1 = symbols.popUnwrap()
@@ -460,6 +506,7 @@ internal object GrammarReducers {
                 symbols.add(Triple(__start, GrammarSymbol.Variant20(__nt as List<Pair<Pair<AstAssignIdent, AstString>, Spanned<Comma>>>), __end))
                 return 2 to 26
             }
+
             47 -> {
                 // // (<LoadStmtSyms> <Comma>)+ = (<LoadStmtSyms> <Comma>)+, LoadStmtSyms, Comma => ActionFn(314);
                 val __sym2 = symbols.popUnwrap()
@@ -471,6 +518,7 @@ internal object GrammarReducers {
                 symbols.add(Triple(__start, GrammarSymbol.Variant20(__nt as List<Pair<Pair<AstAssignIdent, AstString>, Spanned<Comma>>>), __end))
                 return 3 to 26
             }
+
             48 -> {
                 // // (<LoadStmtSyms>) = LoadStmtSyms => ActionFn(170);
                 val __sym0 = symbols.popUnwrap()
@@ -480,6 +528,7 @@ internal object GrammarReducers {
                 symbols.add(Triple(__start, GrammarSymbol.Variant21(__nt as Pair<AstAssignIdent, AstString>), __end))
                 return 1 to 27
             }
+
             49 -> {
                 // // (<LoadStmtSyms>)? = LoadStmtSyms => ActionFn(317);
                 val __sym0 = symbols.popUnwrap()
@@ -489,6 +538,7 @@ internal object GrammarReducers {
                 symbols.add(Triple(__start, GrammarSymbol.Variant22(__nt as Pair<AstAssignIdent, AstString>?), __end))
                 return 1 to 28
             }
+
             50 -> {
                 // // (<LoadStmtSyms>)? =  => ActionFn(169);
                 val __start = lookaheadStart ?: symbols.lastOrNull()?.third ?: 0
@@ -497,6 +547,7 @@ internal object GrammarReducers {
                 symbols.add(Triple(__start, GrammarSymbol.Variant22(__nt as Pair<AstAssignIdent, AstString>?), __end))
                 return 0 to 28
             }
+
             51 -> {
                 // // (<Stmt> "\n"*) = Stmt => ActionFn(257);
                 val __sym0 = symbols.popUnwrap()
@@ -506,6 +557,7 @@ internal object GrammarReducers {
                 symbols.add(Triple(__start, GrammarSymbol.Variant9(__nt as AstStmt), __end))
                 return 1 to 29
             }
+
             52 -> {
                 // // (<Stmt> "\n"*) = Stmt, "\n"+ => ActionFn(258);
                 val __sym1 = symbols.popUnwrap()
@@ -516,6 +568,7 @@ internal object GrammarReducers {
                 symbols.add(Triple(__start, GrammarSymbol.Variant9(__nt as AstStmt), __end))
                 return 2 to 29
             }
+
             53 -> {
                 // // (<Stmt> "\n"*)* =  => ActionFn(193);
                 val __start = lookaheadStart ?: symbols.lastOrNull()?.third ?: 0
@@ -524,6 +577,7 @@ internal object GrammarReducers {
                 symbols.add(Triple(__start, GrammarSymbol.Variant10(__nt as List<AstStmt>), __end))
                 return 0 to 30
             }
+
             54 -> {
                 // // (<Stmt> "\n"*)* = (<Stmt> "\n"*)+ => ActionFn(194);
                 val __sym0 = symbols.popUnwrap()
@@ -533,6 +587,7 @@ internal object GrammarReducers {
                 symbols.add(Triple(__start, GrammarSymbol.Variant10(__nt as List<AstStmt>), __end))
                 return 1 to 30
             }
+
             55 -> {
                 // // (<Stmt> "\n"*)+ = Stmt => ActionFn(322);
                 val __sym0 = symbols.popUnwrap()
@@ -542,6 +597,7 @@ internal object GrammarReducers {
                 symbols.add(Triple(__start, GrammarSymbol.Variant10(__nt as List<AstStmt>), __end))
                 return 1 to 31
             }
+
             56 -> {
                 // // (<Stmt> "\n"*)+ = Stmt, "\n"+ => ActionFn(323);
                 val __sym1 = symbols.popUnwrap()
@@ -552,6 +608,7 @@ internal object GrammarReducers {
                 symbols.add(Triple(__start, GrammarSymbol.Variant10(__nt as List<AstStmt>), __end))
                 return 2 to 31
             }
+
             57 -> {
                 // // (<Stmt> "\n"*)+ = (<Stmt> "\n"*)+, Stmt => ActionFn(324);
                 val __sym1 = symbols.popUnwrap()
@@ -562,6 +619,7 @@ internal object GrammarReducers {
                 symbols.add(Triple(__start, GrammarSymbol.Variant10(__nt as List<AstStmt>), __end))
                 return 2 to 31
             }
+
             58 -> {
                 // // (<Stmt> "\n"*)+ = (<Stmt> "\n"*)+, Stmt, "\n"+ => ActionFn(325);
                 val __sym2 = symbols.popUnwrap()
@@ -573,6 +631,7 @@ internal object GrammarReducers {
                 symbols.add(Triple(__start, GrammarSymbol.Variant10(__nt as List<AstStmt>), __end))
                 return 3 to 31
             }
+
             59 -> {
                 // // (<Test> ",") = Test, "," => ActionFn(224);
                 val __sym1 = symbols.popUnwrap()
@@ -583,6 +642,7 @@ internal object GrammarReducers {
                 symbols.add(Triple(__start, GrammarSymbol.Variant17(__nt as AstExpr), __end))
                 return 2 to 32
             }
+
             60 -> {
                 // // (<Test> ",")* =  => ActionFn(222);
                 val __start = lookaheadStart ?: symbols.lastOrNull()?.third ?: 0
@@ -591,6 +651,7 @@ internal object GrammarReducers {
                 symbols.add(Triple(__start, GrammarSymbol.Variant18(__nt as List<AstExpr>), __end))
                 return 0 to 33
             }
+
             61 -> {
                 // // (<Test> ",")* = (<Test> ",")+ => ActionFn(223);
                 val __sym0 = symbols.popUnwrap()
@@ -600,6 +661,7 @@ internal object GrammarReducers {
                 symbols.add(Triple(__start, GrammarSymbol.Variant18(__nt as List<AstExpr>), __end))
                 return 1 to 33
             }
+
             62 -> {
                 // // (<Test> ",")+ = Test, "," => ActionFn(330);
                 val __sym1 = symbols.popUnwrap()
@@ -610,6 +672,7 @@ internal object GrammarReducers {
                 symbols.add(Triple(__start, GrammarSymbol.Variant18(__nt as List<AstExpr>), __end))
                 return 2 to 34
             }
+
             63 -> {
                 // // (<Test> ",")+ = (<Test> ",")+, Test, "," => ActionFn(331);
                 val __sym2 = symbols.popUnwrap()
@@ -621,6 +684,7 @@ internal object GrammarReducers {
                 symbols.add(Triple(__start, GrammarSymbol.Variant18(__nt as List<AstExpr>), __end))
                 return 3 to 34
             }
+
             64 -> {
                 // // @L =  => ActionFn(199);
                 val __start = lookaheadStart ?: symbols.lastOrNull()?.third ?: 0
@@ -629,6 +693,7 @@ internal object GrammarReducers {
                 symbols.add(Triple(__start, GrammarSymbol.Variant23(__nt as Int), __end))
                 return 0 to 35
             }
+
             65 -> {
                 // // @R =  => ActionFn(198);
                 val __start = lookaheadStart ?: symbols.lastOrNull()?.third ?: 0
@@ -637,6 +702,7 @@ internal object GrammarReducers {
                 symbols.add(Triple(__start, GrammarSymbol.Variant23(__nt as Int), __end))
                 return 0 to 36
             }
+
             66 -> {
                 // // ASTA<Argument_> = Argument_ => ActionFn(432);
                 val __sym0 = symbols.popUnwrap()
@@ -646,6 +712,7 @@ internal object GrammarReducers {
                 symbols.add(Triple(__start, GrammarSymbol.Variant11(__nt as AstArgument), __end))
                 return 1 to 37
             }
+
             67 -> {
                 // // ASTE<DictComp_> = DictComp_ => ActionFn(433);
                 val __sym0 = symbols.popUnwrap()
@@ -655,6 +722,7 @@ internal object GrammarReducers {
                 symbols.add(Triple(__start, GrammarSymbol.Variant17(__nt as AstExpr), __end))
                 return 1 to 38
             }
+
             68 -> {
                 // // ASTE<LambDef_> = LambDef_ => ActionFn(434);
                 val __sym0 = symbols.popUnwrap()
@@ -664,6 +732,7 @@ internal object GrammarReducers {
                 symbols.add(Triple(__start, GrammarSymbol.Variant17(__nt as AstExpr), __end))
                 return 1 to 39
             }
+
             69 -> {
                 // // ASTE<ListComp_> = ListComp_ => ActionFn(435);
                 val __sym0 = symbols.popUnwrap()
@@ -673,6 +742,7 @@ internal object GrammarReducers {
                 symbols.add(Triple(__start, GrammarSymbol.Variant17(__nt as AstExpr), __end))
                 return 1 to 40
             }
+
             70 -> {
                 // // ASTP<DefParameter_> = DefParameter_ => ActionFn(436);
                 val __sym0 = symbols.popUnwrap()
@@ -682,6 +752,7 @@ internal object GrammarReducers {
                 symbols.add(Triple(__start, GrammarSymbol.Variant13(__nt as AstParameter), __end))
                 return 1 to 41
             }
+
             71 -> {
                 // // ASTP<LambdaParameter_> = LambdaParameter_ => ActionFn(437);
                 val __sym0 = symbols.popUnwrap()
@@ -691,6 +762,7 @@ internal object GrammarReducers {
                 symbols.add(Triple(__start, GrammarSymbol.Variant13(__nt as AstParameter), __end))
                 return 1 to 42
             }
+
             72 -> {
                 // // ASTS<AssignStmt_> = AssignStmt_ => ActionFn(438);
                 val __sym0 = symbols.popUnwrap()
@@ -700,6 +772,7 @@ internal object GrammarReducers {
                 symbols.add(Triple(__start, GrammarSymbol.Variant9(__nt as AstStmt), __end))
                 return 1 to 43
             }
+
             73 -> {
                 // // ASTS<DefStmt_> = DefStmt_ => ActionFn(439);
                 val __sym0 = symbols.popUnwrap()
@@ -709,6 +782,7 @@ internal object GrammarReducers {
                 symbols.add(Triple(__start, GrammarSymbol.Variant9(__nt as AstStmt), __end))
                 return 1 to 44
             }
+
             74 -> {
                 // // ASTS<ExprStmt_> = ExprStmt_ => ActionFn(440);
                 val __sym0 = symbols.popUnwrap()
@@ -718,6 +792,7 @@ internal object GrammarReducers {
                 symbols.add(Triple(__start, GrammarSymbol.Variant9(__nt as AstStmt), __end))
                 return 1 to 45
             }
+
             75 -> {
                 // // ASTS<ForStmt_> = ForStmt_ => ActionFn(441);
                 val __sym0 = symbols.popUnwrap()
@@ -727,6 +802,7 @@ internal object GrammarReducers {
                 symbols.add(Triple(__start, GrammarSymbol.Variant9(__nt as AstStmt), __end))
                 return 1 to 46
             }
+
             76 -> {
                 // // ASTS<IfBody_> = IfBody_ => ActionFn(442);
                 val __sym0 = symbols.popUnwrap()
@@ -736,6 +812,7 @@ internal object GrammarReducers {
                 symbols.add(Triple(__start, GrammarSymbol.Variant9(__nt as AstStmt), __end))
                 return 1 to 47
             }
+
             77 -> {
                 // // ASTS<IfStmt_> = IfStmt_ => ActionFn(443);
                 val __sym0 = symbols.popUnwrap()
@@ -745,6 +822,7 @@ internal object GrammarReducers {
                 symbols.add(Triple(__start, GrammarSymbol.Variant9(__nt as AstStmt), __end))
                 return 1 to 48
             }
+
             78 -> {
                 // // ASTS<LoadStmt_> = LoadStmt_ => ActionFn(444);
                 val __sym0 = symbols.popUnwrap()
@@ -754,6 +832,7 @@ internal object GrammarReducers {
                 symbols.add(Triple(__start, GrammarSymbol.Variant9(__nt as AstStmt), __end))
                 return 1 to 49
             }
+
             79 -> {
                 // // AndTest = AndTest, "and", NotTest => ActionFn(445);
                 val __sym2 = symbols.popUnwrap()
@@ -765,6 +844,7 @@ internal object GrammarReducers {
                 symbols.add(Triple(__start, GrammarSymbol.Variant17(__nt as AstExpr), __end))
                 return 3 to 50
             }
+
             80 -> {
                 // // AndTest = NotTest => ActionFn(115);
                 val __sym0 = symbols.popUnwrap()
@@ -774,6 +854,7 @@ internal object GrammarReducers {
                 symbols.add(Triple(__start, GrammarSymbol.Variant17(__nt as AstExpr), __end))
                 return 1 to 50
             }
+
             81 -> {
                 // // Argument = Argument_ => ActionFn(524);
                 val __sym0 = symbols.popUnwrap()
@@ -783,6 +864,7 @@ internal object GrammarReducers {
                 symbols.add(Triple(__start, GrammarSymbol.Variant11(__nt as AstArgument), __end))
                 return 1 to 51
             }
+
             82 -> {
                 // // Argument? = Argument => ActionFn(217);
                 val __sym0 = symbols.popUnwrap()
@@ -792,6 +874,7 @@ internal object GrammarReducers {
                 symbols.add(Triple(__start, GrammarSymbol.Variant24(__nt as AstArgument?), __end))
                 return 1 to 52
             }
+
             83 -> {
                 // // Argument? =  => ActionFn(218);
                 val __start = lookaheadStart ?: symbols.lastOrNull()?.third ?: 0
@@ -800,6 +883,7 @@ internal object GrammarReducers {
                 symbols.add(Triple(__start, GrammarSymbol.Variant24(__nt as AstArgument?), __end))
                 return 0 to 52
             }
+
             84 -> {
                 // // Argument_ = Test => ActionFn(83);
                 val __sym0 = symbols.popUnwrap()
@@ -809,6 +893,7 @@ internal object GrammarReducers {
                 symbols.add(Triple(__start, GrammarSymbol.Variant25(__nt as Argument), __end))
                 return 1 to 53
             }
+
             85 -> {
                 // // Argument_ = "IDENTIFIER", "=", Test => ActionFn(565);
                 val __sym2 = symbols.popUnwrap()
@@ -820,6 +905,7 @@ internal object GrammarReducers {
                 symbols.add(Triple(__start, GrammarSymbol.Variant25(__nt as Argument), __end))
                 return 3 to 53
             }
+
             86 -> {
                 // // Argument_ = "*", Test => ActionFn(85);
                 val __sym1 = symbols.popUnwrap()
@@ -830,6 +916,7 @@ internal object GrammarReducers {
                 symbols.add(Triple(__start, GrammarSymbol.Variant25(__nt as Argument), __end))
                 return 2 to 53
             }
+
             87 -> {
                 // // Argument_ = "**", Test => ActionFn(86);
                 val __sym1 = symbols.popUnwrap()
@@ -840,6 +927,7 @@ internal object GrammarReducers {
                 symbols.add(Triple(__start, GrammarSymbol.Variant25(__nt as Argument), __end))
                 return 2 to 53
             }
+
             88 -> {
                 // // ArithExpr = ArithExpr, "+", ProductExpr => ActionFn(446);
                 val __sym2 = symbols.popUnwrap()
@@ -851,6 +939,7 @@ internal object GrammarReducers {
                 symbols.add(Triple(__start, GrammarSymbol.Variant17(__nt as AstExpr), __end))
                 return 3 to 54
             }
+
             89 -> {
                 // // ArithExpr = ArithExpr, "-", ProductExpr => ActionFn(447);
                 val __sym2 = symbols.popUnwrap()
@@ -862,6 +951,7 @@ internal object GrammarReducers {
                 symbols.add(Triple(__start, GrammarSymbol.Variant17(__nt as AstExpr), __end))
                 return 3 to 54
             }
+
             90 -> {
                 // // ArithExpr = ProductExpr => ActionFn(139);
                 val __sym0 = symbols.popUnwrap()
@@ -871,6 +961,7 @@ internal object GrammarReducers {
                 symbols.add(Triple(__start, GrammarSymbol.Variant17(__nt as AstExpr), __end))
                 return 1 to 54
             }
+
             91 -> {
                 // // AssignIdent = "IDENTIFIER" => ActionFn(566);
                 val __sym0 = symbols.popUnwrap()
@@ -880,6 +971,7 @@ internal object GrammarReducers {
                 symbols.add(Triple(__start, GrammarSymbol.Variant26(__nt as AstAssignIdent), __end))
                 return 1 to 55
             }
+
             92 -> {
                 // // AssignOp = "=" => ActionFn(51);
                 val __sym0 = symbols.popUnwrap()
@@ -889,6 +981,7 @@ internal object GrammarReducers {
                 symbols.add(Triple(__start, GrammarSymbol.Variant27(__nt as AssignOp?), __end))
                 return 1 to 56
             }
+
             93 -> {
                 // // AssignOp = "+=" => ActionFn(52);
                 val __sym0 = symbols.popUnwrap()
@@ -898,6 +991,7 @@ internal object GrammarReducers {
                 symbols.add(Triple(__start, GrammarSymbol.Variant27(__nt as AssignOp?), __end))
                 return 1 to 56
             }
+
             94 -> {
                 // // AssignOp = "-=" => ActionFn(53);
                 val __sym0 = symbols.popUnwrap()
@@ -907,6 +1001,7 @@ internal object GrammarReducers {
                 symbols.add(Triple(__start, GrammarSymbol.Variant27(__nt as AssignOp?), __end))
                 return 1 to 56
             }
+
             95 -> {
                 // // AssignOp = "*=" => ActionFn(54);
                 val __sym0 = symbols.popUnwrap()
@@ -916,6 +1011,7 @@ internal object GrammarReducers {
                 symbols.add(Triple(__start, GrammarSymbol.Variant27(__nt as AssignOp?), __end))
                 return 1 to 56
             }
+
             96 -> {
                 // // AssignOp = "/=" => ActionFn(55);
                 val __sym0 = symbols.popUnwrap()
@@ -925,6 +1021,7 @@ internal object GrammarReducers {
                 symbols.add(Triple(__start, GrammarSymbol.Variant27(__nt as AssignOp?), __end))
                 return 1 to 56
             }
+
             97 -> {
                 // // AssignOp = "//=" => ActionFn(56);
                 val __sym0 = symbols.popUnwrap()
@@ -934,6 +1031,7 @@ internal object GrammarReducers {
                 symbols.add(Triple(__start, GrammarSymbol.Variant27(__nt as AssignOp?), __end))
                 return 1 to 56
             }
+
             98 -> {
                 // // AssignOp = "%=" => ActionFn(57);
                 val __sym0 = symbols.popUnwrap()
@@ -943,6 +1041,7 @@ internal object GrammarReducers {
                 symbols.add(Triple(__start, GrammarSymbol.Variant27(__nt as AssignOp?), __end))
                 return 1 to 56
             }
+
             99 -> {
                 // // AssignOp = "&=" => ActionFn(58);
                 val __sym0 = symbols.popUnwrap()
@@ -952,6 +1051,7 @@ internal object GrammarReducers {
                 symbols.add(Triple(__start, GrammarSymbol.Variant27(__nt as AssignOp?), __end))
                 return 1 to 56
             }
+
             100 -> {
                 // // AssignOp = "|=" => ActionFn(59);
                 val __sym0 = symbols.popUnwrap()
@@ -961,6 +1061,7 @@ internal object GrammarReducers {
                 symbols.add(Triple(__start, GrammarSymbol.Variant27(__nt as AssignOp?), __end))
                 return 1 to 56
             }
+
             101 -> {
                 // // AssignOp = "^=" => ActionFn(60);
                 val __sym0 = symbols.popUnwrap()
@@ -970,6 +1071,7 @@ internal object GrammarReducers {
                 symbols.add(Triple(__start, GrammarSymbol.Variant27(__nt as AssignOp?), __end))
                 return 1 to 56
             }
+
             102 -> {
                 // // AssignOp = "<<=" => ActionFn(61);
                 val __sym0 = symbols.popUnwrap()
@@ -979,6 +1081,7 @@ internal object GrammarReducers {
                 symbols.add(Triple(__start, GrammarSymbol.Variant27(__nt as AssignOp?), __end))
                 return 1 to 56
             }
+
             103 -> {
                 // // AssignOp = ">>=" => ActionFn(62);
                 val __sym0 = symbols.popUnwrap()
@@ -988,6 +1091,7 @@ internal object GrammarReducers {
                 symbols.add(Triple(__start, GrammarSymbol.Variant27(__nt as AssignOp?), __end))
                 return 1 to 56
             }
+
             104 -> {
                 // // AssignStmt = AssignStmt_ => ActionFn(530);
                 val __sym0 = symbols.popUnwrap()
@@ -997,6 +1101,7 @@ internal object GrammarReducers {
                 symbols.add(Triple(__start, GrammarSymbol.Variant9(__nt as AstStmt), __end))
                 return 1 to 57
             }
+
             105 -> {
                 // // AssignStmt_ = TestList, Type, AssignOp, TestList => ActionFn(64);
                 val __sym3 = symbols.popUnwrap()
@@ -1009,6 +1114,7 @@ internal object GrammarReducers {
                 symbols.add(Triple(__start, GrammarSymbol.Variant28(__nt as Stmt), __end))
                 return 4 to 58
             }
+
             106 -> {
                 // // BitAndExpr = BitAndExpr, "&", ShiftExpr => ActionFn(448);
                 val __sym2 = symbols.popUnwrap()
@@ -1020,6 +1126,7 @@ internal object GrammarReducers {
                 symbols.add(Triple(__start, GrammarSymbol.Variant17(__nt as AstExpr), __end))
                 return 3 to 59
             }
+
             107 -> {
                 // // BitAndExpr = ShiftExpr => ActionFn(133);
                 val __sym0 = symbols.popUnwrap()
@@ -1029,6 +1136,7 @@ internal object GrammarReducers {
                 symbols.add(Triple(__start, GrammarSymbol.Variant17(__nt as AstExpr), __end))
                 return 1 to 59
             }
+
             108 -> {
                 // // BitOrExpr = BitOrExpr, "|", BitXorExpr => ActionFn(449);
                 val __sym2 = symbols.popUnwrap()
@@ -1040,6 +1148,7 @@ internal object GrammarReducers {
                 symbols.add(Triple(__start, GrammarSymbol.Variant17(__nt as AstExpr), __end))
                 return 3 to 60
             }
+
             109 -> {
                 // // BitOrExpr = BitXorExpr => ActionFn(129);
                 val __sym0 = symbols.popUnwrap()
@@ -1049,6 +1158,7 @@ internal object GrammarReducers {
                 symbols.add(Triple(__start, GrammarSymbol.Variant17(__nt as AstExpr), __end))
                 return 1 to 60
             }
+
             110 -> {
                 // // BitXorExpr = BitXorExpr, "^", BitAndExpr => ActionFn(450);
                 val __sym2 = symbols.popUnwrap()
@@ -1060,6 +1170,7 @@ internal object GrammarReducers {
                 symbols.add(Triple(__start, GrammarSymbol.Variant17(__nt as AstExpr), __end))
                 return 3 to 61
             }
+
             111 -> {
                 // // BitXorExpr = BitAndExpr => ActionFn(131);
                 val __sym0 = symbols.popUnwrap()
@@ -1069,6 +1180,7 @@ internal object GrammarReducers {
                 symbols.add(Triple(__start, GrammarSymbol.Variant17(__nt as AstExpr), __end))
                 return 1 to 61
             }
+
             112 -> {
                 // // COMMA<Argument> = Argument => ActionFn(537);
                 val __sym0 = symbols.popUnwrap()
@@ -1078,6 +1190,7 @@ internal object GrammarReducers {
                 symbols.add(Triple(__start, GrammarSymbol.Variant29(__nt as List<AstArgument>), __end))
                 return 1 to 62
             }
+
             113 -> {
                 // // COMMA<Argument> =  => ActionFn(538);
                 val __start = lookaheadStart ?: symbols.lastOrNull()?.third ?: 0
@@ -1086,6 +1199,7 @@ internal object GrammarReducers {
                 symbols.add(Triple(__start, GrammarSymbol.Variant29(__nt as List<AstArgument>), __end))
                 return 0 to 62
             }
+
             114 -> {
                 // // COMMA<Argument> = (<Argument> ",")+, Argument => ActionFn(539);
                 val __sym1 = symbols.popUnwrap()
@@ -1096,6 +1210,7 @@ internal object GrammarReducers {
                 symbols.add(Triple(__start, GrammarSymbol.Variant29(__nt as List<AstArgument>), __end))
                 return 2 to 62
             }
+
             115 -> {
                 // // COMMA<Argument> = (<Argument> ",")+ => ActionFn(540);
                 val __sym0 = symbols.popUnwrap()
@@ -1105,6 +1220,7 @@ internal object GrammarReducers {
                 symbols.add(Triple(__start, GrammarSymbol.Variant29(__nt as List<AstArgument>), __end))
                 return 1 to 62
             }
+
             116 -> {
                 // // COMMA<DefParameter> = DefParameter => ActionFn(543);
                 val __sym0 = symbols.popUnwrap()
@@ -1114,6 +1230,7 @@ internal object GrammarReducers {
                 symbols.add(Triple(__start, GrammarSymbol.Variant30(__nt as List<AstParameter>), __end))
                 return 1 to 63
             }
+
             117 -> {
                 // // COMMA<DefParameter> =  => ActionFn(544);
                 val __start = lookaheadStart ?: symbols.lastOrNull()?.third ?: 0
@@ -1122,6 +1239,7 @@ internal object GrammarReducers {
                 symbols.add(Triple(__start, GrammarSymbol.Variant30(__nt as List<AstParameter>), __end))
                 return 0 to 63
             }
+
             118 -> {
                 // // COMMA<DefParameter> = (<DefParameter> ",")+, DefParameter => ActionFn(545);
                 val __sym1 = symbols.popUnwrap()
@@ -1132,6 +1250,7 @@ internal object GrammarReducers {
                 symbols.add(Triple(__start, GrammarSymbol.Variant30(__nt as List<AstParameter>), __end))
                 return 2 to 63
             }
+
             119 -> {
                 // // COMMA<DefParameter> = (<DefParameter> ",")+ => ActionFn(546);
                 val __sym0 = symbols.popUnwrap()
@@ -1141,6 +1260,7 @@ internal object GrammarReducers {
                 symbols.add(Triple(__start, GrammarSymbol.Variant30(__nt as List<AstParameter>), __end))
                 return 1 to 63
             }
+
             120 -> {
                 // // COMMA<DictEntry> = DictEntry => ActionFn(547);
                 val __sym0 = symbols.popUnwrap()
@@ -1150,6 +1270,7 @@ internal object GrammarReducers {
                 symbols.add(Triple(__start, GrammarSymbol.Variant31(__nt as List<Pair<AstExpr, AstExpr>>), __end))
                 return 1 to 64
             }
+
             121 -> {
                 // // COMMA<DictEntry> =  => ActionFn(548);
                 val __start = lookaheadStart ?: symbols.lastOrNull()?.third ?: 0
@@ -1158,6 +1279,7 @@ internal object GrammarReducers {
                 symbols.add(Triple(__start, GrammarSymbol.Variant31(__nt as List<Pair<AstExpr, AstExpr>>), __end))
                 return 0 to 64
             }
+
             122 -> {
                 // // COMMA<DictEntry> = (<DictEntry> ",")+, DictEntry => ActionFn(549);
                 val __sym1 = symbols.popUnwrap()
@@ -1168,6 +1290,7 @@ internal object GrammarReducers {
                 symbols.add(Triple(__start, GrammarSymbol.Variant31(__nt as List<Pair<AstExpr, AstExpr>>), __end))
                 return 2 to 64
             }
+
             123 -> {
                 // // COMMA<DictEntry> = (<DictEntry> ",")+ => ActionFn(550);
                 val __sym0 = symbols.popUnwrap()
@@ -1177,6 +1300,7 @@ internal object GrammarReducers {
                 symbols.add(Triple(__start, GrammarSymbol.Variant31(__nt as List<Pair<AstExpr, AstExpr>>), __end))
                 return 1 to 64
             }
+
             124 -> {
                 // // COMMA<LambdaParameter> = LambdaParameter => ActionFn(553);
                 val __sym0 = symbols.popUnwrap()
@@ -1186,6 +1310,7 @@ internal object GrammarReducers {
                 symbols.add(Triple(__start, GrammarSymbol.Variant30(__nt as List<AstParameter>), __end))
                 return 1 to 65
             }
+
             125 -> {
                 // // COMMA<LambdaParameter> =  => ActionFn(554);
                 val __start = lookaheadStart ?: symbols.lastOrNull()?.third ?: 0
@@ -1194,6 +1319,7 @@ internal object GrammarReducers {
                 symbols.add(Triple(__start, GrammarSymbol.Variant30(__nt as List<AstParameter>), __end))
                 return 0 to 65
             }
+
             126 -> {
                 // // COMMA<LambdaParameter> = (<LambdaParameter> ",")+, LambdaParameter => ActionFn(555);
                 val __sym1 = symbols.popUnwrap()
@@ -1204,6 +1330,7 @@ internal object GrammarReducers {
                 symbols.add(Triple(__start, GrammarSymbol.Variant30(__nt as List<AstParameter>), __end))
                 return 2 to 65
             }
+
             127 -> {
                 // // COMMA<LambdaParameter> = (<LambdaParameter> ",")+ => ActionFn(556);
                 val __sym0 = symbols.popUnwrap()
@@ -1213,6 +1340,7 @@ internal object GrammarReducers {
                 symbols.add(Triple(__start, GrammarSymbol.Variant30(__nt as List<AstParameter>), __end))
                 return 1 to 65
             }
+
             128 -> {
                 // // COMMA<Test> = Test => ActionFn(332);
                 val __sym0 = symbols.popUnwrap()
@@ -1222,6 +1350,7 @@ internal object GrammarReducers {
                 symbols.add(Triple(__start, GrammarSymbol.Variant32(__nt as List<AstExpr>), __end))
                 return 1 to 66
             }
+
             129 -> {
                 // // COMMA<Test> = (<Test> ",")+, Test => ActionFn(333);
                 val __sym1 = symbols.popUnwrap()
@@ -1232,6 +1361,7 @@ internal object GrammarReducers {
                 symbols.add(Triple(__start, GrammarSymbol.Variant32(__nt as List<AstExpr>), __end))
                 return 2 to 66
             }
+
             130 -> {
                 // // COMMA<Test> =  => ActionFn(334);
                 val __start = lookaheadStart ?: symbols.lastOrNull()?.third ?: 0
@@ -1240,6 +1370,7 @@ internal object GrammarReducers {
                 symbols.add(Triple(__start, GrammarSymbol.Variant32(__nt as List<AstExpr>), __end))
                 return 0 to 66
             }
+
             131 -> {
                 // // COMMA<Test> = (<Test> ",")+ => ActionFn(335);
                 val __sym0 = symbols.popUnwrap()
@@ -1249,6 +1380,7 @@ internal object GrammarReducers {
                 symbols.add(Triple(__start, GrammarSymbol.Variant32(__nt as List<AstExpr>), __end))
                 return 1 to 66
             }
+
             132 -> {
                 // // Clause = ForClause => ActionFn(104);
                 val __sym0 = symbols.popUnwrap()
@@ -1258,6 +1390,7 @@ internal object GrammarReducers {
                 symbols.add(Triple(__start, GrammarSymbol.Variant33(__nt as Clause), __end))
                 return 1 to 67
             }
+
             133 -> {
                 // // Clause = "if", OrTest => ActionFn(105);
                 val __sym1 = symbols.popUnwrap()
@@ -1268,6 +1401,7 @@ internal object GrammarReducers {
                 symbols.add(Triple(__start, GrammarSymbol.Variant33(__nt as Clause), __end))
                 return 2 to 67
             }
+
             134 -> {
                 // // Clause* =  => ActionFn(151);
                 val __start = lookaheadStart ?: symbols.lastOrNull()?.third ?: 0
@@ -1276,6 +1410,7 @@ internal object GrammarReducers {
                 symbols.add(Triple(__start, GrammarSymbol.Variant34(__nt as List<Clause>), __end))
                 return 0 to 68
             }
+
             135 -> {
                 // // Clause* = Clause+ => ActionFn(152);
                 val __sym0 = symbols.popUnwrap()
@@ -1285,6 +1420,7 @@ internal object GrammarReducers {
                 symbols.add(Triple(__start, GrammarSymbol.Variant34(__nt as List<Clause>), __end))
                 return 1 to 68
             }
+
             136 -> {
                 // // Clause+ = Clause => ActionFn(230);
                 val __sym0 = symbols.popUnwrap()
@@ -1294,6 +1430,7 @@ internal object GrammarReducers {
                 symbols.add(Triple(__start, GrammarSymbol.Variant34(__nt as List<Clause>), __end))
                 return 1 to 69
             }
+
             137 -> {
                 // // Clause+ = Clause+, Clause => ActionFn(231);
                 val __sym1 = symbols.popUnwrap()
@@ -1304,6 +1441,7 @@ internal object GrammarReducers {
                 symbols.add(Triple(__start, GrammarSymbol.Variant34(__nt as List<Clause>), __end))
                 return 2 to 69
             }
+
             138 -> {
                 // // Comma = "," => ActionFn(451);
                 val __sym0 = symbols.popUnwrap()
@@ -1313,6 +1451,7 @@ internal object GrammarReducers {
                 symbols.add(Triple(__start, GrammarSymbol.Variant35(__nt as Spanned<Comma>), __end))
                 return 1 to 70
             }
+
             139 -> {
                 // // CompClause = ForClause => ActionFn(541);
                 val __sym0 = symbols.popUnwrap()
@@ -1322,6 +1461,7 @@ internal object GrammarReducers {
                 symbols.add(Triple(__start, GrammarSymbol.Variant36(__nt as Pair<ForClause, List<Clause>>), __end))
                 return 1 to 71
             }
+
             140 -> {
                 // // CompClause = ForClause, Clause+ => ActionFn(542);
                 val __sym1 = symbols.popUnwrap()
@@ -1332,6 +1472,7 @@ internal object GrammarReducers {
                 symbols.add(Triple(__start, GrammarSymbol.Variant36(__nt as Pair<ForClause, List<Clause>>), __end))
                 return 2 to 71
             }
+
             141 -> {
                 // // CompTest = BitOrExpr, "==", BitOrExpr => ActionFn(452);
                 val __sym2 = symbols.popUnwrap()
@@ -1343,6 +1484,7 @@ internal object GrammarReducers {
                 symbols.add(Triple(__start, GrammarSymbol.Variant17(__nt as AstExpr), __end))
                 return 3 to 72
             }
+
             142 -> {
                 // // CompTest = BitOrExpr, "!=", BitOrExpr => ActionFn(453);
                 val __sym2 = symbols.popUnwrap()
@@ -1354,6 +1496,7 @@ internal object GrammarReducers {
                 symbols.add(Triple(__start, GrammarSymbol.Variant17(__nt as AstExpr), __end))
                 return 3 to 72
             }
+
             143 -> {
                 // // CompTest = BitOrExpr, "<", BitOrExpr => ActionFn(454);
                 val __sym2 = symbols.popUnwrap()
@@ -1365,6 +1508,7 @@ internal object GrammarReducers {
                 symbols.add(Triple(__start, GrammarSymbol.Variant17(__nt as AstExpr), __end))
                 return 3 to 72
             }
+
             144 -> {
                 // // CompTest = BitOrExpr, ">", BitOrExpr => ActionFn(455);
                 val __sym2 = symbols.popUnwrap()
@@ -1376,6 +1520,7 @@ internal object GrammarReducers {
                 symbols.add(Triple(__start, GrammarSymbol.Variant17(__nt as AstExpr), __end))
                 return 3 to 72
             }
+
             145 -> {
                 // // CompTest = BitOrExpr, "<=", BitOrExpr => ActionFn(456);
                 val __sym2 = symbols.popUnwrap()
@@ -1387,6 +1532,7 @@ internal object GrammarReducers {
                 symbols.add(Triple(__start, GrammarSymbol.Variant17(__nt as AstExpr), __end))
                 return 3 to 72
             }
+
             146 -> {
                 // // CompTest = BitOrExpr, ">=", BitOrExpr => ActionFn(457);
                 val __sym2 = symbols.popUnwrap()
@@ -1398,6 +1544,7 @@ internal object GrammarReducers {
                 symbols.add(Triple(__start, GrammarSymbol.Variant17(__nt as AstExpr), __end))
                 return 3 to 72
             }
+
             147 -> {
                 // // CompTest = BitOrExpr, "in", BitOrExpr => ActionFn(458);
                 val __sym2 = symbols.popUnwrap()
@@ -1409,6 +1556,7 @@ internal object GrammarReducers {
                 symbols.add(Triple(__start, GrammarSymbol.Variant17(__nt as AstExpr), __end))
                 return 3 to 72
             }
+
             148 -> {
                 // // CompTest = BitOrExpr, "not", "in", BitOrExpr => ActionFn(459);
                 val __sym3 = symbols.popUnwrap()
@@ -1421,6 +1569,7 @@ internal object GrammarReducers {
                 symbols.add(Triple(__start, GrammarSymbol.Variant17(__nt as AstExpr), __end))
                 return 4 to 72
             }
+
             149 -> {
                 // // CompTest = BitOrExpr => ActionFn(126);
                 val __sym0 = symbols.popUnwrap()
@@ -1430,6 +1579,7 @@ internal object GrammarReducers {
                 symbols.add(Triple(__start, GrammarSymbol.Variant17(__nt as AstExpr), __end))
                 return 1 to 72
             }
+
             150 -> {
                 // // DefParameter = DefParameter_ => ActionFn(528);
                 val __sym0 = symbols.popUnwrap()
@@ -1439,6 +1589,7 @@ internal object GrammarReducers {
                 symbols.add(Triple(__start, GrammarSymbol.Variant13(__nt as AstParameter), __end))
                 return 1 to 73
             }
+
             151 -> {
                 // // DefParameter? = DefParameter => ActionFn(200);
                 val __sym0 = symbols.popUnwrap()
@@ -1448,6 +1599,7 @@ internal object GrammarReducers {
                 symbols.add(Triple(__start, GrammarSymbol.Variant37(__nt as AstParameter?), __end))
                 return 1 to 74
             }
+
             152 -> {
                 // // DefParameter? =  => ActionFn(201);
                 val __start = lookaheadStart ?: symbols.lastOrNull()?.third ?: 0
@@ -1456,6 +1608,7 @@ internal object GrammarReducers {
                 symbols.add(Triple(__start, GrammarSymbol.Variant37(__nt as AstParameter?), __end))
                 return 0 to 74
             }
+
             153 -> {
                 // // DefParameter_ = "/" => ActionFn(21);
                 val __sym0 = symbols.popUnwrap()
@@ -1465,6 +1618,7 @@ internal object GrammarReducers {
                 symbols.add(Triple(__start, GrammarSymbol.Variant38(__nt as Parameter), __end))
                 return 1 to 75
             }
+
             154 -> {
                 // // DefParameter_ = AssignIdent, Type, "=", Test => ActionFn(22);
                 val __sym3 = symbols.popUnwrap()
@@ -1477,6 +1631,7 @@ internal object GrammarReducers {
                 symbols.add(Triple(__start, GrammarSymbol.Variant38(__nt as Parameter), __end))
                 return 4 to 75
             }
+
             155 -> {
                 // // DefParameter_ = AssignIdent, Type => ActionFn(23);
                 val __sym1 = symbols.popUnwrap()
@@ -1487,6 +1642,7 @@ internal object GrammarReducers {
                 symbols.add(Triple(__start, GrammarSymbol.Variant38(__nt as Parameter), __end))
                 return 2 to 75
             }
+
             156 -> {
                 // // DefParameter_ = "*", AssignIdent, Type => ActionFn(24);
                 val __sym2 = symbols.popUnwrap()
@@ -1498,6 +1654,7 @@ internal object GrammarReducers {
                 symbols.add(Triple(__start, GrammarSymbol.Variant38(__nt as Parameter), __end))
                 return 3 to 75
             }
+
             157 -> {
                 // // DefParameter_ = "*" => ActionFn(25);
                 val __sym0 = symbols.popUnwrap()
@@ -1507,6 +1664,7 @@ internal object GrammarReducers {
                 symbols.add(Triple(__start, GrammarSymbol.Variant38(__nt as Parameter), __end))
                 return 1 to 75
             }
+
             158 -> {
                 // // DefParameter_ = "**", AssignIdent, Type => ActionFn(26);
                 val __sym2 = symbols.popUnwrap()
@@ -1518,6 +1676,7 @@ internal object GrammarReducers {
                 symbols.add(Triple(__start, GrammarSymbol.Variant38(__nt as Parameter), __end))
                 return 3 to 75
             }
+
             159 -> {
                 // // DefStmt = DefStmt_ => ActionFn(531);
                 val __sym0 = symbols.popUnwrap()
@@ -1527,6 +1686,7 @@ internal object GrammarReducers {
                 symbols.add(Triple(__start, GrammarSymbol.Variant9(__nt as AstStmt), __end))
                 return 1 to 76
             }
+
             160 -> {
                 // // DefStmt_ = "def", AssignIdent, "(", COMMA<DefParameter>, ")", ReturnType, ":", Suite => ActionFn(10);
                 val __sym7 = symbols.popUnwrap()
@@ -1543,6 +1703,7 @@ internal object GrammarReducers {
                 symbols.add(Triple(__start, GrammarSymbol.Variant28(__nt as Stmt), __end))
                 return 8 to 77
             }
+
             161 -> {
                 // // DictComp = DictComp_ => ActionFn(525);
                 val __sym0 = symbols.popUnwrap()
@@ -1552,6 +1713,7 @@ internal object GrammarReducers {
                 symbols.add(Triple(__start, GrammarSymbol.Variant17(__nt as AstExpr), __end))
                 return 1 to 78
             }
+
             162 -> {
                 // // DictComp_ = "{", DictEntry, CompClause, "}" => ActionFn(102);
                 val __sym3 = symbols.popUnwrap()
@@ -1564,6 +1726,7 @@ internal object GrammarReducers {
                 symbols.add(Triple(__start, GrammarSymbol.Variant39(__nt as Expr), __end))
                 return 4 to 79
             }
+
             163 -> {
                 // // DictEntry = Test, ":", Test => ActionFn(98);
                 val __sym2 = symbols.popUnwrap()
@@ -1575,6 +1738,7 @@ internal object GrammarReducers {
                 symbols.add(Triple(__start, GrammarSymbol.Variant15(__nt as Pair<AstExpr, AstExpr>), __end))
                 return 3 to 80
             }
+
             164 -> {
                 // // DictEntry? = DictEntry => ActionFn(225);
                 val __sym0 = symbols.popUnwrap()
@@ -1584,6 +1748,7 @@ internal object GrammarReducers {
                 symbols.add(Triple(__start, GrammarSymbol.Variant40(__nt as Pair<AstExpr, AstExpr>?), __end))
                 return 1 to 81
             }
+
             165 -> {
                 // // DictEntry? =  => ActionFn(226);
                 val __start = lookaheadStart ?: symbols.lastOrNull()?.third ?: 0
@@ -1592,6 +1757,7 @@ internal object GrammarReducers {
                 symbols.add(Triple(__start, GrammarSymbol.Variant40(__nt as Pair<AstExpr, AstExpr>?), __end))
                 return 0 to 81
             }
+
             166 -> {
                 // // ElseStmt = "elif", IfBody => ActionFn(40);
                 val __sym1 = symbols.popUnwrap()
@@ -1602,6 +1768,7 @@ internal object GrammarReducers {
                 symbols.add(Triple(__start, GrammarSymbol.Variant9(__nt as AstStmt), __end))
                 return 2 to 82
             }
+
             167 -> {
                 // // ElseStmt = "else", ":", Suite => ActionFn(41);
                 val __sym2 = symbols.popUnwrap()
@@ -1613,6 +1780,7 @@ internal object GrammarReducers {
                 symbols.add(Triple(__start, GrammarSymbol.Variant9(__nt as AstStmt), __end))
                 return 3 to 82
             }
+
             168 -> {
                 // // ElseStmt? = ElseStmt => ActionFn(181);
                 val __sym0 = symbols.popUnwrap()
@@ -1622,6 +1790,7 @@ internal object GrammarReducers {
                 symbols.add(Triple(__start, GrammarSymbol.Variant41(__nt as AstStmt?), __end))
                 return 1 to 83
             }
+
             169 -> {
                 // // ElseStmt? =  => ActionFn(182);
                 val __start = lookaheadStart ?: symbols.lastOrNull()?.third ?: 0
@@ -1630,6 +1799,7 @@ internal object GrammarReducers {
                 symbols.add(Triple(__start, GrammarSymbol.Variant41(__nt as AstStmt?), __end))
                 return 0 to 83
             }
+
             170 -> {
                 // // Expr = BitOrExpr => ActionFn(127);
                 val __sym0 = symbols.popUnwrap()
@@ -1639,6 +1809,7 @@ internal object GrammarReducers {
                 symbols.add(Triple(__start, GrammarSymbol.Variant17(__nt as AstExpr), __end))
                 return 1 to 84
             }
+
             171 -> {
                 // // ExprList = L<Expr> => ActionFn(73);
                 val __sym0 = symbols.popUnwrap()
@@ -1648,6 +1819,7 @@ internal object GrammarReducers {
                 symbols.add(Triple(__start, GrammarSymbol.Variant17(__nt as AstExpr), __end))
                 return 1 to 85
             }
+
             172 -> {
                 // // ExprStmt = ExprStmt_ => ActionFn(532);
                 val __sym0 = symbols.popUnwrap()
@@ -1657,6 +1829,7 @@ internal object GrammarReducers {
                 symbols.add(Triple(__start, GrammarSymbol.Variant9(__nt as AstStmt), __end))
                 return 1 to 86
             }
+
             173 -> {
                 // // ExprStmt_ = Test => ActionFn(66);
                 val __sym0 = symbols.popUnwrap()
@@ -1666,6 +1839,7 @@ internal object GrammarReducers {
                 symbols.add(Triple(__start, GrammarSymbol.Variant28(__nt as Stmt), __end))
                 return 1 to 87
             }
+
             174 -> {
                 // // FactorExpr = "+", FactorExpr => ActionFn(460);
                 val __sym1 = symbols.popUnwrap()
@@ -1676,6 +1850,7 @@ internal object GrammarReducers {
                 symbols.add(Triple(__start, GrammarSymbol.Variant17(__nt as AstExpr), __end))
                 return 2 to 88
             }
+
             175 -> {
                 // // FactorExpr = "-", FactorExpr => ActionFn(461);
                 val __sym1 = symbols.popUnwrap()
@@ -1686,6 +1861,7 @@ internal object GrammarReducers {
                 symbols.add(Triple(__start, GrammarSymbol.Variant17(__nt as AstExpr), __end))
                 return 2 to 88
             }
+
             176 -> {
                 // // FactorExpr = "~", FactorExpr => ActionFn(462);
                 val __sym1 = symbols.popUnwrap()
@@ -1696,6 +1872,7 @@ internal object GrammarReducers {
                 symbols.add(Triple(__start, GrammarSymbol.Variant17(__nt as AstExpr), __end))
                 return 2 to 88
             }
+
             177 -> {
                 // // FactorExpr = PrimaryExpr => ActionFn(148);
                 val __sym0 = symbols.popUnwrap()
@@ -1705,6 +1882,7 @@ internal object GrammarReducers {
                 symbols.add(Triple(__start, GrammarSymbol.Variant17(__nt as AstExpr), __end))
                 return 1 to 88
             }
+
             178 -> {
                 // // ForClause = "for", ExprList, "in", OrTest => ActionFn(106);
                 val __sym3 = symbols.popUnwrap()
@@ -1717,6 +1895,7 @@ internal object GrammarReducers {
                 symbols.add(Triple(__start, GrammarSymbol.Variant42(__nt as ForClause), __end))
                 return 4 to 89
             }
+
             179 -> {
                 // // ForStmt = ForStmt_ => ActionFn(533);
                 val __sym0 = symbols.popUnwrap()
@@ -1726,6 +1905,7 @@ internal object GrammarReducers {
                 symbols.add(Triple(__start, GrammarSymbol.Variant9(__nt as AstStmt), __end))
                 return 1 to 90
             }
+
             180 -> {
                 // // ForStmt_ = "for", ExprList, "in", Test, ":", Suite => ActionFn(43);
                 val __sym5 = symbols.popUnwrap()
@@ -1740,6 +1920,7 @@ internal object GrammarReducers {
                 symbols.add(Triple(__start, GrammarSymbol.Variant28(__nt as Stmt), __end))
                 return 6 to 91
             }
+
             181 -> {
                 // // Ident = "IDENTIFIER" => ActionFn(567);
                 val __sym0 = symbols.popUnwrap()
@@ -1749,6 +1930,7 @@ internal object GrammarReducers {
                 symbols.add(Triple(__start, GrammarSymbol.Variant43(__nt as AstIdent), __end))
                 return 1 to 92
             }
+
             182 -> {
                 // // IfBody = IfBody_ => ActionFn(534);
                 val __sym0 = symbols.popUnwrap()
@@ -1758,6 +1940,7 @@ internal object GrammarReducers {
                 symbols.add(Triple(__start, GrammarSymbol.Variant9(__nt as AstStmt), __end))
                 return 1 to 93
             }
+
             183 -> {
                 // // IfBody_ = Test, ":", Suite, ElseStmt => ActionFn(551);
                 val __sym3 = symbols.popUnwrap()
@@ -1770,6 +1953,7 @@ internal object GrammarReducers {
                 symbols.add(Triple(__start, GrammarSymbol.Variant28(__nt as Stmt), __end))
                 return 4 to 94
             }
+
             184 -> {
                 // // IfBody_ = Test, ":", Suite => ActionFn(552);
                 val __sym2 = symbols.popUnwrap()
@@ -1781,6 +1965,7 @@ internal object GrammarReducers {
                 symbols.add(Triple(__start, GrammarSymbol.Variant28(__nt as Stmt), __end))
                 return 3 to 94
             }
+
             185 -> {
                 // // IfStmt = IfStmt_ => ActionFn(535);
                 val __sym0 = symbols.popUnwrap()
@@ -1790,6 +1975,7 @@ internal object GrammarReducers {
                 symbols.add(Triple(__start, GrammarSymbol.Variant9(__nt as AstStmt), __end))
                 return 1 to 95
             }
+
             186 -> {
                 // // IfStmt_ = "if", IfBody_ => ActionFn(39);
                 val __sym1 = symbols.popUnwrap()
@@ -1800,6 +1986,7 @@ internal object GrammarReducers {
                 symbols.add(Triple(__start, GrammarSymbol.Variant28(__nt as Stmt), __end))
                 return 2 to 96
             }
+
             187 -> {
                 // // L<Expr> = Expr, "," => ActionFn(463);
                 val __sym1 = symbols.popUnwrap()
@@ -1810,6 +1997,7 @@ internal object GrammarReducers {
                 symbols.add(Triple(__start, GrammarSymbol.Variant17(__nt as AstExpr), __end))
                 return 2 to 97
             }
+
             188 -> {
                 // // L<Expr> = (<Expr> ",")+, Expr, "," => ActionFn(464);
                 val __sym2 = symbols.popUnwrap()
@@ -1821,6 +2009,7 @@ internal object GrammarReducers {
                 symbols.add(Triple(__start, GrammarSymbol.Variant17(__nt as AstExpr), __end))
                 return 3 to 97
             }
+
             189 -> {
                 // // L<Expr> = Expr => ActionFn(465);
                 val __sym0 = symbols.popUnwrap()
@@ -1830,6 +2019,7 @@ internal object GrammarReducers {
                 symbols.add(Triple(__start, GrammarSymbol.Variant17(__nt as AstExpr), __end))
                 return 1 to 97
             }
+
             190 -> {
                 // // L<Expr> = (<Expr> ",")+, Expr => ActionFn(466);
                 val __sym1 = symbols.popUnwrap()
@@ -1840,6 +2030,7 @@ internal object GrammarReducers {
                 symbols.add(Triple(__start, GrammarSymbol.Variant17(__nt as AstExpr), __end))
                 return 2 to 97
             }
+
             191 -> {
                 // // L<Test> = Test, "," => ActionFn(467);
                 val __sym1 = symbols.popUnwrap()
@@ -1850,6 +2041,7 @@ internal object GrammarReducers {
                 symbols.add(Triple(__start, GrammarSymbol.Variant17(__nt as AstExpr), __end))
                 return 2 to 98
             }
+
             192 -> {
                 // // L<Test> = (<Test> ",")+, Test, "," => ActionFn(468);
                 val __sym2 = symbols.popUnwrap()
@@ -1861,6 +2053,7 @@ internal object GrammarReducers {
                 symbols.add(Triple(__start, GrammarSymbol.Variant17(__nt as AstExpr), __end))
                 return 3 to 98
             }
+
             193 -> {
                 // // L<Test> = Test => ActionFn(469);
                 val __sym0 = symbols.popUnwrap()
@@ -1870,6 +2063,7 @@ internal object GrammarReducers {
                 symbols.add(Triple(__start, GrammarSymbol.Variant17(__nt as AstExpr), __end))
                 return 1 to 98
             }
+
             194 -> {
                 // // L<Test> = (<Test> ",")+, Test => ActionFn(470);
                 val __sym1 = symbols.popUnwrap()
@@ -1880,6 +2074,7 @@ internal object GrammarReducers {
                 symbols.add(Triple(__start, GrammarSymbol.Variant17(__nt as AstExpr), __end))
                 return 2 to 98
             }
+
             195 -> {
                 // // LambDef = LambDef_ => ActionFn(526);
                 val __sym0 = symbols.popUnwrap()
@@ -1889,6 +2084,7 @@ internal object GrammarReducers {
                 symbols.add(Triple(__start, GrammarSymbol.Variant17(__nt as AstExpr), __end))
                 return 1 to 99
             }
+
             196 -> {
                 // // LambDef_ = "lambda", COMMA<LambdaParameter>, ":", Test => ActionFn(111);
                 val __sym3 = symbols.popUnwrap()
@@ -1901,6 +2097,7 @@ internal object GrammarReducers {
                 symbols.add(Triple(__start, GrammarSymbol.Variant39(__nt as Expr), __end))
                 return 4 to 100
             }
+
             197 -> {
                 // // LambdaParameter = LambdaParameter_ => ActionFn(529);
                 val __sym0 = symbols.popUnwrap()
@@ -1910,6 +2107,7 @@ internal object GrammarReducers {
                 symbols.add(Triple(__start, GrammarSymbol.Variant13(__nt as AstParameter), __end))
                 return 1 to 101
             }
+
             198 -> {
                 // // LambdaParameter? = LambdaParameter => ActionFn(232);
                 val __sym0 = symbols.popUnwrap()
@@ -1919,6 +2117,7 @@ internal object GrammarReducers {
                 symbols.add(Triple(__start, GrammarSymbol.Variant37(__nt as AstParameter?), __end))
                 return 1 to 102
             }
+
             199 -> {
                 // // LambdaParameter? =  => ActionFn(233);
                 val __start = lookaheadStart ?: symbols.lastOrNull()?.third ?: 0
@@ -1927,6 +2126,7 @@ internal object GrammarReducers {
                 symbols.add(Triple(__start, GrammarSymbol.Variant37(__nt as AstParameter?), __end))
                 return 0 to 102
             }
+
             200 -> {
                 // // LambdaParameter_ = "/" => ActionFn(14);
                 val __sym0 = symbols.popUnwrap()
@@ -1936,6 +2136,7 @@ internal object GrammarReducers {
                 symbols.add(Triple(__start, GrammarSymbol.Variant38(__nt as Parameter), __end))
                 return 1 to 103
             }
+
             201 -> {
                 // // LambdaParameter_ = AssignIdent, "=", Test => ActionFn(15);
                 val __sym2 = symbols.popUnwrap()
@@ -1947,6 +2148,7 @@ internal object GrammarReducers {
                 symbols.add(Triple(__start, GrammarSymbol.Variant38(__nt as Parameter), __end))
                 return 3 to 103
             }
+
             202 -> {
                 // // LambdaParameter_ = AssignIdent => ActionFn(16);
                 val __sym0 = symbols.popUnwrap()
@@ -1956,6 +2158,7 @@ internal object GrammarReducers {
                 symbols.add(Triple(__start, GrammarSymbol.Variant38(__nt as Parameter), __end))
                 return 1 to 103
             }
+
             203 -> {
                 // // LambdaParameter_ = "*", AssignIdent => ActionFn(17);
                 val __sym1 = symbols.popUnwrap()
@@ -1966,6 +2169,7 @@ internal object GrammarReducers {
                 symbols.add(Triple(__start, GrammarSymbol.Variant38(__nt as Parameter), __end))
                 return 2 to 103
             }
+
             204 -> {
                 // // LambdaParameter_ = "*" => ActionFn(18);
                 val __sym0 = symbols.popUnwrap()
@@ -1975,6 +2179,7 @@ internal object GrammarReducers {
                 symbols.add(Triple(__start, GrammarSymbol.Variant38(__nt as Parameter), __end))
                 return 1 to 103
             }
+
             205 -> {
                 // // LambdaParameter_ = "**", AssignIdent => ActionFn(19);
                 val __sym1 = symbols.popUnwrap()
@@ -1985,6 +2190,7 @@ internal object GrammarReducers {
                 symbols.add(Triple(__start, GrammarSymbol.Variant38(__nt as Parameter), __end))
                 return 2 to 103
             }
+
             206 -> {
                 // // ListComp = ListComp_ => ActionFn(527);
                 val __sym0 = symbols.popUnwrap()
@@ -1994,6 +2200,7 @@ internal object GrammarReducers {
                 symbols.add(Triple(__start, GrammarSymbol.Variant17(__nt as AstExpr), __end))
                 return 1 to 104
             }
+
             207 -> {
                 // // ListComp_ = "[", Test, CompClause, "]" => ActionFn(100);
                 val __sym3 = symbols.popUnwrap()
@@ -2006,6 +2213,7 @@ internal object GrammarReducers {
                 symbols.add(Triple(__start, GrammarSymbol.Variant39(__nt as Expr), __end))
                 return 4 to 105
             }
+
             208 -> {
                 // // LoadStmt = LoadStmt_ => ActionFn(536);
                 val __sym0 = symbols.popUnwrap()
@@ -2015,6 +2223,7 @@ internal object GrammarReducers {
                 symbols.add(Triple(__start, GrammarSymbol.Variant9(__nt as AstStmt), __end))
                 return 1 to 106
             }
+
             209 -> {
                 // // LoadStmtBindingName = "IDENTIFIER", "=" => ActionFn(568);
                 val __sym1 = symbols.popUnwrap()
@@ -2025,6 +2234,7 @@ internal object GrammarReducers {
                 symbols.add(Triple(__start, GrammarSymbol.Variant44(__nt as AstString), __end))
                 return 2 to 107
             }
+
             210 -> {
                 // // LoadStmtBindingName? = LoadStmtBindingName => ActionFn(166);
                 val __sym0 = symbols.popUnwrap()
@@ -2034,6 +2244,7 @@ internal object GrammarReducers {
                 symbols.add(Triple(__start, GrammarSymbol.Variant45(__nt as AstString?), __end))
                 return 1 to 108
             }
+
             211 -> {
                 // // LoadStmtBindingName? =  => ActionFn(167);
                 val __start = lookaheadStart ?: symbols.lastOrNull()?.third ?: 0
@@ -2042,6 +2253,7 @@ internal object GrammarReducers {
                 symbols.add(Triple(__start, GrammarSymbol.Variant45(__nt as AstString?), __end))
                 return 0 to 108
             }
+
             212 -> {
                 // // LoadStmtSyms = LoadStmtBindingName, "STRING" => ActionFn(571);
                 val __sym1 = symbols.popUnwrap()
@@ -2052,6 +2264,7 @@ internal object GrammarReducers {
                 symbols.add(Triple(__start, GrammarSymbol.Variant21(__nt as Pair<AstAssignIdent, AstString>), __end))
                 return 2 to 109
             }
+
             213 -> {
                 // // LoadStmtSyms = "STRING" => ActionFn(572);
                 val __sym0 = symbols.popUnwrap()
@@ -2061,6 +2274,7 @@ internal object GrammarReducers {
                 symbols.add(Triple(__start, GrammarSymbol.Variant21(__nt as Pair<AstAssignIdent, AstString>), __end))
                 return 1 to 109
             }
+
             214 -> {
                 // // LoadStmt_ = "load", "(", "STRING", ")" => ActionFn(573);
                 val __sym3 = symbols.popUnwrap()
@@ -2073,6 +2287,7 @@ internal object GrammarReducers {
                 symbols.add(Triple(__start, GrammarSymbol.Variant28(__nt as Stmt), __end))
                 return 4 to 110
             }
+
             215 -> {
                 // // LoadStmt_ = "load", "(", "STRING", Comma, LoadStmtSyms, ")" => ActionFn(574);
                 val __sym5 = symbols.popUnwrap()
@@ -2087,6 +2302,7 @@ internal object GrammarReducers {
                 symbols.add(Triple(__start, GrammarSymbol.Variant28(__nt as Stmt), __end))
                 return 6 to 110
             }
+
             216 -> {
                 // // LoadStmt_ = "load", "(", "STRING", Comma, ")" => ActionFn(575);
                 val __sym4 = symbols.popUnwrap()
@@ -2100,6 +2316,7 @@ internal object GrammarReducers {
                 symbols.add(Triple(__start, GrammarSymbol.Variant28(__nt as Stmt), __end))
                 return 5 to 110
             }
+
             217 -> {
                 // // LoadStmt_ = "load", "(", "STRING", Comma, (<LoadStmtSyms> <Comma>)+, LoadStmtSyms, ")" => ActionFn(576);
                 val __sym6 = symbols.popUnwrap()
@@ -2115,6 +2332,7 @@ internal object GrammarReducers {
                 symbols.add(Triple(__start, GrammarSymbol.Variant28(__nt as Stmt), __end))
                 return 7 to 110
             }
+
             218 -> {
                 // // LoadStmt_ = "load", "(", "STRING", Comma, (<LoadStmtSyms> <Comma>)+, ")" => ActionFn(577);
                 val __sym5 = symbols.popUnwrap()
@@ -2129,6 +2347,7 @@ internal object GrammarReducers {
                 symbols.add(Triple(__start, GrammarSymbol.Variant28(__nt as Stmt), __end))
                 return 6 to 110
             }
+
             219 -> {
                 // // NotTest = "not", NotTest => ActionFn(471);
                 val __sym1 = symbols.popUnwrap()
@@ -2139,6 +2358,7 @@ internal object GrammarReducers {
                 symbols.add(Triple(__start, GrammarSymbol.Variant17(__nt as AstExpr), __end))
                 return 2 to 111
             }
+
             220 -> {
                 // // NotTest = CompTest => ActionFn(117);
                 val __sym0 = symbols.popUnwrap()
@@ -2148,6 +2368,7 @@ internal object GrammarReducers {
                 symbols.add(Triple(__start, GrammarSymbol.Variant17(__nt as AstExpr), __end))
                 return 1 to 111
             }
+
             221 -> {
                 // // Operand = Ident => ActionFn(472);
                 val __sym0 = symbols.popUnwrap()
@@ -2157,6 +2378,7 @@ internal object GrammarReducers {
                 symbols.add(Triple(__start, GrammarSymbol.Variant17(__nt as AstExpr), __end))
                 return 1 to 112
             }
+
             222 -> {
                 // // Operand = "INTEGER" => ActionFn(570);
                 val __sym0 = symbols.popUnwrap()
@@ -2166,6 +2388,7 @@ internal object GrammarReducers {
                 symbols.add(Triple(__start, GrammarSymbol.Variant17(__nt as AstExpr), __end))
                 return 1 to 112
             }
+
             223 -> {
                 // // Operand = "FLOAT" => ActionFn(563);
                 val __sym0 = symbols.popUnwrap()
@@ -2175,6 +2398,7 @@ internal object GrammarReducers {
                 symbols.add(Triple(__start, GrammarSymbol.Variant17(__nt as AstExpr), __end))
                 return 1 to 112
             }
+
             224 -> {
                 // // Operand = "STRING" => ActionFn(578);
                 val __sym0 = symbols.popUnwrap()
@@ -2184,6 +2408,7 @@ internal object GrammarReducers {
                 symbols.add(Triple(__start, GrammarSymbol.Variant17(__nt as AstExpr), __end))
                 return 1 to 112
             }
+
             225 -> {
                 // // Operand = "..." => ActionFn(476);
                 val __sym0 = symbols.popUnwrap()
@@ -2193,6 +2418,7 @@ internal object GrammarReducers {
                 symbols.add(Triple(__start, GrammarSymbol.Variant17(__nt as AstExpr), __end))
                 return 1 to 112
             }
+
             226 -> {
                 // // Operand = "[", COMMA<Test>, "]" => ActionFn(477);
                 val __sym2 = symbols.popUnwrap()
@@ -2204,6 +2430,7 @@ internal object GrammarReducers {
                 symbols.add(Triple(__start, GrammarSymbol.Variant17(__nt as AstExpr), __end))
                 return 3 to 112
             }
+
             227 -> {
                 // // Operand = ListComp => ActionFn(93);
                 val __sym0 = symbols.popUnwrap()
@@ -2213,6 +2440,7 @@ internal object GrammarReducers {
                 symbols.add(Triple(__start, GrammarSymbol.Variant17(__nt as AstExpr), __end))
                 return 1 to 112
             }
+
             228 -> {
                 // // Operand = "{", COMMA<DictEntry>, "}" => ActionFn(478);
                 val __sym2 = symbols.popUnwrap()
@@ -2224,6 +2452,7 @@ internal object GrammarReducers {
                 symbols.add(Triple(__start, GrammarSymbol.Variant17(__nt as AstExpr), __end))
                 return 3 to 112
             }
+
             229 -> {
                 // // Operand = DictComp => ActionFn(95);
                 val __sym0 = symbols.popUnwrap()
@@ -2233,6 +2462,7 @@ internal object GrammarReducers {
                 symbols.add(Triple(__start, GrammarSymbol.Variant17(__nt as AstExpr), __end))
                 return 1 to 112
             }
+
             230 -> {
                 // // Operand = "(", TestList, ")" => ActionFn(559);
                 val __sym2 = symbols.popUnwrap()
@@ -2244,6 +2474,7 @@ internal object GrammarReducers {
                 symbols.add(Triple(__start, GrammarSymbol.Variant17(__nt as AstExpr), __end))
                 return 3 to 112
             }
+
             231 -> {
                 // // Operand = "(", ")" => ActionFn(560);
                 val __sym1 = symbols.popUnwrap()
@@ -2254,6 +2485,7 @@ internal object GrammarReducers {
                 symbols.add(Triple(__start, GrammarSymbol.Variant17(__nt as AstExpr), __end))
                 return 2 to 112
             }
+
             232 -> {
                 // // Operand = "FSTRING" => ActionFn(564);
                 val __sym0 = symbols.popUnwrap()
@@ -2263,6 +2495,7 @@ internal object GrammarReducers {
                 symbols.add(Triple(__start, GrammarSymbol.Variant17(__nt as AstExpr), __end))
                 return 1 to 112
             }
+
             233 -> {
                 // // OptionalSlice = ":", Test => ActionFn(81);
                 val __sym1 = symbols.popUnwrap()
@@ -2273,6 +2506,7 @@ internal object GrammarReducers {
                 symbols.add(Triple(__start, GrammarSymbol.Variant17(__nt as AstExpr), __end))
                 return 2 to 113
             }
+
             234 -> {
                 // // OrTest = OrTest, "or", AndTest => ActionFn(481);
                 val __sym2 = symbols.popUnwrap()
@@ -2284,6 +2518,7 @@ internal object GrammarReducers {
                 symbols.add(Triple(__start, GrammarSymbol.Variant17(__nt as AstExpr), __end))
                 return 3 to 114
             }
+
             235 -> {
                 // // OrTest = AndTest => ActionFn(113);
                 val __sym0 = symbols.popUnwrap()
@@ -2293,6 +2528,7 @@ internal object GrammarReducers {
                 symbols.add(Triple(__start, GrammarSymbol.Variant17(__nt as AstExpr), __end))
                 return 1 to 114
             }
+
             236 -> {
                 // // PrimaryExpr = PrimaryExpr, ".", "IDENTIFIER" => ActionFn(569);
                 val __sym2 = symbols.popUnwrap()
@@ -2304,6 +2540,7 @@ internal object GrammarReducers {
                 symbols.add(Triple(__start, GrammarSymbol.Variant17(__nt as AstExpr), __end))
                 return 3 to 115
             }
+
             237 -> {
                 // // PrimaryExpr = PrimaryExpr, "(", COMMA<Argument>, ")" => ActionFn(483);
                 val __sym3 = symbols.popUnwrap()
@@ -2316,6 +2553,7 @@ internal object GrammarReducers {
                 symbols.add(Triple(__start, GrammarSymbol.Variant17(__nt as AstExpr), __end))
                 return 4 to 115
             }
+
             238 -> {
                 // // PrimaryExpr = PrimaryExpr, "[", Test, ":", Test, ":", Test, "]" => ActionFn(484);
                 val __sym7 = symbols.popUnwrap()
@@ -2332,6 +2570,7 @@ internal object GrammarReducers {
                 symbols.add(Triple(__start, GrammarSymbol.Variant17(__nt as AstExpr), __end))
                 return 8 to 115
             }
+
             239 -> {
                 // // PrimaryExpr = PrimaryExpr, "[", Test, ":", Test, ":", "]" => ActionFn(485);
                 val __sym6 = symbols.popUnwrap()
@@ -2347,6 +2586,7 @@ internal object GrammarReducers {
                 symbols.add(Triple(__start, GrammarSymbol.Variant17(__nt as AstExpr), __end))
                 return 7 to 115
             }
+
             240 -> {
                 // // PrimaryExpr = PrimaryExpr, "[", Test, ":", Test, "]" => ActionFn(486);
                 val __sym5 = symbols.popUnwrap()
@@ -2361,6 +2601,7 @@ internal object GrammarReducers {
                 symbols.add(Triple(__start, GrammarSymbol.Variant17(__nt as AstExpr), __end))
                 return 6 to 115
             }
+
             241 -> {
                 // // PrimaryExpr = PrimaryExpr, "[", Test, ":", ":", Test, "]" => ActionFn(487);
                 val __sym6 = symbols.popUnwrap()
@@ -2376,6 +2617,7 @@ internal object GrammarReducers {
                 symbols.add(Triple(__start, GrammarSymbol.Variant17(__nt as AstExpr), __end))
                 return 7 to 115
             }
+
             242 -> {
                 // // PrimaryExpr = PrimaryExpr, "[", Test, ":", ":", "]" => ActionFn(488);
                 val __sym5 = symbols.popUnwrap()
@@ -2390,6 +2632,7 @@ internal object GrammarReducers {
                 symbols.add(Triple(__start, GrammarSymbol.Variant17(__nt as AstExpr), __end))
                 return 6 to 115
             }
+
             243 -> {
                 // // PrimaryExpr = PrimaryExpr, "[", Test, ":", "]" => ActionFn(489);
                 val __sym4 = symbols.popUnwrap()
@@ -2403,6 +2646,7 @@ internal object GrammarReducers {
                 symbols.add(Triple(__start, GrammarSymbol.Variant17(__nt as AstExpr), __end))
                 return 5 to 115
             }
+
             244 -> {
                 // // PrimaryExpr = PrimaryExpr, "[", ":", Test, ":", Test, "]" => ActionFn(490);
                 val __sym6 = symbols.popUnwrap()
@@ -2418,6 +2662,7 @@ internal object GrammarReducers {
                 symbols.add(Triple(__start, GrammarSymbol.Variant17(__nt as AstExpr), __end))
                 return 7 to 115
             }
+
             245 -> {
                 // // PrimaryExpr = PrimaryExpr, "[", ":", Test, ":", "]" => ActionFn(491);
                 val __sym5 = symbols.popUnwrap()
@@ -2432,6 +2677,7 @@ internal object GrammarReducers {
                 symbols.add(Triple(__start, GrammarSymbol.Variant17(__nt as AstExpr), __end))
                 return 6 to 115
             }
+
             246 -> {
                 // // PrimaryExpr = PrimaryExpr, "[", ":", Test, "]" => ActionFn(492);
                 val __sym4 = symbols.popUnwrap()
@@ -2445,6 +2691,7 @@ internal object GrammarReducers {
                 symbols.add(Triple(__start, GrammarSymbol.Variant17(__nt as AstExpr), __end))
                 return 5 to 115
             }
+
             247 -> {
                 // // PrimaryExpr = PrimaryExpr, "[", ":", ":", Test, "]" => ActionFn(493);
                 val __sym5 = symbols.popUnwrap()
@@ -2459,6 +2706,7 @@ internal object GrammarReducers {
                 symbols.add(Triple(__start, GrammarSymbol.Variant17(__nt as AstExpr), __end))
                 return 6 to 115
             }
+
             248 -> {
                 // // PrimaryExpr = PrimaryExpr, "[", ":", ":", "]" => ActionFn(494);
                 val __sym4 = symbols.popUnwrap()
@@ -2472,6 +2720,7 @@ internal object GrammarReducers {
                 symbols.add(Triple(__start, GrammarSymbol.Variant17(__nt as AstExpr), __end))
                 return 5 to 115
             }
+
             249 -> {
                 // // PrimaryExpr = PrimaryExpr, "[", ":", "]" => ActionFn(495);
                 val __sym3 = symbols.popUnwrap()
@@ -2484,6 +2733,7 @@ internal object GrammarReducers {
                 symbols.add(Triple(__start, GrammarSymbol.Variant17(__nt as AstExpr), __end))
                 return 4 to 115
             }
+
             250 -> {
                 // // PrimaryExpr = PrimaryExpr, "[", Test, "]" => ActionFn(496);
                 val __sym3 = symbols.popUnwrap()
@@ -2496,6 +2746,7 @@ internal object GrammarReducers {
                 symbols.add(Triple(__start, GrammarSymbol.Variant17(__nt as AstExpr), __end))
                 return 4 to 115
             }
+
             251 -> {
                 // // PrimaryExpr = PrimaryExpr, "[", Test, ",", Test, "]" => ActionFn(497);
                 val __sym5 = symbols.popUnwrap()
@@ -2510,6 +2761,7 @@ internal object GrammarReducers {
                 symbols.add(Triple(__start, GrammarSymbol.Variant17(__nt as AstExpr), __end))
                 return 6 to 115
             }
+
             252 -> {
                 // // PrimaryExpr = Operand => ActionFn(80);
                 val __sym0 = symbols.popUnwrap()
@@ -2519,6 +2771,7 @@ internal object GrammarReducers {
                 symbols.add(Triple(__start, GrammarSymbol.Variant17(__nt as AstExpr), __end))
                 return 1 to 115
             }
+
             253 -> {
                 // // ProductExpr = ProductExpr, "*", FactorExpr => ActionFn(498);
                 val __sym2 = symbols.popUnwrap()
@@ -2530,6 +2783,7 @@ internal object GrammarReducers {
                 symbols.add(Triple(__start, GrammarSymbol.Variant17(__nt as AstExpr), __end))
                 return 3 to 116
             }
+
             254 -> {
                 // // ProductExpr = ProductExpr, "%", FactorExpr => ActionFn(499);
                 val __sym2 = symbols.popUnwrap()
@@ -2541,6 +2795,7 @@ internal object GrammarReducers {
                 symbols.add(Triple(__start, GrammarSymbol.Variant17(__nt as AstExpr), __end))
                 return 3 to 116
             }
+
             255 -> {
                 // // ProductExpr = ProductExpr, "/", FactorExpr => ActionFn(500);
                 val __sym2 = symbols.popUnwrap()
@@ -2552,6 +2807,7 @@ internal object GrammarReducers {
                 symbols.add(Triple(__start, GrammarSymbol.Variant17(__nt as AstExpr), __end))
                 return 3 to 116
             }
+
             256 -> {
                 // // ProductExpr = ProductExpr, "//", FactorExpr => ActionFn(501);
                 val __sym2 = symbols.popUnwrap()
@@ -2563,6 +2819,7 @@ internal object GrammarReducers {
                 symbols.add(Triple(__start, GrammarSymbol.Variant17(__nt as AstExpr), __end))
                 return 3 to 116
             }
+
             257 -> {
                 // // ProductExpr = FactorExpr => ActionFn(144);
                 val __sym0 = symbols.popUnwrap()
@@ -2572,6 +2829,7 @@ internal object GrammarReducers {
                 symbols.add(Triple(__start, GrammarSymbol.Variant17(__nt as AstExpr), __end))
                 return 1 to 116
             }
+
             258 -> {
                 // // ReturnType = "->", TypeExpr => ActionFn(11);
                 val __sym1 = symbols.popUnwrap()
@@ -2582,6 +2840,7 @@ internal object GrammarReducers {
                 symbols.add(Triple(__start, GrammarSymbol.Variant46(__nt as AstTypeExpr?), __end))
                 return 2 to 117
             }
+
             259 -> {
                 // // ReturnType =  => ActionFn(12);
                 val __start = lookaheadStart ?: symbols.lastOrNull()?.third ?: 0
@@ -2590,6 +2849,7 @@ internal object GrammarReducers {
                 symbols.add(Triple(__start, GrammarSymbol.Variant46(__nt as AstTypeExpr?), __end))
                 return 0 to 117
             }
+
             260 -> {
                 // // ShiftExpr = ShiftExpr, "<<", ArithExpr => ActionFn(502);
                 val __sym2 = symbols.popUnwrap()
@@ -2601,6 +2861,7 @@ internal object GrammarReducers {
                 symbols.add(Triple(__start, GrammarSymbol.Variant17(__nt as AstExpr), __end))
                 return 3 to 118
             }
+
             261 -> {
                 // // ShiftExpr = ShiftExpr, ">>", ArithExpr => ActionFn(503);
                 val __sym2 = symbols.popUnwrap()
@@ -2612,6 +2873,7 @@ internal object GrammarReducers {
                 symbols.add(Triple(__start, GrammarSymbol.Variant17(__nt as AstExpr), __end))
                 return 3 to 118
             }
+
             262 -> {
                 // // ShiftExpr = ArithExpr => ActionFn(136);
                 val __sym0 = symbols.popUnwrap()
@@ -2621,6 +2883,7 @@ internal object GrammarReducers {
                 symbols.add(Triple(__start, GrammarSymbol.Variant17(__nt as AstExpr), __end))
                 return 1 to 118
             }
+
             263 -> {
                 // // SimpleStmt<SmallStmt> = SmallStmt, ";", "\n" => ActionFn(504);
                 val __sym2 = symbols.popUnwrap()
@@ -2632,6 +2895,7 @@ internal object GrammarReducers {
                 symbols.add(Triple(__start, GrammarSymbol.Variant9(__nt as AstStmt), __end))
                 return 3 to 119
             }
+
             264 -> {
                 // // SimpleStmt<SmallStmt> = SmallStmt, (";" <SmallStmt>)+, ";", "\n" => ActionFn(505);
                 val __sym3 = symbols.popUnwrap()
@@ -2644,6 +2908,7 @@ internal object GrammarReducers {
                 symbols.add(Triple(__start, GrammarSymbol.Variant9(__nt as AstStmt), __end))
                 return 4 to 119
             }
+
             265 -> {
                 // // SimpleStmt<SmallStmt> = SmallStmt, "\n" => ActionFn(506);
                 val __sym1 = symbols.popUnwrap()
@@ -2654,6 +2919,7 @@ internal object GrammarReducers {
                 symbols.add(Triple(__start, GrammarSymbol.Variant9(__nt as AstStmt), __end))
                 return 2 to 119
             }
+
             266 -> {
                 // // SimpleStmt<SmallStmt> = SmallStmt, (";" <SmallStmt>)+, "\n" => ActionFn(507);
                 val __sym2 = symbols.popUnwrap()
@@ -2665,6 +2931,7 @@ internal object GrammarReducers {
                 symbols.add(Triple(__start, GrammarSymbol.Variant9(__nt as AstStmt), __end))
                 return 3 to 119
             }
+
             267 -> {
                 // // SmallStmt = "return", TestList => ActionFn(561);
                 val __sym1 = symbols.popUnwrap()
@@ -2675,6 +2942,7 @@ internal object GrammarReducers {
                 symbols.add(Triple(__start, GrammarSymbol.Variant9(__nt as AstStmt), __end))
                 return 2 to 120
             }
+
             268 -> {
                 // // SmallStmt = "return" => ActionFn(562);
                 val __sym0 = symbols.popUnwrap()
@@ -2684,6 +2952,7 @@ internal object GrammarReducers {
                 symbols.add(Triple(__start, GrammarSymbol.Variant9(__nt as AstStmt), __end))
                 return 1 to 120
             }
+
             269 -> {
                 // // SmallStmt = "break" => ActionFn(509);
                 val __sym0 = symbols.popUnwrap()
@@ -2693,6 +2962,7 @@ internal object GrammarReducers {
                 symbols.add(Triple(__start, GrammarSymbol.Variant9(__nt as AstStmt), __end))
                 return 1 to 120
             }
+
             270 -> {
                 // // SmallStmt = "continue" => ActionFn(510);
                 val __sym0 = symbols.popUnwrap()
@@ -2702,6 +2972,7 @@ internal object GrammarReducers {
                 symbols.add(Triple(__start, GrammarSymbol.Variant9(__nt as AstStmt), __end))
                 return 1 to 120
             }
+
             271 -> {
                 // // SmallStmt = "pass" => ActionFn(511);
                 val __sym0 = symbols.popUnwrap()
@@ -2711,6 +2982,7 @@ internal object GrammarReducers {
                 symbols.add(Triple(__start, GrammarSymbol.Variant9(__nt as AstStmt), __end))
                 return 1 to 120
             }
+
             272 -> {
                 // // SmallStmt = AssignStmt => ActionFn(48);
                 val __sym0 = symbols.popUnwrap()
@@ -2720,6 +2992,7 @@ internal object GrammarReducers {
                 symbols.add(Triple(__start, GrammarSymbol.Variant9(__nt as AstStmt), __end))
                 return 1 to 120
             }
+
             273 -> {
                 // // SmallStmt = ExprStmt => ActionFn(49);
                 val __sym0 = symbols.popUnwrap()
@@ -2729,6 +3002,7 @@ internal object GrammarReducers {
                 symbols.add(Triple(__start, GrammarSymbol.Variant9(__nt as AstStmt), __end))
                 return 1 to 120
             }
+
             274 -> {
                 // // SmallStmt = LoadStmt => ActionFn(50);
                 val __sym0 = symbols.popUnwrap()
@@ -2738,6 +3012,7 @@ internal object GrammarReducers {
                 symbols.add(Triple(__start, GrammarSymbol.Variant9(__nt as AstStmt), __end))
                 return 1 to 120
             }
+
             275 -> {
                 // // Starlark =  => ActionFn(512);
                 val __start = lookaheadStart ?: symbols.lastOrNull()?.third ?: 0
@@ -2746,6 +3021,7 @@ internal object GrammarReducers {
                 symbols.add(Triple(__start, GrammarSymbol.Variant9(__nt as AstStmt), __end))
                 return 0 to 121
             }
+
             276 -> {
                 // // Starlark = (<Stmt> "\n"*)+ => ActionFn(513);
                 val __sym0 = symbols.popUnwrap()
@@ -2755,6 +3031,7 @@ internal object GrammarReducers {
                 symbols.add(Triple(__start, GrammarSymbol.Variant9(__nt as AstStmt), __end))
                 return 1 to 121
             }
+
             277 -> {
                 // // Starlark = "\n"+ => ActionFn(514);
                 val __sym0 = symbols.popUnwrap()
@@ -2764,6 +3041,7 @@ internal object GrammarReducers {
                 symbols.add(Triple(__start, GrammarSymbol.Variant9(__nt as AstStmt), __end))
                 return 1 to 121
             }
+
             278 -> {
                 // // Starlark = "\n"+, (<Stmt> "\n"*)+ => ActionFn(515);
                 val __sym1 = symbols.popUnwrap()
@@ -2774,6 +3052,7 @@ internal object GrammarReducers {
                 symbols.add(Triple(__start, GrammarSymbol.Variant9(__nt as AstStmt), __end))
                 return 2 to 121
             }
+
             279 -> {
                 // // Stmt = DefStmt => ActionFn(32);
                 val __sym0 = symbols.popUnwrap()
@@ -2783,6 +3062,7 @@ internal object GrammarReducers {
                 symbols.add(Triple(__start, GrammarSymbol.Variant9(__nt as AstStmt), __end))
                 return 1 to 122
             }
+
             280 -> {
                 // // Stmt = IfStmt => ActionFn(33);
                 val __sym0 = symbols.popUnwrap()
@@ -2792,6 +3072,7 @@ internal object GrammarReducers {
                 symbols.add(Triple(__start, GrammarSymbol.Variant9(__nt as AstStmt), __end))
                 return 1 to 122
             }
+
             281 -> {
                 // // Stmt = ForStmt => ActionFn(34);
                 val __sym0 = symbols.popUnwrap()
@@ -2801,6 +3082,7 @@ internal object GrammarReducers {
                 symbols.add(Triple(__start, GrammarSymbol.Variant9(__nt as AstStmt), __end))
                 return 1 to 122
             }
+
             282 -> {
                 // // Stmt = SimpleStmt<SmallStmt> => ActionFn(35);
                 val __sym0 = symbols.popUnwrap()
@@ -2810,6 +3092,7 @@ internal object GrammarReducers {
                 symbols.add(Triple(__start, GrammarSymbol.Variant9(__nt as AstStmt), __end))
                 return 1 to 122
             }
+
             283 -> {
                 // // Suite = SimpleStmt<SmallStmt> => ActionFn(30);
                 val __sym0 = symbols.popUnwrap()
@@ -2819,6 +3102,7 @@ internal object GrammarReducers {
                 symbols.add(Triple(__start, GrammarSymbol.Variant9(__nt as AstStmt), __end))
                 return 1 to 123
             }
+
             284 -> {
                 // // Suite = "\n"+, "INDENT", (<Stmt> "\n"*)+, "DEDENT" => ActionFn(516);
                 val __sym3 = symbols.popUnwrap()
@@ -2831,6 +3115,7 @@ internal object GrammarReducers {
                 symbols.add(Triple(__start, GrammarSymbol.Variant9(__nt as AstStmt), __end))
                 return 4 to 123
             }
+
             285 -> {
                 // // Suite = "\n"+, "INDENT", "\n"+, (<Stmt> "\n"*)+, "DEDENT" => ActionFn(517);
                 val __sym4 = symbols.popUnwrap()
@@ -2844,6 +3129,7 @@ internal object GrammarReducers {
                 symbols.add(Triple(__start, GrammarSymbol.Variant9(__nt as AstStmt), __end))
                 return 5 to 123
             }
+
             286 -> {
                 // // Test = OrTest, "if", OrTest, "else", Test => ActionFn(518);
                 val __sym4 = symbols.popUnwrap()
@@ -2857,6 +3143,7 @@ internal object GrammarReducers {
                 symbols.add(Triple(__start, GrammarSymbol.Variant17(__nt as AstExpr), __end))
                 return 5 to 124
             }
+
             287 -> {
                 // // Test = OrTest => ActionFn(108);
                 val __sym0 = symbols.popUnwrap()
@@ -2866,6 +3153,7 @@ internal object GrammarReducers {
                 symbols.add(Triple(__start, GrammarSymbol.Variant17(__nt as AstExpr), __end))
                 return 1 to 124
             }
+
             288 -> {
                 // // Test = LambDef => ActionFn(109);
                 val __sym0 = symbols.popUnwrap()
@@ -2875,6 +3163,7 @@ internal object GrammarReducers {
                 symbols.add(Triple(__start, GrammarSymbol.Variant17(__nt as AstExpr), __end))
                 return 1 to 124
             }
+
             289 -> {
                 // // Test? = Test => ActionFn(161);
                 val __sym0 = symbols.popUnwrap()
@@ -2884,6 +3173,7 @@ internal object GrammarReducers {
                 symbols.add(Triple(__start, GrammarSymbol.Variant7(__nt as AstExpr?), __end))
                 return 1 to 125
             }
+
             290 -> {
                 // // Test? =  => ActionFn(162);
                 val __start = lookaheadStart ?: symbols.lastOrNull()?.third ?: 0
@@ -2892,6 +3182,7 @@ internal object GrammarReducers {
                 symbols.add(Triple(__start, GrammarSymbol.Variant7(__nt as AstExpr?), __end))
                 return 0 to 125
             }
+
             291 -> {
                 // // TestList = L<Test> => ActionFn(74);
                 val __sym0 = symbols.popUnwrap()
@@ -2901,6 +3192,7 @@ internal object GrammarReducers {
                 symbols.add(Triple(__start, GrammarSymbol.Variant17(__nt as AstExpr), __end))
                 return 1 to 126
             }
+
             292 -> {
                 // // TestList? = TestList => ActionFn(177);
                 val __sym0 = symbols.popUnwrap()
@@ -2910,6 +3202,7 @@ internal object GrammarReducers {
                 symbols.add(Triple(__start, GrammarSymbol.Variant7(__nt as AstExpr?), __end))
                 return 1 to 127
             }
+
             293 -> {
                 // // TestList? =  => ActionFn(178);
                 val __start = lookaheadStart ?: symbols.lastOrNull()?.third ?: 0
@@ -2918,6 +3211,7 @@ internal object GrammarReducers {
                 symbols.add(Triple(__start, GrammarSymbol.Variant7(__nt as AstExpr?), __end))
                 return 0 to 127
             }
+
             294 -> {
                 // // Type = ":", TypeExpr => ActionFn(28);
                 val __sym1 = symbols.popUnwrap()
@@ -2928,6 +3222,7 @@ internal object GrammarReducers {
                 symbols.add(Triple(__start, GrammarSymbol.Variant46(__nt as AstTypeExpr?), __end))
                 return 2 to 128
             }
+
             295 -> {
                 // // Type =  => ActionFn(29);
                 val __start = lookaheadStart ?: symbols.lastOrNull()?.third ?: 0
@@ -2936,6 +3231,7 @@ internal object GrammarReducers {
                 symbols.add(Triple(__start, GrammarSymbol.Variant46(__nt as AstTypeExpr?), __end))
                 return 0 to 128
             }
+
             296 -> {
                 // // TypeExpr = Test => ActionFn(27);
                 val __sym0 = symbols.popUnwrap()
@@ -2945,6 +3241,7 @@ internal object GrammarReducers {
                 symbols.add(Triple(__start, GrammarSymbol.Variant47(__nt as AstTypeExpr), __end))
                 return 1 to 129
             }
+
             298 -> {
                 // // float = "FLOAT" => ActionFn(519);
                 val __sym0 = symbols.popUnwrap()
@@ -2954,6 +3251,7 @@ internal object GrammarReducers {
                 symbols.add(Triple(__start, GrammarSymbol.Variant48(__nt as AstFloat), __end))
                 return 1 to 131
             }
+
             299 -> {
                 // // fstring = "FSTRING" => ActionFn(520);
                 val __sym0 = symbols.popUnwrap()
@@ -2963,6 +3261,7 @@ internal object GrammarReducers {
                 symbols.add(Triple(__start, GrammarSymbol.Variant49(__nt as AstFString), __end))
                 return 1 to 132
             }
+
             300 -> {
                 // // identifier = "IDENTIFIER" => ActionFn(521);
                 val __sym0 = symbols.popUnwrap()
@@ -2972,6 +3271,7 @@ internal object GrammarReducers {
                 symbols.add(Triple(__start, GrammarSymbol.Variant44(__nt as AstString), __end))
                 return 1 to 133
             }
+
             301 -> {
                 // // integer = "INTEGER" => ActionFn(522);
                 val __sym0 = symbols.popUnwrap()
@@ -2981,6 +3281,7 @@ internal object GrammarReducers {
                 symbols.add(Triple(__start, GrammarSymbol.Variant50(__nt as AstInt), __end))
                 return 1 to 134
             }
+
             302 -> {
                 // // string = "STRING" => ActionFn(523);
                 val __sym0 = symbols.popUnwrap()

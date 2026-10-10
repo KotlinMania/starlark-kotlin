@@ -39,6 +39,13 @@ class StringTest {
         val fs: FrozenStringValue = "xyz".allocFrozenStringValue(heap)
         assertEquals(expected, Hashed.new(fs).hash())
         val fv = "xyz".allocFrozenStringValue(heap).toFrozenValue()
-        assertEquals(expected, fv.toValue().getHashed().getOrThrow().hash())
+        assertEquals(
+            expected,
+            fv
+                .toValue()
+                .getHashed()
+                .getOrThrow()
+                .hash(),
+        )
     }
 }

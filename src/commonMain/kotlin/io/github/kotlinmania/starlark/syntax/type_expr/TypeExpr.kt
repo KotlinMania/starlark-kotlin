@@ -103,7 +103,7 @@ internal sealed class TypeExprUnpackP<P : AstPayload, IP> {
         ): Spanned<TypePathP<P, IP>> {
             val span = expr.span
             return when (val node = expr.node) {
-                is ExprP.Identifier<*, *> ->
+                is ExprP.Identifier<*, *> -> {
                     Spanned(
                         node =
                             TypePathP(
@@ -112,6 +112,8 @@ internal sealed class TypeExprUnpackP<P : AstPayload, IP> {
                             ),
                         span = span,
                     )
+                }
+
                 is ExprP.Dot<*> -> {
                     var current: AstExprP<P> = node.expr as AstExprP<P>
                     val rem = mutableListOf(Spanned(node = node.field.node, span = node.field.span))
@@ -121,6 +123,7 @@ internal sealed class TypeExprUnpackP<P : AstPayload, IP> {
                                 current = cur.expr as AstExprP<P>
                                 rem.add(Spanned(node = cur.field.node, span = cur.field.span))
                             }
+
                             is ExprP.Identifier<*, *> -> {
                                 rem.reverse()
                                 val last = rem.lastOrNull()
@@ -143,25 +146,31 @@ internal sealed class TypeExprUnpackP<P : AstPayload, IP> {
                                     span = span,
                                 )
                             }
-                            else -> throw WithDiagnosticException(
-                                WithDiagnostic(
-                                    TypeExprUnpackError.DotInType(),
-                                    current.span,
-                                    codemap,
-                                ),
-                            )
+
+                            else -> {
+                                throw WithDiagnosticException(
+                                    WithDiagnostic(
+                                        TypeExprUnpackError.DotInType(),
+                                        current.span,
+                                        codemap,
+                                    ),
+                                )
+                            }
                         }
                     }
                     @Suppress("UNREACHABLE_CODE")
                     throw IllegalStateException("unreachable")
                 }
-                else -> throw WithDiagnosticException(
-                    WithDiagnostic(
-                        TypeExprUnpackError.ExpectingPath(),
-                        expr.span,
-                        codemap,
-                    ),
-                )
+
+                else -> {
+                    throw WithDiagnosticException(
+                        WithDiagnostic(
+                            TypeExprUnpackError.ExpectingPath(),
+                            expr.span,
+                            codemap,
+                        ),
+                    )
+                }
             }
         }
 
@@ -182,7 +191,10 @@ internal sealed class TypeExprUnpackP<P : AstPayload, IP> {
                         span = span,
                     )
                 }
-                else -> unpack(expr, codemap)
+
+                else -> {
+                    unpack(expr, codemap)
+                }
             }
         }
 
@@ -209,11 +221,16 @@ internal sealed class TypeExprUnpackP<P : AstPayload, IP> {
                         }
                     Spanned(node = Tuple(xs), span = span)
                 }
+
                 is ExprP.Dot<*> -> {
                     val path = unpackPath<P, IP>(expr, codemap)
                     Spanned(node = Path(path.node), span = span)
                 }
-                is ExprP.Call<*> -> err("call")
+
+                is ExprP.Call<*> -> {
+                    err("call")
+                }
+
                 is ExprP.Index<*> -> {
                     val a = node.expr as AstExprP<P>
                     val i = node.index as AstExprP<P>
@@ -225,9 +242,13 @@ internal sealed class TypeExprUnpackP<P : AstPayload, IP> {
                                 span = span,
                             )
                         }
-                        else -> err("array indirection where array is not an identifier")
+
+                        else -> {
+                            err("array indirection where array is not an identifier")
+                        }
                     }
                 }
+
                 is ExprP.Index2<*> -> {
                     val a = node.expr as AstExprP<P>
                     val i0 = node.index0 as AstExprP<P>
@@ -240,23 +261,45 @@ internal sealed class TypeExprUnpackP<P : AstPayload, IP> {
                         span = span,
                     )
                 }
-                is ExprP.Slice<*> -> err("slice")
+
+                is ExprP.Slice<*> -> {
+                    err("slice")
+                }
+
                 is ExprP.Identifier<*, *> -> {
                     val path = unpackPath<P, IP>(expr, codemap)
                     Spanned(node = Path(path.node), span = span)
                 }
-                is ExprP.Lambda<*, *> -> err("lambda")
-                is ExprP.Literal<*> ->
+
+                is ExprP.Lambda<*, *> -> {
+                    err("lambda")
+                }
+
+                is ExprP.Literal<*> -> {
                     when (node.literal) {
                         is AstLiteral.StringLit -> err("string literal")
                         is AstLiteral.IntLit -> err("int")
                         is AstLiteral.FloatLit -> err("float")
                         is AstLiteral.Ellipsis -> Spanned(node = Ellipsis(), span = span)
                     }
-                is ExprP.Not<*> -> err("not")
-                is ExprP.Minus<*> -> err("minus")
-                is ExprP.Plus<*> -> err("plus")
-                is ExprP.BitNot<*> -> err("bit not")
+                }
+
+                is ExprP.Not<*> -> {
+                    err("not")
+                }
+
+                is ExprP.Minus<*> -> {
+                    err("minus")
+                }
+
+                is ExprP.Plus<*> -> {
+                    err("plus")
+                }
+
+                is ExprP.BitNot<*> -> {
+                    err("bit not")
+                }
+
                 is ExprP.Op<*> -> {
                     if (node.op == BinOp.BitOr) {
                         val a = unpack<P, IP>(node.lhs as AstExprP<P>, codemap)
@@ -266,7 +309,11 @@ internal sealed class TypeExprUnpackP<P : AstPayload, IP> {
                         err("bin op except `|`")
                     }
                 }
-                is ExprP.If<*> -> err("if")
+
+                is ExprP.If<*> -> {
+                    err("if")
+                }
+
                 is ExprP.ListExpr<*> -> {
                     val xs = node.elements as kotlin.collections.List<AstExprP<P>>
                     if (xs.isEmpty()) {
@@ -284,10 +331,22 @@ internal sealed class TypeExprUnpackP<P : AstPayload, IP> {
                         Spanned(node = Union(unpacked), span = span)
                     }
                 }
-                is ExprP.Dict<*> -> err("dict")
-                is ExprP.ListComprehension<*> -> err("list comprehension")
-                is ExprP.DictComprehension<*> -> err("dict comprehension")
-                is ExprP.FString<*> -> err("f-string")
+
+                is ExprP.Dict<*> -> {
+                    err("dict")
+                }
+
+                is ExprP.ListComprehension<*> -> {
+                    err("list comprehension")
+                }
+
+                is ExprP.DictComprehension<*> -> {
+                    err("dict comprehension")
+                }
+
+                is ExprP.FString<*> -> {
+                    err("f-string")
+                }
             }
         }
     }

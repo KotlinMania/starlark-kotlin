@@ -106,9 +106,18 @@ internal fun registerFloat(globals: GlobalsBuilder) {
                 try {
                     val normalized = s.trim().lowercase()
                     when (normalized) {
-                        "inf", "infinity", "+inf", "+infinity" -> Double.POSITIVE_INFINITY
-                        "-inf", "-infinity" -> Double.NEGATIVE_INFINITY
-                        "nan", "+nan", "-nan" -> Double.NaN
+                        "inf", "infinity", "+inf", "+infinity" -> {
+                            Double.POSITIVE_INFINITY
+                        }
+
+                        "-inf", "-infinity" -> {
+                            Double.NEGATIVE_INFINITY
+                        }
+
+                        "nan", "+nan", "-nan" -> {
+                            Double.NaN
+                        }
+
                         else -> {
                             val f = s.toDouble()
                             if (f.isInfinite() && !normalized.contains("inf")) {

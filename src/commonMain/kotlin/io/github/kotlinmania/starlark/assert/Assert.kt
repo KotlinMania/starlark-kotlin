@@ -158,12 +158,13 @@ private fun assertsStar(builder: GlobalsBuilder) {
         eval: Evaluator,
     ): Result<NoneType> =
         when (val result = f.invokePos(emptyList(), eval)) {
-            else ->
+            else -> {
                 if (result.isFailure) {
                     Result.success(NoneType) // We don't actually check the message
                 } else {
                     Result.failure(Exception("assert.fails: didn't fail"))
                 }
+            }
         }
 
     builder.setFunction("eq") { args, _ -> eq(args.positionalAll()[0], args.positionalAll()[1]) }
@@ -316,7 +317,10 @@ internal class Assert(
                 f(GcStrategy.Always)
                 res
             }
-            else -> f(gc)
+
+            else -> {
+                f(gc)
+            }
         }
 
     private fun execute(
@@ -339,9 +343,15 @@ internal class Assert(
         printHandler?.let { eval.setPrintHandler(it) }
 
         when (gc) {
-            GcStrategy.Never -> eval.disableGc()
+            GcStrategy.Never -> {
+                eval.disableGc()
+            }
+
             GcStrategy.Auto -> {}
-            GcStrategy.Always -> eval.beforeStmtFn(gcAlways)
+
+            GcStrategy.Always -> {
+                eval.beforeStmtFn(gcAlways)
+            }
         }
         eval.setLoader(loader)
         return eval.evalModule(ast, globals)
@@ -354,7 +364,7 @@ internal class Assert(
         gc: GcStrategy,
     ): Error =
         when (val result = execute("assert.bzl", program, module, gc)) {
-            else ->
+            else -> {
                 if (result.isSuccess) {
                     val v = result.getOrThrow()
                     error("starlark::assert::$func, didn't fail!\nCode:\n$program\nResult:\n$v\n")
@@ -362,6 +372,7 @@ internal class Assert(
                     val e = result.exceptionOrNull()!!
                     e.asStarlarkError() ?: Error.newOther(e)
                 }
+            }
         }
 
     private fun executeUnwrap(
@@ -372,7 +383,7 @@ internal class Assert(
         gc: GcStrategy,
     ): Value =
         when (val result = execute(path, program, module, gc)) {
-            else ->
+            else -> {
                 if (result.isSuccess) {
                     result.getOrThrow()
                 } else {
@@ -382,6 +393,7 @@ internal class Assert(
                     }
                     error("starlark::assert::$func, failed to execute!\nCode:\n$program\nGot error: $err\nStack trace:\n${err.stackTraceToString()}")
                 }
+            }
         }
 
     private fun executeUnwrapTrue(
@@ -393,8 +405,14 @@ internal class Assert(
         val v = executeUnwrap(func, "assert.bzl", program, module, gc)
         when (v.unpackBool()) {
             true -> {}
-            false -> error("starlark::assert::$func, got false!\nCode:\n$program")
-            null -> error("starlark::assert::$func, not a bool!\nCode:\n$program\nResult\n$v")
+
+            false -> {
+                error("starlark::assert::$func, got false!\nCode:\n$program")
+            }
+
+            null -> {
+                error("starlark::assert::$func, not a bool!\nCode:\n$program\nResult\n$v")
+            }
         }
     }
 
@@ -407,8 +425,14 @@ internal class Assert(
         val v = executeUnwrap(func, "assert.bzl", program, module, gc)
         when (v.unpackBool()) {
             false -> {}
-            true -> error("starlark::assert::$func, got true!\nCode:\n$program")
-            null -> error("starlark::assert::$func, not a bool!\nCode:\n$program\nResult\n$v")
+
+            true -> {
+                error("starlark::assert::$func, got true!\nCode:\n$program")
+            }
+
+            null -> {
+                error("starlark::assert::$func, not a bool!\nCode:\n$program\nResult\n$v")
+            }
         }
     }
 

@@ -58,7 +58,10 @@ internal data class TyStruct(
                     Result.failure(TypingNoContextOrInternalError.Typing)
                 }
             }
-            else -> Result.failure(TypingNoContextOrInternalError.Typing)
+
+            else -> {
+                Result.failure(TypingNoContextOrInternalError.Typing)
+            }
         }
     }
 

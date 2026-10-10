@@ -107,16 +107,23 @@ private sealed class TestExpr {
     /** Evaluate the expression the same way Starlark would evaluate it. */
     fun eval(count: CountCalls): Boolean =
         when (this) {
-            is Const -> value
+            is Const -> {
+                value
+            }
+
             is Count -> {
                 // Record side effect.
                 count.calls += 1
                 value
             }
+
             is BinOp -> {
                 op.eval(lhs.eval(count)) { rhs.eval(count) }
             }
-            is Not -> !expr.eval(count)
+
+            is Not -> {
+                !expr.eval(count)
+            }
         }
 
     override fun toString(): String =
@@ -300,21 +307,33 @@ private fun randomExpr(rng: Random, maxDepth: Int): TestExpr {
         randomSimpleExpr()
     } else {
         when (rng.nextInt(4)) {
-            0 -> randomSimpleExpr()
-            1 -> TestExpr.Not(randomExpr(rng, maxDepth - 1))
-            2 ->
+            0 -> {
+                randomSimpleExpr()
+            }
+
+            1 -> {
+                TestExpr.Not(randomExpr(rng, maxDepth - 1))
+            }
+
+            2 -> {
                 TestExpr.BinOp(
                     TestBinOp.And,
                     randomExpr(rng, maxDepth - 1),
                     randomExpr(rng, maxDepth - 1),
                 )
-            3 ->
+            }
+
+            3 -> {
                 TestExpr.BinOp(
                     TestBinOp.Or,
                     randomExpr(rng, maxDepth - 1),
                     randomExpr(rng, maxDepth - 1),
                 )
-            else -> error("unreachable")
+            }
+
+            else -> {
+                error("unreachable")
+            }
         }
     }
 }

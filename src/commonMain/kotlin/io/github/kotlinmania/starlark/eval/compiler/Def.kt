@@ -208,8 +208,14 @@ internal fun <T> ParameterCompiled<T>.required(): ParamIsRequired =
         is ParameterCompiled.Normal -> {
             if (defaultValue == null) ParamIsRequired.Yes else ParamIsRequired.No
         }
-        is ParameterCompiled.Args -> ParamIsRequired.No
-        is ParameterCompiled.KwArgs -> ParamIsRequired.No
+
+        is ParameterCompiled.Args -> {
+            ParamIsRequired.No
+        }
+
+        is ParameterCompiled.KwArgs -> {
+            ParamIsRequired.No
+        }
     }
 
 /**
@@ -442,22 +448,27 @@ internal fun Compiler.parameter(
     val pName = parameterName(x.node.ident)
     val node: ParameterCompiled<IrSpanned<ExprCompiled>> =
         when (val kind = x.node.kind) {
-            is DefParamKind.Regular ->
+            is DefParamKind.Regular -> {
                 ParameterCompiled.Normal(
                     pName,
                     this.exprForType(x.node.ty)?.node,
                     kind.defaultValue?.let { d -> this.expr(d).getOrThrow() },
                 )
-            is DefParamKind.Args ->
+            }
+
+            is DefParamKind.Args -> {
                 ParameterCompiled.Args(
                     pName,
                     this.exprForType(x.node.ty)?.node,
                 )
-            is DefParamKind.Kwargs ->
+            }
+
+            is DefParamKind.Kwargs -> {
                 ParameterCompiled.KwArgs(
                     pName,
                     this.exprForType(x.node.ty)?.node,
                 )
+            }
         }
     return IrSpanned(span, node)
 }
@@ -574,9 +585,11 @@ private fun unpackDefParamsForCompiler(
                 seenSlash = true
                 numPositionalOnly = numPositional
             }
+
             is io.github.kotlinmania.starlark.syntax.ast.ParameterP.NoArgs<*> -> {
                 seenStar = true
             }
+
             is io.github.kotlinmania.starlark.syntax.ast.ParameterP.Normal<*> -> {
                 val ident = param.name as CstAssignIdent
                 val ty = param.typ as CstTypeExpr?
@@ -591,6 +604,7 @@ private fun unpackDefParamsForCompiler(
                 val kind = DefParamKind.Regular(mode, defaultVal)
                 defParams.add(Spanned(DefParam(ident, kind, ty), p.span))
             }
+
             is io.github.kotlinmania.starlark.syntax.ast.ParameterP.Args<*> -> {
                 seenStar = true
                 args = defParams.size.toUInt()
@@ -599,6 +613,7 @@ private fun unpackDefParamsForCompiler(
                 val ty = param.typ as CstTypeExpr?
                 defParams.add(Spanned(DefParam(ident, DefParamKind.Args, ty), p.span))
             }
+
             is io.github.kotlinmania.starlark.syntax.ast.ParameterP.KwArgs<*> -> {
                 kwargs = defParams.size.toUInt()
                 val ident = param.name as CstAssignIdent

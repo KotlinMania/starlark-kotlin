@@ -104,7 +104,10 @@ internal fun topLevelStmtsMut(top: CstStmt): MutableList<CstStmt> {
                     flatten(s)
                 }
             }
-            else -> result.add(stmt)
+
+            else -> {
+                result.add(stmt)
+            }
         }
     }
     flatten(top)
@@ -145,8 +148,9 @@ private fun mapPayloadsStmt(
     loads: Map<String, Interface>,
 ) {
     when (val node = stmt.node) {
-        is StmtP.Statements<CstPayload> ->
+        is StmtP.Statements<CstPayload> -> {
             node.stmts.forEach { mapPayloadsStmt(it, scopeData, loads) }
+        }
 
         is StmtP.Def<CstPayload, *> -> {
             val defP = node.def
@@ -178,11 +182,13 @@ private fun mapPayloadsStmt(
             mapPayloadsStmt(node.suite2, scopeData, loads)
         }
 
-        is StmtP.Return<CstPayload> ->
+        is StmtP.Return<CstPayload> -> {
             node.expr?.let { mapPayloadsExpr(it, scopeData, loads) }
+        }
 
-        is StmtP.Expression<CstPayload> ->
+        is StmtP.Expression<CstPayload> -> {
             mapPayloadsExpr(node.expr, scopeData, loads)
+        }
 
         is StmtP.Assign<CstPayload> -> {
             val assignP = node.assign
@@ -220,6 +226,7 @@ private fun mapPayloadsExpr(
         is ExprP.Identifier<CstPayload, *> -> {
             (node.ident.node as IdentP<CstPayload, CstIdentPayload>).payload = null // map_ident: () -> None
         }
+
         is ExprP.Lambda<CstPayload, *> -> {
             val lambdaP = node.lambda
             for (p in lambdaP.params) {
@@ -229,6 +236,7 @@ private fun mapPayloadsExpr(
             (node.lambda as LambdaP<CstPayload, CstDefPayload>).payload = scopeData.newScope().first
             mapPayloadsExpr(lambdaP.body, scopeData, loads)
         }
+
         is ExprP.ListComprehension<CstPayload> -> {
             mapPayloadsExpr(node.expr, scopeData, loads)
             mapPayloadsForClause(node.forClause, scopeData, loads)
@@ -236,6 +244,7 @@ private fun mapPayloadsExpr(
                 mapPayloadsClause(clause, scopeData, loads)
             }
         }
+
         is ExprP.DictComprehension<CstPayload> -> {
             mapPayloadsExpr(node.key, scopeData, loads)
             mapPayloadsExpr(node.value, scopeData, loads)
@@ -244,6 +253,7 @@ private fun mapPayloadsExpr(
                 mapPayloadsClause(clause, scopeData, loads)
             }
         }
+
         else -> {
             // For all other expression types, visit children generically
             expr.visitExprChildrenMut { child -> mapPayloadsExpr(child, scopeData, loads) }
@@ -266,12 +276,15 @@ private fun mapPayloadsParam(
             param.typ?.let { mapPayloadsTypeExpr(it, scopeData, loads) }
             param.defaultVal?.let { mapPayloadsExpr(it, scopeData, loads) }
         }
+
         is ParameterP.Args<CstPayload> -> {
             param.typ?.let { mapPayloadsTypeExpr(it, scopeData, loads) }
         }
+
         is ParameterP.KwArgs<CstPayload> -> {
             param.typ?.let { mapPayloadsTypeExpr(it, scopeData, loads) }
         }
+
         is ParameterP.NoArgs<CstPayload>,
         is ParameterP.Slash<CstPayload>,
         -> {}
@@ -285,18 +298,24 @@ private fun mapPayloadsAssignTarget(
     loads: Map<String, Interface>,
 ) {
     when (val node = target.node) {
-        is AssignTargetP.Identifier<CstPayload, *> ->
+        is AssignTargetP.Identifier<CstPayload, *> -> {
             mapPayloadsAssignIdent(node.ident as Any as CstAssignIdent)
-        is AssignTargetP.Tuple<CstPayload> ->
+        }
+
+        is AssignTargetP.Tuple<CstPayload> -> {
             for (elem in node.elements) {
                 mapPayloadsAssignTarget(elem, scopeData, loads)
             }
+        }
+
         is AssignTargetP.Index<CstPayload> -> {
             mapPayloadsExpr(node.expr, scopeData, loads)
             mapPayloadsExpr(node.index, scopeData, loads)
         }
-        is AssignTargetP.Dot<CstPayload> ->
+
+        is AssignTargetP.Dot<CstPayload> -> {
             mapPayloadsExpr(node.expr, scopeData, loads)
+        }
     }
 }
 
@@ -332,13 +351,17 @@ private fun mapPayloadsClause(
     loads: Map<String, Interface>,
 ) {
     when (clause) {
-        is ClauseP.For<CstPayload> ->
+        is ClauseP.For<CstPayload> -> {
             mapPayloadsForClause(
                 clause.forClause,
                 scopeData,
                 loads,
             )
-        is ClauseP.If<CstPayload> -> mapPayloadsExpr(clause.cond, scopeData, loads)
+        }
+
+        is ClauseP.If<CstPayload> -> {
+            mapPayloadsExpr(clause.cond, scopeData, loads)
+        }
     }
 }
 
@@ -351,15 +374,18 @@ internal fun CstStmt.visitChildrenMut(f: (VisitMut) -> Unit) {
         is StmtP.Statements<CstPayload> -> {
             node.stmts.forEach { f(VisitMut.Stmt(it)) }
         }
+
         is StmtP.If<CstPayload> -> {
             f(VisitMut.Expr(node.cond))
             f(VisitMut.Stmt(node.suite))
         }
+
         is StmtP.IfElse<CstPayload> -> {
             f(VisitMut.Expr(node.cond))
             f(VisitMut.Stmt(node.suite1))
             f(VisitMut.Stmt(node.suite2))
         }
+
         is StmtP.Def<CstPayload, *> -> {
             val defP = node.def
             for (p in defP.params) {
@@ -372,18 +398,22 @@ internal fun CstStmt.visitChildrenMut(f: (VisitMut) -> Unit) {
             }
             f(VisitMut.Stmt(defP.body))
         }
+
         is StmtP.For<CstPayload> -> {
             val forP = node.forStmt
             forP.varTarget.visitAssignTargetExprChildrenMut { f(VisitMut.Expr(it)) }
             f(VisitMut.Expr(forP.over))
             f(VisitMut.Stmt(forP.body))
         }
+
         is StmtP.Return<CstPayload> -> {
             node.expr?.let { f(VisitMut.Expr(it)) }
         }
+
         is StmtP.Expression<CstPayload> -> {
             f(VisitMut.Expr(node.expr))
         }
+
         is StmtP.Assign<CstPayload> -> {
             val assignP = node.assign
             assignP.lhs.visitAssignTargetExprChildrenMut { f(VisitMut.Expr(it)) }
@@ -394,12 +424,15 @@ internal fun CstStmt.visitChildrenMut(f: (VisitMut) -> Unit) {
             }
             f(VisitMut.Expr(assignP.rhs))
         }
+
         is StmtP.AssignModify<CstPayload> -> {
             val assignModifyP = node
             assignModifyP.lhs.visitAssignTargetExprChildrenMut { f(VisitMut.Expr(it)) }
             f(VisitMut.Expr(assignModifyP.rhs))
         }
+
         is StmtP.Load<CstPayload, *> -> { /* no children */ }
+
         is StmtP.Break<CstPayload>,
         is StmtP.Continue<CstPayload>,
         is StmtP.Pass<CstPayload>,
@@ -420,19 +453,24 @@ internal fun StmtP<CstPayload>.visitStmtMut(f: (CstStmt) -> Unit) {
         is StmtP.Statements<CstPayload> -> {
             this.stmts.forEach { f(it) }
         }
+
         is StmtP.If<CstPayload> -> {
             f(this.suite)
         }
+
         is StmtP.IfElse<CstPayload> -> {
             f(this.suite1)
             f(this.suite2)
         }
+
         is StmtP.Def<CstPayload, *> -> {
             f(this.def.body)
         }
+
         is StmtP.For<CstPayload> -> {
             f(this.forStmt.body)
         }
+
         else -> { /* no stmt children */ }
     }
 }
@@ -446,66 +484,81 @@ internal fun CstExpr.visitExprChildrenMut(f: (CstExpr) -> Unit) {
         is ExprP.Tuple<CstPayload> -> {
             node.elements.forEach { f(it) }
         }
+
         is ExprP.Dot<CstPayload> -> {
             f(node.expr)
         }
+
         is ExprP.Call<CstPayload> -> {
             f(node.expr)
             for (arg in node.args.args) {
                 f(arg.node.expr())
             }
         }
+
         is ExprP.Index<CstPayload> -> {
             f(node.expr)
             f(node.index)
         }
+
         is ExprP.Slice<CstPayload> -> {
             f(node.expr)
             node.start?.let { f(it) }
             node.stop?.let { f(it) }
             node.step?.let { f(it) }
         }
+
         is ExprP.Not<CstPayload> -> {
             f(node.expr)
         }
+
         is ExprP.Minus<CstPayload> -> {
             f(node.expr)
         }
+
         is ExprP.Plus<CstPayload> -> {
             f(node.expr)
         }
+
         is ExprP.BitNot<CstPayload> -> {
             f(node.expr)
         }
+
         is ExprP.Op<CstPayload> -> {
             f(node.lhs)
             f(node.rhs)
         }
+
         is ExprP.If<CstPayload> -> {
             f(node.cond)
             f(node.v1)
             f(node.v2)
         }
+
         is ExprP.ListExpr<CstPayload> -> {
             node.elements.forEach { f(it) }
         }
+
         is ExprP.Dict<CstPayload> -> {
             for ((k, v) in node.elements) {
                 f(k)
                 f(v)
             }
         }
+
         is ExprP.ListComprehension<CstPayload> -> {
             node.forClause.visitExprChildrenMut(f)
             node.clauses.forEach { it.visitExprChildrenMut(f) }
             f(node.expr)
         }
+
         is ExprP.DictComprehension<CstPayload> -> {
             node.forClause.visitExprChildrenMut(f)
             node.clauses.forEach { it.visitExprChildrenMut(f) }
             f(node.key)
             f(node.value)
         }
+
         is ExprP.Lambda<CstPayload, *> -> {
             val lambdaP = node.lambda
             for (p in lambdaP.params) {
@@ -513,10 +566,12 @@ internal fun CstExpr.visitExprChildrenMut(f: (CstExpr) -> Unit) {
             }
             f(lambdaP.body)
         }
+
         is ExprP.Identifier<CstPayload, *>,
         is ExprP.Literal<CstPayload>,
         is ExprP.FString<CstPayload>,
         -> { /* no expr children */ }
+
         is ExprP.Index2<CstPayload> -> {
             f(node.expr)
             f(node.index0)
@@ -538,13 +593,16 @@ internal fun Spanned<AssignTargetP<CstPayload>>.visitAssignTargetExprChildrenMut
                 elem.visitAssignTargetExprChildrenMut(f)
             }
         }
+
         is AssignTargetP.Index<CstPayload> -> {
             f(node.expr)
             f(node.index)
         }
+
         is AssignTargetP.Dot<CstPayload> -> {
             f(node.expr)
         }
+
         is AssignTargetP.Identifier<CstPayload, *> -> { /* no expr children */ }
     }
 }
@@ -559,11 +617,13 @@ internal fun AssignTargetP<CstPayload>.visitLvalueMut(f: (CstAssignIdent) -> Uni
             @Suppress("UNCHECKED_CAST")
             f(this.ident as CstAssignIdent)
         }
+
         is AssignTargetP.Tuple<CstPayload> -> {
             for (elem in this.elements) {
                 elem.node.visitLvalueMut(f)
             }
         }
+
         else -> { /* Index, Dot have no lvalues */ }
     }
 }
@@ -591,6 +651,7 @@ internal fun ParameterP<CstPayload>.splitMut(): Triple<AstAssignIdentP<CstPayloa
                 this.defaultVal,
             )
         }
+
         is ParameterP.Args<CstPayload> -> {
             Triple(
                 this.name,
@@ -598,6 +659,7 @@ internal fun ParameterP<CstPayload>.splitMut(): Triple<AstAssignIdentP<CstPayloa
                 null,
             )
         }
+
         is ParameterP.KwArgs<CstPayload> -> {
             Triple(
                 this.name,
@@ -605,9 +667,12 @@ internal fun ParameterP<CstPayload>.splitMut(): Triple<AstAssignIdentP<CstPayloa
                 null,
             )
         }
+
         is ParameterP.NoArgs<CstPayload>,
         is ParameterP.Slash<CstPayload>,
-        -> Triple(null, null, null)
+        -> {
+            Triple(null, null, null)
+        }
     }
 
 /** Extension: visit expr children of a ForClauseP. */
@@ -622,6 +687,7 @@ internal fun ClauseP<CstPayload>.visitExprChildrenMut(f: (CstExpr) -> Unit) {
         is ClauseP.For<CstPayload> -> {
             this.forClause.visitExprChildrenMut(f)
         }
+
         is ClauseP.If<CstPayload> -> {
             f(this.cond)
         }
@@ -835,7 +901,7 @@ internal class ModuleScopeBuilder(
 
             code.visitChildrenMut { visit ->
                 when (visit) {
-                    is VisitMut.Expr ->
+                    is VisitMut.Expr -> {
                         collectDefinesRecursivelyInExpr(
                             scopeData,
                             visit.expr,
@@ -843,7 +909,9 @@ internal class ModuleScopeBuilder(
                             dialect,
                             codemap,
                         )
-                    is VisitMut.Stmt ->
+                    }
+
+                    is VisitMut.Stmt -> {
                         collectDefinesRecursively(
                             scopeData,
                             visit.stmt,
@@ -851,6 +919,7 @@ internal class ModuleScopeBuilder(
                             dialect,
                             codemap,
                         )
+                    }
                 }
             }
         }
@@ -901,6 +970,7 @@ internal class ModuleScopeBuilder(
                         result,
                     )
                 }
+
                 is StmtP.AssignModify<CstPayload> -> {
                     collectDefinesLvalue(
                         node.lhs,
@@ -910,6 +980,7 @@ internal class ModuleScopeBuilder(
                         result,
                     )
                 }
+
                 is StmtP.For<CstPayload> -> {
                     val forP = node.forStmt
                     collectDefinesLvalue(
@@ -921,6 +992,7 @@ internal class ModuleScopeBuilder(
                     )
                     collectDefines(forP.body, InLoop.Yes, scopeData, frozenHeap, result, dialect)
                 }
+
                 is StmtP.Def<CstPayload, *> -> {
                     val defP = node.def
                     collectAssignIdent(
@@ -932,6 +1004,7 @@ internal class ModuleScopeBuilder(
                         result,
                     )
                 }
+
                 is StmtP.Load<CstPayload, *> -> {
                     val vis = if (dialect.enableLoadReexport) Visibility.Public else Visibility.Private
 
@@ -951,6 +1024,7 @@ internal class ModuleScopeBuilder(
                         )
                     }
                 }
+
                 else -> {
                     node.visitStmtMut { x ->
                         collectDefines(x, inLoop, scopeData, frozenHeap, result, dialect)
@@ -1053,6 +1127,7 @@ internal class ModuleScopeBuilder(
                     null,
                 )
             }
+
             is StmtP.Assign<CstPayload> -> {
                 val assignP = node.assign
                 resolveIdentsInAssign(assignP.lhs)
@@ -1061,13 +1136,15 @@ internal class ModuleScopeBuilder(
                 }
                 resolveIdentsInExpr(assignP.rhs)
             }
-            else ->
+
+            else -> {
                 code.visitChildrenMut { visit ->
                     when (visit) {
                         is VisitMut.Stmt -> resolveIdents(visit.stmt)
                         is VisitMut.Expr -> resolveIdentsInExpr(visit.expr)
                     }
                 }
+            }
         }
     }
 
@@ -1108,11 +1185,15 @@ internal class ModuleScopeBuilder(
     @Suppress("UNCHECKED_CAST")
     fun resolveIdentsInExprImpl(scope: ResolveIdentScope, expr: CstExpr) {
         when (val node = expr.node) {
-            is ExprP.Identifier<CstPayload, *> -> resolveIdent(scope, node.ident as Any as CstIdent)
+            is ExprP.Identifier<CstPayload, *> -> {
+                resolveIdent(scope, node.ident as Any as CstIdent)
+            }
+
             is ExprP.Lambda<CstPayload, *> -> {
                 val lambdaP = node.lambda
                 resolveIdentsInDef(lambdaP.payload as ScopeId, lambdaP.params, null, null, lambdaP.body)
             }
+
             is ExprP.ListComprehension<CstPayload> -> {
                 resolveIdentsInCompr(
                     mutableListOf(node.expr),
@@ -1120,6 +1201,7 @@ internal class ModuleScopeBuilder(
                     node.clauses.toMutableList(),
                 )
             }
+
             is ExprP.DictComprehension<CstPayload> -> {
                 resolveIdentsInCompr(
                     mutableListOf(node.key, node.value),
@@ -1127,7 +1209,10 @@ internal class ModuleScopeBuilder(
                     node.clauses.toMutableList(),
                 )
             }
-            else -> expr.visitExprChildrenMut { e -> resolveIdentsInExprImpl(scope, e) }
+
+            else -> {
+                expr.visitExprChildrenMut { e -> resolveIdentsInExprImpl(scope, e) }
+            }
         }
     }
 
@@ -1187,6 +1272,7 @@ internal class ModuleScopeBuilder(
                     }
                     ResolvedIdent.Global(v)
                 }
+
                 else -> {
                     val (slot, bindingId) = found
                     ResolvedIdent.Slot(slot, bindingId)
@@ -1194,9 +1280,10 @@ internal class ModuleScopeBuilder(
             }
         when (scope) {
             ResolveIdentScope.Any -> { /* no extra check */ }
-            ResolveIdentScope.GlobalForTypeExpression ->
+
+            ResolveIdentScope.GlobalForTypeExpression -> {
                 when (resolved) {
-                    is ResolvedIdent.Slot ->
+                    is ResolvedIdent.Slot -> {
                         when (resolved.slot) {
                             is Slot.Local -> {
                                 errors.add(
@@ -1208,10 +1295,14 @@ internal class ModuleScopeBuilder(
                                 )
                                 return
                             }
+
                             is Slot.Module -> { /* ok */ }
                         }
+                    }
+
                     is ResolvedIdent.Global -> { /* ok */ }
                 }
+            }
         }
         ident.node.payload = resolved
     }

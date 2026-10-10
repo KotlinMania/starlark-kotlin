@@ -180,15 +180,19 @@ internal fun <T, D> fmtParamSpecMaybeMultiline(
             is FmtParam.Regular -> {
                 printer.writeParam(param.value.name, param.value.ty, param.value.default)
             }
+
             is FmtParam.Args -> {
                 printer.writeParam("${star}${param.value.name}", param.value.ty, param.value.default)
             }
+
             is FmtParam.Kwargs -> {
                 printer.writeParam("${star}${star}${param.value.name}", param.value.ty, param.value.default)
             }
+
             is FmtParam.Slash -> {
                 printer.f.append("/")
             }
+
             is FmtParam.Star -> {
                 printer.f.append(star)
             }

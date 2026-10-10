@@ -102,6 +102,7 @@ internal fun Evaluator.evalStatements(statements: AstModule): Result<Value> {
                 originalIdx == null -> {
                     moduleEnv.mutableNames().hideName(nameStr)
                 }
+
                 else -> {
                     val original = originalModule.get(name)
                     if (original != null) {

@@ -295,24 +295,35 @@ sealed class Token {
     /** Wrap this token into the appropriate GrammarSymbol variant for the parser stack. */
     internal fun toSymbol(): io.github.kotlinmania.starlark.syntax.parser.GrammarSymbol =
         when (this) {
-            is FloatToken ->
+            is FloatToken -> {
                 io.github.kotlinmania.starlark.syntax.parser.GrammarSymbol
                     .Variant1(value)
-            is FStringToken ->
+            }
+
+            is FStringToken -> {
                 io.github.kotlinmania.starlark.syntax.parser.GrammarSymbol
                     .Variant2(value)
-            is Identifier ->
+            }
+
+            is Identifier -> {
                 io.github.kotlinmania.starlark.syntax.parser.GrammarSymbol
                     .Variant3(name)
-            is IntToken ->
+            }
+
+            is IntToken -> {
                 io.github.kotlinmania.starlark.syntax.parser.GrammarSymbol
                     .Variant4(value)
-            is StringToken ->
+            }
+
+            is StringToken -> {
                 io.github.kotlinmania.starlark.syntax.parser.GrammarSymbol
                     .Variant3(value)
-            else ->
+            }
+
+            else -> {
                 io.github.kotlinmania.starlark.syntax.parser.GrammarSymbol
                     .Variant0(this)
+            }
         }
 
     override fun toString(): String =

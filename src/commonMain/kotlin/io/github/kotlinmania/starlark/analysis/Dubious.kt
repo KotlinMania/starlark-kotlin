@@ -105,9 +105,12 @@ private sealed class DubiousKey {
 
 private fun toKey(x: Spanned<ExprP<out AstPayload>>): Pair<DubiousKey, Span>? =
     when (val node = x.node) {
-        is ExprP.Literal ->
+        is ExprP.Literal -> {
             when (val lit = node.literal) {
-                is AstLiteral.IntLit -> DubiousKey.IntKey(StarlarkInt.from(lit.value.node)) to lit.value.span
+                is AstLiteral.IntLit -> {
+                    DubiousKey.IntKey(StarlarkInt.from(lit.value.node)) to lit.value.span
+                }
+
                 is AstLiteral.FloatLit -> {
                     val n = NumRef.from(lit.value.node)
                     val asInt = n.asInt()
@@ -120,11 +123,24 @@ private fun toKey(x: Spanned<ExprP<out AstPayload>>): Pair<DubiousKey, Span>? =
                         DubiousKey.FloatKey(v.toBits()) to lit.value.span
                     }
                 }
-                is AstLiteral.StringLit -> DubiousKey.StringKey(lit.value.node) to lit.value.span
-                is AstLiteral.Ellipsis -> null
+
+                is AstLiteral.StringLit -> {
+                    DubiousKey.StringKey(lit.value.node) to lit.value.span
+                }
+
+                is AstLiteral.Ellipsis -> {
+                    null
+                }
             }
-        is ExprP.Identifier<*, *> -> DubiousKey.IdentifierKey(node.ident.node.ident) to node.ident.span
-        else -> null
+        }
+
+        is ExprP.Identifier<*, *> -> {
+            DubiousKey.IdentifierKey(node.ident.node.ident) to node.ident.span
+        }
+
+        else -> {
+            null
+        }
     }
 
 // Go implementation of Starlark disallows duplicate top-level assignments,
@@ -152,6 +168,7 @@ internal fun duplicateDictionaryKey(module: AstModule, res: MutableList<LintT<Du
                     }
                 }
             }
+
             else -> {}
         }
         x.node.visitChildExprs { child -> expr(child, codemap, results) }
@@ -165,9 +182,9 @@ internal fun duplicateDictionaryKey(module: AstModule, res: MutableList<LintT<Du
 internal fun identifierAsStatement(module: AstModule, res: MutableList<LintT<Dubious>>) {
     fun stmt(x: AstStmt, codemap: CodeMap, results: MutableList<LintT<Dubious>>) {
         when (val node = x.node) {
-            is StmtP.Expression<*> ->
+            is StmtP.Expression<*> -> {
                 when (val exprNode = node.expr.node) {
-                    is ExprP.Identifier<*, *> ->
+                    is ExprP.Identifier<*, *> -> {
                         results.add(
                             LintT.new(
                                 codemap,
@@ -175,9 +192,15 @@ internal fun identifierAsStatement(module: AstModule, res: MutableList<LintT<Dub
                                 Dubious.IdentifierAsStatement(exprNode.ident.node.ident),
                             ),
                         )
+                    }
+
                     else -> {}
                 }
-            else -> x.visitStmtChildren { child -> stmt(child, codemap, results) }
+            }
+
+            else -> {
+                x.visitStmtChildren { child -> stmt(child, codemap, results) }
+            }
         }
     }
 

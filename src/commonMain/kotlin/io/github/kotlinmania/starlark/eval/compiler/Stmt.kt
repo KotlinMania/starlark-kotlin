@@ -151,17 +151,20 @@ internal sealed class StmtCompiled {
 internal fun IrSpanned<StmtCompiled>.optimize(ctx: OptCtx): StmtsCompiled {
     val span = this.span
     return when (val s = this.node) {
-        is StmtCompiled.Return ->
+        is StmtCompiled.Return -> {
             StmtsCompiled.one(
                 IrSpanned(
                     span,
                     StmtCompiled.Return(s.expr.optimize(ctx)),
                 ),
             )
+        }
+
         is StmtCompiled.Expr -> {
             val expr = s.expr.optimize(ctx)
             StmtsCompiled.expr(expr)
         }
+
         is StmtCompiled.Assign -> {
             val lhs = s.lhs.optimize(ctx)
             val rhs = s.rhs.optimize(ctx)
@@ -172,31 +175,36 @@ internal fun IrSpanned<StmtCompiled>.optimize(ctx: OptCtx): StmtsCompiled {
                 ),
             )
         }
+
         is StmtCompiled.If -> {
             val cond = s.cond.optimize(ctx)
             val t = s.thenBlock.optimize(ctx)
             val f = s.elseBlock.optimize(ctx)
             StmtsCompiled.ifStmt(span, cond, t, f)
         }
+
         is StmtCompiled.For -> {
             val variable = s.variable.optimize(ctx)
             val over = s.over.optimize(ctx)
             val body = s.body.optimize(ctx)
             StmtsCompiled.forStmt(span, variable, over, body)
         }
+
         is StmtCompiled.PossibleGc,
         is StmtCompiled.Break,
         is StmtCompiled.Continue,
         -> {
             StmtsCompiled.one(IrSpanned(span, s))
         }
-        is StmtCompiled.AssignModify ->
+
+        is StmtCompiled.AssignModify -> {
             StmtsCompiled.one(
                 IrSpanned(
                     span,
                     StmtCompiled.AssignModify(s.lhs.optimize(ctx), s.op, s.rhs.optimize(ctx)),
                 ),
             )
+        }
     }
 }
 
@@ -227,7 +235,10 @@ internal class StmtsCompiled(
         fun expr(expr: IrSpanned<ExprCompiled>): StmtsCompiled {
             val span = expr.span
             return when {
-                expr.node.isPureInfallible() -> empty()
+                expr.node.isPureInfallible() -> {
+                    empty()
+                }
+
                 expr.node is ExprCompiled.ListExpr -> {
                     val stmts = empty()
                     for (x in expr.node.elements) {
@@ -235,6 +246,7 @@ internal class StmtsCompiled(
                     }
                     stmts
                 }
+
                 expr.node is ExprCompiled.TupleExpr -> {
                     val stmts = empty()
                     for (x in expr.node.elements) {
@@ -242,23 +254,29 @@ internal class StmtsCompiled(
                     }
                     stmts
                 }
+
                 // Unwrap infallible expressions.
                 expr.node is ExprCompiled.Builtin1Expr &&
                     (
                         expr.node.op is Builtin1.Not ||
                             expr.node.op is Builtin1.TypeIs
-                    ) -> expr(expr.node.expr)
+                    ) -> {
+                    expr(expr.node.expr)
+                }
+
                 // "And" and "or" for effect are equivalent to `if`.
                 expr.node is ExprCompiled.LogicalBinOp &&
                     expr.node.op == ExprLogicalBinOp.And -> {
                     val binOp = expr.node
                     ifStmt(expr.span, binOp.lhs, expr(binOp.rhs), empty())
                 }
+
                 expr.node is ExprCompiled.LogicalBinOp &&
                     expr.node.op == ExprLogicalBinOp.Or -> {
                     val binOp = expr.node
                     ifStmt(expr.span, binOp.lhs, empty(), expr(binOp.rhs))
                 }
+
                 else -> {
                     val ty = expr.node.asType()
                     if (ty != null) {
@@ -281,17 +299,21 @@ internal class StmtsCompiled(
                 is ExprCompiledBool.Const -> {
                     if (condBool.node.value) t else f
                 }
+
                 is ExprCompiledBool.Expr -> {
                     val condExpr = condBool.node.expr
                     when {
-                        condExpr is ExprCompiled.Builtin1Expr && condExpr.op is Builtin1.Not ->
+                        condExpr is ExprCompiled.Builtin1Expr && condExpr.op is Builtin1.Not -> {
                             ifStmt(span, condExpr.expr, f, t)
+                        }
+
                         condExpr is ExprCompiled.Seq -> {
                             val stmt = empty()
                             stmt.extend(expr(condExpr.first))
                             stmt.extend(ifStmt(span, condExpr.second, t, f))
                             stmt
                         }
+
                         else -> {
                             val condSpanned = IrSpanned(span, condExpr)
                             if (t.isEmpty() && f.isEmpty()) {
@@ -346,6 +368,7 @@ internal class StmtsCompiled(
             is StmtCompiled.Continue,
             is StmtCompiled.Return,
             -> true
+
             else -> false
         }
     }
@@ -362,7 +385,10 @@ internal class StmtsCompiled(
         val result = empty()
         val s = stmts
         when (s) {
-            is SmallVec1.One -> result.extend(s.value.optimize(ctx))
+            is SmallVec1.One -> {
+                result.extend(s.value.optimize(ctx))
+            }
+
             is SmallVec1.Vec -> {
                 for (item in s.values) {
                     if (result.isTerminal()) {
@@ -448,16 +474,21 @@ internal fun IrSpanned<AssignCompiledValue>.optimize(ctx: OptCtx): IrSpanned<Ass
             is AssignCompiledValue.Dot -> {
                 AssignCompiledValue.Dot(n.obj.optimize(ctx), n.field)
             }
+
             is AssignCompiledValue.Index -> {
                 AssignCompiledValue.Index(n.array.optimize(ctx), n.index.optimize(ctx))
             }
+
             is AssignCompiledValue.Tuple -> {
                 AssignCompiledValue.Tuple(n.elements.map { it.optimize(ctx) })
             }
+
             is AssignCompiledValue.Local,
             is AssignCompiledValue.LocalCaptured,
             is AssignCompiledValue.Module,
-            -> n
+            -> {
+                n
+            }
         }
     return IrSpanned(span, assign)
 }
@@ -593,11 +624,13 @@ internal fun Compiler.assignTarget(
                 val e = this.expr(node.expr).getOrElse { return Result.failure(it) }
                 AssignCompiledValue.Dot(e, node.field.node)
             }
+
             is AssignTargetP.Index -> {
                 val e = this.expr(node.expr).getOrElse { return Result.failure(it) }
                 val idx = this.expr(node.index).getOrElse { return Result.failure(it) }
                 AssignCompiledValue.Index(e, idx)
             }
+
             is AssignTargetP.Tuple -> {
                 val v =
                     node.elements.map { x ->
@@ -605,6 +638,7 @@ internal fun Compiler.assignTarget(
                     }
                 AssignCompiledValue.Tuple(v)
             }
+
             is AssignTargetP.Identifier<*, *> -> {
                 val name = node.ident.node.ident
 
@@ -615,13 +649,21 @@ internal fun Compiler.assignTarget(
                 val binding = this.scopeData.getBinding(bindingId)
                 val slot = binding.resolvedSlot(this.codemap.value)
                 when {
-                    slot is Slot.Local && binding.captured == Captured.No ->
+                    slot is Slot.Local && binding.captured == Captured.No -> {
                         AssignCompiledValue.Local(LocalSlotId(slot.id.index))
-                    slot is Slot.Local && binding.captured == Captured.Yes ->
+                    }
+
+                    slot is Slot.Local && binding.captured == Captured.Yes -> {
                         AssignCompiledValue.LocalCaptured(LocalCapturedSlotId(slot.id.index))
-                    slot is Slot.Module ->
+                    }
+
+                    slot is Slot.Module -> {
                         AssignCompiledValue.Module(slot.id, name)
-                    else -> error("unreachable")
+                    }
+
+                    else -> {
+                        error("unreachable")
+                    }
                 }
             }
         }
@@ -652,6 +694,7 @@ private fun Compiler.assignModify(
                 ),
             )
         }
+
         is AssignTargetP.Index -> {
             val e = this.expr(node.expr).getOrElse { return Result.failure(it) }
             val idx = this.expr(node.index).getOrElse { return Result.failure(it) }
@@ -664,6 +707,7 @@ private fun Compiler.assignModify(
                 ),
             )
         }
+
         is AssignTargetP.Identifier<*, *> -> {
             @Suppress("UNCHECKED_CAST")
             val ident = node.ident as CstAssignIdent
@@ -680,6 +724,7 @@ private fun Compiler.assignModify(
                         ),
                     )
                 }
+
                 slot is Slot.Local && captured == Captured.Yes -> {
                     val lhsSpanned = IrSpanned(spanLhs, LocalCapturedSlotId(slot.id.index))
                     Result.success(
@@ -691,6 +736,7 @@ private fun Compiler.assignModify(
                         ),
                     )
                 }
+
                 slot is Slot.Module -> {
                     val lhsSpanned = IrSpanned(spanLhs, slot.id)
                     Result.success(
@@ -702,9 +748,13 @@ private fun Compiler.assignModify(
                         ),
                     )
                 }
-                else -> error("unreachable")
+
+                else -> {
+                    error("unreachable")
+                }
             }
         }
+
         is AssignTargetP.Tuple -> {
             error("Assign modify validates that the LHS is never a tuple")
         }
@@ -743,6 +793,7 @@ internal fun Compiler.moduleTopLevelStmt(
         is StmtP.Statements -> {
             error("top level statement lists are handled by outer loop")
         }
+
         is StmtP.Expression -> {
             val wrappedStmt =
                 Spanned(
@@ -754,7 +805,10 @@ internal fun Compiler.moduleTopLevelStmt(
                 )
             this.stmt(wrappedStmt, true)
         }
-        else -> this.stmt(stmt, true)
+
+        else -> {
+            this.stmt(stmt, true)
+        }
     }
 
 private fun Compiler.stmtIf(
@@ -837,6 +891,7 @@ private fun Compiler.stmtDirect(
                 ),
             )
         }
+
         is StmtP.For -> {
             val over = listToTuple(node.forStmt.over)
             val variable = assignTarget(node.forStmt.varTarget).getOrElse { return Result.failure(it) }
@@ -844,6 +899,7 @@ private fun Compiler.stmtDirect(
             val st = this.stmt(node.forStmt.body, false).getOrElse { return Result.failure(it) }
             Result.success(StmtsCompiled.forStmt(span, variable, overCompiled, st))
         }
+
         is StmtP.Return -> {
             if (node.expr == null) {
                 Result.success(
@@ -866,8 +922,15 @@ private fun Compiler.stmtDirect(
                 )
             }
         }
-        is StmtP.If -> stmtIf(span, node.cond, node.suite, allowGc)
-        is StmtP.IfElse -> stmtIfElse(span, node.cond, node.suite1, node.suite2, allowGc)
+
+        is StmtP.If -> {
+            stmtIf(span, node.cond, node.suite, allowGc)
+        }
+
+        is StmtP.IfElse -> {
+            stmtIfElse(span, node.cond, node.suite1, node.suite2, allowGc)
+        }
+
         is StmtP.Statements -> {
             val r = StmtsCompiled.empty()
             for (s in node.stmts) {
@@ -878,7 +941,11 @@ private fun Compiler.stmtDirect(
             }
             Result.success(r)
         }
-        is StmtP.Expression -> stmtExpr(node.expr)
+
+        is StmtP.Expression -> {
+            stmtExpr(node.expr)
+        }
+
         is StmtP.Assign -> {
             val rhs = this.expr(node.assign.rhs).getOrElse { return Result.failure(it) }
             val ty = this.exprForType(node.assign.ty)
@@ -892,13 +959,21 @@ private fun Compiler.stmtDirect(
                 ),
             )
         }
+
         is StmtP.AssignModify -> {
             val rhs = this.expr(node.rhs).getOrElse { return Result.failure(it) }
             assignModify(span.span.span(), node.lhs, rhs, node.op)
         }
-        is StmtP.Load<*, *> -> error("unreachable")
-        is StmtP.Pass -> Result.success(StmtsCompiled.empty())
-        is StmtP.Break ->
+
+        is StmtP.Load<*, *> -> {
+            error("unreachable")
+        }
+
+        is StmtP.Pass -> {
+            Result.success(StmtsCompiled.empty())
+        }
+
+        is StmtP.Break -> {
             Result.success(
                 StmtsCompiled.one(
                     IrSpanned(
@@ -907,7 +982,9 @@ private fun Compiler.stmtDirect(
                     ),
                 ),
             )
-        is StmtP.Continue ->
+        }
+
+        is StmtP.Continue -> {
             Result.success(
                 StmtsCompiled.one(
                     IrSpanned(
@@ -916,5 +993,6 @@ private fun Compiler.stmtDirect(
                     ),
                 ),
             )
+        }
     }
 }

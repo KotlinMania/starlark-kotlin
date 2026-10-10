@@ -68,6 +68,7 @@ class DocModuleInfo(
                     is DocItem.Module -> {
                         result.addAll(traverseInner(doc.module, memberName, path))
                     }
+
                     is DocItem.TypeDoc -> {
                         result.add(
                             PageRender(
@@ -78,6 +79,7 @@ class DocModuleInfo(
                             ),
                         )
                     }
+
                     is DocItem.Member -> {
                         // No page generated for plain members.
                     }
@@ -117,6 +119,7 @@ internal class PageRender(
             is DocPageRef.Module -> {
                 page.module.renderMarkdownPageForMultipageRender(name, renderConfig)
             }
+
             is DocPageRef.TypePage -> {
                 page.type.renderMarkdownPageForMultipageRender(name, renderConfig)
             }

@@ -243,11 +243,15 @@ internal class BcProfile(
         val prev = data
         data = BcProfileDataMode.Disabled
         return when (prev) {
-            is BcProfileDataMode.Bc ->
+            is BcProfileDataMode.Bc -> {
                 ProfileData(
                     profile = ProfileDataImpl.Bc(prev.data),
                 )
-            else -> throw BcProfileError.BcProfilingNotEnabled
+            }
+
+            else -> {
+                throw BcProfileError.BcProfilingNotEnabled
+            }
         }
     }
 
@@ -255,11 +259,15 @@ internal class BcProfile(
         val prev = data
         data = BcProfileDataMode.Disabled
         return when (prev) {
-            is BcProfileDataMode.BcPairs ->
+            is BcProfileDataMode.BcPairs -> {
                 ProfileData(
                     profile = ProfileDataImpl.BcPairs(prev.data),
                 )
-            else -> throw BcProfileError.BcProfilingNotEnabled
+            }
+
+            else -> {
+                throw BcProfileError.BcProfilingNotEnabled
+            }
         }
     }
 

@@ -1260,11 +1260,13 @@ internal fun replace(
         count != null && count >= 0 -> {
             Result.success(allocStrValue(heap, replacen(thisStr.asStr(), old, new, count)))
         }
+
         count != null -> {
             Result.failure(
                 IllegalArgumentException("Replace final argument was negative '$count'"),
             )
         }
+
         else -> {
             // Optimise `replace` using the Kotlin standard library definition,
             // but avoiding redundant allocation in the last step
@@ -1440,11 +1442,13 @@ internal fun rsplit(
             else -> if (v < 0) null else (v + 1)
         }
     return when (val sepValue = sep.intoOption()) {
-        null ->
+        null -> {
             when (maxsplitValue) {
                 null -> Result.success(allocStringList(thisStr.trim().split(Regex("\\s+")), heap))
                 else -> Result.success(allocStringList(rsplitnWhitespace(thisStr, maxsplitValue), heap))
             }
+        }
+
         else -> {
             val v =
                 when (maxsplitValue) {
@@ -1536,18 +1540,24 @@ internal fun split(
             else -> if (v < 0) null else (v + 1)
         }
     return when (val sepValue = sep.intoOption()) {
-        null ->
+        null -> {
             when (maxsplitValue) {
                 null -> Result.success(allocStringList(thisStr.trim().split(Regex("\\s+")), heap))
                 else -> Result.success(allocStringList(splitnWhitespace(thisStr, maxsplitValue), heap))
             }
+        }
+
         else -> {
             when (maxsplitValue) {
-                null -> Result.success(allocStringList(thisStr.split(sepValue), heap))
-                else ->
+                null -> {
+                    Result.success(allocStringList(thisStr.split(sepValue), heap))
+                }
+
+                else -> {
                     Result.success(
                         allocStringList(thisStr.split(sepValue, limit = maxsplitValue), heap),
                     )
+                }
             }
         }
     }
@@ -1812,17 +1822,22 @@ private fun convertStrIndices(str: String, start: Int?, end: Int?): StrIndices? 
     val len = str.codePointCount()
     return when {
         // (None, None) => full string
-        start == null && end == null -> StrIndices(0, str)
+        start == null && end == null -> {
+            StrIndices(0, str)
+        }
+
         // (Some(start), None) where start >= 0
         start != null && end == null && start >= 0 -> {
             val byteStart = codePointOffset(str, start) ?: return null
             StrIndices(start, str.substring(byteStart))
         }
+
         // (None, Some(end)) where end >= 0
         start == null && end != null && end >= 0 -> {
             val byteEnd = codePointOffsetClamped(str, end)
             StrIndices(0, str.substring(0, byteEnd))
         }
+
         // (Some(start), Some(end)) where start >= 0 && end >= start
         start != null && end != null && start >= 0 && end >= start -> {
             val byteStart = codePointOffset(str, start) ?: return null
@@ -1830,11 +1845,15 @@ private fun convertStrIndices(str: String, start: Int?, end: Int?): StrIndices? 
             val byteEnd = codePointOffsetClamped(remaining, end - start)
             StrIndices(start, remaining.substring(0, byteEnd))
         }
+
         // Both same sign and start > end => None
         start != null &&
             end != null &&
             ((start >= 0) == (end >= 0)) &&
-            start > end -> null
+            start > end -> {
+            null
+        }
+
         // Slow path: need full length for negative indices
         else -> {
             val (s, e) = convertIndices(len, start, end)

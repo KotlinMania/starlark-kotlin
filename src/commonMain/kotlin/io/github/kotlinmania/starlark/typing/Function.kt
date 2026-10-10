@@ -53,6 +53,7 @@ internal class TyCustomFunction<F : TyCustomFunctionImpl>(
         when {
             // `str | list`.
             binOp == TypingBinOp.BitOr && inner.isType() -> Result.success(Ty.basic(TyBasic.TypeObject))
+
             else -> Result.failure(TypingNoContextOrInternalError.Typing)
         }
 

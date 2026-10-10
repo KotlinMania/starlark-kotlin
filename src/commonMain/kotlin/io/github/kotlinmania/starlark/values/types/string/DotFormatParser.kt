@@ -100,6 +100,7 @@ class FormatParser(
                                 i += 1
                                 return Result.success(FormatToken.Capture(capture, pos, FormatConv.Str))
                             }
+
                             '!' -> {
                                 val capture = view.substring(pos, i)
                                 val rem = view.substring(i + 1)
@@ -128,6 +129,7 @@ class FormatParser(
                                 i += 1 // Closing brace.
                                 return Result.success(FormatToken.Capture(capture, pos, conv))
                             }
+
                             '{' -> {
                                 if (i == start + 1) {
                                     i += 1
@@ -135,7 +137,10 @@ class FormatParser(
                                 }
                                 break
                             }
-                            else -> i += 1
+
+                            else -> {
+                                i += 1
+                            }
                         }
                     }
                     return Result.failure(
@@ -144,6 +149,7 @@ class FormatParser(
                         ),
                     )
                 }
+
                 '}' -> {
                     check(i == start)
                     if (view.startsWith("}}", i)) {
@@ -156,7 +162,10 @@ class FormatParser(
                         ),
                     )
                 }
-                else -> i += 1
+
+                else -> {
+                    i += 1
+                }
             }
         }
 

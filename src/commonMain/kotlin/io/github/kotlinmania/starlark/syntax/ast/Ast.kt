@@ -422,27 +422,48 @@ internal sealed class StmtP<P : AstPayload> {
             is Def<P, *> -> {
                 for (param in def.params) {
                     when (val p = param.node) {
-                        is ParameterP.Normal<P> -> p.typ?.let(f)
-                        is ParameterP.Args<P> -> p.typ?.let(f)
-                        is ParameterP.KwArgs<P> -> p.typ?.let(f)
+                        is ParameterP.Normal<P> -> {
+                            p.typ?.let(f)
+                        }
+
+                        is ParameterP.Args<P> -> {
+                            p.typ?.let(f)
+                        }
+
+                        is ParameterP.KwArgs<P> -> {
+                            p.typ?.let(f)
+                        }
+
                         is ParameterP.Slash<P>, is ParameterP.NoArgs<P> -> {}
                     }
                 }
                 def.returnType?.let(f)
                 def.body.node.visitTypeExprErrMut(f)
             }
-            is Assign<P> -> assign.ty?.let(f)
+
+            is Assign<P> -> {
+                assign.ty?.let(f)
+            }
+
             is Statements<P> -> {
                 for (stmt in stmts) {
                     stmt.node.visitTypeExprErrMut(f)
                 }
             }
-            is If<P> -> suite.node.visitTypeExprErrMut(f)
+
+            is If<P> -> {
+                suite.node.visitTypeExprErrMut(f)
+            }
+
             is IfElse<P> -> {
                 suite1.node.visitTypeExprErrMut(f)
                 suite2.node.visitTypeExprErrMut(f)
             }
-            is For<P> -> forStmt.body.node.visitTypeExprErrMut(f)
+
+            is For<P> -> {
+                forStmt.body.node.visitTypeExprErrMut(f)
+            }
+
             is Break<P>,
             is Continue<P>,
             is Pass<P>,

@@ -236,7 +236,10 @@ private class Stacks(
             this.time += time.durationSince(lastTime[0])
             lastTime[0] = time
             when (frame) {
-                is Frame.Pop -> return
+                is Frame.Pop -> {
+                    return
+                }
+
                 is Frame.Push -> {
                     val child =
                         children.getOrPut(frame.id) {

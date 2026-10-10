@@ -61,11 +61,12 @@ fun registerEnum(builder: GlobalsBuilder) {
         val heap = eval.heap()
         val positionalArgs = args.positionalAll()
 
-        val stringArgs: List<StringValue> = positionalArgs.map { v ->
-            StringValue.new(v) ?: return@setFunction Result.failure<Value>(
-                IllegalArgumentException("enum() arguments must be strings, got: $v"),
-            )
-        }
+        val stringArgs: List<StringValue> =
+            positionalArgs.map { v ->
+                StringValue.new(v) ?: return@setFunction Result.failure<Value>(
+                    IllegalArgumentException("enum() arguments must be strings, got: $v"),
+                )
+            }
         val enumType = EnumType.new(stringArgs, heap)
         Result.success(enumType.toValue())
     }

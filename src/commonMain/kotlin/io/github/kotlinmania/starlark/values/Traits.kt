@@ -460,4 +460,3 @@ interface StarlarkValue {
  * repeatedly with the same string.
  */
 internal fun StarlarkValue.getAttrHashed(attribute: Hashed<String>, heap: Heap): Value? = getAttr(attribute.key(), heap)
-

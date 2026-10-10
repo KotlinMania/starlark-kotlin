@@ -160,12 +160,19 @@ private fun isFail(x: AstExpr): Boolean {
 /** Visit all expression children of an assign target (e.g. index/dot exprs, not the lvalue itself). */
 private fun AstAssignTarget.visitAssignTargetExprChildren(visitor: (AstExpr) -> Unit) {
     when (val t = this.node) {
-        is AssignTargetP.Tuple<AstNoPayload> -> t.elements.forEach { it.visitAssignTargetExprChildren(visitor) }
+        is AssignTargetP.Tuple<AstNoPayload> -> {
+            t.elements.forEach { it.visitAssignTargetExprChildren(visitor) }
+        }
+
         is AssignTargetP.Index<AstNoPayload> -> {
             visitor(t.expr)
             visitor(t.index)
         }
-        is AssignTargetP.Dot<AstNoPayload> -> visitor(t.expr)
+
+        is AssignTargetP.Dot<AstNoPayload> -> {
+            visitor(t.expr)
+        }
+
         is AssignTargetP.Identifier<AstNoPayload, *> -> {}
     }
 }
@@ -173,8 +180,14 @@ private fun AstAssignTarget.visitAssignTargetExprChildren(visitor: (AstExpr) -> 
 /** Visit all lvalue identifier leaves of an assign target. */
 private fun AstAssignTarget.visitLvalue(visitor: (Spanned<AssignIdentP<AstNoPayload, *>>) -> Unit) {
     when (val t = this.node) {
-        is AssignTargetP.Tuple<AstNoPayload> -> t.elements.forEach { it.visitLvalue(visitor) }
-        is AssignTargetP.Identifier<AstNoPayload, *> -> visitor(t.ident)
+        is AssignTargetP.Tuple<AstNoPayload> -> {
+            t.elements.forEach { it.visitLvalue(visitor) }
+        }
+
+        is AssignTargetP.Identifier<AstNoPayload, *> -> {
+            visitor(t.ident)
+        }
+
         is AssignTargetP.Index<AstNoPayload>,
         is AssignTargetP.Dot<AstNoPayload>,
         -> {}
@@ -188,8 +201,15 @@ private fun ParameterP<AstNoPayload>.visitParameterExprChildren(visitor: (AstExp
             typ?.let { visitor(it.node.expr) }
             defaultVal?.let(visitor)
         }
-        is ParameterP.Args<AstNoPayload> -> typ?.let { visitor(it.node.expr) }
-        is ParameterP.KwArgs<AstNoPayload> -> typ?.let { visitor(it.node.expr) }
+
+        is ParameterP.Args<AstNoPayload> -> {
+            typ?.let { visitor(it.node.expr) }
+        }
+
+        is ParameterP.KwArgs<AstNoPayload> -> {
+            typ?.let { visitor(it.node.expr) }
+        }
+
         is ParameterP.NoArgs<AstNoPayload>,
         is ParameterP.Slash<AstNoPayload>,
         -> {}
@@ -366,9 +386,19 @@ private class State(
 
         val joinAssigned = { c: Assigned, o: Assigned ->
             when {
-                currentAbort != null && otherAbort != null -> Assigned.Definitely // Probably irrelevant
-                currentAbort != null && otherAbort == null -> o
-                currentAbort == null && otherAbort != null -> c
+                currentAbort != null && otherAbort != null -> {
+                    Assigned.Definitely
+                }
+
+                // Probably irrelevant
+                currentAbort != null && otherAbort == null -> {
+                    o
+                }
+
+                currentAbort == null && otherAbort != null -> {
+                    c
+                }
+
                 else -> {
                     if (c == Assigned.Maybe) Assigned.Maybe else o
                 }
@@ -453,7 +483,10 @@ private class State(
                     expr(clause.forClause.over)
                     assign(clause.forClause.varTarget)
                 }
-                is ClauseP.If -> expr(clause.cond)
+
+                is ClauseP.If -> {
+                    expr(clause.cond)
+                }
             }
         }
         expr(res1)
@@ -463,7 +496,10 @@ private class State(
 
     fun expr(expr: AstExpr) {
         when (val e = expr.node) {
-            is ExprP.Identifier<AstNoPayload, *> -> useIdent(astStrFromIdent(e.ident))
+            is ExprP.Identifier<AstNoPayload, *> -> {
+                useIdent(astStrFromIdent(e.ident))
+            }
+
             is ExprP.Lambda<AstNoPayload, *> -> {
                 for (p in e.lambda.params) {
                     p.node.visitParameterExprChildren { x -> expr(x) }
@@ -478,9 +514,18 @@ private class State(
                 expr(e.lambda.body)
                 exitScope()
             }
-            is ExprP.ListComprehension<AstNoPayload> -> comprehension(e.expr, null, e.forClause, e.clauses)
-            is ExprP.DictComprehension<AstNoPayload> -> comprehension(e.key, e.value, e.forClause, e.clauses)
-            else -> expr.visitExprChildren { x -> expr(x) }
+
+            is ExprP.ListComprehension<AstNoPayload> -> {
+                comprehension(e.expr, null, e.forClause, e.clauses)
+            }
+
+            is ExprP.DictComprehension<AstNoPayload> -> {
+                comprehension(e.key, e.value, e.forClause, e.clauses)
+            }
+
+            else -> {
+                expr.visitExprChildren { x -> expr(x) }
+            }
         }
     }
 
@@ -509,33 +554,40 @@ private class State(
                     setAbort(Abort.Function)
                 }
             }
+
             is StmtP.Return<AstNoPayload> -> {
                 exprOpt(s.expr)
                 setAbort(Abort.Function)
             }
+
             is StmtP.Assign<AstNoPayload> -> {
                 typOpt(s.assign.ty)
                 expr(s.assign.rhs)
                 assign(s.assign.lhs)
             }
+
             is StmtP.AssignModify<AstNoPayload> -> {
                 expr(s.rhs)
                 assignAsExpr(s.lhs)
                 assign(s.lhs)
             }
+
             is StmtP.Statements<AstNoPayload> -> {
                 for (x in s.stmts) {
                     stmt(x)
                 }
             }
+
             is StmtP.If<AstNoPayload> -> {
                 expr(s.cond)
                 branch({ me -> me.stmt(s.suite) }, { })
             }
+
             is StmtP.IfElse<AstNoPayload> -> {
                 expr(s.cond)
                 branch({ me -> me.stmt(s.suite1) }, { me -> me.stmt(s.suite2) })
             }
+
             is StmtP.For<AstNoPayload> -> {
                 expr(s.forStmt.over)
                 // Note this isn't 100% correct, as a for loop may set something the next iteration consumes
@@ -544,6 +596,7 @@ private class State(
                     me.stmt(s.forStmt.body)
                 }
             }
+
             is StmtP.Def<AstNoPayload, *> -> {
                 for (p in s.def.params) {
                     p.node.visitParameterExprChildren { e -> expr(e) }
@@ -560,12 +613,14 @@ private class State(
                 stmt(s.def.body)
                 exitScope()
             }
+
             // These were handled by collecting the scopes
             is StmtP.Load<AstNoPayload, *> -> {
                 for (arg in s.loadStmt.args) {
                     setIdent(arg.local, Kind.Load)
                 }
             }
+
             // These control flow operators can be ignored - either the code after is fine (no problem)
             // or in error (in which case you have useless code after flow control)
             is StmtP.Break<AstNoPayload>,
@@ -573,6 +628,7 @@ private class State(
             -> {
                 setAbort(Abort.Loop)
             }
+
             is StmtP.Pass<AstNoPayload> -> {}
         }
     }

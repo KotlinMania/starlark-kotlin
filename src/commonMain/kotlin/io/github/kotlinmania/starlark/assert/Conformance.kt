@@ -111,6 +111,7 @@ private class ConformanceTest(
             null -> {
                 assert.pass(code)
             }
+
             else -> {
                 val (line, msg: String) = errorInfo
                 // We don't actually check error messages, since these tests were taken from upstream

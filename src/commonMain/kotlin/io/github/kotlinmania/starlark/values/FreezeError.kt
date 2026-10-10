@@ -82,7 +82,10 @@ sealed interface Sealed
 /** Extension to add context to a [Result]. */
 internal fun <T> Result<T>.freezeErrorContext(context: String): Result<T> =
     when {
-        isSuccess -> this
+        isSuccess -> {
+            this
+        }
+
         else -> {
             val e = exceptionOrNull()
             if (e is FreezeError) {
