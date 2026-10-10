@@ -78,6 +78,7 @@ private fun Compiler.compileIfs(
                 ifs.reverse()
                 return Result.success(Pair(x.forClause, ifs))
             }
+
             is ClauseP.If -> {
                 val compiled = this.exprTruth(x.cond).getOrElse { return Result.failure(it) }
                 if (compiled.node is ExprCompiledBool.Const && compiled.node.value) {
@@ -151,6 +152,7 @@ internal sealed class ComprCompiled {
                 val optimizedClauses = clauses.optimize(ctx)
                 ExprCompiled.Compr(List(x.optimize(ctx), optimizedClauses))
             }
+
             is Dict -> {
                 val (k, v) = kv
                 val optimizedClauses = clauses.optimize(ctx)

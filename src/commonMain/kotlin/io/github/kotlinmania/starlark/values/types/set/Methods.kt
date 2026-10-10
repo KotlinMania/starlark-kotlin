@@ -62,7 +62,10 @@ private sealed class SetFromValue {
                     }
                     Result.success(Set(set))
                 }
-                else -> Result.success(Ref(setRef))
+
+                else -> {
+                    Result.success(Ref(setRef))
+                }
             }
         }
     }
@@ -75,7 +78,10 @@ private sealed class SetFromValue {
 
     fun intoSet(): SmallSet<Value> =
         when (this) {
-            is Set -> this.set
+            is Set -> {
+                this.set
+            }
+
             is Ref -> {
                 // Clone: create a new SmallSet with the same entries
                 val clone = SmallSet<Value>()

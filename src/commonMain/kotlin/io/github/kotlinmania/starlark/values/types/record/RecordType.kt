@@ -177,7 +177,10 @@ class RecordTypeGen internal constructor(
                             v
                         } else {
                             when (val v: Value? = paramParser.nextOpt(ValueUnpackValue)) {
-                                null -> defaultVal
+                                null -> {
+                                    defaultVal
+                                }
+
                                 else -> {
                                     field.typ.checkType(v, name).getOrThrow()
                                     v

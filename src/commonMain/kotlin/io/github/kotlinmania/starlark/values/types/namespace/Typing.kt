@@ -92,13 +92,17 @@ internal data class TyNamespace(
 
     override fun attribute(attr: String): Result<Ty> =
         when (val ty = fields[ArcStr.from(attr)]) {
-            null ->
+            null -> {
                 if (extra) {
                     Result.success(Ty.any())
                 } else {
                     Result.failure(TypingNoContextError)
                 }
-            else -> Result.success(ty)
+            }
+
+            else -> {
+                Result.success(ty)
+            }
         }
 
     override fun <R> matcher(factory: TypeMatcherAlloc<R>): R =

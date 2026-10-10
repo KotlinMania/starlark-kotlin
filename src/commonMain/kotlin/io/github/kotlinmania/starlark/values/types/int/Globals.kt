@@ -131,6 +131,7 @@ internal fun registerInt(globals: GlobalsBuilder) {
                             strippedSign
                         }
                     }
+
                     8 -> {
                         if (strippedSign.startsWith("0o") || strippedSign.startsWith("0O")) {
                             strippedSign.substring(2)
@@ -138,6 +139,7 @@ internal fun registerInt(globals: GlobalsBuilder) {
                             strippedSign
                         }
                     }
+
                     2 -> {
                         if (strippedSign.startsWith("0b") || strippedSign.startsWith("0B")) {
                             strippedSign.substring(2)
@@ -145,7 +147,10 @@ internal fun registerInt(globals: GlobalsBuilder) {
                             strippedSign
                         }
                     }
-                    else -> strippedSign
+
+                    else -> {
+                        strippedSign
+                    }
                 }
 
             // We already handled the sign above, so we are not trying to parse another sign.
@@ -173,6 +178,7 @@ internal fun registerInt(globals: GlobalsBuilder) {
                     // Already an int, return the original value
                     a
                 }
+
                 is NumRef.Float -> {
                     val f = numRef.value
                     val truncated = truncate(f.value)

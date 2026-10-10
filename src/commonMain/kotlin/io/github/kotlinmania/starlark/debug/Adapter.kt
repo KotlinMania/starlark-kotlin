@@ -117,7 +117,10 @@ data class Variable(
                 }
             } else {
                 when (v.getType()) {
-                    "function" -> "<function>"
+                    "function" -> {
+                        "<function>"
+                    }
+
                     else -> {
                         val MAX_STR_LEN = 10000
                         truncateString(v.toStr(), MAX_STR_LEN)
@@ -136,12 +139,18 @@ data class Variable(
 
         internal fun hasChildren(v: Value): Boolean {
             return when (v.getType()) {
-                "function", "never", "NoneType", "bool", "int", "float", "string" -> false
+                "function", "never", "NoneType", "bool", "int", "float", "string" -> {
+                    false
+                }
+
                 "list", "tuple", "dict" -> {
                     val length = v.length().getOrNull() ?: return false
                     length > 0
                 }
-                else -> true
+
+                else -> {
+                    true
+                }
             }
         }
     }
@@ -335,12 +344,27 @@ data class InspectVariableInfo(
                             ?: return Result.failure(IllegalArgumentException("not a dictionary"))
                     tryFromDict(dictRef)
                 }
-                "struct" -> tryFromStructLike(v, heap)
-                "list", "tuple" -> tryFromArrayLike(v, heap)
-                "bool", "int", "float", "string" -> Result.success(InspectVariableInfo())
-                "function", "never", "NoneType" -> Result.success(InspectVariableInfo())
+
+                "struct" -> {
+                    tryFromStructLike(v, heap)
+                }
+
+                "list", "tuple" -> {
+                    tryFromArrayLike(v, heap)
+                }
+
+                "bool", "int", "float", "string" -> {
+                    Result.success(InspectVariableInfo())
+                }
+
+                "function", "never", "NoneType" -> {
+                    Result.success(InspectVariableInfo())
+                }
+
                 // This branch will catch Ty::basic(name)
-                else -> tryFromStructLike(v, heap)
+                else -> {
+                    tryFromStructLike(v, heap)
+                }
             }
         }
     }

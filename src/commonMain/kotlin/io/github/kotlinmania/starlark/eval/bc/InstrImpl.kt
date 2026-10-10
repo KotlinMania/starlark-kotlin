@@ -275,8 +275,14 @@ private fun Any.toUnpackArg(): UnpackArg {
                 check(referent is List<*>) { "InstrUnpack targets must be a list" }
                 referent
             }
-            is List<*> -> targetsRaw
-            else -> throw IllegalStateException("InstrUnpack targets must be a list or FrozenRef<List>")
+
+            is List<*> -> {
+                targetsRaw
+            }
+
+            else -> {
+                throw IllegalStateException("InstrUnpack targets must be a list or FrozenRef<List>")
+            }
         }
     return UnpackArg(
         source = source,
@@ -1305,8 +1311,14 @@ internal object InstrDefImpl : InstrNoFlowImpl {
                         parameters.defaulted(node.paramName.name, value)
                     }
                 }
-                is ParameterCompiled.Args<Int> -> parameters.args()
-                is ParameterCompiled.KwArgs<Int> -> parameters.kwargs()
+
+                is ParameterCompiled.Args<Int> -> {
+                    parameters.args()
+                }
+
+                is ParameterCompiled.KwArgs<Int> -> {
+                    parameters.kwargs()
+                }
             }
         }
         val returnType = defData.returnType

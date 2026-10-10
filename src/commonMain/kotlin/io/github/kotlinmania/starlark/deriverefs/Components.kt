@@ -69,7 +69,10 @@ class NativeCallableComponents(
                 rustDocstring,
             )
         return when (asType) {
-            null -> DocItem.Member(DocMember.Function(funcDocs))
+            null -> {
+                DocItem.Member(DocMember.Function(funcDocs))
+            }
+
             else -> {
                 val (_, tyDocs) = asType
                 DocItem.TypeDoc(

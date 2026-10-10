@@ -118,7 +118,10 @@ internal class SetMut internal constructor(
          */
         internal fun fromValue(x: Value): Result<SetMut> =
             when (val ptr = x.downcastRef<MutableSet>()) {
-                null -> Result.failure(error(x))
+                null -> {
+                    Result.failure(error(x))
+                }
+
                 else -> {
                     val borrowed = ptr.inner.tryBorrowMut()
                     if (borrowed != null) {

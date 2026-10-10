@@ -138,8 +138,14 @@ sealed class TyBasic : Comparable<TyBasic> {
 
     internal fun fmtWithConfig(sb: StringBuilder, config: TypeRenderConfig) {
         when (this) {
-            is Any -> sb.append(TypingAny.TYPE)
-            is StarlarkValue -> sb.append(value.fmtWithConfig(config))
+            is Any -> {
+                sb.append(TypingAny.TYPE)
+            }
+
+            is StarlarkValue -> {
+                sb.append(value.fmtWithConfig(config))
+            }
+
             is Iter -> {
                 if (item.isAny()) {
                     sb.append("typing.Iterable")
@@ -147,7 +153,11 @@ sealed class TyBasic : Comparable<TyBasic> {
                     sb.append("typing.Iterable[${item.displayWith(config)}]")
                 }
             }
-            is Callable -> callable.fmtWithConfig(sb, config)
+
+            is Callable -> {
+                callable.fmtWithConfig(sb, config)
+            }
+
             is List -> {
                 if (item.isAny()) {
                     sb.append("list")
@@ -155,7 +165,11 @@ sealed class TyBasic : Comparable<TyBasic> {
                     sb.append("list[${item.displayWith(config)}]")
                 }
             }
-            is Tuple -> sb.append(tuple.fmtWithConfig(config))
+
+            is Tuple -> {
+                sb.append(tuple.fmtWithConfig(config))
+            }
+
             is Dict -> {
                 if (key.isAny() && value.isAny()) {
                     sb.append("dict")
@@ -163,9 +177,18 @@ sealed class TyBasic : Comparable<TyBasic> {
                     sb.append("dict[${key.displayWith(config)}, ${value.displayWith(config)}]")
                 }
             }
-            is TypeObject -> sb.append("type")
-            is Custom -> sb.append(custom.toString())
-            is Set -> sb.append("set[${item.displayWith(config)}]")
+
+            is TypeObject -> {
+                sb.append("type")
+            }
+
+            is Custom -> {
+                sb.append(custom.toString())
+            }
+
+            is Set -> {
+                sb.append("set[${item.displayWith(config)}]")
+            }
         }
     }
 

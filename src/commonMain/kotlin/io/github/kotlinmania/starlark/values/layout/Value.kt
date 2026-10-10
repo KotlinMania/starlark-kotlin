@@ -326,6 +326,7 @@ class Value internal constructor(
                         null
                     }
                 }
+
                 is StarlarkIntRef.Big -> {
                     tryFromBigInt(num.value.get())
                 }
@@ -584,12 +585,16 @@ class Value internal constructor(
      */
     fun mul(other: Value, heap: Heap): Result<Value> =
         when (val result = getRef().mul(other, heap)) {
-            null ->
+            null -> {
                 when (val rresult = other.getRef().rmul(this, heap)) {
                     null -> ValueError.unsupportedOwned(getType(), "*", other.getType())
                     else -> rresult
                 }
-            else -> result
+            }
+
+            else -> {
+                result
+            }
         }
 
     /**
@@ -816,12 +821,16 @@ class Value internal constructor(
         }
 
         return when (val result = getRef().add(other, heap)) {
-            null ->
+            null -> {
                 when (val rresult = other.getRef().radd(this, heap)) {
                     null -> ValueError.unsupportedOwned(getType(), "+", other.getType())
                     else -> rresult
                 }
-            else -> result
+            }
+
+            else -> {
+                result
+            }
         }
     }
 
@@ -874,13 +883,34 @@ class Value internal constructor(
         for (i in 0 until s.length) {
             val c = s[i]
             when (c) {
-                '\\' -> sb.append("\\\\")
-                '"' -> sb.append("\\\"")
-                '\b' -> sb.append("\\b")
-                '\u000c' -> sb.append("\\f")
-                '\n' -> sb.append("\\n")
-                '\r' -> sb.append("\\r")
-                '\t' -> sb.append("\\t")
+                '\\' -> {
+                    sb.append("\\\\")
+                }
+
+                '"' -> {
+                    sb.append("\\\"")
+                }
+
+                '\b' -> {
+                    sb.append("\\b")
+                }
+
+                '\u000c' -> {
+                    sb.append("\\f")
+                }
+
+                '\n' -> {
+                    sb.append("\\n")
+                }
+
+                '\r' -> {
+                    sb.append("\\r")
+                }
+
+                '\t' -> {
+                    sb.append("\\t")
+                }
+
                 else -> {
                     val code = c.code
                     if (code < 0x20) {
@@ -911,7 +941,10 @@ class Value internal constructor(
         val num = unpackNum()
         if (num != null) {
             return when (num) {
-                is NumRef.Int -> Result.success(num.value.toString())
+                is NumRef.Int -> {
+                    Result.success(num.value.toString())
+                }
+
                 is NumRef.Float -> {
                     val d = num.value.value
                     if (d.isInfinite() || d.isNaN()) {
@@ -983,11 +1016,15 @@ class Value internal constructor(
                         is io.github.kotlinmania.starlark.values.types.dict.FrozenDictData -> {
                             inner.content.iter().map { Pair(it.first.toValue(), it.second.toValue()) }
                         }
+
                         is io.github.kotlinmania.starlark.values.types.dict.AtomicRef<*> -> {
                             val dict = inner.value as io.github.kotlinmania.starlark.values.types.dict.Dict
                             dict.content.iter().map { Pair(it.first, it.second) }
                         }
-                        else -> emptySequence()
+
+                        else -> {
+                            emptySequence()
+                        }
                     }
                 val sb = StringBuilder()
                 sb.append('{')

@@ -163,11 +163,13 @@ class AstModule internal constructor(
                         ),
                     )
                 }
+
                 is StmtP.Statements<*> -> {
                     for (stmt in node.stmts) {
                         walk(stmt)
                     }
                 }
+
                 else -> {}
             }
         }
@@ -265,7 +267,8 @@ private fun rewriteExpr(expr: Spanned<ExprP<*>>, replace: Map<String, String>): 
                     )
                 }
             }
-            is ExprP.Call ->
+
+            is ExprP.Call -> {
                 ExprP.Call(
                     rewriteExpr(node.expr, replace),
                     CallArgsP(
@@ -274,52 +277,89 @@ private fun rewriteExpr(expr: Spanned<ExprP<*>>, replace: Map<String, String>): 
                         },
                     ),
                 )
-            is ExprP.Tuple -> ExprP.Tuple(node.elements.map { rewriteExpr(it, replace) })
-            is ExprP.Dot -> ExprP.Dot(rewriteExpr(node.expr, replace), node.field)
-            is ExprP.Index -> ExprP.Index(rewriteExpr(node.expr, replace), rewriteExpr(node.index, replace))
-            is ExprP.Slice ->
+            }
+
+            is ExprP.Tuple -> {
+                ExprP.Tuple(node.elements.map { rewriteExpr(it, replace) })
+            }
+
+            is ExprP.Dot -> {
+                ExprP.Dot(rewriteExpr(node.expr, replace), node.field)
+            }
+
+            is ExprP.Index -> {
+                ExprP.Index(rewriteExpr(node.expr, replace), rewriteExpr(node.index, replace))
+            }
+
+            is ExprP.Slice -> {
                 ExprP.Slice(
                     rewriteExpr(node.expr, replace),
                     node.start?.let { rewriteExpr(it, replace) },
                     node.stop?.let { rewriteExpr(it, replace) },
                     node.step?.let { rewriteExpr(it, replace) },
                 )
-            is ExprP.Not -> ExprP.Not(rewriteExpr(node.expr, replace))
-            is ExprP.Minus -> ExprP.Minus(rewriteExpr(node.expr, replace))
-            is ExprP.Plus -> ExprP.Plus(rewriteExpr(node.expr, replace))
-            is ExprP.BitNot -> ExprP.BitNot(rewriteExpr(node.expr, replace))
-            is ExprP.If ->
+            }
+
+            is ExprP.Not -> {
+                ExprP.Not(rewriteExpr(node.expr, replace))
+            }
+
+            is ExprP.Minus -> {
+                ExprP.Minus(rewriteExpr(node.expr, replace))
+            }
+
+            is ExprP.Plus -> {
+                ExprP.Plus(rewriteExpr(node.expr, replace))
+            }
+
+            is ExprP.BitNot -> {
+                ExprP.BitNot(rewriteExpr(node.expr, replace))
+            }
+
+            is ExprP.If -> {
                 ExprP.If(
                     rewriteExpr(node.cond, replace),
                     rewriteExpr(node.v1, replace),
                     rewriteExpr(node.v2, replace),
                 )
-            is ExprP.ListExpr -> ExprP.ListExpr(node.elements.map { rewriteExpr(it, replace) })
-            is ExprP.Dict ->
+            }
+
+            is ExprP.ListExpr -> {
+                ExprP.ListExpr(node.elements.map { rewriteExpr(it, replace) })
+            }
+
+            is ExprP.Dict -> {
                 ExprP.Dict(
                     node.elements.map { (k, v) ->
                         Pair(rewriteExpr(k, replace), rewriteExpr(v, replace))
                     },
                 )
-            is ExprP.ListComprehension ->
+            }
+
+            is ExprP.ListComprehension -> {
                 ExprP.ListComprehension(
                     rewriteExpr(node.expr, replace),
                     rewriteForClause(node.forClause, replace),
                     node.clauses.map { rewriteClause(it, replace) },
                 )
-            is ExprP.DictComprehension ->
+            }
+
+            is ExprP.DictComprehension -> {
                 ExprP.DictComprehension(
                     rewriteExpr(node.key, replace),
                     rewriteExpr(node.value, replace),
                     rewriteForClause(node.forClause, replace),
                     node.clauses.map { rewriteClause(it, replace) },
                 )
+            }
+
             is ExprP.Identifier<*, *> -> {
                 val ident = node.ident
                 ExprP.Identifier<AstNoPayload, Unit>(
                     Spanned(IdentP(ident.node.ident, Unit), ident.span),
                 )
             }
+
             is ExprP.Lambda<*, *> -> {
                 val lambda = node.lambda
                 ExprP.Lambda<AstNoPayload, Any?>(
@@ -330,13 +370,19 @@ private fun rewriteExpr(expr: Spanned<ExprP<*>>, replace: Map<String, String>): 
                     ),
                 )
             }
-            is ExprP.Literal -> ExprP.Literal<AstNoPayload>(node.literal)
-            is ExprP.Index2 ->
+
+            is ExprP.Literal -> {
+                ExprP.Literal<AstNoPayload>(node.literal)
+            }
+
+            is ExprP.Index2 -> {
                 ExprP.Index2<AstNoPayload>(
                     rewriteExpr(node.expr, replace),
                     rewriteExpr(node.index0, replace),
                     rewriteExpr(node.index1, replace),
                 )
+            }
+
             is ExprP.FString -> {
                 val fstring = node.fstring
                 ExprP.FString<AstNoPayload>(
@@ -365,20 +411,26 @@ private fun rewriteAssignTarget(target: Spanned<AssignTargetP<*>>, replace: Map<
     val node = target.node
     val rewritten =
         when (node) {
-            is AssignTargetP.Tuple ->
+            is AssignTargetP.Tuple -> {
                 AssignTargetP.Tuple<AstNoPayload>(
                     node.elements.map { rewriteAssignTarget(it, replace) },
                 )
-            is AssignTargetP.Index ->
+            }
+
+            is AssignTargetP.Index -> {
                 AssignTargetP.Index<AstNoPayload>(
                     rewriteExpr(node.expr, replace),
                     rewriteExpr(node.index, replace),
                 )
-            is AssignTargetP.Dot ->
+            }
+
+            is AssignTargetP.Dot -> {
                 AssignTargetP.Dot<AstNoPayload>(
                     rewriteExpr(node.expr, replace),
                     node.field,
                 )
+            }
+
             is AssignTargetP.Identifier<*, *> -> {
                 val ident = node.ident
                 AssignTargetP.Identifier<AstNoPayload, Unit>(
@@ -393,8 +445,14 @@ private fun rewriteParameter(param: Spanned<ParameterP<*>>, replace: Map<String,
     val node = param.node
     val rewritten =
         when (node) {
-            is ParameterP.Slash -> ParameterP.Slash<AstNoPayload>()
-            is ParameterP.NoArgs -> ParameterP.NoArgs<AstNoPayload>()
+            is ParameterP.Slash -> {
+                ParameterP.Slash<AstNoPayload>()
+            }
+
+            is ParameterP.NoArgs -> {
+                ParameterP.NoArgs<AstNoPayload>()
+            }
+
             is ParameterP.Normal -> {
                 val name = node.name
                 ParameterP.Normal<AstNoPayload>(
@@ -403,6 +461,7 @@ private fun rewriteParameter(param: Spanned<ParameterP<*>>, replace: Map<String,
                     defaultVal = node.defaultVal?.let { rewriteExpr(it, replace) },
                 )
             }
+
             is ParameterP.Args -> {
                 val name = node.name
                 ParameterP.Args<AstNoPayload>(
@@ -410,6 +469,7 @@ private fun rewriteParameter(param: Spanned<ParameterP<*>>, replace: Map<String,
                     typ = node.typ?.let { rewriteTypeExpr(it, replace) },
                 )
             }
+
             is ParameterP.KwArgs -> {
                 val name = node.name
                 ParameterP.KwArgs<AstNoPayload>(
@@ -447,29 +507,39 @@ private fun rewriteStmt(stmt: Spanned<StmtP<*>>, replace: Map<String, String>): 
     val node = stmt.node
     val rewritten =
         when (node) {
-            is StmtP.Statements<*> ->
+            is StmtP.Statements<*> -> {
                 StmtP.Statements<AstNoPayload>(
                     node.stmts.map { rewriteStmt(it, replace) },
                 )
-            is StmtP.Expression<*> ->
+            }
+
+            is StmtP.Expression<*> -> {
                 StmtP.Expression<AstNoPayload>(
                     rewriteExpr(node.expr, replace),
                 )
-            is StmtP.Return<*> ->
+            }
+
+            is StmtP.Return<*> -> {
                 StmtP.Return<AstNoPayload>(
                     node.expr?.let { rewriteExpr(it, replace) },
                 )
-            is StmtP.If<*> ->
+            }
+
+            is StmtP.If<*> -> {
                 StmtP.If<AstNoPayload>(
                     rewriteExpr(node.cond, replace),
                     rewriteStmt(node.suite, replace),
                 )
-            is StmtP.IfElse<*> ->
+            }
+
+            is StmtP.IfElse<*> -> {
                 StmtP.IfElse<AstNoPayload>(
                     rewriteExpr(node.cond, replace),
                     rewriteStmt(node.suite1, replace),
                     rewriteStmt(node.suite2, replace),
                 )
+            }
+
             is StmtP.For<*> -> {
                 val forStmt = node.forStmt
                 StmtP.For<AstNoPayload>(
@@ -480,6 +550,7 @@ private fun rewriteStmt(stmt: Spanned<StmtP<*>>, replace: Map<String, String>): 
                     ),
                 )
             }
+
             is StmtP.Def<*, *> -> {
                 val def = node.def
                 StmtP.Def<AstNoPayload, Any?>(
@@ -492,6 +563,7 @@ private fun rewriteStmt(stmt: Spanned<StmtP<*>>, replace: Map<String, String>): 
                     ),
                 )
             }
+
             is StmtP.Assign<*> -> {
                 val assign = node.assign
                 StmtP.Assign<AstNoPayload>(
@@ -502,12 +574,15 @@ private fun rewriteStmt(stmt: Spanned<StmtP<*>>, replace: Map<String, String>): 
                     ),
                 )
             }
-            is StmtP.AssignModify<*> ->
+
+            is StmtP.AssignModify<*> -> {
                 StmtP.AssignModify<AstNoPayload>(
                     rewriteAssignTarget(node.lhs, replace),
                     node.op,
                     rewriteExpr(node.rhs, replace),
                 )
+            }
+
             is StmtP.Load<*, *> -> {
                 val load = node.loadStmt
                 StmtP.Load<AstNoPayload, Unit>(
@@ -525,9 +600,18 @@ private fun rewriteStmt(stmt: Spanned<StmtP<*>>, replace: Map<String, String>): 
                     ),
                 )
             }
-            is StmtP.Break<*> -> StmtP.Break<AstNoPayload>()
-            is StmtP.Continue<*> -> StmtP.Continue<AstNoPayload>()
-            is StmtP.Pass<*> -> StmtP.Pass<AstNoPayload>()
+
+            is StmtP.Break<*> -> {
+                StmtP.Break<AstNoPayload>()
+            }
+
+            is StmtP.Continue<*> -> {
+                StmtP.Continue<AstNoPayload>()
+            }
+
+            is StmtP.Pass<*> -> {
+                StmtP.Pass<AstNoPayload>()
+            }
         }
     return Spanned(rewritten, stmt.span)
 }

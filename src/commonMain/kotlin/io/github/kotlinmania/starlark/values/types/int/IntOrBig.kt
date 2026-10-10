@@ -301,11 +301,15 @@ sealed class StarlarkIntRef {
 
     fun toU64(): ULong? =
         when (this) {
-            is Small -> value.toU64()
-            is Big ->
+            is Small -> {
+                value.toU64()
+            }
+
+            is Big -> {
                 value.get().ulongValue(exactRequired = false).takeIf {
                     it >= 0.toULong() && BigInteger.fromULong(it) == value.get()
                 }
+            }
         }
 
     private fun isNegative(): Boolean =
@@ -337,7 +341,10 @@ sealed class StarlarkIntRef {
             val sig = b.signum() * a.signum()
             val offset = if (sig < 0 && (a % b) != InlineInt.ZERO) 1 else 0
             when (val div = a.checkedDiv(b)) {
-                null -> floorDivBigBig(a.toBigInt(), b.toBigInt()).getOrThrow()
+                null -> {
+                    floorDivBigBig(a.toBigInt(), b.toBigInt()).getOrThrow()
+                }
+
                 else -> {
                     val result =
                         div.checkedSubI32(offset)
@@ -370,16 +377,19 @@ sealed class StarlarkIntRef {
      */
     fun floorDiv(other: StarlarkIntRef): Result<StarlarkInt> =
         when (this) {
-            is Small ->
+            is Small -> {
                 when (other) {
                     is Small -> floorDivSmallSmall(value, other.value)
                     is Big -> floorDivBigBig(value.toBigInt(), other.value.get())
                 }
-            is Big ->
+            }
+
+            is Big -> {
                 when (other) {
                     is Small -> floorDivBigBig(value.get(), other.value.toBigInt())
                     is Big -> floorDivBigBig(value.get(), other.value.get())
                 }
+            }
         }
 
     private fun percentSmall(a: InlineInt, b: InlineInt): Result<InlineInt> =
@@ -443,16 +453,19 @@ sealed class StarlarkIntRef {
      */
     fun percent(other: StarlarkIntRef): Result<StarlarkInt> =
         when (this) {
-            is Small ->
+            is Small -> {
                 when (other) {
                     is Small -> percentSmall(value, other.value).map { StarlarkInt.Small(it) }
                     is Big -> percentBig(value.toBigInt(), other.value.get())
                 }
-            is Big ->
+            }
+
+            is Big -> {
                 when (other) {
                     is Small -> percentBig(value.get(), other.value.toBigInt())
                     is Big -> percentBig(value.get(), other.value.get())
                 }
+            }
         }
 
     /**
@@ -482,7 +495,10 @@ sealed class StarlarkIntRef {
             }
 
             when (other) {
-                is Big -> throw StarlarkIntError.LeftShiftOverflow()
+                is Big -> {
+                    throw StarlarkIntError.LeftShiftOverflow()
+                }
+
                 is Small -> {
                     // No overflow, checked above.
                     val b = other.value.toU64()!!
@@ -528,7 +544,10 @@ sealed class StarlarkIntRef {
                         StarlarkInt.Small(InlineInt.ZERO)
                     }
                 }
-                is Big -> StarlarkInt.from(value.get().shr(otherU64.toInt()))
+
+                is Big -> {
+                    StarlarkInt.from(value.get().shr(otherU64.toInt()))
+                }
             }
         }
 
@@ -540,16 +559,19 @@ sealed class StarlarkIntRef {
 
     operator fun compareTo(other: StarlarkIntRef): Int =
         when (this) {
-            is Small ->
+            is Small -> {
                 when (other) {
                     is Small -> value.compareTo(other.value)
                     is Big -> StarlarkBigInt.cmpSmallBig(value, other.value)
                 }
-            is Big ->
+            }
+
+            is Big -> {
                 when (other) {
                     is Small -> StarlarkBigInt.cmpBigSmall(value, other.value)
                     is Big -> value.compareTo(other.value)
                 }
+            }
         }
 
     operator fun compareTo(other: Int): Int {
@@ -559,21 +581,31 @@ sealed class StarlarkIntRef {
 
     override fun equals(other: Any?): Boolean =
         when {
-            this === other -> true
-            other !is StarlarkIntRef -> false
-            else ->
+            this === other -> {
+                true
+            }
+
+            other !is StarlarkIntRef -> {
+                false
+            }
+
+            else -> {
                 when (this) {
-                    is Small ->
+                    is Small -> {
                         when (other) {
                             is Small -> value == other.value
                             is Big -> false
                         }
-                    is Big ->
+                    }
+
+                    is Big -> {
                         when (other) {
                             is Small -> false
                             is Big -> value == other.value
                         }
+                    }
                 }
+            }
         }
 
     override fun hashCode(): Int =
@@ -600,37 +632,50 @@ sealed class StarlarkIntRef {
 // Bitwise operators for StarlarkIntRef
 internal infix fun StarlarkIntRef.and(other: StarlarkIntRef): StarlarkInt =
     when (this) {
-        is StarlarkIntRef.Small ->
+        is StarlarkIntRef.Small -> {
             when (other) {
                 is StarlarkIntRef.Small -> StarlarkInt.Small(value and other.value)
                 is StarlarkIntRef.Big -> StarlarkInt.from(toBig() and other.toBig())
             }
-        is StarlarkIntRef.Big -> StarlarkInt.from(toBig() and other.toBig())
+        }
+
+        is StarlarkIntRef.Big -> {
+            StarlarkInt.from(toBig() and other.toBig())
+        }
     }
 
 internal infix fun StarlarkIntRef.or(other: StarlarkIntRef): StarlarkInt =
     when (this) {
-        is StarlarkIntRef.Small ->
+        is StarlarkIntRef.Small -> {
             when (other) {
                 is StarlarkIntRef.Small -> StarlarkInt.Small(value or other.value)
                 is StarlarkIntRef.Big -> StarlarkInt.from(toBig() or other.toBig())
             }
-        is StarlarkIntRef.Big -> StarlarkInt.from(toBig() or other.toBig())
+        }
+
+        is StarlarkIntRef.Big -> {
+            StarlarkInt.from(toBig() or other.toBig())
+        }
     }
 
 internal infix fun StarlarkIntRef.xor(other: StarlarkIntRef): StarlarkInt =
     when (this) {
-        is StarlarkIntRef.Small ->
+        is StarlarkIntRef.Small -> {
             when (other) {
                 is StarlarkIntRef.Small -> StarlarkInt.Small(value xor other.value)
                 is StarlarkIntRef.Big -> StarlarkInt.from(toBig() xor other.toBig())
             }
-        is StarlarkIntRef.Big -> StarlarkInt.from(toBig() xor other.toBig())
+        }
+
+        is StarlarkIntRef.Big -> {
+            StarlarkInt.from(toBig() xor other.toBig())
+        }
     }
 
 internal operator fun StarlarkIntRef.not(): StarlarkInt =
     when (this) {
         is StarlarkIntRef.Small -> StarlarkInt.Small(!value)
+
         // kotlin-bignum's BigInteger.not() does not implement two's complement NOT correctly.
         // Two's complement: ~x = -(x + 1)
         is StarlarkIntRef.Big -> StarlarkInt.from(-(toBig() + BigInteger.ONE))
@@ -663,19 +708,26 @@ internal operator fun StarlarkIntRef.times(rhs: Int): StarlarkInt =
             value.checkedMulI32(rhs)?.let { return StarlarkInt.Small(it) }
             StarlarkInt.from(value.toBigInt() * BigInteger.fromInt(rhs))
         }
-        is StarlarkIntRef.Big -> StarlarkInt.from(value.get() * BigInteger.fromInt(rhs))
+
+        is StarlarkIntRef.Big -> {
+            StarlarkInt.from(value.get() * BigInteger.fromInt(rhs))
+        }
     }
 
 internal operator fun Int.times(rhs: StarlarkIntRef): StarlarkInt = rhs * this
 
 internal operator fun StarlarkIntRef.times(other: StarlarkIntRef): StarlarkInt =
     when (this) {
-        is StarlarkIntRef.Small -> value.toI32() * other
-        is StarlarkIntRef.Big ->
+        is StarlarkIntRef.Small -> {
+            value.toI32() * other
+        }
+
+        is StarlarkIntRef.Big -> {
             when (other) {
                 is StarlarkIntRef.Small -> this * other.value.toI32()
                 is StarlarkIntRef.Big -> StarlarkInt.from(value.get() * other.value.get())
             }
+        }
     }
 
 // Extension for Int comparison with StarlarkIntRef

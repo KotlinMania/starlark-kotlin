@@ -60,7 +60,10 @@ internal fun registerSet(globals: GlobalsBuilder) {
         val heap: Heap = eval.heap()
         val set =
             when (val arg: Value? = callArgs.optionalPositional(0)) {
-                null -> SetData()
+                null -> {
+                    SetData()
+                }
+
                 else -> {
                     val pos = arg
                     when (val setRef = SetRef.unpackValueOpt(pos)) {
@@ -73,6 +76,7 @@ internal fun registerSet(globals: GlobalsBuilder) {
                             }
                             data
                         }
+
                         else -> {
                             val data = SetData()
                             for (el in setRef.content.iterHashed()) {

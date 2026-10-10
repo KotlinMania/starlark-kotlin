@@ -91,14 +91,17 @@ sealed class ValueError(
             right: String?,
         ): Result<T> =
             when (right) {
-                null ->
+                null -> {
                     Result.failure(
                         OperationNotSupported(op = op, typ = left),
                     )
-                else ->
+                }
+
+                else -> {
                     Result.failure(
                         OperationNotSupportedBinary(op = op, left = left, right = right),
                     )
+                }
             }
 
         /** Helper to create an [OperationNotSupported] error. */

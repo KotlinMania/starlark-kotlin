@@ -202,16 +202,19 @@ internal fun Compiler.compileArgs(
                 val compiled = this.expr(node.expr).getOrElse { return Result.failure(it) }
                 res.posNamed.add(compiled)
             }
+
             is ArgumentP.Named -> {
                 val fv = this.eval.frozenHeap().allocStrIntern(node.name.node)
                 res.names.add(Pair(Symbol.new(node.name.node), fv))
                 val compiled = this.expr(node.expr).getOrElse { return Result.failure(it) }
                 res.posNamed.add(compiled)
             }
+
             is ArgumentP.Args -> {
                 val compiled = this.expr(node.expr).getOrElse { return Result.failure(it) }
                 res.args = compiled
             }
+
             is ArgumentP.KwArgs -> {
                 val compiled = this.expr(node.expr).getOrElse { return Result.failure(it) }
                 res.kwargs = compiled

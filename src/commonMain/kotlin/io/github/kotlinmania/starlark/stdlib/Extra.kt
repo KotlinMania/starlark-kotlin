@@ -234,6 +234,7 @@ private fun toPrettyRepr(v: Value, indentLevel: Int): String {
                         .map { (k, valV) -> k.toValue() to valV.toValue() }
                         .toList()
                 }
+
                 is AtomicRef<*> -> {
                     val d = innerVal.value
                     if (d is Dict) {
@@ -245,7 +246,10 @@ private fun toPrettyRepr(v: Value, indentLevel: Int): String {
                         emptyList()
                     }
                 }
-                else -> emptyList()
+
+                else -> {
+                    emptyList()
+                }
             }
         return formatKeyedContainer("{", "}", ": ", content, indentLevel)
     }

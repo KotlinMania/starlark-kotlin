@@ -58,20 +58,37 @@ private enum class DSOpts {
 private fun renderDocString(opts: DSOpts, string: DocString?): String? {
     val d = string ?: return null
     return when (opts) {
-        DSOpts.Summary -> d.summary
-        DSOpts.Details -> d.details
-        DSOpts.Examples -> d.examples
+        DSOpts.Summary -> {
+            d.summary
+        }
+
+        DSOpts.Details -> {
+            d.details
+        }
+
+        DSOpts.Examples -> {
+            d.examples
+        }
+
         DSOpts.Combined -> {
             val details = d.details
             val examples = d.examples
             when {
-                details != null && examples != null ->
+                details != null && examples != null -> {
                     "${d.summary}\n\n$details\n\nExamples:\n$examples"
-                details != null ->
+                }
+
+                details != null -> {
                     "${d.summary}\n\n$details"
-                examples != null ->
+                }
+
+                examples != null -> {
                     "${d.summary}\n\nExamples:\n$examples"
-                else -> d.summary
+                }
+
+                else -> {
+                    d.summary
+                }
             }
         }
     }
@@ -151,10 +168,13 @@ private fun renderFunction(
 ): String {
     // Render the layouts differently based on the configs provided.
     return when (renderConfig.layoutConfig) {
-        LayoutRenderConfig.SignatureAtBottom ->
+        LayoutRenderConfig.SignatureAtBottom -> {
             renderSignatureAtBottomLayout(name, function, renderConfig)
-        LayoutRenderConfig.Default ->
+        }
+
+        LayoutRenderConfig.Default -> {
             renderDefaultLayout(name, function, includeHeader, renderConfig)
+        }
     }
 }
 
@@ -317,7 +337,7 @@ internal fun renderDocItemNoLink(name: String, item: DocItem): String =
 
 internal fun renderDocItem(name: String, item: DocItem, renderConfig: RenderConfig): String =
     when (item) {
-        is DocItem.Module ->
+        is DocItem.Module -> {
             renderMembers(
                 name,
                 item.module.docs,
@@ -330,18 +350,23 @@ internal fun renderDocItem(name: String, item: DocItem, renderConfig: RenderConf
                 null,
                 renderConfig,
             )
-        is DocItem.TypeDoc ->
+        }
+
+        is DocItem.TypeDoc -> {
             renderDocType(
                 "`$name` type",
                 "$name.",
                 item.type,
                 renderConfig,
             )
-        is DocItem.Member ->
+        }
+
+        is DocItem.Member -> {
             when (val member = item.member) {
                 is DocMember.Function -> renderFunction(name, member.function, true, renderConfig)
                 is DocMember.Property -> renderProperty(name, member.property, renderConfig)
             }
+        }
     }
 
 /** Used by LSP. */
@@ -402,9 +427,13 @@ private fun renderStringsWithCodeBlocks(contents: String, renderConfig: TypeRend
 // We need to use the html block here.
 private fun renderCodeBlock(contents: String, renderConfig: TypeRenderConfig): String =
     when (renderConfig) {
-        is TypeRenderConfig.Default -> "```python\n$contents\n```"
-        is TypeRenderConfig.LinkedType ->
+        is TypeRenderConfig.Default -> {
+            "```python\n$contents\n```"
+        }
+
+        is TypeRenderConfig.LinkedType -> {
             """<pre class="language-python"><code>$contents</code></pre>"""
+        }
     }
 
 internal fun DocModule.renderMarkdownPageForMultipageRender(

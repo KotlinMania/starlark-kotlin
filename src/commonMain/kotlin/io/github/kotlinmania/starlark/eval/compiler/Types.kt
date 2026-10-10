@@ -116,11 +116,14 @@ private fun Compiler.evalIdentInTypeExpr(ident: CstIdent): Value {
     return when (identPayload) {
         is ResolvedIdent.Slot -> {
             when (val slot = identPayload.slot) {
-                is Slot.Local -> throw EvalException.newAnyhow(
-                    TypesError.LocalIdentifier(),
-                    ident.span,
-                    codemap.value,
-                )
+                is Slot.Local -> {
+                    throw EvalException.newAnyhow(
+                        TypesError.LocalIdentifier(),
+                        ident.span,
+                        codemap.value,
+                    )
+                }
+
                 is Slot.Module -> {
                     eval.moduleEnv.slots().getSlot(slot.id)
                         ?: throw EvalException.newAnyhow(
@@ -131,7 +134,10 @@ private fun Compiler.evalIdentInTypeExpr(ident: CstIdent): Value {
                 }
             }
         }
-        is ResolvedIdent.Global -> identPayload.value.toValue()
+
+        is ResolvedIdent.Global -> {
+            identPayload.value.toValue()
+        }
     }
 }
 
@@ -167,12 +173,19 @@ private fun Compiler.evalExpr(
     expr: Spanned<TypeExprUnpackP<CstPayload, CstIdentPayload>>,
 ): Value =
     when (val node = expr.node) {
-        is TypeExprUnpackP.Ellipsis -> Ellipsis.newValue().toValue()
+        is TypeExprUnpackP.Ellipsis -> {
+            Ellipsis.newValue().toValue()
+        }
+
         is TypeExprUnpackP.List -> {
             val values = node.items.map { item -> evalExpr(item) }
             eval.heap().allocList(values)
         }
-        is TypeExprUnpackP.Path -> evalPath(node.path)
+
+        is TypeExprUnpackP.Path -> {
+            evalPath(node.path)
+        }
+
         is TypeExprUnpackP.Index -> {
             val a = evalIdentInTypeExpr(node.ident)
             if (Constants.get().fnList?.let { a.ptrEq(it.value.toValue()) } != true &&
@@ -189,6 +202,7 @@ private fun Compiler.evalExpr(
                 throw EvalException.newAnyhow(e, expr.span, codemap.value)
             }
         }
+
         is TypeExprUnpackP.Index2 -> {
             val a = evalPath(node.path.node)
             if (Constants.get().fnDict?.let { a.ptrEq(it.value.toValue()) } == true ||
@@ -208,10 +222,12 @@ private fun Compiler.evalExpr(
                 )
             }
         }
+
         is TypeExprUnpackP.Union -> {
             val xs = node.xs.map { x -> evalExprAsType(x) }
             TypeCompiled.typeAnyOf(xs, eval.heap()).toInner()
         }
+
         is TypeExprUnpackP.Tuple -> {
             val xs = node.xs.map { x -> evalExprAsType(x).asTy() }
             TypeCompiled.fromTy(Ty.tuple(xs), eval.heap()).toInner()

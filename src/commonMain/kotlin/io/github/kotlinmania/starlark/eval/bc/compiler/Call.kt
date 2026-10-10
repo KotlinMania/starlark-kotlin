@@ -136,6 +136,7 @@ private fun writeCallFrozen(
                 is Either.Left -> {
                     bc2.writeInstr("CallFrozenDefPos", span, CallFrozenDefArg(frozenDef, BcCallArgsPosForDef(callArgs.value), fileSpan, target))
                 }
+
                 is Either.Right -> {
                     bc2.writeInstr("CallFrozenDef", span, CallFrozenDefArg(frozenDef, BcCallArgsFullForDef(callArgs.value.resolve(frozenDef.asRef())), fileSpan, target))
                 }
@@ -151,6 +152,7 @@ private fun writeCallFrozen(
                 is Either.Left -> {
                     bc2.writeInstr("CallFrozenNativePos", span, CallFrozenArg(BcNativeFunctionCallable(bcNative), callArgs.toBcCallArgs(), fileSpan, target))
                 }
+
                 is Either.Right -> {
                     bc2.writeInstr("CallFrozenNative", span, CallFrozenArg(BcNativeFunctionCallable(bcNative), callArgs.toBcCallArgs(), fileSpan, target))
                 }
@@ -164,6 +166,7 @@ private fun writeCallFrozen(
             is Either.Left -> {
                 bc2.writeInstr("CallFrozenPos", span, CallFrozenArg(FrozenValueCallable(function), callArgs.toBcCallArgs(), fileSpan, target))
             }
+
             is Either.Right -> {
                 bc2.writeInstr("CallFrozen", span, CallFrozenArg(FrozenValueCallable(function), callArgs.toBcCallArgs(), fileSpan, target))
             }
@@ -275,6 +278,7 @@ internal fun IrSpanned<CallCompiled>.writeBcCall(target: BcSlotOut, bc: BcWriter
                         is Either.Left -> {
                             bc3.writeInstr("CallPos", span, CallArg(funSlot, callArgs.toBcCallArgs(), fileSpan, target))
                         }
+
                         is Either.Right -> {
                             bc3.writeInstr("Call", span, CallArg(funSlot, callArgs.toBcCallArgs(), fileSpan, target))
                         }

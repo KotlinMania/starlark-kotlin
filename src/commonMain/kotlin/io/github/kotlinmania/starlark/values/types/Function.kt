@@ -149,11 +149,15 @@ internal class NativeFunction(
                 val idx = runCatching { TypeCompiled.new(index, heap) }.getOrElse { return Result.failure(it) }
                 Result.success(TypeCompiled.typeListOf(idx, heap).toInner())
             }
+
             SpecialBuiltinFunction.Set -> {
                 val idx = runCatching { TypeCompiled.new(index, heap) }.getOrElse { return Result.failure(it) }
                 Result.success(TypeCompiled.typeSetOf(idx, heap).toInner())
             }
-            else -> ValueError.unsupported(TYPE, "[]")
+
+            else -> {
+                ValueError.unsupported(TYPE, "[]")
+            }
         }
     }
 
@@ -164,6 +168,7 @@ internal class NativeFunction(
                 val idx1 = runCatching { TypeCompiled.new(index1, heap) }.getOrElse { return Result.failure(it) }
                 Result.success(TypeCompiled.typeDictOf(idx0, idx1, heap).toInner())
             }
+
             SpecialBuiltinFunction.Tuple -> {
                 val item = runCatching { TypeCompiled.new(index0, heap) }.getOrElse { return Result.failure(it) }
                 if (index1.downcastRef<Ellipsis>() != null) {
@@ -178,7 +183,10 @@ internal class NativeFunction(
                     Result.failure(FunctionError.TupleOnlyEllipsis())
                 }
             }
-            else -> ValueError.unsupported(TYPE, "[,]")
+
+            else -> {
+                ValueError.unsupported(TYPE, "[,]")
+            }
         }
     }
 }

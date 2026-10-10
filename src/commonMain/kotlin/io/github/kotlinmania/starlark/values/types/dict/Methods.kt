@@ -358,15 +358,23 @@ internal fun pop(
     val me = dictMutFromValue(thisValue).getOrElse { return Result.failure(it) }
     val hashed = key.getHashed().getOrElse { return Result.failure(it) }
     return when (val x = me.aref.value.removeHashed(hashed)) {
-        null ->
+        null -> {
             when (default) {
-                null ->
+                null -> {
                     Result.failure(
                         IllegalArgumentException("Key `${key.toRepr()}` not found in dictionary `${thisValue.toRepr()}`"),
                     )
-                else -> Result.success(default)
+                }
+
+                else -> {
+                    Result.success(default)
+                }
             }
-        else -> Result.success(x)
+        }
+
+        else -> {
+            Result.success(x)
+        }
     }
 }
 

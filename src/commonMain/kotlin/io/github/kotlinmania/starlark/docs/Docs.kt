@@ -254,9 +254,15 @@ sealed class DocItem {
      */
     fun tryAsMemberWithCollapsedObject(): Result<DocMember> =
         when (this) {
-            is Module -> Result.failure(IllegalStateException("Cannot collapse module to member"))
-            is Member -> Result.success(member)
-            is TypeDoc ->
+            is Module -> {
+                Result.failure(IllegalStateException("Cannot collapse module to member"))
+            }
+
+            is Member -> {
+                Result.success(member)
+            }
+
+            is TypeDoc -> {
                 Result.success(
                     DocMember.Property(
                         DocProperty(
@@ -265,6 +271,7 @@ sealed class DocItem {
                         ),
                     ),
                 )
+            }
         }
 
     fun tryAsMember(): DocMember? =

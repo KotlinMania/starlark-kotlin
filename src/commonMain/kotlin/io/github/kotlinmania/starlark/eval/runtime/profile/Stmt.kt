@@ -102,7 +102,10 @@ private class StmtProfileState {
         val now = ProfilerInstant.now()
         addLast(now)
         when (val last = this.last) {
-            null -> files.add(codemap)
+            null -> {
+                files.add(codemap)
+            }
+
             else -> {
                 if (last.file != codemap.id()) {
                     files.add(codemap)

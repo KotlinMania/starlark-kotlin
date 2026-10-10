@@ -81,8 +81,14 @@ internal class SmallArcVec1<T> private constructor(
 
     fun asSlice(): List<T> =
         when (val i = impl) {
-            is SmallArcVec1Impl.Zero -> emptyList()
-            is SmallArcVec1Impl.One -> listOf(i.value)
+            is SmallArcVec1Impl.Zero -> {
+                emptyList()
+            }
+
+            is SmallArcVec1Impl.One -> {
+                listOf(i.value)
+            }
+
             is SmallArcVec1Impl.Many -> {
                 require(i.values.size >= 2)
                 i.values

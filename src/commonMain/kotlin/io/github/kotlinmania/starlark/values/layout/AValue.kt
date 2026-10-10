@@ -116,7 +116,10 @@ internal fun tryFreezeDirectly(
             val frozenValue = f.getOrThrow()
             Result.success(frozenValue)
         }
-        else -> f
+
+        else -> {
+            f
+        }
     }
 }
 

@@ -75,8 +75,14 @@ private fun vtableForValue(
     val typeId = ConstTypeId.of(value::class)
     val resolvedAvalue =
         avalue ?: when (value) {
-            is ListGen<*> -> AValueList
-            is TupleGen<*> -> AValueTuple
+            is ListGen<*> -> {
+                AValueList
+            }
+
+            is TupleGen<*> -> {
+                AValueTuple
+            }
+
             is ComplexValue -> {
                 if (value is Freeze<*>) {
                     createAValueComplex(value)
@@ -84,7 +90,10 @@ private fun vtableForValue(
                     AValueComplexNoFreeze(value)
                 }
             }
-            else -> null
+
+            else -> {
+                null
+            }
         }
     return AValueVTable(
         staticTypeOfValue = typeId,
@@ -340,7 +349,10 @@ internal class Arena {
 
         forEachOrdered { event ->
             when (event) {
-                is ArenaVisitEvent.EnterBump -> visitor.enterBump()
+                is ArenaVisitEvent.EnterBump -> {
+                    visitor.enterBump()
+                }
+
                 is ArenaVisitEvent.Value -> {
                     val x = event.value
                     when (val unpacked = x.unpack()) {
@@ -359,7 +371,10 @@ internal class Arena {
                                 visitor.regularValue(x)
                             }
                         }
-                        is AValueOrForwardUnpack.Forward -> visitor.regularValue(x)
+
+                        is AValueOrForwardUnpack.Forward -> {
+                            visitor.regularValue(x)
+                        }
                     }
                 }
             }
@@ -369,7 +384,10 @@ internal class Arena {
     fun forEachDropUnordered(f: (AValueHeader) -> Unit) {
         for (entry in drop) {
             when (entry) {
-                is AValueOrForward.Header -> f(entry.header)
+                is AValueOrForward.Header -> {
+                    f(entry.header)
+                }
+
                 is AValueOrForward.Forward -> {}
             }
         }
@@ -378,7 +396,10 @@ internal class Arena {
     private fun forEachUnorderedInBump(bump: List<AValueOrForward>, f: (AValueHeader) -> Unit) {
         for (entry in bump) {
             when (entry) {
-                is AValueOrForward.Header -> f(entry.header)
+                is AValueOrForward.Header -> {
+                    f(entry.header)
+                }
+
                 is AValueOrForward.Forward -> {}
             }
         }

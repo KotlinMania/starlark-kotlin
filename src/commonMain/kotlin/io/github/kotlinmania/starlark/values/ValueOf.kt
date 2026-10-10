@@ -62,9 +62,18 @@ internal class ValueOf<T>(
         internal inline fun <reified T : Any> unpackValueImpl(value: Value): ValueOf<T>? {
             val typed: T =
                 when (T::class) {
-                    Int::class -> value.unpackI32() as? T ?: return null
-                    Boolean::class -> value.unpackBool() as? T ?: return null
-                    String::class -> value.unpackStr() as? T ?: return null
+                    Int::class -> {
+                        value.unpackI32() as? T ?: return null
+                    }
+
+                    Boolean::class -> {
+                        value.unpackBool() as? T ?: return null
+                    }
+
+                    String::class -> {
+                        value.unpackStr() as? T ?: return null
+                    }
+
                     else -> {
                         val underlying: Any = value.getUnderlyingPtr()
                         underlying as? T ?: return null

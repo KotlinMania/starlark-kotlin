@@ -134,10 +134,13 @@ internal class RawEntryBuilderMut<T>(
      */
     fun fromEntry(value: T): RawEntryMut<T> =
         when (val raw = entry.fromKey(value)) {
-            is io.github.kotlinmania.starlark.collections.unorderedmap.RawEntryMut.Occupied ->
+            is io.github.kotlinmania.starlark.collections.unorderedmap.RawEntryMut.Occupied -> {
                 RawEntryMut.Occupied(RawOccupiedEntryMut(raw.entry))
-            is io.github.kotlinmania.starlark.collections.unorderedmap.RawEntryMut.Vacant ->
+            }
+
+            is io.github.kotlinmania.starlark.collections.unorderedmap.RawEntryMut.Vacant -> {
                 RawEntryMut.Vacant(RawVacantEntryMut(raw.entry))
+            }
         }
 
     /**
@@ -152,10 +155,13 @@ internal class RawEntryBuilderMut<T>(
      */
     fun fromHash(hash: StarlarkHashValue, isMatch: (T) -> Boolean): RawEntryMut<T> =
         when (val raw = entry.fromHash(hash, isMatch)) {
-            is io.github.kotlinmania.starlark.collections.unorderedmap.RawEntryMut.Occupied ->
+            is io.github.kotlinmania.starlark.collections.unorderedmap.RawEntryMut.Occupied -> {
                 RawEntryMut.Occupied(RawOccupiedEntryMut(raw.entry))
-            is io.github.kotlinmania.starlark.collections.unorderedmap.RawEntryMut.Vacant ->
+            }
+
+            is io.github.kotlinmania.starlark.collections.unorderedmap.RawEntryMut.Vacant -> {
                 RawEntryMut.Vacant(RawVacantEntryMut(raw.entry))
+            }
         }
 }
 

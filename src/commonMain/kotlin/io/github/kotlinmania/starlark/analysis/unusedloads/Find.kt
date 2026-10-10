@@ -83,93 +83,145 @@ private fun CstStmt.visitIdent(f: (CstIdent) -> Unit) {
 
     fun visitExprIdent(expr: Spanned<ExprP<out AstPayload>>) {
         when (val e = expr.node) {
-            is ExprP.Identifier<*, *> -> f(e.ident.toCstIdent())
-            is ExprP.Tuple<*> -> e.elements.forEach { visitExprIdent(it) }
-            is ExprP.ListExpr<*> -> e.elements.forEach { visitExprIdent(it) }
-            is ExprP.Dict<*> ->
+            is ExprP.Identifier<*, *> -> {
+                f(e.ident.toCstIdent())
+            }
+
+            is ExprP.Tuple<*> -> {
+                e.elements.forEach { visitExprIdent(it) }
+            }
+
+            is ExprP.ListExpr<*> -> {
+                e.elements.forEach { visitExprIdent(it) }
+            }
+
+            is ExprP.Dict<*> -> {
                 e.elements.forEach { (k, v) ->
                     visitExprIdent(k)
                     visitExprIdent(v)
                 }
+            }
+
             is ExprP.If<*> -> {
                 visitExprIdent(e.cond)
                 visitExprIdent(e.v1)
                 visitExprIdent(e.v2)
             }
-            is ExprP.Dot<*> -> visitExprIdent(e.expr)
+
+            is ExprP.Dot<*> -> {
+                visitExprIdent(e.expr)
+            }
+
             is ExprP.Call<*> -> {
                 visitExprIdent(e.expr)
                 e.args.args.forEach { arg -> visitExprIdent(arg.node.expr()) }
             }
+
             is ExprP.Index<*> -> {
                 visitExprIdent(e.expr)
                 visitExprIdent(e.index)
             }
+
             is ExprP.Index2<*> -> {
                 visitExprIdent(e.expr)
                 visitExprIdent(e.index0)
                 visitExprIdent(e.index1)
             }
+
             is ExprP.Slice<*> -> {
                 visitExprIdent(e.expr)
                 e.start?.let { visitExprIdent(it) }
                 e.stop?.let { visitExprIdent(it) }
                 e.step?.let { visitExprIdent(it) }
             }
-            is ExprP.Not<*> -> visitExprIdent(e.expr)
-            is ExprP.Minus<*> -> visitExprIdent(e.expr)
-            is ExprP.Plus<*> -> visitExprIdent(e.expr)
-            is ExprP.BitNot<*> -> visitExprIdent(e.expr)
+
+            is ExprP.Not<*> -> {
+                visitExprIdent(e.expr)
+            }
+
+            is ExprP.Minus<*> -> {
+                visitExprIdent(e.expr)
+            }
+
+            is ExprP.Plus<*> -> {
+                visitExprIdent(e.expr)
+            }
+
+            is ExprP.BitNot<*> -> {
+                visitExprIdent(e.expr)
+            }
+
             is ExprP.Op<*> -> {
                 visitExprIdent(e.lhs)
                 visitExprIdent(e.rhs)
             }
+
             is ExprP.ListComprehension<*> -> {
                 visitExprIdent(e.expr)
             }
+
             is ExprP.DictComprehension<*> -> {
                 visitExprIdent(e.key)
                 visitExprIdent(e.value)
             }
+
             is ExprP.FString<*> -> {
                 e.fstring.node.expressions
                     .forEach { visitExprIdent(it) }
             }
+
             is ExprP.Lambda<*, *> -> {
                 visitExprIdent(e.lambda.body)
             }
+
             is ExprP.Literal<*> -> { /* no identifiers */ }
         }
     }
 
     fun visitStmt(stmt: Spanned<StmtP<out AstPayload>>) {
         when (val s = stmt.node) {
-            is StmtP.Statements<*> -> s.stmts.forEach { visitStmt(it) }
-            is StmtP.Expression<*> -> visitExprIdent(s.expr)
-            is StmtP.Return<*> -> s.expr?.let { visitExprIdent(it) }
+            is StmtP.Statements<*> -> {
+                s.stmts.forEach { visitStmt(it) }
+            }
+
+            is StmtP.Expression<*> -> {
+                visitExprIdent(s.expr)
+            }
+
+            is StmtP.Return<*> -> {
+                s.expr?.let { visitExprIdent(it) }
+            }
+
             is StmtP.Assign<*> -> {
                 visitExprIdent(s.assign.rhs)
             }
+
             is StmtP.AssignModify<*> -> {
                 visitExprIdent(s.rhs)
             }
+
             is StmtP.If<*> -> {
                 visitExprIdent(s.cond)
                 visitStmt(s.suite)
             }
+
             is StmtP.IfElse<*> -> {
                 visitExprIdent(s.cond)
                 visitStmt(s.suite1)
                 visitStmt(s.suite2)
             }
+
             is StmtP.For<*> -> {
                 visitExprIdent(s.forStmt.over)
                 visitStmt(s.forStmt.body)
             }
+
             is StmtP.Def<*, *> -> {
                 visitStmt(s.def.body)
             }
+
             is StmtP.Load<*, *> -> { /* no identifiers in read position */ }
+
             is StmtP.Break<*>,
             is StmtP.Continue<*>,
             is StmtP.Pass<*>,

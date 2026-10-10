@@ -183,6 +183,7 @@ internal fun Compiler.evalTopLevelStmt(
                 ).getOrElse { return Result.failure(it) }
                 last = Value.newNone()
             }
+
             else -> {
                 last =
                     evalRegularTopLevelStmt(s, localNames)

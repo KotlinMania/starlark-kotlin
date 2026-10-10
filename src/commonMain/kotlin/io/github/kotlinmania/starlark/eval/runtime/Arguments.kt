@@ -259,6 +259,7 @@ class Arguments
                     }
                     Result.success(result)
                 }
+
                 // Some(kwargs) =>
                 else -> {
                     if (full.names().names().isEmpty()) {
@@ -307,7 +308,10 @@ class Arguments
         fun len(): Result<Int> {
             val argsLen =
                 when (val a = full.args) {
-                    null -> 0
+                    null -> {
+                        0
+                    }
+
                     else -> {
                         val lenResult = a.length()
                         if (lenResult.isFailure) return Result.failure(lenResult.exceptionOrNull()!!)
@@ -345,7 +349,10 @@ class Arguments
         fun positions(heap: Heap): Result<Iterator<Value>> {
             val tail: Iterator<Value> =
                 when (val a = full.args) {
-                    null -> StarlarkIterator.empty(heap)
+                    null -> {
+                        StarlarkIterator.empty(heap)
+                    }
+
                     else -> {
                         val iterResult = a.iterate(heap)
                         if (iterResult.isFailure) return Result.failure(iterResult.exceptionOrNull()!!)
@@ -363,7 +370,10 @@ class Arguments
          */
         internal fun unpackKwargs(): Result<DictRef?> =
             when (val kw = full.kwargs) {
-                null -> Result.success(null)
+                null -> {
+                    Result.success(null)
+                }
+
                 else -> {
                     val dictRef = dictRefFromValue(kw)
                     if (dictRef == null) {
@@ -593,7 +603,10 @@ private fun rare(
     // with a *args is very rare.
     val argsIter: Iterator<Value> =
         when (val a = x.full.args) {
-            null -> StarlarkIterator.empty(heap)
+            null -> {
+                StarlarkIterator.empty(heap)
+            }
+
             else -> {
                 val iterResult = a.iterate(heap)
                 if (iterResult.isFailure) return Result.failure(iterResult.exceptionOrNull()!!)
@@ -645,21 +658,38 @@ private fun DictRef.downcastRefKeyString(): SmallMap<StringValue, Value>? =
 internal inline fun <reified T> unpackValueAs(v: Value): T {
     val unpacked: Any? =
         when (T::class) {
-            Value::class -> v
-            StringValue::class ->
+            Value::class -> {
+                v
+            }
+
+            StringValue::class -> {
                 StringValue.new(v)
                     ?: throw IllegalArgumentException("Expected StringValue, got ${v.toStringForTypeError()}")
-            String::class -> v.unpackStrErr().getOrThrow()
-            Int::class ->
+            }
+
+            String::class -> {
+                v.unpackStrErr().getOrThrow()
+            }
+
+            Int::class -> {
                 unpackValueI32(v).getOrThrow()
                     ?: throw IllegalArgumentException("Expected Int, got ${v.toStringForTypeError()}")
-            UInt::class ->
+            }
+
+            UInt::class -> {
                 unpackValueToUIntOrNull(v)
                     ?: throw IllegalArgumentException("Expected UInt, got ${v.toStringForTypeError()}")
-            Long::class ->
+            }
+
+            Long::class -> {
                 unpackValueToLongOrNull(v)
                     ?: throw IllegalArgumentException("Expected Long, got ${v.toStringForTypeError()}")
-            Boolean::class -> v.toBool()
+            }
+
+            Boolean::class -> {
+                v.toBool()
+            }
+
             ValueTyped::class -> {
                 val valueTypeArg =
                     kotlin.reflect
@@ -675,6 +705,7 @@ internal inline fun <reified T> unpackValueAs(v: Value): T {
                 }
                 ValueTyped.newUnchecked<StarlarkValue>(v)
             }
+
             FrozenValueTyped::class -> {
                 val frozen =
                     v.unpackFrozen()
@@ -693,12 +724,19 @@ internal inline fun <reified T> unpackValueAs(v: Value): T {
                 }
                 FrozenValueTyped.newUnchecked<StarlarkValue>(frozen)
             }
-            TypeType::class ->
+
+            TypeType::class -> {
                 TypeType.unpackValue(v)
                     ?: throw IllegalArgumentException("Expected TypeType, got: ${v.toStringForTypeError()}")
-            ValueTypedComplex::class ->
+            }
+
+            ValueTypedComplex::class -> {
                 throw IllegalArgumentException("ValueTypedComplex arguments require positionalComplex with mutable and frozen types")
-            else -> v.downcastRef(StarlarkValue::class)!!
+            }
+
+            else -> {
+                v.downcastRef(StarlarkValue::class)!!
+            }
         }
 
     if (unpacked is T) {

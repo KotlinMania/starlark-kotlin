@@ -112,9 +112,7 @@ internal class OrderedSet<T : Comparable<T>> internal constructor(
         val hashed = Hashed.new(value)
         val existing =
             inner.getHashed(
-                object : Equivalent<T> {
-                    override fun equivalent(key: T): Boolean = hashed.key() == key
-                }.let { equiv ->
+                Equivalent<T> { key -> hashed.key() == key }.let { equiv ->
                     Hashed.newUnchecked(hashed.hash(), equiv)
                 },
             )

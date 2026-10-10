@@ -86,13 +86,18 @@ internal fun StmtsCompiled.writeBc(compiler: StmtCompileContext, bc: BcWriter) {
 internal fun StmtCompiled.markDefinitelyAssignedAfter(bc: BcWriter) {
     when (this) {
         is StmtCompiled.PossibleGc -> {}
+
         is StmtCompiled.Return -> {
             // `expr` is definitely assigned after `return` statement,
             // but no code is executed after `return`, so marking would be useless.
             @Suppress("UNUSED_EXPRESSION")
             expr
         }
-        is StmtCompiled.Expr -> expr.markDefinitelyAssignedAfter(bc)
+
+        is StmtCompiled.Expr -> {
+            expr.markDefinitelyAssignedAfter(bc)
+        }
+
         is StmtCompiled.Assign -> {
             lhs.node.markDefinitelyAssignedAfter(bc)
             rhs.markDefinitelyAssignedAfter(bc)
@@ -100,10 +105,12 @@ internal fun StmtCompiled.markDefinitelyAssignedAfter(bc: BcWriter) {
             @Suppress("UNUSED_EXPRESSION")
             ty
         }
+
         is StmtCompiled.AssignModify -> {
             rhs.markDefinitelyAssignedAfter(bc)
             lhs.markDefinitelyAssignedAfter(bc)
         }
+
         is StmtCompiled.If -> {
             cond.markDefinitelyAssignedAfter(bc)
             // We could merge `t` and `f` definitely assigned, e.g.
@@ -119,10 +126,13 @@ internal fun StmtCompiled.markDefinitelyAssignedAfter(bc: BcWriter) {
             @Suppress("UNUSED_EXPRESSION")
             elseBlock
         }
+
         is StmtCompiled.For -> {
             over.markDefinitelyAssignedAfter(bc)
         }
+
         is StmtCompiled.Break -> {}
+
         is StmtCompiled.Continue -> {}
     }
 }
@@ -218,11 +228,18 @@ private fun IrSpanned<StmtCompiled>.writeBcInner(
 ) {
     val span = this.span
     when (val stmt = this.node) {
-        is StmtCompiled.PossibleGc -> bc.writeInstr("InstrPossibleGc", span, Unit)
-        is StmtCompiled.Return -> writeReturn(span, stmt.expr, compiler, bc)
+        is StmtCompiled.PossibleGc -> {
+            bc.writeInstr("InstrPossibleGc", span, Unit)
+        }
+
+        is StmtCompiled.Return -> {
+            writeReturn(span, stmt.expr, compiler, bc)
+        }
+
         is StmtCompiled.Expr -> {
             stmt.expr.writeBcForEffect(bc)
         }
+
         is StmtCompiled.Assign -> {
             val local = stmt.lhs.node.asLocalNonCaptured()
             if (local != null) {
@@ -236,20 +253,25 @@ private fun IrSpanned<StmtCompiled>.writeBcInner(
                 }
             }
         }
+
         is StmtCompiled.AssignModify -> {
             stmt.lhs.writeBc(span, stmt.op, stmt.rhs, bc)
         }
+
         is StmtCompiled.If -> {
             writeIfElseStmt(stmt.cond, stmt.thenBlock, stmt.elseBlock, compiler, bc)
         }
+
         is StmtCompiled.For -> {
             writeFor(stmt.over, stmt.variable, span, bc) { bc2 ->
                 stmt.body.writeBc(compiler, bc2)
             }
         }
+
         is StmtCompiled.Break -> {
             bc.writeBreak(span)
         }
+
         is StmtCompiled.Continue -> {
             bc.writeContinue(span)
         }

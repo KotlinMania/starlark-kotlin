@@ -90,7 +90,10 @@ internal fun AstModule.findFunctionCallWithName(name: String): Span? {
                     }
                 }
             }
-            else -> node.node.visitChildExprs(::visitExpr)
+
+            else -> {
+                node.node.visitChildExprs(::visitExpr)
+            }
         }
     }
 
@@ -105,28 +108,39 @@ internal fun AstModule.findFunctionCallWithName(name: String): Span? {
  */
 internal fun ExprP<AstNoPayload>.visitChildExprs(f: (AstExpr) -> Unit) {
     when (this) {
-        is ExprP.Tuple<AstNoPayload> -> elements.forEach(f)
-        is ExprP.Dot<AstNoPayload> -> f(expr)
+        is ExprP.Tuple<AstNoPayload> -> {
+            elements.forEach(f)
+        }
+
+        is ExprP.Dot<AstNoPayload> -> {
+            f(expr)
+        }
+
         is ExprP.Call<AstNoPayload> -> {
             f(expr)
             args.args.forEach { f(it.node.expr()) }
         }
+
         is ExprP.Index<AstNoPayload> -> {
             f(expr)
             f(index)
         }
+
         is ExprP.Index2<AstNoPayload> -> {
             f(expr)
             f(index0)
             f(index1)
         }
+
         is ExprP.Slice<AstNoPayload> -> {
             f(expr)
             start?.let(f)
             stop?.let(f)
             step?.let(f)
         }
+
         is ExprP.Identifier<AstNoPayload, *> -> { /* leaf */ }
+
         is ExprP.Lambda<AstNoPayload, *> -> {
             lambda.params.forEach { param ->
                 when (val p = param.node) {
@@ -137,18 +151,21 @@ internal fun ExprP<AstNoPayload>.visitChildExprs(f: (AstExpr) -> Unit) {
                             ?.let(f)
                         p.defaultVal?.let(f)
                     }
+
                     is ParameterP.Args<AstNoPayload> -> {
                         p.typ
                             ?.node
                             ?.expr
                             ?.let(f)
                     }
+
                     is ParameterP.KwArgs<AstNoPayload> -> {
                         p.typ
                             ?.node
                             ?.expr
                             ?.let(f)
                     }
+
                     is ParameterP.NoArgs<AstNoPayload>,
                     is ParameterP.Slash<AstNoPayload>,
                     -> { /* no expr */ }
@@ -156,37 +173,60 @@ internal fun ExprP<AstNoPayload>.visitChildExprs(f: (AstExpr) -> Unit) {
             }
             f(lambda.body)
         }
+
         is ExprP.Literal<AstNoPayload> -> { /* leaf */ }
-        is ExprP.Not<AstNoPayload> -> f(expr)
-        is ExprP.Minus<AstNoPayload> -> f(expr)
-        is ExprP.Plus<AstNoPayload> -> f(expr)
-        is ExprP.BitNot<AstNoPayload> -> f(expr)
+
+        is ExprP.Not<AstNoPayload> -> {
+            f(expr)
+        }
+
+        is ExprP.Minus<AstNoPayload> -> {
+            f(expr)
+        }
+
+        is ExprP.Plus<AstNoPayload> -> {
+            f(expr)
+        }
+
+        is ExprP.BitNot<AstNoPayload> -> {
+            f(expr)
+        }
+
         is ExprP.Op<AstNoPayload> -> {
             f(lhs)
             f(rhs)
         }
+
         is ExprP.If<AstNoPayload> -> {
             f(cond)
             f(v1)
             f(v2)
         }
-        is ExprP.ListExpr<AstNoPayload> -> elements.forEach(f)
-        is ExprP.Dict<AstNoPayload> ->
+
+        is ExprP.ListExpr<AstNoPayload> -> {
+            elements.forEach(f)
+        }
+
+        is ExprP.Dict<AstNoPayload> -> {
             elements.forEach { (k, v) ->
                 f(k)
                 f(v)
             }
+        }
+
         is ExprP.ListComprehension<AstNoPayload> -> {
             visitForClauseExprs(forClause, f)
             clauses.forEach { visitClauseExprs(it, f) }
             f(expr)
         }
+
         is ExprP.DictComprehension<AstNoPayload> -> {
             visitForClauseExprs(forClause, f)
             clauses.forEach { visitClauseExprs(it, f) }
             f(key)
             f(value)
         }
+
         is ExprP.FString<AstNoPayload> -> {
             fstring.node.expressions.forEach(f)
         }
@@ -207,12 +247,19 @@ internal fun visitClauseExprs(clause: ClauseP<AstNoPayload>, f: (AstExpr) -> Uni
 
 internal fun visitAssignTargetExprs(target: AssignTargetP<AstNoPayload>, f: (AstExpr) -> Unit) {
     when (target) {
-        is AssignTargetP.Tuple<AstNoPayload> -> target.elements.forEach { visitAssignTargetExprs(it.node, f) }
-        is AssignTargetP.Dot<AstNoPayload> -> f(target.expr)
+        is AssignTargetP.Tuple<AstNoPayload> -> {
+            target.elements.forEach { visitAssignTargetExprs(it.node, f) }
+        }
+
+        is AssignTargetP.Dot<AstNoPayload> -> {
+            f(target.expr)
+        }
+
         is AssignTargetP.Index<AstNoPayload> -> {
             f(target.expr)
             f(target.index)
         }
+
         is AssignTargetP.Identifier<AstNoPayload, *> -> { /* leaf */ }
     }
 }
@@ -223,32 +270,46 @@ internal fun visitAssignTargetExprs(target: AssignTargetP<AstNoPayload>, f: (Ast
  */
 internal fun AstStmt.visitExprs(f: (AstExpr) -> Unit) {
     when (val s = node) {
-        is StmtP.Statements<AstNoPayload> -> s.stmts.forEach { it.visitExprs(f) }
-        is StmtP.Expression<AstNoPayload> -> f(s.expr)
-        is StmtP.Return<AstNoPayload> -> s.expr?.let(f)
+        is StmtP.Statements<AstNoPayload> -> {
+            s.stmts.forEach { it.visitExprs(f) }
+        }
+
+        is StmtP.Expression<AstNoPayload> -> {
+            f(s.expr)
+        }
+
+        is StmtP.Return<AstNoPayload> -> {
+            s.expr?.let(f)
+        }
+
         is StmtP.Assign<AstNoPayload> -> {
             visitAssignTargetExprs(s.assign.lhs.node, f)
             s.assign.ty?.let { f(it.node.expr) }
             f(s.assign.rhs)
         }
+
         is StmtP.AssignModify<AstNoPayload> -> {
             visitAssignTargetExprs(s.lhs.node, f)
             f(s.rhs)
         }
+
         is StmtP.If<AstNoPayload> -> {
             f(s.cond)
             s.suite.visitExprs(f)
         }
+
         is StmtP.IfElse<AstNoPayload> -> {
             f(s.cond)
             s.suite1.visitExprs(f)
             s.suite2.visitExprs(f)
         }
+
         is StmtP.For<AstNoPayload> -> {
             visitAssignTargetExprs(s.forStmt.varTarget.node, f)
             f(s.forStmt.over)
             s.forStmt.body.visitExprs(f)
         }
+
         is StmtP.Def<AstNoPayload, *> -> {
             s.def.params.forEach { param ->
                 when (val p = param.node) {
@@ -259,18 +320,21 @@ internal fun AstStmt.visitExprs(f: (AstExpr) -> Unit) {
                             ?.let(f)
                         p.defaultVal?.let(f)
                     }
+
                     is ParameterP.Args<AstNoPayload> -> {
                         p.typ
                             ?.node
                             ?.expr
                             ?.let(f)
                     }
+
                     is ParameterP.KwArgs<AstNoPayload> -> {
                         p.typ
                             ?.node
                             ?.expr
                             ?.let(f)
                     }
+
                     is ParameterP.NoArgs<AstNoPayload>,
                     is ParameterP.Slash<AstNoPayload>,
                     -> { /* no expr */ }
@@ -279,7 +343,9 @@ internal fun AstStmt.visitExprs(f: (AstExpr) -> Unit) {
             s.def.returnType?.let { f(it.node.expr) }
             s.def.body.visitExprs(f)
         }
+
         is StmtP.Load<AstNoPayload, *> -> { /* no expressions */ }
+
         is StmtP.Break<AstNoPayload>,
         is StmtP.Continue<AstNoPayload>,
         is StmtP.Pass<AstNoPayload>,
@@ -292,14 +358,27 @@ internal fun AstStmt.visitExprs(f: (AstExpr) -> Unit) {
  */
 internal fun AstStmt.visitStmtChildren(f: (AstStmt) -> Unit) {
     when (val s = node) {
-        is StmtP.Statements<AstNoPayload> -> s.stmts.forEach(f)
-        is StmtP.If<AstNoPayload> -> f(s.suite)
+        is StmtP.Statements<AstNoPayload> -> {
+            s.stmts.forEach(f)
+        }
+
+        is StmtP.If<AstNoPayload> -> {
+            f(s.suite)
+        }
+
         is StmtP.IfElse<AstNoPayload> -> {
             f(s.suite1)
             f(s.suite2)
         }
-        is StmtP.For<AstNoPayload> -> f(s.forStmt.body)
-        is StmtP.Def<AstNoPayload, *> -> f(s.def.body)
+
+        is StmtP.For<AstNoPayload> -> {
+            f(s.forStmt.body)
+        }
+
+        is StmtP.Def<AstNoPayload, *> -> {
+            f(s.def.body)
+        }
+
         is StmtP.Expression<AstNoPayload>,
         is StmtP.Return<AstNoPayload>,
         is StmtP.Assign<AstNoPayload>,

@@ -289,7 +289,10 @@ class TypeCompiled(
         private fun fromList(t: ListRef, heap: Heap): TypeCompiled {
             val content = t.content()
             return when {
-                content.isEmpty() || content.size == 1 -> throw TypingError.List
+                content.isEmpty() || content.size == 1 -> {
+                    throw TypingError.List
+                }
+
                 else -> {
                     // A union type, can match any
                     val ts = content.map { new(it, heap) }

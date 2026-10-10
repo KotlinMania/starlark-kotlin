@@ -112,14 +112,20 @@ data class InlineInt internal constructor(
             where T : Number, T : Comparable<T> {
             val i =
                 when (value) {
-                    is Int -> value
+                    is Int -> {
+                        value
+                    }
+
                     is Long -> {
                         if (value < Int.MIN_VALUE || value > Int.MAX_VALUE) {
                             return Result.failure(InlineIntOverflow())
                         }
                         value.toInt()
                     }
-                    else -> return Result.failure(InlineIntOverflow())
+
+                    else -> {
+                        return Result.failure(InlineIntOverflow())
+                    }
                 }
 
             // Only absurd for certain bit widths

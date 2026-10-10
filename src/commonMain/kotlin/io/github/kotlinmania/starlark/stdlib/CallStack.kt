@@ -70,10 +70,14 @@ private fun funcName(thisRef: StackFrame): String =
 /** Returns a path of the module, or `null` for native functions. */
 private fun modulePath(thisRef: StackFrame): io.github.kotlinmania.starlark.values.types.none.NoneOr<String> =
     when (val location = thisRef.location) {
-        null -> io.github.kotlinmania.starlark.values.types.none.NoneOr.None
-        else ->
+        null -> {
+            io.github.kotlinmania.starlark.values.types.none.NoneOr.None
+        }
+
+        else -> {
             io.github.kotlinmania.starlark.values.types.none.NoneOr
                 .Other(location.file.filename)
+        }
     }
 
 /** Define attribute methods on StackFrame values. */
@@ -87,10 +91,14 @@ private fun stackFrameMethods(builder: io.github.kotlinmania.starlark.environmen
         val result = modulePath(frame)
         Result.success(
             when (result) {
-                is io.github.kotlinmania.starlark.values.types.none.NoneOr.None ->
+                is io.github.kotlinmania.starlark.values.types.none.NoneOr.None -> {
                     io.github.kotlinmania.starlark.values.layout.Value.Companion
                         .newNone()
-                is io.github.kotlinmania.starlark.values.types.none.NoneOr.Other -> heap.allocStr(result.value)
+                }
+
+                is io.github.kotlinmania.starlark.values.types.none.NoneOr.Other -> {
+                    heap.allocStr(result.value)
+                }
             },
         )
     }
@@ -125,14 +133,18 @@ private fun callStackFrame(n: Int, eval: Evaluator): io.github.kotlinmania.starl
         return io.github.kotlinmania.starlark.values.types.none.NoneOr.None
     }
     return when (val frame = stack.frames.getOrNull(stack.frames.size - n - 1)) {
-        null -> io.github.kotlinmania.starlark.values.types.none.NoneOr.None
-        else ->
+        null -> {
+            io.github.kotlinmania.starlark.values.types.none.NoneOr.None
+        }
+
+        else -> {
             io.github.kotlinmania.starlark.values.types.none.NoneOr.Other(
                 StackFrame(
                     name = frame.name,
                     location = frame.location,
                 ),
             )
+        }
     }
 }
 

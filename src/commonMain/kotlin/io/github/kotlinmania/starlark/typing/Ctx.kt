@@ -73,6 +73,7 @@ internal class CallArgsUnpack<P : AstPayload>(
                         }
                         numPos++
                     }
+
                     is ArgumentP.Named -> {
                         if (stage > 1) {
                             throw EvalException.parserError("named argument after *args or **kwargs", arg.span, codemap)
@@ -85,6 +86,7 @@ internal class CallArgsUnpack<P : AstPayload>(
                         stage = 1
                         numNamed++
                     }
+
                     is ArgumentP.Args -> {
                         if (stage > 1) {
                             throw EvalException.parserError("Args array after another args or kwargs", arg.span, codemap)
@@ -95,6 +97,7 @@ internal class CallArgsUnpack<P : AstPayload>(
                         stage = 2
                         star = arg
                     }
+
                     is ArgumentP.KwArgs -> {
                         if (stage == 3) {
                             throw EvalException.parserError("Multiple kwargs dictionary in arguments", arg.span, codemap)
@@ -165,7 +168,10 @@ internal class TypingContext(
             onSuccess = { kotlin.Result.success(it) },
             onFailure = { e ->
                 when (e) {
-                    is InternalError -> kotlin.Result.failure(e)
+                    is InternalError -> {
+                        kotlin.Result.failure(e)
+                    }
+
                     else -> {
                         errors.add(TypingError.msg(e.message ?: "typing error", Span.DEFAULT, oracle.codemap))
                         kotlin.Result.success(Ty.never())
@@ -187,7 +193,10 @@ internal class TypingContext(
         if (result.isFailure) {
             val e = result.exceptionOrNull()!!
             when (e) {
-                is InternalError -> return kotlin.Result.failure(e)
+                is InternalError -> {
+                    return kotlin.Result.failure(e)
+                }
+
                 else -> {
                     errors.add(TypingError.msg(e.message ?: "typing error", got.span, oracle.codemap))
                 }
@@ -232,15 +241,20 @@ internal class TypingContext(
 
     fun expressionBindType(x: BindExpr): kotlin.Result<Ty> {
         return when (x) {
-            is BindExpr.Expr -> expressionType(x.expr)
+            is BindExpr.Expr -> {
+                expressionType(x.expr)
+            }
+
             is BindExpr.GetIndex -> {
                 val inner = expressionBindType(x.inner).getOrElse { return kotlin.Result.failure(it) }
                 kotlin.Result.success(oracle.indexed(inner, x.index))
             }
+
             is BindExpr.Iter -> {
                 val inner = expressionBindType(x.inner).getOrElse { return kotlin.Result.failure(it) }
                 kotlin.Result.success(fromIterated(inner, x.span()))
             }
+
             is BindExpr.AssignModify -> {
                 val span = x.target.span
                 val rhs = expressionTypeSpanned(x.expr).getOrElse { return kotlin.Result.failure(it) }
@@ -263,6 +277,7 @@ internal class TypingContext(
                     oracle.exprBinOpTy(span, lhs, attr, rhs),
                 )
             }
+
             is BindExpr.SetIndex -> {
                 val index = expressionTypeSpanned(x.indexExpr).getOrElse { return kotlin.Result.failure(it) }
                 val e = expressionBindType(x.inner).getOrElse { return kotlin.Result.failure(it) }
@@ -278,9 +293,11 @@ internal class TypingContext(
                         is TyBasic.List -> {
                             res.add(Ty.list(e))
                         }
+
                         is TyBasic.Dict -> {
                             res.add(Ty.dict(index.node, e))
                         }
+
                         else -> {
                             // Either it's not something we can apply this to, in which case do nothing.
                             // Or it's an Any, in which case we aren't going to change its type or spot errors.
@@ -289,6 +306,7 @@ internal class TypingContext(
                 }
                 kotlin.Result.success(Ty.unions(res))
             }
+
             is BindExpr.ListAppend -> {
                 val probablyList =
                     oracle
@@ -302,6 +320,7 @@ internal class TypingContext(
                     kotlin.Result.success(Ty.never())
                 }
             }
+
             is BindExpr.ListExtend -> {
                 val probablyList =
                     oracle
@@ -321,9 +340,18 @@ internal class TypingContext(
     /** Used to get the type of an expression when used as part of a ModifyAssign operation */
     private fun expressionAssign(x: CstAssignTarget): kotlin.Result<Ty> {
         return when (val node = x.node) {
-            is AssignTargetP.Tuple -> kotlin.Result.success(approximation("expression_assignment", x))
-            is AssignTargetP.Index -> exprIndex(x.span, node.expr, node.index)
-            is AssignTargetP.Dot -> kotlin.Result.success(approximation("expression_assignment", x))
+            is AssignTargetP.Tuple -> {
+                kotlin.Result.success(approximation("expression_assignment", x))
+            }
+
+            is AssignTargetP.Index -> {
+                exprIndex(x.span, node.expr, node.index)
+            }
+
+            is AssignTargetP.Dot -> {
+                kotlin.Result.success(approximation("expression_assignment", x))
+            }
+
             is AssignTargetP.Identifier<*, *> -> {
                 @Suppress("UNCHECKED_CAST")
                 val payload = node.ident.node.payload as? BindingId
@@ -463,12 +491,14 @@ internal class TypingContext(
 
     private fun exprIdent(x: CstIdent): Ty =
         when (val resolved = x.node.payload) {
-            is ResolvedIdent.Slot ->
+            is ResolvedIdent.Slot -> {
                 when (val slot = resolved.slot) {
-                    is Slot.Module ->
+                    is Slot.Module -> {
                         moduleVarTypes
                             .types[slot.id]
                             ?: Ty.any()
+                    }
+
                     is Slot.Local -> {
                         val ty = types[resolved.bindingId]
                         if (ty != null) {
@@ -480,9 +510,12 @@ internal class TypingContext(
                         }
                     }
                 }
+            }
+
             is ResolvedIdent.Global -> {
                 Ty.ofValue(resolved.value.toValue())
             }
+
             null -> {
                 // All identifiers must be resolved at this point,
                 // but we don't stop after scope resolution error,
@@ -502,34 +535,50 @@ internal class TypingContext(
                 }
                 kotlin.Result.success(Ty.tuple(elems))
             }
+
             is ExprP.Dot -> {
                 val aTy = expressionType(node.expr).getOrElse { return kotlin.Result.failure(it) }
                 kotlin.Result.success(exprDot(aTy, node.field.node, node.field.span))
             }
-            is ExprP.Call -> exprCall(span, node.expr, node.args)
-            is ExprP.Index -> exprIndex(span, node.expr, node.index)
+
+            is ExprP.Call -> {
+                exprCall(span, node.expr, node.args)
+            }
+
+            is ExprP.Index -> {
+                exprIndex(span, node.expr, node.index)
+            }
+
             is ExprP.Index2 -> {
                 expressionType(node.expr).getOrElse { return kotlin.Result.failure(it) }
                 expressionType(node.index0).getOrElse { return kotlin.Result.failure(it) }
                 expressionType(node.index1).getOrElse { return kotlin.Result.failure(it) }
                 kotlin.Result.success(Ty.any())
             }
-            is ExprP.Slice -> exprSlice(span, node.expr, node.start, node.stop, node.step)
+
+            is ExprP.Slice -> {
+                exprSlice(span, node.expr, node.start, node.stop, node.step)
+            }
+
             is ExprP.Identifier<*, *> -> {
                 @Suppress("UNCHECKED_CAST")
                 kotlin.Result.success(exprIdent(node.ident as CstIdent))
             }
+
             is ExprP.Lambda<*, *> -> {
                 approximation("We don't type check lambdas", Unit)
                 kotlin.Result.success(Ty.anyCallable())
             }
-            is ExprP.Literal ->
+
+            is ExprP.Literal -> {
                 when (node.literal) {
                     is AstLiteral.IntLit -> kotlin.Result.success(Ty.int())
                     is AstLiteral.FloatLit -> kotlin.Result.success(Ty.float())
                     is AstLiteral.StringLit -> kotlin.Result.success(Ty.string())
                     is AstLiteral.Ellipsis -> kotlin.Result.success(Ty.any())
                 }
+            }
+
             is ExprP.Not -> {
                 val ty = expressionType(node.expr).getOrElse { return kotlin.Result.failure(it) }
                 if (ty.isNever()) {
@@ -538,10 +587,23 @@ internal class TypingContext(
                     kotlin.Result.success(Ty.bool())
                 }
             }
-            is ExprP.Minus -> expressionUnOp(span, node.expr, TypingUnOp.MINUS)
-            is ExprP.Plus -> expressionUnOp(span, node.expr, TypingUnOp.PLUS)
-            is ExprP.BitNot -> expressionUnOp(span, node.expr, TypingUnOp.BIT_NOT)
-            is ExprP.Op -> exprBinOp(span, node.lhs, node.op, node.rhs)
+
+            is ExprP.Minus -> {
+                expressionUnOp(span, node.expr, TypingUnOp.MINUS)
+            }
+
+            is ExprP.Plus -> {
+                expressionUnOp(span, node.expr, TypingUnOp.PLUS)
+            }
+
+            is ExprP.BitNot -> {
+                expressionUnOp(span, node.expr, TypingUnOp.BIT_NOT)
+            }
+
+            is ExprP.Op -> {
+                exprBinOp(span, node.lhs, node.op, node.rhs)
+            }
+
             is ExprP.If -> {
                 val c = expressionType(node.cond).getOrElse { return kotlin.Result.failure(it) }
                 val t = expressionType(node.v1).getOrElse { return kotlin.Result.failure(it) }
@@ -552,6 +614,7 @@ internal class TypingContext(
                     kotlin.Result.success(Ty.union2(t, f))
                 }
             }
+
             is ExprP.ListExpr -> {
                 val ts = mutableListOf<Ty>()
                 for (elem in node.elements) {
@@ -560,6 +623,7 @@ internal class TypingContext(
                 }
                 kotlin.Result.success(Ty.list(Ty.unions(ts)))
             }
+
             is ExprP.Dict -> {
                 val ks = mutableListOf<Ty>()
                 val vs = mutableListOf<Ty>()
@@ -571,18 +635,23 @@ internal class TypingContext(
                 }
                 kotlin.Result.success(Ty.dict(Ty.unions(ks), Ty.unions(vs)))
             }
+
             is ExprP.ListComprehension -> {
                 checkComprehension(node.forClause, node.clauses).getOrElse { return kotlin.Result.failure(it) }
                 val bodyTy = expressionType(node.expr).getOrElse { return kotlin.Result.failure(it) }
                 kotlin.Result.success(Ty.list(bodyTy))
             }
+
             is ExprP.DictComprehension -> {
                 checkComprehension(node.forClause, node.clauses).getOrElse { return kotlin.Result.failure(it) }
                 val kTy = expressionType(node.key).getOrElse { return kotlin.Result.failure(it) }
                 val vTy = expressionType(node.value).getOrElse { return kotlin.Result.failure(it) }
                 kotlin.Result.success(Ty.dict(kTy, vTy))
             }
-            is ExprP.FString -> kotlin.Result.success(Ty.string())
+
+            is ExprP.FString -> {
+                kotlin.Result.success(Ty.string())
+            }
         }
     }
 }

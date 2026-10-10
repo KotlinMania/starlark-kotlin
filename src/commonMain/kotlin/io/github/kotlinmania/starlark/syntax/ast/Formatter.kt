@@ -73,8 +73,14 @@ internal fun TokenInt.toSourceString(): String =
 /** Formats AstLiteral to Starlark code representation. */
 internal fun AstLiteral.toSourceString(): String =
     when (this) {
-        is AstLiteral.IntLit -> value.node.toSourceString()
-        is AstLiteral.FloatLit -> value.node.toString()
+        is AstLiteral.IntLit -> {
+            value.node.toSourceString()
+        }
+
+        is AstLiteral.FloatLit -> {
+            value.node.toString()
+        }
+
         is AstLiteral.StringLit -> {
             val s = value.node
             val sb = StringBuilder()
@@ -93,7 +99,10 @@ internal fun AstLiteral.toSourceString(): String =
             sb.append('"')
             sb.toString()
         }
-        is AstLiteral.Ellipsis -> "..."
+
+        is AstLiteral.Ellipsis -> {
+            "..."
+        }
     }
 
 /** Formats ArgumentP to Starlark code representation. */
@@ -108,7 +117,10 @@ internal fun <P : AstPayload> ArgumentP<P>.toSourceString(): String =
 /** Formats ParameterP to Starlark code representation. */
 internal fun <P : AstPayload> ParameterP<P>.toSourceString(): String =
     when (this) {
-        is ParameterP.Slash -> "/"
+        is ParameterP.Slash -> {
+            "/"
+        }
+
         is ParameterP.Normal -> {
             val sb = StringBuilder()
             sb.append(name.node.ident)
@@ -126,7 +138,11 @@ internal fun <P : AstPayload> ParameterP<P>.toSourceString(): String =
             }
             sb.toString()
         }
-        is ParameterP.NoArgs -> "*"
+
+        is ParameterP.NoArgs -> {
+            "*"
+        }
+
         is ParameterP.Args -> {
             val sb = StringBuilder()
             sb
@@ -141,6 +157,7 @@ internal fun <P : AstPayload> ParameterP<P>.toSourceString(): String =
             }
             sb.toString()
         }
+
         is ParameterP.KwArgs -> {
             val sb = StringBuilder()
             sb
@@ -172,8 +189,14 @@ private fun <T> commaSeparatedFmt(list: List<T>, forTuple: Boolean, transform: (
 /** Formats ExprP to Starlark code representation. */
 internal fun <P : AstPayload> ExprP<P>.toSourceString(): String =
     when (this) {
-        is ExprP.Tuple -> "(" + commaSeparatedFmt(elements, true) { it.node.toSourceString() } + ")"
-        is ExprP.Dot -> "${expr.node.toSourceString()}.${field.node}"
+        is ExprP.Tuple -> {
+            "(" + commaSeparatedFmt(elements, true) { it.node.toSourceString() } + ")"
+        }
+
+        is ExprP.Dot -> {
+            "${expr.node.toSourceString()}.${field.node}"
+        }
+
         is ExprP.Call -> {
             val sb = StringBuilder()
             sb
@@ -186,8 +209,15 @@ internal fun <P : AstPayload> ExprP<P>.toSourceString(): String =
             sb.append(")")
             sb.toString()
         }
-        is ExprP.Index -> "${expr.node.toSourceString()}[${index.node.toSourceString()}]"
-        is ExprP.Index2 -> "${expr.node.toSourceString()}[${index0.node.toSourceString()}, ${index1.node.toSourceString()}]"
+
+        is ExprP.Index -> {
+            "${expr.node.toSourceString()}[${index.node.toSourceString()}]"
+        }
+
+        is ExprP.Index2 -> {
+            "${expr.node.toSourceString()}[${index0.node.toSourceString()}, ${index1.node.toSourceString()}]"
+        }
+
         is ExprP.Slice -> {
             val sb = StringBuilder()
             sb
@@ -204,7 +234,11 @@ internal fun <P : AstPayload> ExprP<P>.toSourceString(): String =
             sb.append("]")
             sb.toString()
         }
-        is ExprP.Identifier<*, *> -> ident.node.ident
+
+        is ExprP.Identifier<*, *> -> {
+            ident.node.ident
+        }
+
         is ExprP.Lambda<*, *> -> {
             val sb = StringBuilder()
             sb.append("(lambda ")
@@ -214,14 +248,39 @@ internal fun <P : AstPayload> ExprP<P>.toSourceString(): String =
             sb.append(")")
             sb.toString()
         }
-        is ExprP.Literal -> literal.toSourceString()
-        is ExprP.Not -> "(not ${expr.node.toSourceString()})"
-        is ExprP.Minus -> "-${expr.node.toSourceString()}"
-        is ExprP.Plus -> "+${expr.node.toSourceString()}"
-        is ExprP.BitNot -> "~${expr.node.toSourceString()}"
-        is ExprP.Op -> "(${lhs.node.toSourceString()}${op.toSourceString()}${rhs.node.toSourceString()})"
-        is ExprP.If -> "(${v1.node.toSourceString()} if ${cond.node.toSourceString()} else ${v2.node.toSourceString()})"
-        is ExprP.ListExpr -> "[" + commaSeparatedFmt(elements, false) { it.node.toSourceString() } + "]"
+
+        is ExprP.Literal -> {
+            literal.toSourceString()
+        }
+
+        is ExprP.Not -> {
+            "(not ${expr.node.toSourceString()})"
+        }
+
+        is ExprP.Minus -> {
+            "-${expr.node.toSourceString()}"
+        }
+
+        is ExprP.Plus -> {
+            "+${expr.node.toSourceString()}"
+        }
+
+        is ExprP.BitNot -> {
+            "~${expr.node.toSourceString()}"
+        }
+
+        is ExprP.Op -> {
+            "(${lhs.node.toSourceString()}${op.toSourceString()}${rhs.node.toSourceString()})"
+        }
+
+        is ExprP.If -> {
+            "(${v1.node.toSourceString()} if ${cond.node.toSourceString()} else ${v2.node.toSourceString()})"
+        }
+
+        is ExprP.ListExpr -> {
+            "[" + commaSeparatedFmt(elements, false) { it.node.toSourceString() } + "]"
+        }
+
         is ExprP.Dict -> {
             val elementsSource =
                 commaSeparatedFmt(elements, false) {
@@ -229,6 +288,7 @@ internal fun <P : AstPayload> ExprP<P>.toSourceString(): String =
                 }
             "{$elementsSource}"
         }
+
         is ExprP.ListComprehension -> {
             val sb = StringBuilder()
             sb
@@ -254,15 +314,18 @@ internal fun <P : AstPayload> ExprP<P>.toSourceString(): String =
                             .append(" in ")
                             .append(overSource)
                     }
-                    is ClauseP.If ->
+
+                    is ClauseP.If -> {
                         sb
                             .append(" if ")
                             .append(c.cond.node.toSourceString())
+                    }
                 }
             }
             sb.append("]")
             sb.toString()
         }
+
         is ExprP.DictComprehension -> {
             val sb = StringBuilder()
             sb
@@ -290,15 +353,18 @@ internal fun <P : AstPayload> ExprP<P>.toSourceString(): String =
                             .append(" in ")
                             .append(overSource)
                     }
-                    is ClauseP.If ->
+
+                    is ClauseP.If -> {
                         sb
                             .append(" if ")
                             .append(c.cond.node.toSourceString())
+                    }
                 }
             }
             sb.append("}")
             sb.toString()
         }
+
         is ExprP.FString -> {
             val sb = StringBuilder()
             sb
@@ -322,9 +388,18 @@ internal fun <P : AstPayload> AssignTargetP<P>.toSourceString(): String =
 /** Formats StmtP to Starlark code representation. */
 internal fun <P : AstPayload> StmtP<P>.toSourceString(tab: String = ""): String =
     when (this) {
-        is StmtP.Break -> "${tab}break\n"
-        is StmtP.Continue -> "${tab}continue\n"
-        is StmtP.Pass -> "${tab}pass\n"
+        is StmtP.Break -> {
+            "${tab}break\n"
+        }
+
+        is StmtP.Continue -> {
+            "${tab}continue\n"
+        }
+
+        is StmtP.Pass -> {
+            "${tab}pass\n"
+        }
+
         is StmtP.Return -> {
             if (expr != null) {
                 "${tab}return ${expr.node.toSourceString()}\n"
@@ -332,7 +407,11 @@ internal fun <P : AstPayload> StmtP<P>.toSourceString(tab: String = ""): String 
                 "${tab}return\n"
             }
         }
-        is StmtP.Expression -> "${tab}${expr.node.toSourceString()}\n"
+
+        is StmtP.Expression -> {
+            "${tab}${expr.node.toSourceString()}\n"
+        }
+
         is StmtP.Assign -> {
             val sb = StringBuilder()
             sb
@@ -351,7 +430,11 @@ internal fun <P : AstPayload> StmtP<P>.toSourceString(tab: String = ""): String 
                 .append("\n")
             sb.toString()
         }
-        is StmtP.AssignModify -> "${tab}${lhs.node.toSourceString()}${op.toSourceString()}${rhs.node.toSourceString()}\n"
+
+        is StmtP.AssignModify -> {
+            "${tab}${lhs.node.toSourceString()}${op.toSourceString()}${rhs.node.toSourceString()}\n"
+        }
+
         is StmtP.Statements -> {
             val sb = StringBuilder()
             for (s in stmts) {
@@ -359,6 +442,7 @@ internal fun <P : AstPayload> StmtP<P>.toSourceString(tab: String = ""): String 
             }
             sb.toString()
         }
+
         is StmtP.If -> {
             val sb = StringBuilder()
             sb
@@ -369,6 +453,7 @@ internal fun <P : AstPayload> StmtP<P>.toSourceString(tab: String = ""): String 
             sb.append(suite.node.toSourceString(tab + "  "))
             sb.toString()
         }
+
         is StmtP.IfElse -> {
             val sb = StringBuilder()
             sb
@@ -383,6 +468,7 @@ internal fun <P : AstPayload> StmtP<P>.toSourceString(tab: String = ""): String 
             sb.append(suite2.node.toSourceString(tab + "  "))
             sb.toString()
         }
+
         is StmtP.For -> {
             val sb = StringBuilder()
             sb
@@ -395,6 +481,7 @@ internal fun <P : AstPayload> StmtP<P>.toSourceString(tab: String = ""): String 
             sb.append(forStmt.body.node.toSourceString(tab + "  "))
             sb.toString()
         }
+
         is StmtP.Def<*, *> -> {
             val sb = StringBuilder()
             sb
@@ -415,6 +502,7 @@ internal fun <P : AstPayload> StmtP<P>.toSourceString(tab: String = ""): String 
             sb.append(def.body.node.toSourceString(tab + "  "))
             sb.toString()
         }
+
         is StmtP.Load<*, *> -> {
             val sb = StringBuilder()
             sb

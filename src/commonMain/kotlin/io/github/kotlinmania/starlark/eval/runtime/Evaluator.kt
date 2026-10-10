@@ -326,16 +326,21 @@ class Evaluator(
                 heapProfile.enable()
 
                 when (mode) {
-                    ProfileMode.HeapFlameRetained ->
+                    ProfileMode.HeapFlameRetained -> {
                         moduleEnv
                             .enableRetainedHeapProfile(RetainedHeapProfileMode.Flame)
-                    ProfileMode.HeapSummaryRetained ->
+                    }
+
+                    ProfileMode.HeapSummaryRetained -> {
                         moduleEnv
                             .enableRetainedHeapProfile(RetainedHeapProfileMode.Summary)
+                    }
+
                     ProfileMode.HeapRetained -> {
                         moduleEnv
                             .enableRetainedHeapProfile(RetainedHeapProfileMode.FlameAndSummary)
                     }
+
                     else -> {}
                 }
 
@@ -346,26 +351,32 @@ class Evaluator(
                 // to store a complete list of what happened in linear order.
                 disableGc = true
             }
+
             ProfileMode.Statement, ProfileMode.Coverage -> {
                 stmtProfile.enable()
                 beforeStmtFn { span, continued, eval -> eval.stmtProfile.beforeStmt(span) }
             }
+
             ProfileMode.TimeFlame -> {
                 timeFlameProfile.enable()
                 evalInstrumentation
                     .change { it.enableHeapOrFlameProfile() }
             }
+
             ProfileMode.Bytecode -> {
                 evalInstrumentation
                     .change { it.bcProfile.enable1() }
             }
+
             ProfileMode.BytecodePairs -> {
                 evalInstrumentation
                     .change { it.bcProfile.enable2() }
             }
+
             ProfileMode.Typecheck -> {
                 typecheckProfile.enabled = true
             }
+
             ProfileMode.None -> {}
         }
     }
@@ -382,40 +393,72 @@ class Evaluator(
                         EvaluatorError.ProfilingNotEnabled,
                     )
                 }
+
                 ProfileOrInstrumentationMode.Collected -> {
                     throw Error.newOther(
                         EvaluatorError.ProfileDataAlreadyCollected,
                     )
                 }
-                is ProfileOrInstrumentationMode.Profile -> pMode.mode
+
+                is ProfileOrInstrumentationMode.Profile -> {
+                    pMode.mode
+                }
             }
         profileOrInstrumentationMode = ProfileOrInstrumentationMode.Collected
         return when (mode) {
-            ProfileMode.HeapAllocated ->
+            ProfileMode.HeapAllocated -> {
                 heapProfile
                     .gen(heap(), HeapProfileFormat.FlameGraphAndSummary)
-            ProfileMode.HeapSummaryAllocated ->
+            }
+
+            ProfileMode.HeapSummaryAllocated -> {
                 heapProfile
                     .gen(heap(), HeapProfileFormat.Summary)
-            ProfileMode.HeapFlameAllocated ->
+            }
+
+            ProfileMode.HeapFlameAllocated -> {
                 heapProfile
                     .gen(heap(), HeapProfileFormat.FlameGraph)
+            }
+
             ProfileMode.HeapSummaryRetained,
             ProfileMode.HeapFlameRetained,
             ProfileMode.HeapRetained,
-            -> throw Error.newOther(
-                EvaluatorError.RetainedMemoryProfilingCannotBeObtainedFromEvaluator,
-            )
-            ProfileMode.Statement -> stmtProfile.gen()
-            ProfileMode.Coverage -> stmtProfile.genCoverage()
-            ProfileMode.Bytecode -> genBcProfile()
-            ProfileMode.BytecodePairs -> genBcPairsProfile()
-            ProfileMode.TimeFlame -> timeFlameProfile.gen()
-            ProfileMode.Typecheck -> typecheckProfile.gen()
-            ProfileMode.None ->
+            -> {
+                throw Error.newOther(
+                    EvaluatorError.RetainedMemoryProfilingCannotBeObtainedFromEvaluator,
+                )
+            }
+
+            ProfileMode.Statement -> {
+                stmtProfile.gen()
+            }
+
+            ProfileMode.Coverage -> {
+                stmtProfile.genCoverage()
+            }
+
+            ProfileMode.Bytecode -> {
+                genBcProfile()
+            }
+
+            ProfileMode.BytecodePairs -> {
+                genBcPairsProfile()
+            }
+
+            ProfileMode.TimeFlame -> {
+                timeFlameProfile.gen()
+            }
+
+            ProfileMode.Typecheck -> {
+                typecheckProfile.gen()
+            }
+
+            ProfileMode.None -> {
                 ProfileData(
                     profile = ProfileDataImpl.None,
                 )
+            }
         }
     }
 
@@ -545,12 +588,16 @@ class Evaluator(
         val name =
             try {
                 when (val frozenModule = topFrameDefFrozenModule(false)) {
-                    null ->
+                    null -> {
                         moduleEnv
                             .mutableNames()
                             .getSlot(slot)
                             ?.asStr()
-                    else -> frozenModule.asRef().getSlotName(slot)?.asStr()
+                    }
+
+                    else -> {
+                        frozenModule.asRef().getSlotName(slot)?.asStr()
+                    }
                 }
             } catch (e: Exception) {
                 null
@@ -626,6 +673,7 @@ class Evaluator(
                 currentFrame.setSlot(copy.parent, newValueCaptured)
                 newValueCaptured
             }
+
             else -> {
                 check(
                     valueCaptured.downcastRef<ValueCaptured>() != null ||
@@ -670,6 +718,7 @@ class Evaluator(
                 val newValueCaptured = heap().allocComplex(ValueCaptured.new(value))
                 currentFrame.setSlot(localSlot.toCapturedOrNot(), newValueCaptured)
             }
+
             else -> {
                 val vc =
                     valueCaptured.downcastRef<ValueCaptured>()
@@ -847,18 +896,25 @@ class Evaluator(
         } else {
             val mode =
                 when {
-                    evalInstrumentation.beforeStmt.enabled() && !evalInstrumentation.bcProfile.enabled() ->
+                    evalInstrumentation.beforeStmt.enabled() && !evalInstrumentation.bcProfile.enabled() -> {
                         EvalCallbacksMode.BeforeStmt
-                    !evalInstrumentation.beforeStmt.enabled() && evalInstrumentation.bcProfile.enabled() ->
+                    }
+
+                    !evalInstrumentation.beforeStmt.enabled() && evalInstrumentation.bcProfile.enabled() -> {
                         EvalCallbacksMode.BcProfile
-                    evalInstrumentation.beforeStmt.enabled() && evalInstrumentation.bcProfile.enabled() ->
+                    }
+
+                    evalInstrumentation.beforeStmt.enabled() && evalInstrumentation.bcProfile.enabled() -> {
                         return Result.failure(
                             EvalException("both before_stmt and bc_profile are enabled"),
                         )
-                    else ->
+                    }
+
+                    else -> {
                         return Result.failure(
                             EvalException("neither before_stmt nor bc_profile are enabled"),
                         )
+                    }
                 }
             return bc.run(
                 this,
@@ -956,7 +1012,10 @@ internal class EvalCallbacksEnabled(
             EvalCallbacksMode.BcProfile -> {
                 eval.evalInstrumentation.bcProfile.beforeInstr(opcode)
             }
-            EvalCallbacksMode.BeforeStmt -> beforeStmt(eval, ip)
+
+            EvalCallbacksMode.BeforeStmt -> {
+                beforeStmt(eval, ip)
+            }
         }
     }
 }

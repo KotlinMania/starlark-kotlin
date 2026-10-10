@@ -196,9 +196,18 @@ internal fun Heap.allocStrConcat(x: String, y: String): StringValue {
 /** Allocate a string on the heap, based on three concatenated strings. */
 internal fun Heap.allocStrConcat3(x: String, y: String, z: String): StringValue =
     when {
-        x.isEmpty() -> allocStrConcat(y, z)
-        y.isEmpty() -> allocStrConcat(x, z)
-        z.isEmpty() -> allocStrConcat(x, y)
+        x.isEmpty() -> {
+            allocStrConcat(y, z)
+        }
+
+        y.isEmpty() -> {
+            allocStrConcat(x, z)
+        }
+
+        z.isEmpty() -> {
+            allocStrConcat(x, y)
+        }
+
         else -> {
             val combined = x + y + z
             val bytes = combined.encodeToByteArray()

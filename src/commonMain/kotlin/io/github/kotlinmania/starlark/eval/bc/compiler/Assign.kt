@@ -48,15 +48,20 @@ internal fun AssignCompiledValue.markDefinitelyAssignedAfter(bc: BcWriter) {
             @Suppress("UNUSED_EXPRESSION")
             field
         }
+
         is AssignCompiledValue.Module -> {}
+
         is AssignCompiledValue.Index -> {
             array.node.markDefinitelyAssignedAfter(bc)
             index.node.markDefinitelyAssignedAfter(bc)
         }
+
         is AssignCompiledValue.LocalCaptured -> {}
+
         is AssignCompiledValue.Local -> {
             bc.markDefinitelyAssigned(slot)
         }
+
         is AssignCompiledValue.Tuple -> {
             for (x in elements) {
                 x.node.markDefinitelyAssignedAfter(bc)
@@ -84,11 +89,13 @@ internal fun IrSpanned<AssignCompiledValue>.writeBc(value: BcSlotIn, bc: BcWrite
                 bc2.writeInstr("InstrSetObjectField", span, Triple(value, objectSlot, symbol))
             }
         }
+
         is AssignCompiledValue.Index -> {
             writeNExprs(listOf(n.array, n.index), bc) { slots, bc2 ->
                 bc2.writeInstr("InstrSetArrayIndex", span, Triple(value, slots[0], slots[1]))
             }
         }
+
         is AssignCompiledValue.Tuple -> {
             // All assignments are to local variables, e.g.
             // ```
@@ -119,12 +126,15 @@ internal fun IrSpanned<AssignCompiledValue>.writeBc(value: BcSlotIn, bc: BcWrite
                 }
             }
         }
+
         is AssignCompiledValue.Local -> {
             bc.writeMov(span, value, n.slot.toBcSlot().toOut())
         }
+
         is AssignCompiledValue.LocalCaptured -> {
             bc.writeStoreLocalCaptured(span, value, n.slot)
         }
+
         is AssignCompiledValue.Module -> {
             bc.writeInstr("InstrStoreModuleAndExport", span, Triple(value, n.slot, n.name))
         }

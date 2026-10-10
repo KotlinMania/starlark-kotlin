@@ -74,23 +74,40 @@ private val TYPES: Map<String, String> =
 
 private fun AstStmt.visitStmt(visitor: (AstStmt) -> Unit) {
     when (val s = this.node) {
-        is StmtP.Statements<AstNoPayload> -> s.stmts.forEach(visitor)
-        is StmtP.Def<AstNoPayload, *> -> visitor(s.def.body)
+        is StmtP.Statements<AstNoPayload> -> {
+            s.stmts.forEach(visitor)
+        }
+
+        is StmtP.Def<AstNoPayload, *> -> {
+            visitor(s.def.body)
+        }
+
         else -> {}
     }
 }
 
 private fun AstStmt.visitStmtChildrenExpr(visitor: (AstExpr) -> Unit) {
     when (val s = this.node) {
-        is StmtP.Expression<AstNoPayload> -> visitor(s.expr)
-        is StmtP.Statements<AstNoPayload> -> s.stmts.forEach { it.visitStmtChildrenExpr(visitor) }
-        is StmtP.Def<AstNoPayload, *> -> s.def.body.visitStmtChildrenExpr(visitor)
+        is StmtP.Expression<AstNoPayload> -> {
+            visitor(s.expr)
+        }
+
+        is StmtP.Statements<AstNoPayload> -> {
+            s.stmts.forEach { it.visitStmtChildrenExpr(visitor) }
+        }
+
+        is StmtP.Def<AstNoPayload, *> -> {
+            s.def.body.visitStmtChildrenExpr(visitor)
+        }
+
         is StmtP.Assign<AstNoPayload> -> {
             visitor(s.assign.rhs)
         }
+
         is StmtP.AssignModify<AstNoPayload> -> {
             visitor(s.rhs)
         }
+
         else -> {}
     }
 }
@@ -103,18 +120,26 @@ private fun AstExpr.visitExprChildren(visitor: (AstExpr) -> Unit) {
                 visitor(arg.node.expr())
             }
         }
+
         is ExprP.Op<AstNoPayload> -> {
             visitor(e.lhs)
             visitor(e.rhs)
         }
+
         else -> {}
     }
 }
 
 private fun AstAssignTarget.visitLvalue(visitor: (AstAssignIdentP<AstNoPayload, *>) -> Unit) {
     when (val t = this.node) {
-        is AssignTargetP.Identifier<AstNoPayload, *> -> visitor(t.ident)
-        is AssignTargetP.Tuple<AstNoPayload> -> t.elements.forEach { it.visitLvalue(visitor) }
+        is AssignTargetP.Identifier<AstNoPayload, *> -> {
+            visitor(t.ident)
+        }
+
+        is AssignTargetP.Tuple<AstNoPayload> -> {
+            t.elements.forEach { it.visitLvalue(visitor) }
+        }
+
         else -> {} // Index, Dot don't contain identifiers
     }
 }
@@ -136,7 +161,10 @@ private fun isTypeCall(x: AstExpr): Boolean =
                 false
             }
         }
-        else -> false
+
+        else -> {
+            false
+        }
     }
 
 private fun matchBadTypeEquality(
@@ -163,6 +191,7 @@ private fun matchBadTypeEquality(
                 }
             }
         }
+
         else -> {}
     }
 }
@@ -234,21 +263,30 @@ internal fun duplicateTopLevelAssignment(module: AstModule, res: MutableList<Lin
                         // But only allow one export
                         exported.add(lhsNode.ident.node.ident)
                     }
-                    else -> s.assign.lhs.visitLvalue { ident(it, false, codemap, defined, res) }
+
+                    else -> {
+                        s.assign.lhs.visitLvalue { ident(it, false, codemap, defined, res) }
+                    }
                 }
             }
+
             is StmtP.AssignModify<AstNoPayload> -> {
                 s.lhs.visitLvalue { ident(it, false, codemap, defined, res) }
             }
+
             is StmtP.Def<AstNoPayload, *> -> {
                 ident(s.def.name, false, codemap, defined, res)
             }
+
             is StmtP.Load<AstNoPayload, *> -> {
                 for (arg in s.loadStmt.args) {
                     ident(arg.local, true, codemap, defined, res)
                 }
             }
-            else -> x.visitStmt { stmt(it, codemap, defined, exported, res) }
+
+            else -> {
+                x.visitStmt { stmt(it, codemap, defined, exported, res) }
+            }
         }
     }
 

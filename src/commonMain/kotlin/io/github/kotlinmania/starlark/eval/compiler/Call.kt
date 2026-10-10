@@ -161,14 +161,21 @@ internal class CallCompiled(
             val paramCount = ctx.paramCount
             val exprToValue = { e: ExprCompiled ->
                 when (e) {
-                    is ExprCompiled.ValueExpr -> e.value.toValue()
-                    is ExprCompiled.Local ->
+                    is ExprCompiled.ValueExpr -> {
+                        e.value.toValue()
+                    }
+
+                    is ExprCompiled.Local -> {
                         if (e.slot.index < paramCount) {
                             localAsValue(e.slot)?.toValue()
                         } else {
                             null
                         }
-                    else -> null
+                    }
+
+                    else -> {
+                        null
+                    }
                 }
             }
 

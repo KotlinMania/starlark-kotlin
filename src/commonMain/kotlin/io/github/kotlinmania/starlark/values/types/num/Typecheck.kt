@@ -74,14 +74,18 @@ internal fun typecheckNumBinOp(lhs: NumTy, op: TypingBinOp, rhs: TyBasic): Ty? {
             TypingBinOp.FLOOR_DIV,
             TypingBinOp.PERCENT,
             -> BinOpClass.Add
+
             TypingBinOp.DIV -> BinOpClass.Div
+
             TypingBinOp.BIT_OR,
             TypingBinOp.BIT_XOR,
             TypingBinOp.BIT_AND,
             TypingBinOp.LEFT_SHIFT,
             TypingBinOp.RIGHT_SHIFT,
             -> BinOpClass.BitAnd
+
             TypingBinOp.IN -> BinOpClass.In
+
             TypingBinOp.LESS -> BinOpClass.Less
         }
 
@@ -93,7 +97,7 @@ internal fun typecheckNumBinOp(lhs: NumTy, op: TypingBinOp, rhs: TyBasic): Ty? {
         opClass == BinOpClass.Add && rhsTy is NumRhsTy.Num && rhsTy.value == NumTy.Float -> Ty.float()
         opClass == BinOpClass.Add && rhsTy is NumRhsTy.Any -> intOrFloat()
         opClass == BinOpClass.Div -> Ty.float()
-        lhs == NumTy.Int && opClass == BinOpClass.BitAnd && (rhsTy is NumRhsTy.Num && rhsTy.value == NumTy.Int || rhsTy is NumRhsTy.Any) -> Ty.int()
+        lhs == NumTy.Int && opClass == BinOpClass.BitAnd && ((rhsTy is NumRhsTy.Num && rhsTy.value == NumTy.Int) || rhsTy is NumRhsTy.Any) -> Ty.int()
         opClass == BinOpClass.BitAnd -> null
         else -> null
     }

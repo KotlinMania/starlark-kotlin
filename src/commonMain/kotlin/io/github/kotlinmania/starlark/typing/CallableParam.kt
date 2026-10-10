@@ -60,26 +60,63 @@ internal sealed class ParamMode : Comparable<ParamMode> {
 
     override fun compareTo(other: ParamMode): Int =
         when {
-            this is PosOnly && other is PosOnly -> required.compareTo(other.required)
-            this is PosOnly -> -1
-            other is PosOnly -> 1
+            this is PosOnly && other is PosOnly -> {
+                required.compareTo(other.required)
+            }
+
+            this is PosOnly -> {
+                -1
+            }
+
+            other is PosOnly -> {
+                1
+            }
+
             this is PosOrName && other is PosOrName -> {
                 val cmp = name.compareTo(other.name)
                 if (cmp != 0) cmp else required.compareTo(other.required)
             }
-            this is PosOrName -> -1
-            other is PosOrName -> 1
+
+            this is PosOrName -> {
+                -1
+            }
+
+            other is PosOrName -> {
+                1
+            }
+
             this is NameOnly && other is NameOnly -> {
                 val cmp = name.compareTo(other.name)
                 if (cmp != 0) cmp else required.compareTo(other.required)
             }
-            this is NameOnly -> -1
-            other is NameOnly -> 1
-            this is Args && other is Args -> 0
-            this is Args -> -1
-            other is Args -> 1
-            this is Kwargs && other is Kwargs -> 0
-            else -> 1
+
+            this is NameOnly -> {
+                -1
+            }
+
+            other is NameOnly -> {
+                1
+            }
+
+            this is Args && other is Args -> {
+                0
+            }
+
+            this is Args -> {
+                -1
+            }
+
+            other is Args -> {
+                1
+            }
+
+            this is Kwargs && other is Kwargs -> {
+                0
+            }
+
+            else -> {
+                1
+            }
         }
 }
 

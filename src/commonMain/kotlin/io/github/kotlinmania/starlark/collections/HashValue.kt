@@ -35,21 +35,44 @@ data class StarlarkHashValue private constructor(
         fun new(key: Any?): StarlarkHashValue {
             val hasher = StarlarkHasher()
             when (key) {
-                null -> hasher.writeU8(0u)
-                is Boolean -> hasher.writeU8(if (key) 1u else 0u)
-                is Int -> hasher.writeU32(key)
-                is UInt -> hasher.writeU32(key)
-                is Long -> hasher.writeU64(key.toULong())
-                is ULong -> hasher.writeU64(key)
-                is ByteArray -> hasher.write(key)
+                null -> {
+                    hasher.writeU8(0u)
+                }
+
+                is Boolean -> {
+                    hasher.writeU8(if (key) 1u else 0u)
+                }
+
+                is Int -> {
+                    hasher.writeU32(key)
+                }
+
+                is UInt -> {
+                    hasher.writeU32(key)
+                }
+
+                is Long -> {
+                    hasher.writeU64(key.toULong())
+                }
+
+                is ULong -> {
+                    hasher.writeU64(key)
+                }
+
+                is ByteArray -> {
+                    hasher.write(key)
+                }
+
                 is String -> {
                     hasher.write(key.encodeToByteArray())
                     hasher.writeU8(0xffu)
                 }
+
                 is io.github.kotlinmania.starlark.values.layout.typed.StringValueLike -> {
                     hasher.write(key.asStrValue().encodeToByteArray())
                     hasher.writeU8(0xffu)
                 }
+
                 is io.github.kotlinmania.starlark.values.layout.ValueLike -> {
                     val v = key.toValue()
                     val str = v.unpackStarlarkStr()
@@ -59,8 +82,14 @@ data class StarlarkHashValue private constructor(
                         v.getHash().getOrThrow()
                     }
                 }
-                is StarlarkHashable -> key.writeHash(hasher)
-                else -> hasher.writeU32(key.hashCode())
+
+                is StarlarkHashable -> {
+                    key.writeHash(hasher)
+                }
+
+                else -> {
+                    hasher.writeU32(key.hashCode())
+                }
             }
             return hasher.finishSmall()
         }

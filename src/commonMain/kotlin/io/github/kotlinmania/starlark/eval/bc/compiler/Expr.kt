@@ -125,60 +125,84 @@ internal fun writeNExprs(
 internal fun ExprCompiled.markDefinitelyAssignedAfter(bc: BcWriter) {
     when (this) {
         is ExprCompiled.ValueExpr -> {}
-        is ExprCompiled.Local -> bc.markDefinitelyAssigned(slot)
+
+        is ExprCompiled.Local -> {
+            bc.markDefinitelyAssigned(slot)
+        }
+
         is ExprCompiled.LocalCaptured -> {}
+
         is ExprCompiled.Module -> {}
+
         is ExprCompiled.TupleExpr -> {
             for (x in elements) {
                 x.node.markDefinitelyAssignedAfter(bc)
             }
         }
+
         is ExprCompiled.ListExpr -> {
             for (x in elements) {
                 x.node.markDefinitelyAssignedAfter(bc)
             }
         }
+
         is ExprCompiled.DictExpr -> {
             for ((k, v) in entries) {
                 k.node.markDefinitelyAssignedAfter(bc)
                 v.node.markDefinitelyAssignedAfter(bc)
             }
         }
-        is ExprCompiled.Compr -> compr.markDefinitelyAssignedAfterCompr(bc)
+
+        is ExprCompiled.Compr -> {
+            compr.markDefinitelyAssignedAfterCompr(bc)
+        }
+
         is ExprCompiled.If -> {
             // Condition is executed unconditionally, so we use it to mark definitely assigned.
             // But we don't know which of the branches will be executed.
             cond.node.markDefinitelyAssignedAfter(bc)
         }
+
         is ExprCompiled.Slice -> {
             obj.node.markDefinitelyAssignedAfter(bc)
             start?.node?.markDefinitelyAssignedAfter(bc)
             stop?.node?.markDefinitelyAssignedAfter(bc)
             step?.node?.markDefinitelyAssignedAfter(bc)
         }
+
         is ExprCompiled.Builtin1Expr -> {
             expr.node.markDefinitelyAssignedAfter(bc)
         }
+
         is ExprCompiled.LogicalBinOp -> {
             // `lhs` is executed unconditionally, but `rhs` is not,
             // so we mark only `lhs` as definitely assigned.
             lhs.node.markDefinitelyAssignedAfter(bc)
         }
+
         is ExprCompiled.Seq -> {
             first.node.markDefinitelyAssignedAfter(bc)
             second.node.markDefinitelyAssignedAfter(bc)
         }
+
         is ExprCompiled.Builtin2Expr -> {
             lhs.node.markDefinitelyAssignedAfter(bc)
             rhs.node.markDefinitelyAssignedAfter(bc)
         }
+
         is ExprCompiled.Index2 -> {
             obj.node.markDefinitelyAssignedAfter(bc)
             index0.node.markDefinitelyAssignedAfter(bc)
             index1.node.markDefinitelyAssignedAfter(bc)
         }
-        is ExprCompiled.Call -> call.node.markDefinitelyAssignedAfterCall(bc)
-        is ExprCompiled.Def -> def.markDefinitelyAssignedAfterDef(bc)
+
+        is ExprCompiled.Call -> {
+            call.node.markDefinitelyAssignedAfterCall(bc)
+        }
+
+        is ExprCompiled.Def -> {
+            def.markDefinitelyAssignedAfterDef(bc)
+        }
     }
 }
 
@@ -328,20 +352,25 @@ internal fun IrSpanned<ExprCompiled>.writeBc(target: BcSlotOut, bc: BcWriter) {
         is ExprCompiled.ValueExpr -> {
             bc.writeConst(span, expr.value, target)
         }
+
         is ExprCompiled.Local -> {
             bc.writeLoadLocal(span, expr.slot, target)
         }
+
         is ExprCompiled.LocalCaptured -> {
             bc.writeLoadLocalCaptured(span, expr.slot, target)
         }
+
         is ExprCompiled.Module -> {
             bc.writeInstr("InstrLoadModule", span, expr.slot to target)
         }
+
         is ExprCompiled.TupleExpr -> {
             writeExprs(expr.elements, bc) { xs, bc2 ->
                 bc2.writeInstr("InstrTupleNPop", span, SlotRangeTargetArg(xs, target))
             }
         }
+
         is ExprCompiled.ListExpr -> {
             if (expr.elements.isEmpty()) {
                 bc.writeInstr("InstrListNew", span, target)
@@ -354,8 +383,15 @@ internal fun IrSpanned<ExprCompiled>.writeBc(target: BcSlotOut, bc: BcWriter) {
                 }
             }
         }
-        is ExprCompiled.DictExpr -> writeDict(span, expr.entries, target, bc)
-        is ExprCompiled.Compr -> expr.compr.comprWriteBc(span, target, bc)
+
+        is ExprCompiled.DictExpr -> {
+            writeDict(span, expr.entries, target, bc)
+        }
+
+        is ExprCompiled.Compr -> {
+            expr.compr.comprWriteBc(span, target, bc)
+        }
+
         is ExprCompiled.Slice -> {
             expr.obj.writeBcCb(bc) { l, bc2 ->
                 writeExprOpt(expr.start, bc2) { start, bc3 ->
@@ -367,6 +403,7 @@ internal fun IrSpanned<ExprCompiled>.writeBc(target: BcSlotOut, bc: BcWriter) {
                 }
             }
         }
+
         is ExprCompiled.Builtin1Expr -> {
             if (expr.op is Builtin1.Not) {
                 writeNot(expr.expr, target, bc)
@@ -374,13 +411,26 @@ internal fun IrSpanned<ExprCompiled>.writeBc(target: BcSlotOut, bc: BcWriter) {
                 expr.expr.writeBcCb(bc) { slot, bc2 ->
                     val arg = slot to target
                     when (expr.op) {
-                        is Builtin1.Not -> error("handled above")
-                        is Builtin1.Minus -> bc2.writeInstr("InstrMinus", span, arg)
-                        is Builtin1.Plus -> bc2.writeInstr("InstrPlus", span, arg)
-                        is Builtin1.BitNot -> bc2.writeInstr("InstrBitNot", span, arg)
+                        is Builtin1.Not -> {
+                            error("handled above")
+                        }
+
+                        is Builtin1.Minus -> {
+                            bc2.writeInstr("InstrMinus", span, arg)
+                        }
+
+                        is Builtin1.Plus -> {
+                            bc2.writeInstr("InstrPlus", span, arg)
+                        }
+
+                        is Builtin1.BitNot -> {
+                            bc2.writeInstr("InstrBitNot", span, arg)
+                        }
+
                         is Builtin1.TypeIs -> {
                             bc2.writeInstr("InstrTypeIs", span, Triple(slot, expr.op.type, target))
                         }
+
                         is Builtin1.PercentSOne -> {
                             bc2.writeInstr(
                                 "InstrPercentSOne",
@@ -389,6 +439,7 @@ internal fun IrSpanned<ExprCompiled>.writeBc(target: BcSlotOut, bc: BcWriter) {
                                     .PercentSOneArg(expr.op.before, slot, expr.op.after, target),
                             )
                         }
+
                         is Builtin1.FormatOne -> {
                             bc2.writeInstr(
                                 "InstrFormatOne",
@@ -397,6 +448,7 @@ internal fun IrSpanned<ExprCompiled>.writeBc(target: BcSlotOut, bc: BcWriter) {
                                     .PercentSOneArg(expr.op.before, slot, expr.op.after, target),
                             )
                         }
+
                         is Builtin1.Dot -> {
                             bc2.writeInstr(
                                 "InstrObjectField",
@@ -408,6 +460,7 @@ internal fun IrSpanned<ExprCompiled>.writeBc(target: BcSlotOut, bc: BcWriter) {
                 }
             }
         }
+
         is ExprCompiled.If -> {
             writeIfElse(
                 expr.cond,
@@ -416,6 +469,7 @@ internal fun IrSpanned<ExprCompiled>.writeBc(target: BcSlotOut, bc: BcWriter) {
                 bc,
             )
         }
+
         is ExprCompiled.LogicalBinOp -> {
             expr.lhs.writeBcCb(bc) { lSlot, bc2 ->
                 val maybeNot =
@@ -432,10 +486,12 @@ internal fun IrSpanned<ExprCompiled>.writeBc(target: BcSlotOut, bc: BcWriter) {
                 )
             }
         }
+
         is ExprCompiled.Seq -> {
             expr.first.writeBcForEffect(bc)
             expr.second.writeBc(target, bc)
         }
+
         is ExprCompiled.Builtin2Expr -> {
             if (expr.op == Builtin2.Equals) {
                 writeEquals(span, expr.lhs, expr.rhs, target, bc)
@@ -445,38 +501,88 @@ internal fun IrSpanned<ExprCompiled>.writeBc(target: BcSlotOut, bc: BcWriter) {
                     val r = slots[1]
                     val arg = Triple(l, r, target)
                     when (expr.op) {
-                        Builtin2.Equals -> error("handled above")
-                        Builtin2.In -> bc2.writeInstr("InstrIn", span, arg)
-                        Builtin2.Sub -> bc2.writeInstr("InstrSub", span, arg)
-                        Builtin2.Add -> bc2.writeInstr("InstrAdd", span, arg)
-                        Builtin2.Multiply -> bc2.writeInstr("InstrMultiply", span, arg)
-                        Builtin2.Divide -> bc2.writeInstr("InstrDivide", span, arg)
-                        Builtin2.FloorDivide -> bc2.writeInstr("InstrFloorDivide", span, arg)
-                        Builtin2.Percent -> bc2.writeInstr("InstrPercent", span, arg)
-                        Builtin2.BitAnd -> bc2.writeInstr("InstrBitAnd", span, arg)
-                        Builtin2.BitOr -> bc2.writeInstr("InstrBitOr", span, arg)
-                        Builtin2.BitXor -> bc2.writeInstr("InstrBitXor", span, arg)
-                        Builtin2.LeftShift -> bc2.writeInstr("InstrLeftShift", span, arg)
-                        Builtin2.RightShift -> bc2.writeInstr("InstrRightShift", span, arg)
-                        Builtin2.ArrayIndex -> bc2.writeInstr("InstrArrayIndex", span, arg)
-                        is Builtin2.Compare ->
+                        Builtin2.Equals -> {
+                            error("handled above")
+                        }
+
+                        Builtin2.In -> {
+                            bc2.writeInstr("InstrIn", span, arg)
+                        }
+
+                        Builtin2.Sub -> {
+                            bc2.writeInstr("InstrSub", span, arg)
+                        }
+
+                        Builtin2.Add -> {
+                            bc2.writeInstr("InstrAdd", span, arg)
+                        }
+
+                        Builtin2.Multiply -> {
+                            bc2.writeInstr("InstrMultiply", span, arg)
+                        }
+
+                        Builtin2.Divide -> {
+                            bc2.writeInstr("InstrDivide", span, arg)
+                        }
+
+                        Builtin2.FloorDivide -> {
+                            bc2.writeInstr("InstrFloorDivide", span, arg)
+                        }
+
+                        Builtin2.Percent -> {
+                            bc2.writeInstr("InstrPercent", span, arg)
+                        }
+
+                        Builtin2.BitAnd -> {
+                            bc2.writeInstr("InstrBitAnd", span, arg)
+                        }
+
+                        Builtin2.BitOr -> {
+                            bc2.writeInstr("InstrBitOr", span, arg)
+                        }
+
+                        Builtin2.BitXor -> {
+                            bc2.writeInstr("InstrBitXor", span, arg)
+                        }
+
+                        Builtin2.LeftShift -> {
+                            bc2.writeInstr("InstrLeftShift", span, arg)
+                        }
+
+                        Builtin2.RightShift -> {
+                            bc2.writeInstr("InstrRightShift", span, arg)
+                        }
+
+                        Builtin2.ArrayIndex -> {
+                            bc2.writeInstr("InstrArrayIndex", span, arg)
+                        }
+
+                        is Builtin2.Compare -> {
                             when (expr.op.op) {
                                 CompareOp.Less -> bc2.writeInstr("InstrLess", span, arg)
                                 CompareOp.Greater -> bc2.writeInstr("InstrGreater", span, arg)
                                 CompareOp.LessOrEqual -> bc2.writeInstr("InstrLessOrEqual", span, arg)
                                 CompareOp.GreaterOrEqual -> bc2.writeInstr("InstrGreaterOrEqual", span, arg)
                             }
+                        }
                     }
                 }
             }
         }
+
         is ExprCompiled.Index2 -> {
             writeNExprs(listOf(expr.obj, expr.index0, expr.index1), bc) { slots, bc2 ->
                 bc2.writeInstr("InstrArrayIndex2", span, ArrayIndex2Arg(slots[0], slots[1], slots[2], target))
             }
         }
-        is ExprCompiled.Call -> expr.call.writeBcCall(target, bc)
-        is ExprCompiled.Def -> expr.def.defWriteBc(span, target, bc)
+
+        is ExprCompiled.Call -> {
+            expr.call.writeBcCall(target, bc)
+        }
+
+        is ExprCompiled.Def -> {
+            expr.def.defWriteBc(span, target, bc)
+        }
     }
 }
 

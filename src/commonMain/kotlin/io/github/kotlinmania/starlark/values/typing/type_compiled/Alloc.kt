@@ -90,9 +90,18 @@ interface TypeMatcherAlloc<R> {
     fun ty(ty: Ty): R {
         val union = ty.iterUnion()
         return when (union.size) {
-            0 -> never()
-            1 -> tyBasic(union[0])
-            2 -> anyOfTwoBasic(union[0], union[1])
+            0 -> {
+                never()
+            }
+
+            1 -> {
+                tyBasic(union[0])
+            }
+
+            2 -> {
+                anyOfTwoBasic(union[0], union[1])
+            }
+
             else -> {
                 val matchers = union.map { TypeMatcherBoxAlloc.tyBasic(it) }
                 if (matchers.any { it.isWildcard() }) {
@@ -117,10 +126,22 @@ interface TypeMatcherAlloc<R> {
     /** `A | B`. */
     fun anyOfTwoBasic(ty0: TyBasic, ty1: TyBasic): R =
         when {
-            ty0 is TyBasic.Any -> tyBasic(ty1)
-            ty1 is TyBasic.Any -> tyBasic(ty0)
-            ty0 == TyBasic.none() -> noneOrBasic(ty1)
-            ty1 == TyBasic.none() -> noneOrBasic(ty0)
+            ty0 is TyBasic.Any -> {
+                tyBasic(ty1)
+            }
+
+            ty1 is TyBasic.Any -> {
+                tyBasic(ty0)
+            }
+
+            ty0 == TyBasic.none() -> {
+                noneOrBasic(ty1)
+            }
+
+            ty1 == TyBasic.none() -> {
+                noneOrBasic(ty0)
+            }
+
             else -> {
                 val m0 = TypeMatcherBoxAlloc.tyBasic(ty0)
                 val m1 = TypeMatcherBoxAlloc.tyBasic(ty1)
@@ -183,8 +204,14 @@ interface TypeMatcherAlloc<R> {
     /** `list[Item]`. */
     fun listOf(item: Ty): R =
         when {
-            item.isAny() -> list()
-            item.iterUnion().size == 1 -> listOfBasic(item.iterUnion()[0])
+            item.isAny() -> {
+                list()
+            }
+
+            item.iterUnion().size == 1 -> {
+                listOfBasic(item.iterUnion()[0])
+            }
+
             else -> {
                 val matcher = TypeMatcherBoxAlloc.ty(item)
                 listOfMatcher(matcher)
@@ -210,8 +237,14 @@ interface TypeMatcherAlloc<R> {
     /** `dict[Key, Value]`. */
     fun dictOf(k: Ty, v: Ty): R =
         when {
-            k.isAny() && v.isAny() -> dict()
-            k.isStarlarkValue() != null -> dictOfStarlarkValueToSomething(k.isStarlarkValue()!!, v)
+            k.isAny() && v.isAny() -> {
+                dict()
+            }
+
+            k.isStarlarkValue() != null -> {
+                dictOfStarlarkValueToSomething(k.isStarlarkValue()!!, v)
+            }
+
             else -> {
                 val km = TypeMatcherBoxAlloc.ty(k)
                 val vm = TypeMatcherBoxAlloc.ty(v)
@@ -245,8 +278,14 @@ interface TypeMatcherAlloc<R> {
     /** `set[Item]`. */
     fun setOf(item: Ty): R =
         when {
-            item.isAny() -> set()
-            item.iterUnion().size == 1 -> setOfBasic(item.iterUnion()[0])
+            item.isAny() -> {
+                set()
+            }
+
+            item.iterUnion().size == 1 -> {
+                setOfBasic(item.iterUnion()[0])
+            }
+
             else -> {
                 val matcher = TypeMatcherBoxAlloc.ty(item)
                 setOfMatcher(matcher)

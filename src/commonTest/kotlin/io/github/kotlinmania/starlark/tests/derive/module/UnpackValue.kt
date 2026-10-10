@@ -95,12 +95,16 @@ private fun validateModule(builder: GlobalsBuilder) {
         val v = args.positional<Either<Int, Either<String, ValueOf<UnpackList<Int>>>>>(0)
         val result =
             when (v) {
-                is Either.Left -> v.value.toString()
-                is Either.Right ->
+                is Either.Left -> {
+                    v.value.toString()
+                }
+
+                is Either.Right -> {
                     when (val nested = v.value) {
                         is Either.Left -> nested.value
                         is Either.Right -> nested.value.value.toRepr()
                     }
+                }
             }
         Result.success(result)
     }

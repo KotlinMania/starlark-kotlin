@@ -117,6 +117,7 @@ internal fun ComprCompiled.writeBc(span: FrameSpan, target: BcSlotOut, bc: BcWri
                     }
                 }
             }
+
             is ComprCompiled.Dict -> {
                 val (k, v) = kv
                 bc.writeInstr("InstrDictNew", span, temp.toOut())

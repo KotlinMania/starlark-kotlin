@@ -700,10 +700,12 @@ internal class ParametersSpec<V>(
                         throw FunctionError.MissingParameter("Missing parameter `$paramName` for call to `$functionName`")
                     }
                 }
+
                 is ParameterKind.Defaulted -> {
                     @Suppress("UNCHECKED_CAST")
                     slots[index] = (def.value as? Value)
                 }
+
                 else -> {}
             }
         }
@@ -771,10 +773,16 @@ internal class ParametersSpec<V>(
             }
             when (p) {
                 is ParameterKind.Args -> {}
+
                 is ParameterKind.KWargs -> {}
+
                 is ParameterKind.Defaulted -> {}
+
                 is ParameterKind.Optional -> {}
-                is ParameterKind.Required -> return false
+
+                is ParameterKind.Required -> {
+                    return false
+                }
             }
         }
         return true

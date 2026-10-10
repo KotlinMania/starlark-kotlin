@@ -311,7 +311,10 @@ internal fun innerObjectFunctionsHaveDocs() {
                 val funcItem = item.member as DocMember.Function
                 check(funcItem.function.docs!!.summary == "Docs for func1")
             }
-            else -> error("Expected function: $item")
+
+            else -> {
+                error("Expected function: $item")
+            }
         }
     }
 }
@@ -340,6 +343,9 @@ internal fun innerModuleFunctionsHaveDocs() {
             val funcItem = item.member as DocMember.Function
             check(funcItem.function.docs!!.summary == "Docs for func1")
         }
-        else -> error("Expected function: $item")
+
+        else -> {
+            error("Expected function: $item")
+        }
     }
 }

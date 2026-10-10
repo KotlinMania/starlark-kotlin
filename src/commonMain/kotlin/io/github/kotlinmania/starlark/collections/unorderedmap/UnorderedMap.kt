@@ -254,7 +254,10 @@ internal sealed class Entry<K, V> {
     /** Insert a value if vacant, or return the existing value. */
     fun orInsert(defaultValue: V): V =
         when (this) {
-            is Occupied -> entry.get()
+            is Occupied -> {
+                entry.get()
+            }
+
             is Vacant -> {
                 entry.insert(defaultValue)
                 defaultValue
@@ -264,7 +267,10 @@ internal sealed class Entry<K, V> {
     /** Insert a value computed by a function if vacant, or return the existing value. */
     fun orInsertWith(defaultValue: () -> V): V =
         when (this) {
-            is Occupied -> entry.get()
+            is Occupied -> {
+                entry.get()
+            }
+
             is Vacant -> {
                 val v = defaultValue()
                 entry.insert(v)

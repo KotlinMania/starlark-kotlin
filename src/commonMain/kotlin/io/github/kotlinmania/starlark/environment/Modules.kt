@@ -153,15 +153,23 @@ class FrozenModule internal constructor(
      */
     fun getOption(name: String): Result<OwnedFrozenValue?> =
         when (val entry = getAnyVisibilityOption(name)) {
-            null -> Result.success(null)
-            else ->
+            null -> {
+                Result.success(null)
+            }
+
+            else -> {
                 when (entry.second) {
-                    Visibility.Private ->
+                    Visibility.Private -> {
                         Result.failure(
                             EnvironmentError.ModuleSymbolIsNotExported(name),
                         )
-                    Visibility.Public -> Result.success(entry.first)
+                    }
+
+                    Visibility.Public -> {
+                        Result.success(entry.first)
+                    }
                 }
+            }
         }
 
     /**
@@ -558,11 +566,15 @@ class Module internal constructor(
             }
         return try {
             when (vis) {
-                Visibility.Public -> Result.success(heap().accessOwnedFrozenValue(value))
-                Visibility.Private ->
+                Visibility.Public -> {
+                    Result.success(heap().accessOwnedFrozenValue(value))
+                }
+
+                Visibility.Private -> {
                     Result.failure(
                         EnvironmentError.ModuleSymbolIsNotExported(symbol),
                     )
+                }
             }
         } finally {
             value.close()

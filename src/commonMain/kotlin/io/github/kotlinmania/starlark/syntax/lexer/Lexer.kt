@@ -122,17 +122,21 @@ class Lexer(
                     spaces++
                     pos++
                 }
+
                 '\t' -> {
                     tabs++
                     pos++
                 }
+
                 '\n' -> {
                     // Blank line: don't consume the newline itself
                     return
                 }
+
                 '\r' -> {
                     pos++
                 }
+
                 '#' -> {
                     // Comment-only line: skip to newline
                     spaces = 0
@@ -152,7 +156,10 @@ class Lexer(
                     if (source[pos] == '\n') return
                     continue@loop
                 }
-                else -> break@loop
+
+                else -> {
+                    break@loop
+                }
             }
         }
         if (pos >= source.length) return
@@ -219,37 +226,68 @@ class Lexer(
     private fun escape(chars: CharIteratorWithPos, res: StringBuilder): Boolean {
         val c = chars.next() ?: return false
         when (c) {
-            'n' -> res.append('\n')
-            'r' -> res.append('\r')
-            't' -> res.append('\t')
-            'a' -> res.append('\u0007')
-            'b' -> res.append('\u0008')
-            'f' -> res.append('\u000C')
-            'v' -> res.append('\u000B')
-            '\n' -> {} // line continuation
+            'n' -> {
+                res.append('\n')
+            }
+
+            'r' -> {
+                res.append('\r')
+            }
+
+            't' -> {
+                res.append('\t')
+            }
+
+            'a' -> {
+                res.append('\u0007')
+            }
+
+            'b' -> {
+                res.append('\u0008')
+            }
+
+            'f' -> {
+                res.append('\u000C')
+            }
+
+            'v' -> {
+                res.append('\u000B')
+            }
+
+            '\n' -> {}
+
+            // line continuation
             '\r' -> {
                 // Windows line ending
                 if (chars.peek() != '\n') return false
                 chars.next()
             }
+
             'x' -> {
                 val cp = escapeChar(chars, 2, 2, 16) ?: return false
                 appendCodePoint(res, cp)
             }
+
             'u' -> {
                 val cp = escapeChar(chars, 4, 4, 16) ?: return false
                 appendCodePoint(res, cp)
             }
+
             'U' -> {
                 val cp = escapeChar(chars, 8, 8, 16) ?: return false
                 appendCodePoint(res, cp)
             }
+
             in '0'..'7' -> {
                 chars.unnext(c)
                 val cp = escapeChar(chars, 1, 3, 8) ?: return false
                 appendCodePoint(res, cp)
             }
-            '"', '\'', '\\' -> res.append(c)
+
+            '"', '\'', '\\' -> {
+                res.append(c)
+            }
+
             else -> {
                 res.append('\\')
                 res.append(c)
@@ -333,7 +371,10 @@ class Lexer(
                 c == '\n' && !triple -> {
                     throw errSpan(LexemeError.UnfinishedStringLiteral, stringStart, chars.pos)
                 }
-                c == '\r' -> {} // ignore \r in all modes
+
+                c == '\r' -> {}
+
+                // ignore \r in all modes
                 c == '\\' -> {
                     if (raw) {
                         val next = chars.next() ?: break
@@ -357,7 +398,10 @@ class Lexer(
                         }
                     }
                 }
-                else -> res.append(c)
+
+                else -> {
+                    res.append(c)
+                }
             }
         }
         throw errSpan(LexemeError.UnfinishedStringLiteral, stringStart, pos)
@@ -482,66 +526,98 @@ class Lexer(
         // Operators and symbols (multi-char first, then single-char)
         pos++
         return when (c) {
-            ',' -> Triple(start, Token.Comma, pos)
-            ';' -> Triple(start, Token.Semicolon, pos)
-            ':' -> Triple(start, Token.Colon, pos)
-            '~' -> Triple(start, Token.Tilde, pos)
+            ',' -> {
+                Triple(start, Token.Comma, pos)
+            }
+
+            ';' -> {
+                Triple(start, Token.Semicolon, pos)
+            }
+
+            ':' -> {
+                Triple(start, Token.Colon, pos)
+            }
+
+            '~' -> {
+                Triple(start, Token.Tilde, pos)
+            }
+
             '(' -> {
                 parens++
                 Triple(start, Token.OpeningRound, pos)
             }
+
             ')' -> {
                 parens--
                 Triple(start, Token.ClosingRound, pos)
             }
+
             '[' -> {
                 parens++
                 Triple(start, Token.OpeningSquare, pos)
             }
+
             ']' -> {
                 parens--
                 Triple(start, Token.ClosingSquare, pos)
             }
+
             '{' -> {
                 parens++
                 Triple(start, Token.OpeningCurly, pos)
             }
+
             '}' -> {
                 parens--
                 Triple(start, Token.ClosingCurly, pos)
             }
-            '+' ->
+
+            '+' -> {
                 if (peek() == '=') {
                     pos++
                     Triple(start, Token.PlusEqual, pos)
                 } else {
                     Triple(start, Token.Plus, pos)
                 }
-            '-' ->
+            }
+
+            '-' -> {
                 when (peek()) {
                     '=' -> {
                         pos++
                         Triple(start, Token.MinusEqual, pos)
                     }
+
                     '>' -> {
                         pos++
                         Triple(start, Token.MinusGreater, pos)
                     }
-                    else -> Triple(start, Token.Minus, pos)
+
+                    else -> {
+                        Triple(start, Token.Minus, pos)
+                    }
                 }
-            '*' ->
+            }
+
+            '*' -> {
                 when (peek()) {
                     '*' -> {
                         pos++
                         Triple(start, Token.StarStar, pos)
                     }
+
                     '=' -> {
                         pos++
                         Triple(start, Token.StarEqual, pos)
                     }
-                    else -> Triple(start, Token.Star, pos)
+
+                    else -> {
+                        Triple(start, Token.Star, pos)
+                    }
                 }
-            '/' ->
+            }
+
+            '/' -> {
                 when (peek()) {
                     '/' -> {
                         pos++
@@ -552,39 +628,52 @@ class Lexer(
                             Triple(start, Token.SlashSlash, pos)
                         }
                     }
+
                     '=' -> {
                         pos++
                         Triple(start, Token.SlashEqual, pos)
                     }
-                    else -> Triple(start, Token.Slash, pos)
+
+                    else -> {
+                        Triple(start, Token.Slash, pos)
+                    }
                 }
-            '%' ->
+            }
+
+            '%' -> {
                 if (peek() == '=') {
                     pos++
                     Triple(start, Token.PercentEqual, pos)
                 } else {
                     Triple(start, Token.Percent, pos)
                 }
-            '=' ->
+            }
+
+            '=' -> {
                 if (peek() == '=') {
                     pos++
                     Triple(start, Token.EqualEqual, pos)
                 } else {
                     Triple(start, Token.Equal, pos)
                 }
-            '!' ->
+            }
+
+            '!' -> {
                 if (peek() == '=') {
                     pos++
                     Triple(start, Token.BangEqual, pos)
                 } else {
                     throw errSpan(LexemeError.InvalidInput("!"), start, pos)
                 }
-            '<' ->
+            }
+
+            '<' -> {
                 when (peek()) {
                     '=' -> {
                         pos++
                         Triple(start, Token.LessEqual, pos)
                     }
+
                     '<' -> {
                         pos++
                         if (peek() == '=') {
@@ -594,14 +683,20 @@ class Lexer(
                             Triple(start, Token.LessLess, pos)
                         }
                     }
-                    else -> Triple(start, Token.LessThan, pos)
+
+                    else -> {
+                        Triple(start, Token.LessThan, pos)
+                    }
                 }
-            '>' ->
+            }
+
+            '>' -> {
                 when (peek()) {
                     '=' -> {
                         pos++
                         Triple(start, Token.GreaterEqual, pos)
                     }
+
                     '>' -> {
                         pos++
                         if (peek() == '=') {
@@ -611,29 +706,40 @@ class Lexer(
                             Triple(start, Token.GreaterGreater, pos)
                         }
                     }
-                    else -> Triple(start, Token.GreaterThan, pos)
+
+                    else -> {
+                        Triple(start, Token.GreaterThan, pos)
+                    }
                 }
-            '&' ->
+            }
+
+            '&' -> {
                 if (peek() == '=') {
                     pos++
                     Triple(start, Token.AmpersandEqual, pos)
                 } else {
                     Triple(start, Token.Ampersand, pos)
                 }
-            '|' ->
+            }
+
+            '|' -> {
                 if (peek() == '=') {
                     pos++
                     Triple(start, Token.PipeEqual, pos)
                 } else {
                     Triple(start, Token.Pipe, pos)
                 }
-            '^' ->
+            }
+
+            '^' -> {
                 if (peek() == '=') {
                     pos++
                     Triple(start, Token.CaretEqual, pos)
                 } else {
                     Triple(start, Token.Caret, pos)
                 }
+            }
+
             '.' -> {
                 if (peek() == '.' && peekAt(1) == '.') {
                     pos += 2
@@ -642,7 +748,10 @@ class Lexer(
                     Triple(start, Token.Dot, pos)
                 }
             }
-            else -> throw errSpan(LexemeError.InvalidInput(c.toString()), start, pos)
+
+            else -> {
+                throw errSpan(LexemeError.InvalidInput(c.toString()), start, pos)
+            }
         }
     }
 
@@ -657,6 +766,7 @@ class Lexer(
                     if (pos == digitStart) throw errSpan(LexemeError.IntParse("0${source[pos - 1]}"), start, pos)
                     return parseInt(source.substring(digitStart, pos), start, pos, 16)
                 }
+
                 'o', 'O' -> {
                     pos += 2
                     val digitStart = pos
@@ -664,6 +774,7 @@ class Lexer(
                     if (pos == digitStart) throw errSpan(LexemeError.IntParse("0${source[pos - 1]}"), start, pos)
                     return parseInt(source.substring(digitStart, pos), start, pos, 8)
                 }
+
                 'b', 'B' -> {
                     pos += 2
                     val digitStart = pos

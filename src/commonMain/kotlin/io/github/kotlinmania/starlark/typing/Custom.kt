@@ -261,7 +261,10 @@ class TyCustom internal constructor(
             return Result.success(true)
         }
         return when (other) {
-            is TyBasic.Custom -> Result.success(intersects(this, other.custom))
+            is TyBasic.Custom -> {
+                Result.success(intersects(this, other.custom))
+            }
+
             is TyBasic.Callable -> {
                 val thisCallable = inner.asCallableDyn()
                 if (thisCallable != null) {
@@ -270,7 +273,10 @@ class TyCustom internal constructor(
                     Result.success(false)
                 }
             }
-            else -> Result.success(false)
+
+            else -> {
+                Result.success(false)
+            }
         }
     }
 

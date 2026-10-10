@@ -88,16 +88,26 @@ internal object GrammarUtil {
     fun checkAssign(codemap: CodeMap, x: AstExpr): AstAssignTarget {
         val node: AssignTargetP<AstNoPayload> =
             when (val expr = x.node) {
-                is ExprP.Tuple ->
+                is ExprP.Tuple -> {
                     AssignTargetP.Tuple(
                         expr.elements.map { checkAssign(codemap, it) },
                     )
-                is ExprP.ListExpr ->
+                }
+
+                is ExprP.ListExpr -> {
                     AssignTargetP.Tuple(
                         expr.elements.map { checkAssign(codemap, it) },
                     )
-                is ExprP.Dot -> AssignTargetP.Dot(expr.expr, expr.field)
-                is ExprP.Index -> AssignTargetP.Index(expr.expr, expr.index)
+                }
+
+                is ExprP.Dot -> {
+                    AssignTargetP.Dot(expr.expr, expr.field)
+                }
+
+                is ExprP.Index -> {
+                    AssignTargetP.Index(expr.expr, expr.index)
+                }
+
                 is ExprP.Identifier<*, *> -> {
                     AssignTargetP.Identifier(
                         expr.ident.map { s ->
@@ -108,11 +118,14 @@ internal object GrammarUtil {
                         },
                     )
                 }
-                else -> throw EvalException.newAnyhow(
-                    IllegalArgumentException(GrammarUtilError.InvalidLhs.message),
-                    x.span,
-                    codemap,
-                )
+
+                else -> {
+                    throw EvalException.newAnyhow(
+                        IllegalArgumentException(GrammarUtilError.InvalidLhs.message),
+                        x.span,
+                        codemap,
+                    )
+                }
             }
         return Spanned(node, x.span)
     }
@@ -127,11 +140,14 @@ internal object GrammarUtil {
         if (op != null) {
             // for augmented assignment, Starlark doesn't allow tuple/list
             when (lhs.node) {
-                is ExprP.Tuple, is ExprP.ListExpr -> throw EvalException.newAnyhow(
-                    IllegalArgumentException(GrammarUtilError.InvalidModifyLhs.message),
-                    lhs.span,
-                    codemap,
-                )
+                is ExprP.Tuple, is ExprP.ListExpr -> {
+                    throw EvalException.newAnyhow(
+                        IllegalArgumentException(GrammarUtilError.InvalidModifyLhs.message),
+                        lhs.span,
+                        codemap,
+                    )
+                }
+
                 else -> {}
             }
         }
@@ -154,7 +170,7 @@ internal object GrammarUtil {
             }
         }
         return when (op) {
-            null ->
+            null -> {
                 StmtP.Assign(
                     AssignP(
                         lhs = assignTarget,
@@ -162,7 +178,11 @@ internal object GrammarUtil {
                         rhs = rhs,
                     ),
                 )
-            else -> StmtP.AssignModify(assignTarget, op, rhs)
+            }
+
+            else -> {
+                StmtP.AssignModify(assignTarget, op, rhs)
+            }
         }
     }
 
@@ -255,11 +275,15 @@ internal object GrammarUtil {
                 } ?: break
 
             when (token) {
-                is FormatToken.Text -> format.append(token.text)
+                is FormatToken.Text -> {
+                    format.append(token.text)
+                }
+
                 is FormatToken.Escape -> {
                     // We are producing a format string here so we need to escape this back!
                     format.append(token.escape.backToEscape())
                 }
+
                 is FormatToken.Capture -> {
                     val captureBegin = begin + contentStartOffset + token.pos
                     val captureEnd = captureBegin + token.capture.length

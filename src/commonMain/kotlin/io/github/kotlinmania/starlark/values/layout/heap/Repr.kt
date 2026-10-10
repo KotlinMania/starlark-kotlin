@@ -272,7 +272,10 @@ internal sealed class AValueOrForward {
                     AValueOrForwardUnpack.Header(header)
                 }
             }
-            is Forward -> AValueOrForwardUnpack.Forward(forward)
+
+            is Forward -> {
+                AValueOrForwardUnpack.Forward(forward)
+            }
         }
 
     fun unpackHeaderUnchecked(): AValueHeader {
@@ -296,7 +299,10 @@ internal sealed class AValueOrForward {
     // / following object is allocated at `self + alloc_size + align up`.
     fun allocSize(): ValueAllocSize =
         when (val u = unpack()) {
-            is AValueOrForwardUnpack.Header -> u.header.unpack().memorySize()
+            is AValueOrForwardUnpack.Header -> {
+                u.header.unpack().memorySize()
+            }
+
             is AValueOrForwardUnpack.Forward -> {
                 // Overwritten, so the next word will be the size of the memory
                 u.forward.objectSize

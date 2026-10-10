@@ -75,62 +75,80 @@ private class IsSafeToInlineExpr(
         }
         counter += 1
         return when (expr) {
-            is ExprCompiled.ValueExpr -> true
+            is ExprCompiled.ValueExpr -> {
+                true
+            }
+
             is ExprCompiled.LocalCaptured,
             is ExprCompiled.Module,
             is ExprCompiled.Def,
-            -> false
+            -> {
+                false
+            }
+
             is ExprCompiled.Local -> {
                 // `l >= paramCount` should be unreachable, but it is safer this way.
                 expr.slot.index < paramCount.toUInt()
             }
+
             is ExprCompiled.Call -> {
                 isSafeToInlineExpr(expr.call.node.function.node) &&
                     expr.call.node.args
                         .argExprs()
                         .all { isSafeToInlineExpr(it.node) }
             }
+
             is ExprCompiled.Compr -> {
                 false
             }
+
             is ExprCompiled.Slice -> {
                 isSafeToInlineExpr(expr.obj.node) &&
                     isSafeToInlineOptExpr(expr.start) &&
                     isSafeToInlineOptExpr(expr.stop) &&
                     isSafeToInlineOptExpr(expr.step)
             }
+
             is ExprCompiled.Builtin2Expr -> {
                 isSafeToInlineExpr(expr.lhs.node) &&
                     isSafeToInlineExpr(expr.rhs.node)
             }
+
             is ExprCompiled.Index2 -> {
                 isSafeToInlineExpr(expr.obj.node) &&
                     isSafeToInlineExpr(expr.index0.node) &&
                     isSafeToInlineExpr(expr.index1.node)
             }
+
             is ExprCompiled.Builtin1Expr -> {
                 isSafeToInlineExpr(expr.expr.node)
             }
+
             is ExprCompiled.TupleExpr -> {
                 expr.elements.all { isSafeToInlineExpr(it.node) }
             }
+
             is ExprCompiled.ListExpr -> {
                 expr.elements.all { isSafeToInlineExpr(it.node) }
             }
+
             is ExprCompiled.DictExpr -> {
                 expr.entries.all { (x, y) ->
                     isSafeToInlineExpr(x.node) && isSafeToInlineExpr(y.node)
                 }
             }
+
             is ExprCompiled.If -> {
                 isSafeToInlineExpr(expr.cond.node) &&
                     isSafeToInlineExpr(expr.thenBranch.node) &&
                     isSafeToInlineExpr(expr.elseBranch.node)
             }
+
             is ExprCompiled.LogicalBinOp -> {
                 isSafeToInlineExpr(expr.lhs.node) &&
                     isSafeToInlineExpr(expr.rhs.node)
             }
+
             is ExprCompiled.Seq -> {
                 isSafeToInlineExpr(expr.first.node) &&
                     isSafeToInlineExpr(expr.second.node)
@@ -219,7 +237,10 @@ internal class InlineDefCallSite(
     ): IrSpanned<ExprCompiled> {
         val span = expr.span
         return when (val node = expr.node) {
-            is ExprCompiled.ValueExpr -> IrSpanned(span, node)
+            is ExprCompiled.ValueExpr -> {
+                IrSpanned(span, node)
+            }
+
             is ExprCompiled.Local -> {
                 val value = slots[node.slot.index.toInt()]
                 val localAsValue = FrozenValueTyped.new<LocalAsValue>(value)
@@ -231,44 +252,53 @@ internal class InlineDefCallSite(
                     }
                 IrSpanned(span, inlinedExpr)
             }
+
             is ExprCompiled.If -> {
                 val c = inline(node.cond)
                 val t = inline(node.thenBranch)
                 val f = inline(node.elseBranch)
                 ExprCompiled.ifExpr(c, t, f)
             }
+
             is ExprCompiled.LogicalBinOp -> {
                 val l = inline(node.lhs)
                 val r = inline(node.rhs)
                 ExprCompiled.logicalBinOp(node.op, l, r)
             }
+
             is ExprCompiled.ListExpr -> {
                 val xs = node.elements.map { inline(it) }
                 IrSpanned(span, ExprCompiled.ListExpr(xs))
             }
+
             is ExprCompiled.TupleExpr -> {
                 val xs = node.elements.map { inline(it) }
                 IrSpanned(span, ExprCompiled.tuple(xs, ctx.frozenHeap()))
             }
+
             is ExprCompiled.DictExpr -> {
                 val xs = node.entries.map { (x, y) -> Pair(inline(x), inline(y)) }
                 IrSpanned(span, ExprCompiled.DictExpr(xs))
             }
+
             is ExprCompiled.Builtin2Expr -> {
                 val l = inline(node.lhs)
                 val r = inline(node.rhs)
                 IrSpanned(span, ExprCompiled.binOp(node.op, l, r, ctx))
             }
+
             is ExprCompiled.Index2 -> {
                 val a = inline(node.obj)
                 val i0 = inline(node.index0)
                 val i1 = inline(node.index1)
                 IrSpanned(span, ExprCompiled.index2(a, i0, i1))
             }
+
             is ExprCompiled.Builtin1Expr -> {
                 val x = inline(node.expr)
                 IrSpanned(span, ExprCompiled.unOp(span, node.op, x, ctx))
             }
+
             is ExprCompiled.Slice -> {
                 val l = inline(node.obj)
                 val a = inlineOpt(node.start)
@@ -276,19 +306,26 @@ internal class InlineDefCallSite(
                 val c = inlineOpt(node.step)
                 IrSpanned(span, ExprCompiled.Slice(l, a, b, c))
             }
+
             is ExprCompiled.Seq -> {
                 val a = inline(node.first)
                 val b = inline(node.second)
                 ExprCompiled.seq(a, b)
             }
-            is ExprCompiled.Call -> return inlineCall(node.call)
+
+            is ExprCompiled.Call -> {
+                return inlineCall(node.call)
+            }
+
             // These should be unreachable, but it is safer
             // to do unnecessary work in compiler than crash.
             is ExprCompiled.LocalCaptured,
             is ExprCompiled.Module,
             is ExprCompiled.Compr,
             is ExprCompiled.Def,
-            -> throw CannotInline()
+            -> {
+                throw CannotInline()
+            }
         }
     }
 }

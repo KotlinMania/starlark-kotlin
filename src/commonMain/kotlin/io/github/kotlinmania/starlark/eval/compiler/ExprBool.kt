@@ -85,6 +85,7 @@ internal sealed class ExprCompiledBool {
                         IrSpanned(node = Expr(node), span = span)
                     }
                 }
+
                 is ExprCompiled.LogicalBinOp -> {
                     val op = node.op
                     val x = new(node.lhs)
@@ -92,12 +93,30 @@ internal sealed class ExprCompiledBool {
                     val xConst = x.node.constValue()
                     val yConst = y.node.constValue()
                     when {
-                        op == ExprLogicalBinOp.And && xConst == false -> newBool(span, false)
-                        op == ExprLogicalBinOp.Or && xConst == true -> newBool(span, true)
-                        op == ExprLogicalBinOp.And && xConst == true -> y
-                        op == ExprLogicalBinOp.Or && xConst == false -> y
-                        op == ExprLogicalBinOp.And && xConst == null && yConst == true -> x
-                        op == ExprLogicalBinOp.Or && xConst == null && yConst == false -> x
+                        op == ExprLogicalBinOp.And && xConst == false -> {
+                            newBool(span, false)
+                        }
+
+                        op == ExprLogicalBinOp.Or && xConst == true -> {
+                            newBool(span, true)
+                        }
+
+                        op == ExprLogicalBinOp.And && xConst == true -> {
+                            y
+                        }
+
+                        op == ExprLogicalBinOp.Or && xConst == false -> {
+                            y
+                        }
+
+                        op == ExprLogicalBinOp.And && xConst == null && yConst == true -> {
+                            x
+                        }
+
+                        op == ExprLogicalBinOp.Or && xConst == null && yConst == false -> {
+                            x
+                        }
+
                         op == ExprLogicalBinOp.And && xConst == null && yConst == false -> {
                             // The expression evaluates to false,
                             // but we need to preserve LHS for the effect.
@@ -113,6 +132,7 @@ internal sealed class ExprCompiledBool {
                                     ),
                             )
                         }
+
                         op == ExprLogicalBinOp.Or && xConst == null && yConst == true -> {
                             // The expression evaluates to true,
                             // but we need to preserve LHS for the effect.
@@ -128,7 +148,8 @@ internal sealed class ExprCompiledBool {
                                     ),
                             )
                         }
-                        else ->
+
+                        else -> {
                             IrSpanned(
                                 node =
                                     Expr(
@@ -140,9 +161,13 @@ internal sealed class ExprCompiledBool {
                                     ),
                                 span = span,
                             )
+                        }
                     }
                 }
-                else -> IrSpanned(node = Expr(node), span = span)
+
+                else -> {
+                    IrSpanned(node = Expr(node), span = span)
+                }
             }
         }
     }

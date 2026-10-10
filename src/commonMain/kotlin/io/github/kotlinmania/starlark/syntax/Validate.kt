@@ -137,6 +137,7 @@ internal fun validateParams(params: List<ValidateAstParameterP<*>>, parserState:
                     seenOptional = true
                 }
             }
+
             is ValidateParameterP.NoArgs<*> -> {
                 if (state >= ParameterState.SeenStar) {
                     parserState.errors.add(
@@ -151,6 +152,7 @@ internal fun validateParams(params: List<ValidateAstParameterP<*>>, parserState:
                 state = ParameterState.SeenStar
                 indexStar = i
             }
+
             is ValidateParameterP.Slash<*> -> {
                 if (state >= ParameterState.SeenSlash) {
                     parserState.errors.add(
@@ -164,6 +166,7 @@ internal fun validateParams(params: List<ValidateAstParameterP<*>>, parserState:
                 }
                 state = ParameterState.SeenSlash
             }
+
             is ValidateParameterP.Args<*> -> {
                 if (state >= ParameterState.SeenStar) {
                     parserState.errors.add(
@@ -188,6 +191,7 @@ internal fun validateParams(params: List<ValidateAstParameterP<*>>, parserState:
                 }
                 argsSeen = true
             }
+
             is ValidateParameterP.KwArgs<*> -> {
                 if (state >= ParameterState.SeenStarStar) {
                     parserState.errors.add(
@@ -229,6 +233,7 @@ internal fun validateParams(params: List<ValidateAstParameterP<*>>, parserState:
         }
         when (next.node) {
             is ValidateParameterP.Normal<*> -> {}
+
             else -> {
                 parserState.errors.add(
                     EvalException.parserError(
@@ -251,31 +256,38 @@ private fun walkExpr(expr: ValidateAstExprP<*>, f: (ValidateAstExprP<*>) -> Unit
                 walkExpr(elem, f)
             }
         }
+
         is ValidateExprP.Dot<*> -> {
             walkExpr(node.expr, f)
         }
+
         is ValidateExprP.Call<*> -> {
             walkExpr(node.expr, f)
             for (arg in node.args.args) {
                 walkExpr(arg.node.expr(), f)
             }
         }
+
         is ValidateExprP.Index<*> -> {
             walkExpr(node.expr, f)
             walkExpr(node.index, f)
         }
+
         is ValidateExprP.Index2<*> -> {
             walkExpr(node.expr, f)
             walkExpr(node.index0, f)
             walkExpr(node.index1, f)
         }
+
         is ValidateExprP.Slice<*> -> {
             walkExpr(node.expr, f)
             node.start?.let { walkExpr(it, f) }
             node.stop?.let { walkExpr(it, f) }
             node.step?.let { walkExpr(it, f) }
         }
+
         is ValidateExprP.Identifier<*, *> -> {}
+
         is ValidateExprP.Lambda<*, *> -> {
             for (param in node.lambda.params) {
                 when (val p = param.node) {
@@ -283,42 +295,63 @@ private fun walkExpr(expr: ValidateAstExprP<*>, f: (ValidateAstExprP<*>) -> Unit
                         p.typ?.let { walkExpr(it.node.expr, f) }
                         p.defaultVal?.let { walkExpr(it, f) }
                     }
+
                     is ValidateParameterP.Args<*> -> {
                         p.typ?.let { walkExpr(it.node.expr, f) }
                     }
+
                     is ValidateParameterP.KwArgs<*> -> {
                         p.typ?.let { walkExpr(it.node.expr, f) }
                     }
+
                     else -> {}
                 }
             }
             walkExpr(node.lambda.body, f)
         }
+
         is ValidateExprP.Literal<*> -> {}
-        is ValidateExprP.Not<*> -> walkExpr(node.expr, f)
-        is ValidateExprP.Minus<*> -> walkExpr(node.expr, f)
-        is ValidateExprP.Plus<*> -> walkExpr(node.expr, f)
-        is ValidateExprP.BitNot<*> -> walkExpr(node.expr, f)
+
+        is ValidateExprP.Not<*> -> {
+            walkExpr(node.expr, f)
+        }
+
+        is ValidateExprP.Minus<*> -> {
+            walkExpr(node.expr, f)
+        }
+
+        is ValidateExprP.Plus<*> -> {
+            walkExpr(node.expr, f)
+        }
+
+        is ValidateExprP.BitNot<*> -> {
+            walkExpr(node.expr, f)
+        }
+
         is ValidateExprP.Op<*> -> {
             walkExpr(node.lhs, f)
             walkExpr(node.rhs, f)
         }
+
         is ValidateExprP.If<*> -> {
             walkExpr(node.cond, f)
             walkExpr(node.v1, f)
             walkExpr(node.v2, f)
         }
+
         is ValidateExprP.ListExpr<*> -> {
             for (elem in node.elements) {
                 walkExpr(elem, f)
             }
         }
+
         is ValidateExprP.Dict<*> -> {
             for ((k, v) in node.elements) {
                 walkExpr(k, f)
                 walkExpr(v, f)
             }
         }
+
         is ValidateExprP.ListComprehension<*> -> {
             walkExpr(node.expr, f)
             walkForClause(node.forClause, f)
@@ -326,6 +359,7 @@ private fun walkExpr(expr: ValidateAstExprP<*>, f: (ValidateAstExprP<*>) -> Unit
                 walkClause(clause, f)
             }
         }
+
         is ValidateExprP.DictComprehension<*> -> {
             walkExpr(node.key, f)
             walkExpr(node.value, f)
@@ -334,6 +368,7 @@ private fun walkExpr(expr: ValidateAstExprP<*>, f: (ValidateAstExprP<*>) -> Unit
                 walkClause(clause, f)
             }
         }
+
         is ValidateExprP.FString<*> -> {
             for (exprItem in node.fstring.node.expressions) {
                 walkExpr(exprItem, f)
@@ -349,13 +384,16 @@ private fun walkAssignTarget(target: ValidateAstAssignTargetP<*>, f: (ValidateAs
                 walkAssignTarget(elem, f)
             }
         }
+
         is ValidateAssignTargetP.Index<*> -> {
             walkExpr(node.expr, f)
             walkExpr(node.index, f)
         }
+
         is ValidateAssignTargetP.Dot<*> -> {
             walkExpr(node.expr, f)
         }
+
         is ValidateAssignTargetP.Identifier<*, *> -> {}
     }
 }
@@ -374,23 +412,38 @@ private fun walkClause(c: ValidateClauseP<*>, f: (ValidateAstExprP<*>) -> Unit) 
 
 private fun walkExprsInStmt(stmt: ValidateAstStmtP<*>, f: (ValidateAstExprP<*>) -> Unit) {
     when (val node = stmt.node) {
-        is ValidateStmtP.Expression<*> -> walkExpr(node.expr, f)
-        is ValidateStmtP.Return<*> -> node.expr?.let { walkExpr(it, f) }
+        is ValidateStmtP.Expression<*> -> {
+            walkExpr(node.expr, f)
+        }
+
+        is ValidateStmtP.Return<*> -> {
+            node.expr?.let { walkExpr(it, f) }
+        }
+
         is ValidateStmtP.Assign<*> -> {
             walkAssignTarget(node.assign.lhs, f)
             node.assign.ty?.let { walkExpr(it.node.expr, f) }
             walkExpr(node.assign.rhs, f)
         }
+
         is ValidateStmtP.AssignModify<*> -> {
             walkAssignTarget(node.lhs, f)
             walkExpr(node.rhs, f)
         }
-        is ValidateStmtP.If<*> -> walkExpr(node.cond, f)
-        is ValidateStmtP.IfElse<*> -> walkExpr(node.cond, f)
+
+        is ValidateStmtP.If<*> -> {
+            walkExpr(node.cond, f)
+        }
+
+        is ValidateStmtP.IfElse<*> -> {
+            walkExpr(node.cond, f)
+        }
+
         is ValidateStmtP.For<*> -> {
             walkAssignTarget(node.forStmt.varTarget, f)
             walkExpr(node.forStmt.over, f)
         }
+
         is ValidateStmtP.Def<*, *> -> {
             for (param in node.def.params) {
                 when (val p = param.node) {
@@ -398,17 +451,21 @@ private fun walkExprsInStmt(stmt: ValidateAstStmtP<*>, f: (ValidateAstExprP<*>) 
                         p.typ?.let { walkExpr(it.node.expr, f) }
                         p.defaultVal?.let { walkExpr(it, f) }
                     }
+
                     is ValidateParameterP.Args<*> -> {
                         p.typ?.let { walkExpr(it.node.expr, f) }
                     }
+
                     is ValidateParameterP.KwArgs<*> -> {
                         p.typ?.let { walkExpr(it.node.expr, f) }
                     }
+
                     else -> {}
                 }
             }
             node.def.returnType?.let { walkExpr(it.node.expr, f) }
         }
+
         else -> {}
     }
 }
@@ -429,6 +486,7 @@ internal fun validateModule(stmt: ValidateAstStmtP<*>, parserState: ParserState)
                 validateParams(node.def.params, parserState)
                 f(node.def.body, topLevel = false, insideFor = false, insideDef = true)
             }
+
             is ValidateStmtP.For<*> -> {
                 if (topLevel && !parserState.dialect.enableTopLevelStmt) {
                     parserState.error(span, "`for` cannot be used outside `def` in this dialect")
@@ -436,6 +494,7 @@ internal fun validateModule(stmt: ValidateAstStmtP<*>, parserState: ParserState)
                     f(node.forStmt.body, topLevel = false, insideFor = true, insideDef = insideDef)
                 }
             }
+
             is ValidateStmtP.If<*> -> {
                 if (topLevel && !parserState.dialect.enableTopLevelStmt) {
                     parserState.error(span, "`if` cannot be used outside `def` in this dialect")
@@ -443,6 +502,7 @@ internal fun validateModule(stmt: ValidateAstStmtP<*>, parserState: ParserState)
                     f(node.suite, topLevel = false, insideFor = insideFor, insideDef = insideDef)
                 }
             }
+
             is ValidateStmtP.IfElse<*> -> {
                 if (topLevel && !parserState.dialect.enableTopLevelStmt) {
                     parserState.error(span, "`if` cannot be used outside `def` in this dialect")
@@ -451,21 +511,25 @@ internal fun validateModule(stmt: ValidateAstStmtP<*>, parserState: ParserState)
                     f(node.suite2, topLevel = false, insideFor = insideFor, insideDef = insideDef)
                 }
             }
+
             is ValidateStmtP.Break<*> -> {
                 if (!insideFor) {
                     parserState.error(span, "`break` cannot be used outside of a `for` loop")
                 }
             }
+
             is ValidateStmtP.Continue<*> -> {
                 if (!insideFor) {
                     parserState.error(span, "`continue` cannot be used outside of a `for` loop")
                 }
             }
+
             is ValidateStmtP.Return<*> -> {
                 if (!insideDef) {
                     parserState.error(span, "`return` cannot be used outside of a `def` function")
                 }
             }
+
             is ValidateStmtP.Load<*, *> -> {
                 if (!topLevel) {
                     parserState.error(span, "`load` must only occur at the top of a module")
@@ -474,11 +538,13 @@ internal fun validateModule(stmt: ValidateAstStmtP<*>, parserState: ParserState)
                     parserState.error(span, "`load` is not allowed in this dialect")
                 }
             }
+
             is ValidateStmtP.Statements<*> -> {
                 for (s in node.stmts) {
                     f(s, topLevel, insideFor, insideDef)
                 }
             }
+
             else -> {}
         }
     }
@@ -492,12 +558,14 @@ internal fun validateModule(stmt: ValidateAstStmtP<*>, parserState: ParserState)
                     }
                 }
             }
+
             is ValidateExprP.Lambda<*, *> -> {
                 if (!parserState.dialect.enableLambda) {
                     parserState.error(x.span, "`lambda` is not allowed in this dialect")
                 }
                 validateParams(node.lambda.params, parserState)
             }
+
             else -> {}
         }
     }
@@ -511,18 +579,29 @@ internal fun validateModule(stmt: ValidateAstStmtP<*>, parserState: ParserState)
             walkExpr(e) { expr(it) }
         }
         when (val node = s.node) {
-            is ValidateStmtP.Def<*, *> -> walkStmtExprs(node.def.body)
-            is ValidateStmtP.For<*> -> walkStmtExprs(node.forStmt.body)
-            is ValidateStmtP.If<*> -> walkStmtExprs(node.suite)
+            is ValidateStmtP.Def<*, *> -> {
+                walkStmtExprs(node.def.body)
+            }
+
+            is ValidateStmtP.For<*> -> {
+                walkStmtExprs(node.forStmt.body)
+            }
+
+            is ValidateStmtP.If<*> -> {
+                walkStmtExprs(node.suite)
+            }
+
             is ValidateStmtP.IfElse<*> -> {
                 walkStmtExprs(node.suite1)
                 walkStmtExprs(node.suite2)
             }
+
             is ValidateStmtP.Statements<*> -> {
                 for (child in node.stmts) {
                     walkStmtExprs(child)
                 }
             }
+
             else -> {}
         }
     }

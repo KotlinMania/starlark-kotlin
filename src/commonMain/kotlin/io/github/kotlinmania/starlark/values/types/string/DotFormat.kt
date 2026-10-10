@@ -38,8 +38,14 @@ internal fun parseFormatOne(s: String): Pair<String, String>? {
     while (true) {
         val token = parser.next().getOrNull() ?: return null
         when (token) {
-            is FormatToken.Text -> before.append(token.text)
-            is FormatToken.Escape -> before.append(token.escape.asStr())
+            is FormatToken.Text -> {
+                before.append(token.text)
+            }
+
+            is FormatToken.Escape -> {
+                before.append(token.escape.asStr())
+            }
+
             is FormatToken.Capture -> {
                 if (token.capture == "" && token.conv == FormatConv.Str) {
                     break
@@ -80,7 +86,10 @@ internal fun formatOne(
             result.append(after)
             StringValue.newUnchecked(heap.allocStr(result.toString()))
         }
-        else -> heap.allocStrConcat3(before, argStr.toString(), after)
+
+        else -> {
+            heap.allocStrConcat3(before, argStr.toString(), after)
+        }
     }
 
 /**
@@ -151,8 +160,14 @@ internal fun format(
         while (true) {
             val token = parser.next().getOrThrow() ?: break
             when (token) {
-                is FormatToken.Text -> result.append(token.text)
-                is FormatToken.Escape -> result.append(token.escape.asStr())
+                is FormatToken.Text -> {
+                    result.append(token.text)
+                }
+
+                is FormatToken.Escape -> {
+                    result.append(token.escape.asStr())
+                }
+
                 is FormatToken.Capture -> {
                     formatCapture(token.capture, token.conv, formatArgs, kwargs, result).getOrThrow()
                 }
@@ -184,6 +199,7 @@ internal fun <T : Iterator<Value>> formatCapture(
             field.isEmpty() -> {
                 convFn(args.nextOrdered().getOrThrow(), result)
             }
+
             field.all { it.isDigit() } -> {
                 val i =
                     field.toIntOrNull() ?: throw IllegalArgumentException(
@@ -191,6 +207,7 @@ internal fun <T : Iterator<Value>> formatCapture(
                     )
                 convFn(args.byIndex(i).getOrThrow(), result)
             }
+
             else -> {
                 val invalidChar =
                     field.firstOrNull { c ->

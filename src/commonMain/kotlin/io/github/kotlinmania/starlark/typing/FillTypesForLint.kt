@@ -109,11 +109,13 @@ private class GlobalTypesBuilder(
                     is Slot.Module -> {
                         values[slot.id] ?: GlobalValue.any()
                     }
+
                     is Slot.Local -> {
                         throw internalError(ident.span, "local slot in global scope")
                     }
                 }
             }
+
             is ResolvedIdent.Global -> {
                 GlobalValue.value(resolved.value.toValue())
             }
@@ -189,13 +191,21 @@ private class GlobalTypesBuilder(
         val span = e.span
         return when (val node = e.node) {
             is ExprP.Tuple<*> -> tuple(node.elements as List<CstExpr>)
+
             is ExprP.Dot<*> -> dot(span, node.expr as CstExpr, node.field)
+
             is ExprP.Call<*> -> call(node.expr as CstExpr, node.args as CallArgsP<CstPayload>)
+
             is ExprP.Index<*> -> index(span, node.expr as CstExpr, node.index as CstExpr)
+
             is ExprP.Index2<*> -> index2(span, node.expr as CstExpr, node.index0 as CstExpr, node.index1 as CstExpr)
+
             is ExprP.Identifier<*, *> -> exprIdent(node.ident as CstIdent)
+
             is ExprP.Literal<*> -> exprLiteral(node.literal)
+
             is ExprP.Op<*> -> binOp(span, node.lhs as CstExpr, node.op, node.rhs as CstExpr)
+
             // These are not used in type expressions.
             is ExprP.Slice<*>,
             is ExprP.Lambda<*, *>,
@@ -262,9 +272,14 @@ private class GlobalTypesBuilder(
                     assignUnset(x as Spanned<AssignTargetP<CstPayload>>)
                 }
             }
+
             is AssignTargetP.Index<*> -> { /* noop */ }
+
             is AssignTargetP.Dot<*> -> { /* noop */ }
-            is AssignTargetP.Identifier<*, *> -> assignIdentValue(node.ident as CstAssignIdent, rhs)
+
+            is AssignTargetP.Identifier<*, *> -> {
+                assignIdentValue(node.ident as CstAssignIdent, rhs)
+            }
         }
     }
 
@@ -295,9 +310,14 @@ private class GlobalTypesBuilder(
                     assignUnset(x as Spanned<AssignTargetP<CstPayload>>)
                 }
             }
+
             is AssignTargetP.Index<*> -> { /* noop */ }
+
             is AssignTargetP.Dot<*> -> { /* noop */ }
-            is AssignTargetP.Identifier<*, *> -> assignUnsetIdent(node.ident as CstAssignIdent)
+
+            is AssignTargetP.Identifier<*, *> -> {
+                assignUnsetIdent(node.ident as CstAssignIdent)
+            }
         }
     }
 
@@ -319,25 +339,51 @@ private class GlobalTypesBuilder(
     fun evalStmtUnset(stmt: CstStmt) {
         when (val node = stmt.node) {
             is StmtP.Break<*> -> { /* noop */ }
+
             is StmtP.Continue<*> -> { /* noop */ }
+
             is StmtP.Pass<*> -> { /* noop */ }
-            is StmtP.Return<*> -> throw internalError(stmt.span, "return")
+
+            is StmtP.Return<*> -> {
+                throw internalError(stmt.span, "return")
+            }
+
             is StmtP.Expression<*> -> { /* noop */ }
-            is StmtP.Assign<*> -> assignUnset((node.assign as AssignP<CstPayload>).lhs)
-            is StmtP.AssignModify<*> -> assignUnset(node.lhs as Spanned<AssignTargetP<CstPayload>>)
+
+            is StmtP.Assign<*> -> {
+                assignUnset((node.assign as AssignP<CstPayload>).lhs)
+            }
+
+            is StmtP.AssignModify<*> -> {
+                assignUnset(node.lhs as Spanned<AssignTargetP<CstPayload>>)
+            }
+
             is StmtP.Statements<*> -> {
                 for (x in node.stmts) {
                     evalStmtUnset(x as CstStmt)
                 }
             }
-            is StmtP.If<*> -> evalStmtUnset(node.suite as CstStmt)
+
+            is StmtP.If<*> -> {
+                evalStmtUnset(node.suite as CstStmt)
+            }
+
             is StmtP.IfElse<*> -> {
                 evalStmtUnset(node.suite1 as CstStmt)
                 evalStmtUnset(node.suite2 as CstStmt)
             }
-            is StmtP.For<*> -> forStmtUnset(node.forStmt as ForP<CstPayload>)
-            is StmtP.Def<*, *> -> assignUnsetIdent(node.def.name as CstAssignIdent)
-            is StmtP.Load<*, *> -> throw internalError(stmt.span, "load")
+
+            is StmtP.For<*> -> {
+                forStmtUnset(node.forStmt as ForP<CstPayload>)
+            }
+
+            is StmtP.Def<*, *> -> {
+                assignUnsetIdent(node.def.name as CstAssignIdent)
+            }
+
+            is StmtP.Load<*, *> -> {
+                throw internalError(stmt.span, "load")
+            }
         }
     }
 
@@ -363,8 +409,14 @@ private class GlobalTypesBuilder(
                         DefRegularParamMode.NameOnly -> nameOnly.add(Triple(name, required, ty))
                     }
                 }
-                is DefParamKind.Args -> args = ty
-                is DefParamKind.Kwargs -> kwargs = ty
+
+                is DefParamKind.Args -> {
+                    args = ty
+                }
+
+                is DefParamKind.Kwargs -> {
+                    kwargs = ty
+                }
             }
         }
 
@@ -377,22 +429,52 @@ private class GlobalTypesBuilder(
     fun evalStmt(stmt: CstStmt) {
         val span = stmt.span
         when (val node = stmt.node) {
-            is StmtP.Break<*> -> throw internalError(span, "top-level break")
-            is StmtP.Continue<*> -> throw internalError(span, "top-level continue")
+            is StmtP.Break<*> -> {
+                throw internalError(span, "top-level break")
+            }
+
+            is StmtP.Continue<*> -> {
+                throw internalError(span, "top-level continue")
+            }
+
             is StmtP.Pass<*> -> { /* noop */ }
-            is StmtP.Return<*> -> throw internalError(span, "top-level return")
+
+            is StmtP.Return<*> -> {
+                throw internalError(span, "top-level return")
+            }
+
             is StmtP.Expression<*> -> { /* noop */ }
-            is StmtP.Assign<*> -> assignStmt(node.assign as AssignP<CstPayload>)
+
+            is StmtP.Assign<*> -> {
+                assignStmt(node.assign as AssignP<CstPayload>)
+            }
+
             is StmtP.AssignModify<*> -> { /* noop */ }
-            is StmtP.Statements<*> -> throw internalError(span, "statements in top-level statement")
-            is StmtP.If<*> -> evalStmtUnset(node.suite as CstStmt)
+
+            is StmtP.Statements<*> -> {
+                throw internalError(span, "statements in top-level statement")
+            }
+
+            is StmtP.If<*> -> {
+                evalStmtUnset(node.suite as CstStmt)
+            }
+
             is StmtP.IfElse<*> -> {
                 evalStmtUnset(node.suite1 as CstStmt)
                 evalStmtUnset(node.suite2 as CstStmt)
             }
-            is StmtP.For<*> -> forStmtUnset(node.forStmt as ForP<CstPayload>)
-            is StmtP.Def<*, *> -> topLevelDef(node.def as DefP<CstPayload, *>)
-            is StmtP.Load<*, *> -> load(node.loadStmt as LoadP<CstPayload, *>)
+
+            is StmtP.For<*> -> {
+                forStmtUnset(node.forStmt as ForP<CstPayload>)
+            }
+
+            is StmtP.Def<*, *> -> {
+                topLevelDef(node.def as DefP<CstPayload, *>)
+            }
+
+            is StmtP.Load<*, *> -> {
+                load(node.loadStmt as LoadP<CstPayload, *>)
+            }
         }
     }
 
@@ -448,19 +530,24 @@ private class GlobalTypesBuilder(
                 approximations.add(Approximation.new("Ellipsis cannot be used as type", x))
                 Ty.any()
             }
+
             is TypeExprUnpackP.List -> {
                 approximations.add(Approximation.new("List literal [...] cannot be used as type", x))
                 Ty.any()
             }
+
             is TypeExprUnpackP.Tuple -> {
                 Ty.tuple(node.xs.map { fromTypeExprImpl(it) })
             }
+
             is TypeExprUnpackP.Union -> {
                 Ty.unions(node.xs.map { fromTypeExprImpl(it) })
             }
+
             is TypeExprUnpackP.Path -> {
                 pathTy(node.path.first, node.path.rem)
             }
+
             is TypeExprUnpackP.Index -> {
                 val a = exprIdent(node.ident).value
                 if (a != null) {
@@ -492,6 +579,7 @@ private class GlobalTypesBuilder(
                     Ty.any()
                 }
             }
+
             is TypeExprUnpackP.Index2 -> {
                 val a = evalPath(node.path.node.first, node.path.node.rem)
                 if (a != null) {
@@ -620,11 +708,13 @@ private fun unpackDefParams(params: List<io.github.kotlinmania.starlark.syntax.a
                 }
             when {
                 slashIdx < 0 -> 0
+
                 slashIdx == 0 -> throw EvalException.parserError(
                     "`/` cannot be first parameter",
                     params[0].span,
                     codemap,
                 )
+
                 else -> slashIdx
             }
         }
@@ -670,6 +760,7 @@ private fun unpackDefParams(params: List<io.github.kotlinmania.starlark.syntax.a
                     ),
                 )
             }
+
             is io.github.kotlinmania.starlark.syntax.ast.ParameterP.NoArgs<CstPayload> -> {
                 if (state >= 2) {
                     throw EvalException.parserError(
@@ -688,12 +779,14 @@ private fun unpackDefParams(params: List<io.github.kotlinmania.starlark.syntax.a
                 }
                 indexOfStar = i
             }
+
             is io.github.kotlinmania.starlark.syntax.ast.ParameterP.Slash<CstPayload> -> {
                 if (state >= 1) {
                     throw EvalException.parserError("Multiple `/` in parameters", span, codemap)
                 }
                 state = 1
             }
+
             is io.github.kotlinmania.starlark.syntax.ast.ParameterP.Args<CstPayload> -> {
                 if (state >= 2) {
                     throw EvalException.parserError(
@@ -705,6 +798,7 @@ private fun unpackDefParams(params: List<io.github.kotlinmania.starlark.syntax.a
                 state = 2
                 result.add(DefParam(param.name as CstAssignIdent, DefParamKind.Args, param.typ))
             }
+
             is io.github.kotlinmania.starlark.syntax.ast.ParameterP.KwArgs<CstPayload> -> {
                 if (state >= 3) {
                     throw EvalException.parserError("Multiple kwargs dictionary in parameters", span, codemap)
