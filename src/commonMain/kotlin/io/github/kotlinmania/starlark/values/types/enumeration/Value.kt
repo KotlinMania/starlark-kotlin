@@ -19,6 +19,10 @@ package io.github.kotlinmania.starlark.values.types.enumeration.value
  * limitations under the License.
  */
 
+import io.github.kotlinmania.either.wrapSerialize
+import io.github.kotlinmania.serde.SerdeResult
+import io.github.kotlinmania.serdecore.ser.Serialize
+import io.github.kotlinmania.serdecore.ser.Serializer
 import io.github.kotlinmania.starlark.collections.StarlarkHasher
 import io.github.kotlinmania.starlark.environment.Methods
 import io.github.kotlinmania.starlark.environment.MethodsBuilder
@@ -60,7 +64,8 @@ class EnumValueGen(
     internal val value: Value, // The value of this enumeration
     internal val index: Int, // The index in the enumeration
     internal val id: TypeInstanceId,
-) : io.github.kotlinmania.starlark.values.StarlarkValue {
+) : io.github.kotlinmania.starlark.values.StarlarkValue,
+    Serialize {
     override val TYPE: String get() = Companion.TYPE
 
     companion object {
@@ -100,13 +105,8 @@ class EnumValueGen(
         return tyEnumType.tyEnumValue
     }
 
-    // self.value.serialize(serializer)
-    internal fun serialize(serializer: Any): Result<Any> {
-        // Delegates serialization to the inner value, passing through the serializer.
-        val encoder = serializer as kotlinx.serialization.encoding.Encoder
-        encoder.encodeString(value.toValue().toString())
-        return Result.success(Unit)
-    }
+    override fun <Ok> serialize(serializer: Serializer<Ok>): SerdeResult<Ok> =
+        wrapSerialize(value).serialize(serializer)
 }
 
 // Enum value type aliases

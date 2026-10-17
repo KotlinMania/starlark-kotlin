@@ -19,8 +19,11 @@ package io.github.kotlinmania.starlark.analysis
  * limitations under the License.
  */
 
-import kotlinx.serialization.SerialName
-import kotlinx.serialization.Serializable
+import io.github.kotlinmania.either.wrapSerialize
+import io.github.kotlinmania.serde.SerdeResult
+import io.github.kotlinmania.serde.serdeCatching
+import io.github.kotlinmania.serdecore.ser.Serialize
+import io.github.kotlinmania.serdecore.ser.Serializer
 
 /**
  * A JSON-deriving type that gives a stable interface to downstream types.
@@ -28,7 +31,6 @@ import kotlinx.serialization.Serializable
  *
  * [Linter JSON format](https://www.internalfb.com/intern/wiki/Linting/adding-linters/).
  */
-@Serializable
 data class LintMessage(
     val path: String,
     val line: Int?,
@@ -36,10 +38,9 @@ data class LintMessage(
     val code: String,
     val severity: EvalSeverity,
     val name: String,
-    @SerialName("description")
     val descriptionText: String?,
     val original: String?,
-) {
+) : Serialize {
     companion object {
         /**
          * Construct from an [EvalMessage].
@@ -66,4 +67,25 @@ data class LintMessage(
                 original = x.original,
             )
     }
+
+    override fun <Ok> serialize(serializer: Serializer<Ok>): SerdeResult<Ok> =
+        serdeCatching {
+            var count = 6
+            if (descriptionText != null) count++
+            if (original != null) count++
+            val s = serializer.serializeStruct("LintMessage", count).getOrThrow()
+            s.serializeField("path", wrapSerialize(path)).getOrThrow()
+            s.serializeField("line", wrapSerialize(line)).getOrThrow()
+            s.serializeField("char", wrapSerialize(char)).getOrThrow()
+            s.serializeField("code", wrapSerialize(code)).getOrThrow()
+            s.serializeField("severity", severity).getOrThrow()
+            s.serializeField("name", wrapSerialize(name)).getOrThrow()
+            if (descriptionText != null) {
+                s.serializeField("description", wrapSerialize(descriptionText)).getOrThrow()
+            }
+            if (original != null) {
+                s.serializeField("original", wrapSerialize(original)).getOrThrow()
+            }
+            s.end().getOrThrow()
+        }
 }

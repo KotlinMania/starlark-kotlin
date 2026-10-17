@@ -21,6 +21,7 @@ package io.github.kotlinmania.starlark.values.types.dict
 
 /** Methods for the `dict` type. */
 
+import io.github.kotlinmania.either.Either
 import io.github.kotlinmania.starlark.deriverefs.NativeCallableComponents
 import io.github.kotlinmania.starlark.deriverefs.NativeCallableParamSpec
 import io.github.kotlinmania.starlark.environment.MethodsBuilder

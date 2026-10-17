@@ -19,7 +19,8 @@ package io.github.kotlinmania.starlark.values
  * limitations under the License.
  */
 
-import io.github.kotlinmania.starlark.Either
+import io.github.kotlinmania.either.Either
+import io.github.kotlinmania.oncecell.sync.OnceCell
 import io.github.kotlinmania.starlark.collections.HashTable
 import io.github.kotlinmania.starlark.collections.Hashed
 import io.github.kotlinmania.starlark.collections.SmallMap
@@ -37,7 +38,6 @@ import io.github.kotlinmania.starlark.util.atomics.AtomicU8
 import io.github.kotlinmania.starlark.util.atomics.AtomicUsize
 import io.github.kotlinmania.starlark.util.boxed.Box
 import io.github.kotlinmania.starlark.util.cell.Cell
-import io.github.kotlinmania.starlark.util.cell.OnceCell
 import io.github.kotlinmania.starlark.util.cell.UnsafeCell
 import io.github.kotlinmania.starlark.util.refcell.RefCell
 import io.github.kotlinmania.starlark.util.scalar.Usize
@@ -118,7 +118,7 @@ internal fun <T : Trace> Cell<T>.trace(tracer: Tracer) {
 }
 
 /** unsafe impl<'v, T: Trace<'v>> Trace<'v> for OnceCell<T> */
-internal fun <T : Trace> OnceCell<T>.trace(tracer: Tracer) {
+internal fun <T> OnceCell<T>.trace(tracer: Tracer) where T : Any, T : Trace {
     val x = this.getMut()
     if (x != null) {
         x.trace(tracer)

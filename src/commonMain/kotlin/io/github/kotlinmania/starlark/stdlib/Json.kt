@@ -21,6 +21,9 @@ package io.github.kotlinmania.starlark.stdlib
  * limitations under the License.
  */
 
+import io.github.kotlinmania.serdejson.JsonMap
+import io.github.kotlinmania.serdejson.JsonNumber
+import io.github.kotlinmania.serdejson.fromStr
 import io.github.kotlinmania.starlark.collections.Hashed
 import io.github.kotlinmania.starlark.collections.SmallMap
 import io.github.kotlinmania.starlark.environment.GlobalsBuilder
@@ -40,56 +43,8 @@ import io.github.kotlinmania.starlark.values.types.dict.FrozenDictData
 import io.github.kotlinmania.starlark.values.types.dict.allocValue
 import io.github.kotlinmania.starlark.values.types.float.StarlarkFloat
 import io.github.kotlinmania.starlark.values.types.int.StarlarkInt
-import kotlinx.serialization.json.Json
-import kotlinx.serialization.json.JsonArray
-import kotlinx.serialization.json.JsonElement
-import kotlinx.serialization.json.JsonNull
-import kotlinx.serialization.json.JsonObject
-import kotlinx.serialization.json.JsonPrimitive
-import kotlinx.serialization.json.booleanOrNull
 import kotlin.native.HiddenFromObjC
-
-// ---- JsonNumber ----
-
-/**
- * JSON number representation.
- *
- * Represents a JSON number that can be an integer (i64/u64) or floating point (f64),
- * or an arbitrarily large integer stored as its string representation.
- */
-internal class JsonNumber(
-    private val raw: String,
-) {
-    /** Try to interpret this number as an unsigned 64-bit integer. */
-    fun asU64(): Long? {
-        val v = raw.toLongOrNull()
-        return if (v != null && v >= 0) v else null
-    }
-
-    /** Try to interpret this number as a signed 64-bit integer. */
-    fun asI64(): Long? = raw.toLongOrNull()
-
-    /** Try to interpret this number as a 64-bit float. */
-    fun asF64(): Double? = raw.toDoubleOrNull()
-
-    override fun toString(): String = raw
-
-    companion object {
-        fun fromString(s: String): JsonNumber? {
-            // Validate that s is a valid JSON number representation.
-            // Accept anything parseable as Long or Double, or a pure integer string
-            // (potentially very large).
-            if (s.toLongOrNull() != null || s.toDoubleOrNull() != null) {
-                return JsonNumber(s)
-            }
-            // Check for very large integer strings: optional leading minus, then digits.
-            if (s.matches(Regex("-?[0-9]+"))) {
-                return JsonNumber(s)
-            }
-            return null
-        }
-    }
-}
+import io.github.kotlinmania.serdejson.Value as JsonValue
 
 // ---- StarlarkTypeRepr for JsonNumber ----
 
@@ -97,26 +52,17 @@ internal class JsonNumber(
 internal object JsonNumberTypeRepr : StarlarkTypeRepr {
     override fun starlarkTypeRepr(): Ty =
         Ty.union2(
-            Ty
-                .int(),
-            Ty
-                .float(),
+            Ty.int(),
+            Ty.float(),
         )
 }
 
-// ---- AllocValue for JsonNumber ----
+// ---- AllocValue for StarlarkInt ----
 
-/**
- * Allocate a [StarlarkInt] as a Starlark [Value] on the heap.
- *
- * For small ints that fit in an [InlineInt], no heap allocation is needed.
- * For big ints, the value is allocated on the heap via [StarlarkBigInt.allocValue].
- */
 private fun allocStarlarkInt(starlarkInt: StarlarkInt, heap: Heap): Value =
     when (starlarkInt) {
         is StarlarkInt.Small -> {
-            Value
-                .newInt(starlarkInt.value)
+            Value.newInt(starlarkInt.value)
         }
 
         is StarlarkInt.Big -> {
@@ -124,16 +70,10 @@ private fun allocStarlarkInt(starlarkInt: StarlarkInt, heap: Heap): Value =
         }
     }
 
-/**
- * Allocate a [StarlarkInt] as a frozen Starlark value.
- *
- * Same dispatch as [allocStarlarkInt], but on a [FrozenHeap].
- */
 private fun allocFrozenStarlarkInt(starlarkInt: StarlarkInt, heap: FrozenHeap): FrozenValue =
     when (starlarkInt) {
         is StarlarkInt.Small -> {
-            FrozenValue
-                .newInt(starlarkInt.value)
+            FrozenValue.newInt(starlarkInt.value)
         }
 
         is StarlarkInt.Big -> {
@@ -151,15 +91,13 @@ private fun allocFrozenStarlarkInt(starlarkInt: StarlarkInt, heap: FrozenHeap): 
 internal fun allocJsonNumber(number: JsonNumber, heap: Heap): Value {
     number.asU64()?.let {
         return allocStarlarkInt(
-            StarlarkInt
-                .from(it),
+            StarlarkInt.from(it),
             heap,
         )
     }
     number.asI64()?.let {
         return allocStarlarkInt(
-            StarlarkInt
-                .from(it),
+            StarlarkInt.from(it),
             heap,
         )
     }
@@ -172,8 +110,7 @@ internal fun allocJsonNumber(number: JsonNumber, heap: Heap): Value {
     }
     val bigStr = number.toString()
     val big =
-        StarlarkInt
-            .fromStrRadix(bigStr, 10)
+        StarlarkInt.fromStrRadix(bigStr, 10)
     if (big.isSuccess) return allocStarlarkInt(big.getOrThrow(), heap)
     error("Unrepresentable number: $number")
 }
@@ -188,15 +125,13 @@ internal fun allocJsonNumber(number: JsonNumber, heap: Heap): Value {
 internal fun allocFrozenJsonNumber(number: JsonNumber, heap: FrozenHeap): FrozenValue {
     number.asU64()?.let {
         return allocFrozenStarlarkInt(
-            StarlarkInt
-                .from(it),
+            StarlarkInt.from(it),
             heap,
         )
     }
     number.asI64()?.let {
         return allocFrozenStarlarkInt(
-            StarlarkInt
-                .from(it),
+            StarlarkInt.from(it),
             heap,
         )
     }
@@ -209,43 +144,9 @@ internal fun allocFrozenJsonNumber(number: JsonNumber, heap: FrozenHeap): Frozen
     }
     val bigStr = number.toString()
     val big =
-        StarlarkInt
-            .fromStrRadix(bigStr, 10)
+        StarlarkInt.fromStrRadix(bigStr, 10)
     if (big.isSuccess) return allocFrozenStarlarkInt(big.getOrThrow(), heap)
     error("Unrepresentable number: $number")
-}
-
-// ---- JsonValue ----
-
-/**
- * JSON value representation.
- *
- * A sealed class hierarchy representing the possible JSON value types:
- * null, boolean, number, string, array, and object.
- */
-@HiddenFromObjC
-internal sealed class JsonValue {
-    data object Null : JsonValue()
-
-    data class Bool(
-        val value: Boolean,
-    ) : JsonValue()
-
-    data class Number(
-        val value: JsonNumber,
-    ) : JsonValue()
-
-    data class Str(
-        val value: String,
-    ) : JsonValue()
-
-    data class Array(
-        val value: List<JsonValue>,
-    ) : JsonValue()
-
-    data class Object(
-        val value: Map<String, JsonValue>,
-    ) : JsonValue()
 }
 
 // ---- StarlarkTypeRepr for JsonValue ----
@@ -253,8 +154,7 @@ internal sealed class JsonValue {
 /** [StarlarkTypeRepr] implementation for [JsonValue]. */
 internal object JsonValueTypeRepr : StarlarkTypeRepr {
     override fun starlarkTypeRepr(): Ty =
-        Ty
-            .any()
+        Ty.any()
 }
 
 // ---- AllocValue for JsonValue ----
@@ -273,13 +173,11 @@ internal object JsonValueTypeRepr : StarlarkTypeRepr {
 internal fun allocJsonValue(json: JsonValue, heap: Heap): Value =
     when (json) {
         is JsonValue.Null -> {
-            Value
-                .newNone()
+            Value.newNone()
         }
 
         is JsonValue.Bool -> {
-            Value
-                .newBool(json.value)
+            Value.newBool(json.value)
         }
 
         is JsonValue.Number -> {
@@ -295,10 +193,15 @@ internal fun allocJsonValue(json: JsonValue, heap: Heap): Value =
         }
 
         is JsonValue.Object -> {
-            allocJsonMapOnHeap(
-                json.value.mapValues { allocJsonValue(it.value, heap) },
-                heap,
-            )
+            val sm = SmallMap.withCapacity<Value, Value>(json.value.len())
+            for ((k, v) in json.value) {
+                val keyValue = heap.allocStr(k)
+                sm.insertHashed(
+                    keyValue.getHashed().getOrThrow(),
+                    allocJsonValue(v, heap),
+                )
+            }
+            Dict.new(sm).allocValue(heap)
         }
     }
 
@@ -312,13 +215,11 @@ internal fun allocJsonValue(json: JsonValue, heap: Heap): Value =
 internal fun allocFrozenJsonValue(json: JsonValue, heap: FrozenHeap): FrozenValue =
     when (json) {
         is JsonValue.Null -> {
-            FrozenValue
-                .newNone()
+            FrozenValue.newNone()
         }
 
         is JsonValue.Bool -> {
-            FrozenValue
-                .newBool(json.value)
+            FrozenValue.newBool(json.value)
         }
 
         is JsonValue.Number -> {
@@ -334,9 +235,21 @@ internal fun allocFrozenJsonValue(json: JsonValue, heap: FrozenHeap): FrozenValu
         }
 
         is JsonValue.Object -> {
-            allocFrozenJsonMapOnHeap(
-                json.value.mapValues { allocFrozenJsonValue(it.value, heap) },
-                heap,
+            val sm = SmallMap.withCapacity<FrozenValue, FrozenValue>(json.value.len())
+            for ((k, v) in json.value) {
+                val keyFrozen = heap.allocStr(k).toFrozenValue()
+                val keyHash = keyFrozen.toValue().getHash().getOrThrow()
+                sm.insertHashed(
+                    Hashed.newUnchecked(keyHash, keyFrozen),
+                    allocFrozenJsonValue(v, heap),
+                )
+            }
+            heap.allocSimple(
+                FrozenDict(
+                    DictGen(
+                        FrozenDictData(sm),
+                    ),
+                ),
             )
         }
     }
@@ -347,10 +260,8 @@ internal fun allocFrozenJsonValue(json: JsonValue, heap: FrozenHeap): FrozenValu
 internal object JsonMapTypeRepr : StarlarkTypeRepr {
     override fun starlarkTypeRepr(): Ty =
         Ty.dict(
-            Ty
-                .string(),
-            Ty
-                .any(),
+            Ty.string(),
+            Ty.any(),
         )
 }
 
@@ -358,57 +269,27 @@ internal object JsonMapTypeRepr : StarlarkTypeRepr {
 
 /** Allocate a JSON map as a Starlark dict value. */
 @HiddenFromObjC
-internal fun allocJsonMap(map: Map<String, JsonValue>, heap: Heap): Value {
-    val converted = map.mapValues { allocJsonValue(it.value, heap) }
-    return allocJsonMapOnHeap(converted, heap)
+internal fun allocJsonMap(map: JsonMap, heap: Heap): Value {
+    val sm = SmallMap.withCapacity<Value, Value>(map.len())
+    for ((k, v) in map) {
+        val keyValue = heap.allocStr(k)
+        sm.insertHashed(keyValue.getHashed().getOrThrow(), allocJsonValue(v, heap))
+    }
+    return Dict.new(sm).allocValue(heap)
 }
 
 // ---- AllocFrozenValue for JSON Map ----
 
 /** Allocate a JSON map as a frozen Starlark dict value. */
 @HiddenFromObjC
-internal fun allocFrozenJsonMap(map: Map<String, JsonValue>, heap: FrozenHeap): FrozenValue {
-    val converted = map.mapValues { allocFrozenJsonValue(it.value, heap) }
-    return allocFrozenJsonMapOnHeap(converted, heap)
-}
-
-// ---- Internal helpers: Map<String, Value> -> Starlark dict ----
-
-/**
- * Build a Starlark dict [Value] from a [Map] of string keys to already-allocated [Value]s.
- *
- * Allocates each string key on the heap, hashes it, builds a [SmallMap], and wraps in a [Dict].
- */
-private fun allocJsonMapOnHeap(map: Map<String, Value>, heap: Heap): Value {
-    val sm =
-        SmallMap
-            .withCapacity<Value, Value>(map.size)
-    for ((k, v) in map) {
-        val keyValue = heap.allocStr(k)
-        sm.insertHashed(keyValue.getHashed().getOrThrow(), v)
-    }
-    return Dict
-        .new(sm)
-        .allocValue(heap)
-}
-
-/**
- * Build a frozen Starlark dict from a [Map] of string keys to already-allocated [FrozenValue]s.
- *
- * Allocates each string key on the frozen heap, hashes it, builds a [SmallMap],
- * and wraps in a [FrozenDictData] + [DictGen].
- */
-private fun allocFrozenJsonMapOnHeap(map: Map<String, FrozenValue>, heap: FrozenHeap): FrozenValue {
-    val sm =
-        SmallMap
-            .withCapacity<FrozenValue, FrozenValue>(map.size)
+internal fun allocFrozenJsonMap(map: JsonMap, heap: FrozenHeap): FrozenValue {
+    val sm = SmallMap.withCapacity<FrozenValue, FrozenValue>(map.len())
     for ((k, v) in map) {
         val keyFrozen = heap.allocStr(k).toFrozenValue()
         val keyHash = keyFrozen.toValue().getHash().getOrThrow()
         sm.insertHashed(
-            Hashed
-                .newUnchecked(keyHash, keyFrozen),
-            v,
+            Hashed.newUnchecked(keyHash, keyFrozen),
+            allocFrozenJsonValue(v, heap),
         )
     }
     return heap.allocSimple(
@@ -420,60 +301,13 @@ private fun allocFrozenJsonMapOnHeap(map: Map<String, FrozenValue>, heap: Frozen
     )
 }
 
-// ---- JSON Parsing via kotlinx.serialization.json ----
-
-/** The kotlinx.serialization.json instance used for parsing, configured to be lenient. */
-private val jsonParser =
-    Json {
-        isLenient = true
-        ignoreUnknownKeys = true
-    }
-
-/**
- * Convert a [kotlinx.serialization.json.JsonElement] into a [JsonValue].
- *
- * This bridges from the kotlinx.serialization JSON representation to our
- * Starlark-oriented [JsonValue] sealed class hierarchy.
- */
-private fun jsonElementToJsonValue(element: JsonElement): JsonValue {
-    return when (element) {
-        is JsonNull -> {
-            JsonValue.Null
-        }
-
-        is JsonPrimitive -> {
-            if (element.isString) {
-                JsonValue.Str(element.content)
-            } else {
-                // Boolean check
-                element.booleanOrNull?.let { return JsonValue.Bool(it) }
-                // Number: preserve the raw string content for precise big integer handling.
-                // We use element.content which gives us the raw text representation.
-                JsonValue.Number(JsonNumber(element.content))
-            }
-        }
-
-        is JsonArray -> {
-            JsonValue.Array(element.map { jsonElementToJsonValue(it) })
-        }
-
-        is JsonObject -> {
-            JsonValue.Object(
-                element.entries.associate { (k, v) -> k to jsonElementToJsonValue(v) },
-            )
-        }
-    }
-}
-
 /**
  * Parse a JSON string into a [JsonValue].
  *
- * Uses `kotlinx.serialization.json` for robust, standards-compliant parsing.
+ * Uses `serde-json-kotlin` for robust, standards-compliant parsing.
  */
-internal fun parseJsonValue(input: String): JsonValue {
-    val element = jsonParser.parseToJsonElement(input)
-    return jsonElementToJsonValue(element)
-}
+internal fun parseJsonValue(input: String): JsonValue =
+    fromStr(input).getOrThrow()
 
 // ---- json.encode / json.decode ----
 

@@ -25,6 +25,7 @@ import io.github.kotlinmania.starlark.syntax.ast.AstStmtP
 import io.github.kotlinmania.starlark.syntax.ast.ExprP
 import io.github.kotlinmania.starlark.syntax.ast.StmtP
 import io.github.kotlinmania.starlark.typing.Ty
+import io.github.kotlinmania.textwrap.dedent
 
 /** Controls the formatting to use when parsing [DocString]s from raw docstrings. */
 enum class DocStringKind {
@@ -61,40 +62,6 @@ enum class DocStringKind {
      * functions via starlark.
      */
     Rust,
-}
-
-// --- Dedent utility ---
-// Equivalent of textwrap::dedent from Rust.
-
-/** Remove common leading whitespace from all non-blank lines. */
-private fun dedent(text: String): String {
-    val lines = text.lines()
-    // Find the minimum indentation of non-blank lines (ignoring the first line).
-    var minIndent: Int? = null
-    for ((i, line) in lines.withIndex()) {
-        if (i == 0) continue
-        val stripped = line.trimStart()
-        if (stripped.isEmpty()) continue
-        val indent = line.length - stripped.length
-        if (minIndent == null || indent < minIndent) {
-            minIndent = indent
-        }
-    }
-    if (minIndent == null || minIndent == 0) return text
-
-    return buildString {
-        for ((i, line) in lines.withIndex()) {
-            if (i > 0) append('\n')
-            if (i == 0) {
-                append(line)
-            } else if (line.trimStart().isEmpty()) {
-                // Blank line: keep empty
-                append(line)
-            } else {
-                append(line.substring(minIndent.coerceAtMost(line.length)))
-            }
-        }
-    }
 }
 
 // --- Regex patterns (compiled once, like Rust's Lazy<Regex>) ---

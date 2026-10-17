@@ -210,21 +210,21 @@ sealed class StarlarkInt {
         fun from(value: UInt): StarlarkInt =
             fromImpl(
                 value,
-                { v -> InlineInt.tryFrom(v.toInt()).getOrNull()?.takeIf { it.toI32().toUInt() == v } },
+                { InlineInt.tryFrom(it).getOrNull() },
                 { BigInteger.fromUInt(it) },
             )
 
         fun from(value: Long): StarlarkInt =
             fromImpl(
                 value,
-                { InlineInt.tryFrom(it.toInt()).getOrNull()?.takeIf { inline -> inline.toI32().toLong() == it } },
+                { InlineInt.tryFrom(it).getOrNull() },
                 { BigInteger.fromLong(it) },
             )
 
         fun from(value: ULong): StarlarkInt =
             fromImpl(
                 value,
-                { v -> InlineInt.tryFrom(v.toInt()).getOrNull()?.takeIf { it.toI32().toULong() == v } },
+                { InlineInt.tryFrom(it).getOrNull() },
                 { BigInteger.fromULong(it) },
             )
 

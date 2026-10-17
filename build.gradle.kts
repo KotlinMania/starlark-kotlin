@@ -34,7 +34,6 @@ import java.util.zip.ZipInputStream
 
 plugins {
     alias(libs.plugins.kotlin.multiplatform)
-    alias(libs.plugins.kotlin.serialization)
     alias(libs.plugins.android.kmp)
     alias(libs.plugins.detekt)
     alias(libs.plugins.ktlint)
@@ -111,7 +110,9 @@ configurations.configureEach {
             ),
         )
     }
-    if (name.contains("androidDeviceTest", ignoreCase = true)) {
+    if (name.contains("androidDeviceTest", ignoreCase = true) ||
+        (name.contains("android", ignoreCase = true) && name.contains("RuntimeClasspath", ignoreCase = true))
+    ) {
         exclude(group = "org.jetbrains", module = "annotations")
     }
 }
@@ -413,10 +414,7 @@ kotlin {
         configureBenchmarkCompilation()
         addToXcf()
     }
-    watchosArm64 {
-        configureBenchmarkCompilation()
-        addToXcf()
-    }
+    // watchosArm64 (WatchOS 32 / arm64_32): retired by workspace policy (§5.5.1). WatchOS 32 is not supported.
     // watchosDeviceArm64: blocked on com.ionspin.kotlin:bignum:0.3.10 which lacks watchosDeviceArm64 slice.
     // watchosDeviceArm64 {
     //     configureBenchmarkCompilation()
@@ -426,13 +424,7 @@ kotlin {
         configureBenchmarkCompilation()
         addToXcf()
     }
-
-    // iosX64: Intel Mac simulator. Tier 3 in Kotlin/Native but NOT deprecated —
-    // Apple still ships x86_64 iOS simulator runtimes, so it is always built.
-    iosX64 {
-        configureBenchmarkCompilation()
-        addToXcf(static = true)
-    }
+    // iosX64: retired by workspace policy (§5.5.2). Intel Apple targets are deprecated/retired.
 
     // Other native — Tier 1/2
     linuxX64 { configureBenchmarkCompilation() }
@@ -1103,14 +1095,12 @@ val nativeTargetNames =
         "androidNativeX64",
         "iosArm64",
         "iosSimulatorArm64",
-        "iosX64",
         "linuxArm64",
         "linuxX64",
         "macosArm64",
         "mingwX64",
         "tvosArm64",
         "tvosSimulatorArm64",
-        "watchosArm64",
         // "watchosDeviceArm64", // blocked on com.ionspin.kotlin:bignum:0.3.10
         "watchosSimulatorArm64",
     )

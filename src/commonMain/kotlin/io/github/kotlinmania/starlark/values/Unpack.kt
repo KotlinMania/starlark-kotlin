@@ -21,7 +21,7 @@ package io.github.kotlinmania.starlark.values
 
 /** Parameter conversion utilities for `starlark_module` macros. */
 
-import io.github.kotlinmania.starlark.Either
+import io.github.kotlinmania.either.Either
 import io.github.kotlinmania.starlark.Error
 import io.github.kotlinmania.starlark.typing.Ty
 import io.github.kotlinmania.starlark.values.layout.Value

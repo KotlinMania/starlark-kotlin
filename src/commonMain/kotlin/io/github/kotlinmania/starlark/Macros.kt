@@ -20,6 +20,7 @@ package io.github.kotlinmania.starlark
  * limitations under the License.
  */
 
+import io.github.kotlinmania.either.Either
 import io.github.kotlinmania.starlark.values.StarlarkValue
 import io.github.kotlinmania.starlark.values.layout.FrozenValue
 import io.github.kotlinmania.starlark.values.layout.Value
@@ -176,14 +177,3 @@ data class SimpleValueEntry<T : StarlarkValue>(
     val allocFrozenValue: (T, FrozenHeap) -> FrozenValue,
     val fromValue: (Value) -> T?,
 )
-
-/** Either type used by [starlarkComplexValues] for [fromValue] results. */
-sealed class Either<out L, out R> {
-    data class Left<out L>(
-        val value: L,
-    ) : Either<L, Nothing>()
-
-    data class Right<out R>(
-        val value: R,
-    ) : Either<Nothing, R>()
-}

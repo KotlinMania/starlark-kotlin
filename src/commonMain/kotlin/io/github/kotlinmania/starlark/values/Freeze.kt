@@ -19,12 +19,12 @@ package io.github.kotlinmania.starlark.values
  * limitations under the License.
  */
 
+import io.github.kotlinmania.oncecell.sync.OnceCell
 import io.github.kotlinmania.starlark.collections.Hashed
 import io.github.kotlinmania.starlark.collections.SmallMap
 import io.github.kotlinmania.starlark.collections.smallset.SmallSet
 import io.github.kotlinmania.starlark.syntax.slicevecext.intoTryMap
 import io.github.kotlinmania.starlark.util.boxed.Box
-import io.github.kotlinmania.starlark.util.cell.OnceCell
 import io.github.kotlinmania.starlark.util.cell.UnsafeCell
 import io.github.kotlinmania.starlark.util.refcell.RefCell
 import io.github.kotlinmania.starlark.util.scalar.Usize
@@ -168,7 +168,7 @@ internal fun <T, TFrozen> UnsafeCell<T>.freeze(
     return Result.success(UnsafeCell(frozen.getOrThrow()))
 }
 
-internal fun <T, TFrozen> OnceCell<T>.freeze(
+internal fun <T : Any, TFrozen> OnceCell<T>.freeze(
     freezer: Freezer,
     freeze: (T, Freezer) -> FreezeResult<TFrozen>,
 ): FreezeResult<TFrozen?> {

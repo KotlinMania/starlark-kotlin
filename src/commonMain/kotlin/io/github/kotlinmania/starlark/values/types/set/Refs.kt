@@ -19,6 +19,7 @@ package io.github.kotlinmania.starlark.values.types.set
  * limitations under the License.
  */
 
+import io.github.kotlinmania.either.Either
 import io.github.kotlinmania.starlark.collections.Hashed
 import io.github.kotlinmania.starlark.collections.smallset.SmallSet
 import io.github.kotlinmania.starlark.typing.Ty
@@ -165,20 +166,6 @@ internal object SetRefUnpackValue : UnpackValue<SetRef> {
 
 private fun coerceSetData(data: FrozenSetData): SetData =
     SetData(data.valueContent())
-
-/**
- * Either type for representing one of two possible values.
- * Corresponds to Rust's `either::Either`.
- */
-internal sealed class Either<out L, out R> {
-    data class Left<out L>(
-        val value: L,
-    ) : Either<L, Nothing>()
-
-    data class Right<out R>(
-        val value: R,
-    ) : Either<Nothing, R>()
-}
 
 /**
  * RefCell type for interior mutability.
