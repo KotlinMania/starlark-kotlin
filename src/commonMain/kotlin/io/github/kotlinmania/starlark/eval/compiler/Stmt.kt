@@ -31,6 +31,7 @@ package io.github.kotlinmania.starlark.eval.compiler
  * Bazel's BUILD file). The BUILD dialect does not allow `def` statements.
  */
 
+import io.github.kotlinmania.either.Either
 import io.github.kotlinmania.starlark.codemap.Span
 import io.github.kotlinmania.starlark.codemap.Spanned
 import io.github.kotlinmania.starlark.environment.FrozenModuleData
@@ -58,7 +59,6 @@ import io.github.kotlinmania.starlark.values.layout.Value
 import io.github.kotlinmania.starlark.values.layout.heap.FrozenHeap
 import io.github.kotlinmania.starlark.values.layout.heap.Heap
 import io.github.kotlinmania.starlark.values.types.dict.Dict
-import io.github.kotlinmania.starlark.values.types.dict.Either
 import io.github.kotlinmania.starlark.values.types.dict.dictMutFromValue
 import io.github.kotlinmania.starlark.values.types.dict.dictRefFromValue
 import io.github.kotlinmania.starlark.values.types.list.ListData

@@ -13,12 +13,6 @@ class Cell<T>(
     fun getMut(): T = value
 }
 
-class OnceCell<T>(
-    private var value: T? = null,
-) {
-    fun getMut(): T? = value
-}
-
 class UnsafeCell<T>(
     private var value: T,
 ) {

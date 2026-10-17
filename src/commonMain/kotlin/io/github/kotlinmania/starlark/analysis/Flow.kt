@@ -44,10 +44,15 @@ internal val FileSpan.description: String
 // ---------------------------------------------------------------------------
 
 /** A standardised set of severities. */
-enum class EvalSeverity {
+enum class EvalSeverity : io.github.kotlinmania.serdecore.ser.Serialize {
     Disabled,
     Warning,
     Error,
+    Advice,
+    ;
+
+    override fun <Ok> serialize(serializer: io.github.kotlinmania.serdecore.ser.Serializer<Ok>): io.github.kotlinmania.serde.SerdeResult<Ok> =
+        serializer.serializeStr(name.lowercase())
 }
 
 /** A typed lint result pairing a location with a problem of type [T]. */

@@ -21,6 +21,7 @@ package io.github.kotlinmania.starlark.eval.bc.compiler
 
 /** Compile function calls. */
 
+import io.github.kotlinmania.either.Either
 import io.github.kotlinmania.starlark.collections.symbol.Symbol
 import io.github.kotlinmania.starlark.eval.bc.BcCallArgsFull
 import io.github.kotlinmania.starlark.eval.bc.BcCallArgsFullCallArgs
@@ -290,15 +291,4 @@ internal fun IrSpanned<CallCompiled>.writeBcCall(target: BcSlotOut, bc: BcWriter
         val (receiver, symbol, methodArgs) = method
         writeCallMethod(target, span, receiver, symbol, methodArgs, bc)
     }
-}
-
-/** Simple Either type to match Rust's `either::Either`. */
-internal sealed class Either<out L, out R> {
-    data class Left<L>(
-        val value: L,
-    ) : Either<L, Nothing>()
-
-    data class Right<R>(
-        val value: R,
-    ) : Either<Nothing, R>()
 }

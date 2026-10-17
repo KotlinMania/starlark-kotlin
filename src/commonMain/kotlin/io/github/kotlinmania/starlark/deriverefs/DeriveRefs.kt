@@ -1,6 +1,4 @@
-// port-lint: source src/derive_refs.rs
-@file:Suppress("unused")
-
+// port-lint: source src/__derive_refs.rs
 package io.github.kotlinmania.starlark.deriverefs
 
 /*
@@ -22,23 +20,6 @@ package io.github.kotlinmania.starlark.deriverefs
  */
 
 /**
- * derive_refs allows us to reference other crates in starlark_derive without users needing to be
- *  aware of those dependencies. We make them public here and then can reference them like
- *  `starlark::derive_refs::foo`.
- */
-
-/**
- * Re-exports for derive macro references.
- *
- * In Rust, this module re-exports types from other crates so that
- * starlark_derive can reference them without users being aware of
- * those transitive dependencies.
- */
-
-/**
- * Serde re-exports for derive macro use.
- *
- * In Rust: `pub mod serde { pub use serde::{Serialize, Serializer, ser::Error}; }`
- * In Kotlin: these would be available via kotlinx.serialization imports.
+ * References to external types used by macro-generated implementations.
  */
 internal object DeriveRefsSerde

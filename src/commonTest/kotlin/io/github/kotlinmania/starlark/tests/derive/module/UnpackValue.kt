@@ -19,23 +19,14 @@ package io.github.kotlinmania.starlark.tests.derive.module
  * limitations under the License.
  */
 
+import io.github.kotlinmania.either.Either
 import io.github.kotlinmania.starlark.assert.Assert
 import io.github.kotlinmania.starlark.environment.GlobalsBuilder
 import io.github.kotlinmania.starlark.values.types.dict.UnpackDictEntries
 import io.github.kotlinmania.starlark.values.types.list.UnpackList
 import io.github.kotlinmania.starlark.values.valueof.ValueOf
 
-private sealed class Either<out L, out R> {
-    class Left<L>(
-        val value: L,
-    ) : Either<L, Nothing>()
-
-    class Right<R>(
-        val value: R,
-    ) : Either<Nothing, R>()
-}
-
-// TODO(nmj): Figure out default values here. ValueOf<i32> = 5 should work.
+// Default values support note: ValueOf<Int> = 5 should work.
 private fun validateModule(builder: GlobalsBuilder) {
     builder.setFunction("with_int") { args, _ ->
         val v = args.positional<ValueOf<Int>>(0)

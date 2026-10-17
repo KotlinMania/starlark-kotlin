@@ -19,6 +19,7 @@ package io.github.kotlinmania.starlark.values.types.dict
  * limitations under the License.
  */
 
+import io.github.kotlinmania.either.Either
 import io.github.kotlinmania.starlark.collections.Equivalent
 import io.github.kotlinmania.starlark.collections.Hashed
 import io.github.kotlinmania.starlark.collections.SmallMap

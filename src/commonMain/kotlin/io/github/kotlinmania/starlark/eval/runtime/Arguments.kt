@@ -42,8 +42,8 @@ import io.github.kotlinmania.starlark.values.types.dict.DictRef
 import io.github.kotlinmania.starlark.values.types.dict.dictRefFromValue
 import io.github.kotlinmania.starlark.values.types.int.unpackValueI32
 import io.github.kotlinmania.starlark.values.typing.TypeType
+import io.github.kotlinmania.either.Either as DictEither
 import io.github.kotlinmania.starlark.Error as StarlarkError
-import io.github.kotlinmania.starlark.values.types.dict.Either as DictEither
 
 sealed class FunctionError(
     private val text: String,

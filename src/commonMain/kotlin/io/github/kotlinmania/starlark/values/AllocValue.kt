@@ -19,7 +19,7 @@ package io.github.kotlinmania.starlark.values
  * limitations under the License.
  */
 
-import io.github.kotlinmania.starlark.Either
+import io.github.kotlinmania.either.Either
 import io.github.kotlinmania.starlark.values.layout.FrozenValue
 import io.github.kotlinmania.starlark.values.layout.Value
 import io.github.kotlinmania.starlark.values.layout.heap.FrozenHeap

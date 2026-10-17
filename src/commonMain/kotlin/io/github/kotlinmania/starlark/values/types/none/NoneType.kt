@@ -19,6 +19,9 @@ package io.github.kotlinmania.starlark.values.types.none
  * limitations under the License.
  */
 
+import io.github.kotlinmania.serde.SerdeResult
+import io.github.kotlinmania.serdecore.ser.Serialize
+import io.github.kotlinmania.serdecore.ser.Serializer
 import io.github.kotlinmania.starlark.collections.StarlarkHashValue
 import io.github.kotlinmania.starlark.collections.StarlarkHasher
 import io.github.kotlinmania.starlark.typing.Ty
@@ -34,7 +37,7 @@ import io.github.kotlinmania.starlark.values.layout.heap.FrozenHeap
 import io.github.kotlinmania.starlark.values.layout.heap.Heap
 
 // / Define the None type, use [`NoneType`] in Rust.
-object NoneType : StarlarkValue, AllocValue, AllocFrozenValue, StarlarkTypeRepr {
+object NoneType : StarlarkValue, AllocValue, AllocFrozenValue, StarlarkTypeRepr, Serialize {
     // / The result of `type(None)`.
     override val TYPE: String = "NoneType"
     override val HAS_eval_type: Boolean get() = true
@@ -66,12 +69,8 @@ object NoneType : StarlarkValue, AllocValue, AllocFrozenValue, StarlarkTypeRepr 
 
     override fun allocValue(heap: Heap): Value = Value.newNone()
 
-    @OptIn(kotlinx.serialization.ExperimentalSerializationApi::class)
-    internal fun serialize(serializer: Any): Result<Unit> {
-        // serializer.serialize_none()
-        (serializer as kotlinx.serialization.encoding.Encoder).encodeNull()
-        return Result.success(Unit)
-    }
+    override fun <Ok> serialize(serializer: Serializer<Ok>): SerdeResult<Ok> =
+        serializer.serializeNone()
 
     override fun allocFrozenValue(heap: FrozenHeap): FrozenValue = FrozenValue.newNone()
 }
