@@ -1,7 +1,6 @@
 // port-lint: source src/values/frozen_ref.rs
 package io.github.kotlinmania.starlark.values
 
-
 /*
  * Copyright 2019 The Starlark in Rust Authors.
  * Copyright (c) Facebook, Inc. and its affiliates.
