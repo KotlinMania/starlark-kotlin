@@ -2,7 +2,7 @@
 package io.github.kotlinmania.starlark.starlarkderive.module
 
 import io.github.kotlinmania.syn.GenericArgument
-import io.github.kotlinmania.syn.Ident
+import io.github.kotlinmania.procmacro2.Ident
 import io.github.kotlinmania.syn.Path
 import io.github.kotlinmania.syn.PathArguments
 import io.github.kotlinmania.syn.SynType
