@@ -2,11 +2,11 @@
   "generatedAt": "2026-03-31T17:52:29",
   "portKey": "github.com/kotlinmania/starlark-kotlin",
   "source": {
-    "path": "/Volumes/stuff/Projects/kotlinmania/starlark-kotlin/tmp/starlark/src",
+    "path": "tmp/starlark/src",
     "lang": "rust"
   },
   "target": {
-    "path": "/Volumes/stuff/Projects/kotlinmania/starlark-kotlin/src/commonMain/kotlin/io/github/kotlinmania/starlark_kotlin",
+    "path": "src/commonMain/kotlin/io/github/kotlinmania/starlark_kotlin",
     "lang": "kotlin"
   },
   "metrics": {
