@@ -3,8 +3,8 @@
 
 Generated: `2026-03-31T17:52:42`
 Port key: `github.com/kotlinmania/starlark-kotlin`
-Port report dir: `/Volumes/stuff/projectmgt/.projectmgt-hub/reports/current/ports/github.com_kotlinmania_starlark-kotlin`
-AST tasks: `/Volumes/stuff/projectmgt/.projectmgt-hub/astdistance/github.com_kotlinmania_starlark-kotlin/tasks.json`
+Port report dir: `projecthub/.projectmgt-hub/reports/current/ports/github.com_kotlinmania_starlark-kotlin`
+AST tasks: `projecthub/.projectmgt-hub/astdistance/github.com_kotlinmania_starlark-kotlin/tasks.json`
 
 ## Status
 
