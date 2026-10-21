@@ -576,7 +576,7 @@ class Evaluator(
     fun module(): Module = moduleEnv
 
     /**
-     * The frozen heap. It's possible to allocate [FrozenValue][io.github.kotlinmania.starlark.values.FrozenValue]s here,
+     * The frozen heap. It's possible to allocate [FrozenValue][io.github.kotlinmania.starlark.values.layout.FrozenValue]s here,
      * but often not a great idea, as they will remain allocated as long
      * as the results of this execution are required.
      * Suitable for use with [addReference][FrozenHeap.addReference]
